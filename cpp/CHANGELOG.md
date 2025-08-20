@@ -31,6 +31,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.2] - 2025-08-20
+
+### Fixed
+
+-   **Unicode support**: Enable Unicode support in fmt library
+
 ## [0.0.1] - 2025-08-20
 
 ### Added
