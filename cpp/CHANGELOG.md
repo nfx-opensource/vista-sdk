@@ -31,6 +31,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.5] - 2025-08-21
+
+### Changed
+
+-   **Internal API restructuring**: Move LocalIdParsingErrorBuilder, LocationParsingErrorBuilder, and StringBuilderPool from public API to `dnv::vista::sdk::internal` namespace
+-   **Build system restructuring**:
+    -   **CMake Sources.cmake**: Move parsing error builders and StringBuilderPool from public to internal sources
+    -   **CMake Dependencies.cmake**: Remove unnecessary installation rules and skip install flags
+    -   **File organization**: Relocate headers from `utils/` and public API to `internal/` namespace
+-   **Parser infrastructure updates**: All LocalId parsing logic now uses `internal::LocalIdParsingState` and `internal::LocalIdParsingErrorBuilder`
+-   **String building infrastructure**: All string operations migrated to `internal::StringBuilderPool`
+-   **API boundary improvements**: Hide complex parsing implementation details while maintaining all public functionality
+
 ## [0.0.4] - 2025-08-21
 
 ### Removed
