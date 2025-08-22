@@ -31,6 +31,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.10] - 2025-08-22
+
+### Added
+
+-   **DataChannelId class**: Implement DataChannelId class with discriminated union pattern in transport domain
+    -   Tag-based discriminated union (LocalId | string/shortId)
+    -   Pattern matching with `matchOn<T>()` and `switchOn()` methods for type-safe access
+    -   Parse factory method with LocalId validation fallback to shortId
+    -   Complete test suite covering all functionality
+
 ## [0.0.9] - 2025-08-22
 
 ### Changed
