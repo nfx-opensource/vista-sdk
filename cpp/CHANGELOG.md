@@ -31,6 +31,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.8] - 2025-08-22
+
+### Added
+
+-   **ShipId class**: Implement ShipId class with comprehensive test suite
+
 ## [0.0.7] - 2025-08-22
 
 ### Fixed
