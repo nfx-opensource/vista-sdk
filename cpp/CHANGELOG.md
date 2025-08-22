@@ -31,6 +31,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.9] - 2025-08-22
+
+### Changed
+
+-   **ImoNumber API**: Consolidate ImoNumber methods to use std::string_view for improved performance
+
 ## [0.0.8] - 2025-08-22
 
 ### Added
