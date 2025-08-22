@@ -31,6 +31,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.6] - 2025-08-21
+
+### Fixed
+
+-   **Cross-platform compatibility**: Add cpuid.h in precompiled headers for GCC/Clang compatibility
+
 ## [0.0.5] - 2025-08-21
 
 ### Changed
