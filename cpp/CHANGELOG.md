@@ -31,6 +31,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.13] - 2025-08-23
+
+### Changed
+
+-   **Int128 API**: Remove Int128 friendship dependency
+    -   Remove friend class Decimal128 from Int128
+    -   Add public toNative() method for accessing native \_\_int128 value (GCC/Clang)
+
 ## [0.0.12] - 2025-08-23
 
 ### Added
