@@ -31,6 +31,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.14] - 2025-08-23
+
+### Added
+
+-   **TimeSeriesData transport layer**: Complete transport layer for time-series data handling
+    -   TimeSeriesData class for managing temporal data collections
+    -   TimeSeriesDataPackage for packaging time-series transport containers
+    -   Integration with existing DataChannel infrastructure
+-   **Comprehensive TimeSeriesData test suite**: Complete testing coverage for time-series functionality
+-   **Enhanced constructor overloads**: string_view overloads for Unit, Format, DataChannelType constructors and setters
+-   **Extended DataChannelList API**: string_view overload for DataChannelList::tryGetByShortId() method
+
+### Changed
+
+-   **API consistency improvements**: Rename empty() → isEmpty() for consistency across HashMap, MemoryCache, DataChannelList
+    -   Standardize method naming patterns across transport layer components
+    -   Consistent method signatures for data access and manipulation
+    -   Improved error handling patterns throughout transport layer
+-   **Performance optimizations**: Replace std::function with perfect forwarding templates in DataChannelId pattern matching
+    -   Add StringBuilderPool usage for optimized error message construction
+    -   Improved template-based dispatch for better compile-time optimization
+
+### Removed
+
+-   **Code cleanup**: Remove redundant String constructor overload in ISO19848
+
 ## [0.0.13] - 2025-08-23
 
 ### Changed
