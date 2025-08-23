@@ -31,6 +31,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.12] - 2025-08-23
+
+### Added
+
+-   **DataChannel transport layer**: Complete DataChannel transport layer with triple-indexed collections
+-   **DataChannelList**: LocalId and ShortId lookup capabilities
+-   **Package containers**: Package and DataChannelListPackage transport containers
+-   **LocalId hash support**: std::hash specialization for LocalId (enables unordered_map usage)
+-   **Enhanced parsing methods**: parse() methods for DateTime, DateTimeOffset, TimeSpan, Decimal128, Int128
+-   **Value type system**: Comprehensive Value type system for ISO19848 format validation
+-   **DataChannel test suite**: Comprehensive testing with validation, error handling, and lookup functionality
+
+### Changed
+
+-   **FormatDataType refactoring**: Extract FormatDataType::Value to transport::Value
+-   **Constants consolidation**: Consolidate ISO19848 Annex C naming constants with proper documentation
+-   **Constant migration**: Move NAMING_RULE constant from LocalIdConstants to ISO19848Constants
+
+### Removed
+
+-   **UniversalIdConstants.h**: Migrated functionality to ISO19848Constants
+
 ## [0.0.11] - 2025-08-23
 
 ### Changed
