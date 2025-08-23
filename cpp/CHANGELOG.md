@@ -31,6 +31,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.11] - 2025-08-23
+
+### Changed
+
+-   **Code organization**: Centralize ValidateResult type from ISO19848 to shared Results.h for better reusability
+    -   Remove duplicate ValidateResult implementation from ISO19848
+    -   Update FormatDataType::validate() signature to use shared type
+    -   Establish unified validation pattern for DataChannel and future components
+
 ## [0.0.10] - 2025-08-22
 
 ### Added
