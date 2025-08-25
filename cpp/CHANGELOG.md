@@ -31,6 +31,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.15] - 2025-08-25
+
+### Added
+
+-   **DynamicStringBuffer class**: Pimpl wrapper around fmt::memory_buffer for framework-agnostic buffer management
+-   **DynamicStringBufferPool**: Thread-safe pool management for dynamic string buffers
+-   **StringBuilder::Enumerator**: Character iteration support for StringBuilder
+-   **Stream operators**: Added << operators for StringBuilder
+-   **Pool statistics**: Size tracking and performance statistics for StringBuilderPool
+-   **Performance test suites**: New benchmark and test suites for StringBuilderPool performance testing
+
+### Changed
+
+-   **StringBuilderPool API redesign**: Complete Pimpl pattern implementation for framework-agnostic design
+    -   Transform StringBuilderPool from fmt-dependent to framework-agnostic
+    -   Abstract implementation from public API surface
+    -   Eliminate all direct fmt:: dependencies from public API
+-   **StringBuilder interface**: Use DynamicStringBuffer& instead of fmt::memory_buffer&
+-   **StringBuilderLease management**: Manage DynamicStringBuffer* instead of fmt::memory_buffer*
+-   **Thread-local cache**: Manage DynamicStringBuffer* instead of fmt::memory_buffer*
+-   **Append operations**: Simplified from m_buffer.append(str.data(), str.data() + str.size()) to m_buffer.append(str)
+
+### Removed
+
+-   **Manual calculations**: Eliminate manual strlen() calculations in C-string append operations
+
 ## [0.0.14] - 2025-08-23
 
 ### Added
