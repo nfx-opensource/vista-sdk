@@ -31,6 +31,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.16] - 2025-08-25
+
+### Changed
+
+-   **ShipId discriminated union**: Replace integer tags with enum class for type safety
+    -   Refactor ShipId to use enum class instead of integer tags
+    -   Improve type safety and code clarity for discriminated union pattern
+    -   Enhance maintainability of ShipId implementation
+
 ## [0.0.15] - 2025-08-25
 
 ### Added
