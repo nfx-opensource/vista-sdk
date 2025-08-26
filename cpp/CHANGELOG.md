@@ -31,6 +31,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.18] - 2025-08-26
+
+### Changed
+
+-   **StringMap/StringSet containers**: Move containers from utils to internal namespace
+    -   Refactor StringMap/StringSet from utils to internal namespace for better encapsulation
+    -   Remove heterogeneous lookup functors (StringViewHash/StringViewEqual) from StringUtils.h
+    -   Reorganize DynamicStringBuffer_impl files (remove impl/ subdirectory)
+    -   Improve internal organization and reduce public API surface
+
 ## [0.0.17] - 2025-08-25
 
 ### Changed
