@@ -31,6 +31,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.19] - 2025-08-27
+
+### Added
+
+-   **GmodPathQuery fluent API**: Complete fluent path matching and filtering API for GMOD paths
+    -   Fluent builder pattern for constructing complex path queries
+    -   Method chaining for readable and maintainable path filtering
+    -   Comprehensive path matching capabilities for GMOD navigation
+    -   Integration with existing GMOD infrastructure for seamless querying
+
 ## [0.0.18] - 2025-08-26
 
 ### Changed
