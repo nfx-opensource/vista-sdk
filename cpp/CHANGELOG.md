@@ -31,6 +31,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.21] - 2025-08-29
+
+### Added
+
+-   **C++ sample suite**: Comprehensive collection of example applications demonstrating SDK usage
+    -   Complete sample applications showcasing core SDK functionality
+    -   Example implementations for common use cases and patterns
+    -   Educational code examples for SDK adoption and learning
+    -   Reference implementations for best practices and proper API usage
+
 ## [0.0.20] - 2025-08-27
 
 ### Added
