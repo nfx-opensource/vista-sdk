@@ -31,6 +31,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.22] - 2025-08-30
+
+### Fixed
+
+-   **installSubstructure logic**: Fix logic to properly skip children during installation
+    -   Resolves parsing incompatibility with GMOD v3-9a containing `installSubstructure: false` fields
+    -   References C# fix: [dnv-opensource@4302bf0](https://github.com/dnv-opensource/vista-sdk/commit/4302bf0052fdf0c37604c8dadb3e8b918a98cd5c)
+
 ## [0.0.21] - 2025-08-29
 
 ### Added

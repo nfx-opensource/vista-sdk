@@ -341,11 +341,6 @@ namespace dnv::vista::sdk
 	template <typename TState>
 	inline TraversalHandlerResult Gmod::traverseNode( TraversalContext<TState>& context, const GmodNode& node ) const
 	{
-		if ( node.metadata().installSubstructure().has_value() && !node.metadata().installSubstructure().value() )
-		{
-			return TraversalHandlerResult::Continue;
-		}
-
 		TraversalHandlerResult result = context.handler( context.state, context.parents.asList(), node );
 		if ( result == TraversalHandlerResult::Stop || result == TraversalHandlerResult::SkipSubtree )
 		{
