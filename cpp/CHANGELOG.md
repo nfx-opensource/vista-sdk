@@ -31,6 +31,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.25] - 2025-09-05
+
+### Changed
+
+-   **LocationSetsVisitor extraction**: Extract LocationSetsVisitor into separate component for better separation of concerns
+    -   Refactor location set traversal logic into dedicated visitor pattern implementation
+    -   Improve code modularity and reusability for location set operations
+    -   Enhance maintainability through cleaner architectural separation
+    -   Enable better testing and extensibility of location set processing
+
 ## [0.0.24] - 2025-09-05
 
 ### Changed
