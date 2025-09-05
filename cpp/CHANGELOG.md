@@ -31,6 +31,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.24] - 2025-09-05
+
+### Changed
+
+-   **C++ source directory structure**: Flatten source directory hierarchy for improved organization
+    -   Simplify nested directory structure in C++ source tree
+    -   Improve build system navigation and maintenance
+    -   Reduce complexity in include path management
+    -   Enhance developer experience with cleaner project layout
+
 ## [0.0.23] - 2025-09-05
 
 ### Fixed
