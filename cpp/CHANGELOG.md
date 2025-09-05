@@ -31,6 +31,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.23] - 2025-09-05
+
+### Fixed
+
+-   **Path conversion individualization**: Preserve individualization during path conversion operations
+    -   Maintain individual path component identity during conversion processes
+    -   Prevent loss of specific path individualization markers
+    -   Ensure accurate path transformation while preserving semantic meaning
+
 ## [0.0.22] - 2025-08-30
 
 ### Fixed
