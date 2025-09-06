@@ -10,7 +10,7 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "Force static libraries for dependencies" F
 
 include(FetchContent)
 
-set(FETCHCONTENT_BASE_DIR "${VISTA_SDK_ROOT_DIR}/.deps")
+set(FETCHCONTENT_BASE_DIR "${VISTA_SDK_ROOT_DIR}/.deps/${COMPILER_DIR_NAME}")
 
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 set(FETCHCONTENT_QUIET OFF)
@@ -26,15 +26,33 @@ FetchContent_Declare(nlohmann_json
 	DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 
+# --- nfx-core ---
+set(NFX_CORE_BUILD_STATIC     ON   CACHE BOOL  ""  FORCE)
+set(NFX_CORE_BUILD_SHARED     OFF  CACHE BOOL  ""  FORCE)
+set(NFX_CORE_WITH_CONTAINERS  ON   CACHE BOOL  ""  FORCE)
+set(NFX_CORE_WITH_DATATYPES   ON   CACHE BOOL  ""  FORCE)
+set(NFX_CORE_WITH_MEMORY      ON   CACHE BOOL  ""  FORCE)
+set(NFX_CORE_WITH_STRING      ON   CACHE BOOL  ""  FORCE)
+set(NFX_CORE_WITH_TIME        ON   CACHE BOOL  ""  FORCE)
+set(NFX_CORE_BUILD_TESTS      OFF  CACHE BOOL  ""  FORCE)
+set(NFX_CORE_BUILD_SAMPLES    OFF  CACHE BOOL  ""  FORCE)
+
+FetchContent_Declare(
+	nfx-core
+	GIT_REPOSITORY https://github.com/ronan-fdev/nfx-core.git
+	GIT_TAG        0.0.1
+	GIT_SHALLOW    TRUE
+)
+
 # --- zlib-ng ---
-set(ZLIB_COMPAT                 ON   CACHE BOOL  "Compile with zlib compatible API"       FORCE)
+set(ZLIB_COMPAT                 OFF  CACHE BOOL  "Compile with zlib compatible API"       FORCE)
 set(ZLIB_ENABLE_TESTS           OFF  CACHE BOOL  "Build zlib-ng test binaries"            FORCE)
 set(ZLIBNG_ENABLE_TESTS         OFF  CACHE BOOL  "Build zlib-ng test binaries"            FORCE)
 set(WITH_GZFILEOP               ON   CACHE BOOL  "Support for gzFile related functions"   FORCE)
 set(WITH_OPTIM                  ON   CACHE BOOL  "Build with optimisations"               FORCE)
 set(WITH_NEW_STRATEGIES         ON   CACHE BOOL  "Use new strategies"                     FORCE)
 set(WITH_NATIVE_INSTRUCTIONS    OFF  CACHE BOOL  "Use host-specific instructions"         FORCE)
-set(WITH_RUNTIME_CPU_DETECTION  ON   CACHE BOOL  "Runtime CPU detection"                  FORCE)
+set(WITH_RUNTIME_CPU_DETECTION  OFF  CACHE BOOL  "Runtime CPU detection"                  FORCE)
 set(WITH_SANITIZER              OFF  CACHE BOOL  "Build with sanitizer"                   FORCE)
 set(WITH_GTEST                  OFF  CACHE BOOL  "Build gtest_zlib"                       FORCE)
 set(WITH_FUZZERS                OFF  CACHE BOOL  "Build test/fuzz"                        FORCE)
@@ -49,25 +67,6 @@ FetchContent_Declare(
 	GIT_SHALLOW    TRUE
 )
 
-# --- {fmt} ---
-set(FMT_FUZZ            OFF  CACHE BOOL  "Build fmt fuzzing tests"           FORCE)
-set(FMT_TEST            OFF  CACHE BOOL  "Build fmt unit tests"              FORCE)
-set(FMT_CUDA_TEST       OFF  CACHE BOOL  "Build fmt cuda tests"              FORCE)
-set(FMT_DOC             OFF  CACHE BOOL  "Build fmt documentation"           FORCE)
-set(FMT_INSTALL         OFF  CACHE BOOL  "Install fmt targets"               FORCE)
-set(FMT_HEADER_ONLY     ON   CACHE BOOL  "Build fmt as header-only library"  FORCE)
-set(FMT_MODULE          OFF  CACHE BOOL  "Enable fmt C++20 module support"   FORCE)
-set(FMT_OS              OFF  CACHE BOOL  "Enable fmt OS-specific features"   FORCE)
-set(FMT_SYSTEM_HEADERS  OFF  CACHE BOOL  "Use system headers for fmt"        FORCE)
-set(FMT_UNICODE         ON   CACHE BOOL  "Enable Unicode support in fmt"     FORCE)
-
-FetchContent_Declare(
-	fmt
-	GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-	GIT_TAG        11.2.0
-	GIT_SHALLOW    TRUE
-)
-
 # --- Google test ---
 if(VISTA_SDK_CPP_BUILD_TESTS)
 	set(BUILD_GMOCK                     OFF  CACHE BOOL  "Build GoogleMock library"              FORCE)
@@ -77,7 +76,7 @@ if(VISTA_SDK_CPP_BUILD_TESTS)
 	FetchContent_Declare(
 		googletest
 		GIT_REPOSITORY https://github.com/google/googletest.git
-	GIT_TAG        v1.17.0
+		GIT_TAG        v1.17.0
 		GIT_SHALLOW    TRUE
 	)
 endif()
@@ -116,9 +115,9 @@ endif()
 message(STATUS "Fetching dependencies...")
 
 FetchContent_MakeAvailable(
+	nfx-core
 	nlohmann_json
 	zlib-ng
-	fmt
 )
 
 if(VISTA_SDK_CPP_BUILD_TESTS)
@@ -141,9 +140,11 @@ endif()
 # nlohmann_json configuration
 #----------------------------
 
-add_library(nlohmann_json INTERFACE)
-target_include_directories(nlohmann_json INTERFACE ${nlohmann_json_SOURCE_DIR}/include)
-add_library(nlohmann_json::nlohmann_json ALIAS nlohmann_json)
+if(NOT TARGET nlohmann_json)
+	add_library(nlohmann_json INTERFACE)
+	target_include_directories(nlohmann_json SYSTEM INTERFACE ${nlohmann_json_SOURCE_DIR}/include)
+	add_library(nlohmann_json::nlohmann_json ALIAS nlohmann_json)
+endif()
 
 if(nlohmann_json_SOURCE_DIR AND EXISTS "${nlohmann_json_SOURCE_DIR}/single_include/nlohmann/json.hpp")
 	file(STRINGS "${nlohmann_json_SOURCE_DIR}/single_include/nlohmann/json.hpp" NLOHMANN_JSON_VER_LINES
@@ -176,14 +177,6 @@ if(zlib-ng_BINARY_DIR AND EXISTS "${zlib-ng_BINARY_DIR}/zlib.h")
 		string(REGEX REPLACE "^#define[ \t]+ZLIBNG_VERSION[ \t]+\"([^\"]*)\".*" "\\1"
 			ZLIBNG_HEADER_VERSION "${ZLIBNG_VER_LINES}")
 	endif()
-endif()
-
-#----------------------------
-# {fmt} configuration
-#----------------------------
-
-if(TARGET fmt::fmt)
-	get_target_property(FMT_VERSION fmt::fmt VERSION)
 endif()
 
 #----------------------------

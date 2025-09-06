@@ -3,9 +3,9 @@
  * @brief Implementation of Vessel Information Structure (VIS) interface
  */
 
-#include "dnv/vista/sdk/VIS.h"
+#include <nfx/string/StringBuilderPool.h>
 
-#include "dnv/vista/sdk/internal/StringBuilderPool.h"
+#include "dnv/vista/sdk/VIS.h"
 
 #include "dnv/vista/sdk/Codebooks.h"
 #include "dnv/vista/sdk/CodebooksDto.h"
@@ -25,12 +25,12 @@ namespace dnv::vista::sdk
 
 		[[noreturn]] void throwInvalidVersionError( VisVersion version )
 		{
-			auto lease = internal::StringBuilderPool::lease();
+			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "Invalid VIS version provided: " );
 			builder.append( VisVersionExtensions::toVersionString( version ) );
 
-			throw std::invalid_argument( lease.toString() );
+			throw std::invalid_argument{ lease.toString() };
 		}
 	}
 
@@ -46,64 +46,64 @@ namespace dnv::vista::sdk
 	// Cached objects
 	//-----------------------------
 
-	internal::MemoryCache<VisVersion, GmodDto>& VIS::gmodDtoCache()
+	nfx::memory::MemoryCache<VisVersion, GmodDto>& VIS::gmodDtoCache()
 	{
-		static internal::MemoryCache<VisVersion, GmodDto> cache{ internal::MemoryCacheOptions{ 10, std::chrono::hours( 0 ), std::chrono::hours( 1 ) } };
+		static nfx::memory::MemoryCache<VisVersion, GmodDto> cache{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours( 1 ) } };
 
 		return cache;
 	}
 
-	internal::MemoryCache<VisVersion, CodebooksDto>& VIS::codebooksDtoCache()
+	nfx::memory::MemoryCache<VisVersion, CodebooksDto>& VIS::codebooksDtoCache()
 	{
-		static internal::MemoryCache<VisVersion, CodebooksDto> cache{ internal::MemoryCacheOptions{ 10, std::chrono::hours( 0 ), std::chrono::hours( 1 ) } };
+		static nfx::memory::MemoryCache<VisVersion, CodebooksDto> cache{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours( 1 ) } };
 
 		return cache;
 	}
 
-	internal::MemoryCache<VisVersion, LocationsDto>& VIS::locationsDtoCache()
+	nfx::memory::MemoryCache<VisVersion, LocationsDto>& VIS::locationsDtoCache()
 	{
-		static internal::MemoryCache<VisVersion, LocationsDto> cache{ internal::MemoryCacheOptions{ 10, std::chrono::hours( 0 ), std::chrono::hours( 1 ) } };
+		static nfx::memory::MemoryCache<VisVersion, LocationsDto> cache{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours( 1 ) } };
 
 		return cache;
 	}
 
-	internal::MemoryCache<VisVersion, Codebooks>& VIS::codebooksCache()
+	nfx::memory::MemoryCache<VisVersion, Codebooks>& VIS::codebooksCache()
 	{
-		static internal::MemoryCache<VisVersion, Codebooks> cache{ internal::MemoryCacheOptions{ 10, std::chrono::hours( 0 ), std::chrono::hours( 1 ) } };
+		static nfx::memory::MemoryCache<VisVersion, Codebooks> cache{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours( 1 ) } };
 
 		return cache;
 	}
 
-	internal::MemoryCache<VisVersion, Gmod>& VIS::gmodsCache()
+	nfx::memory::MemoryCache<VisVersion, Gmod>& VIS::gmodsCache()
 	{
-		static internal::MemoryCache<VisVersion, Gmod> cache{ internal::MemoryCacheOptions{ 10, std::chrono::hours( 0 ), std::chrono::hours( 1 ) } };
+		static nfx::memory::MemoryCache<VisVersion, Gmod> cache{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours( 1 ) } };
 
 		return cache;
 	}
 
-	internal::MemoryCache<VisVersion, Locations>& VIS::locationsCache()
+	nfx::memory::MemoryCache<VisVersion, Locations>& VIS::locationsCache()
 	{
-		static internal::MemoryCache<VisVersion, Locations> cache{ internal::MemoryCacheOptions{ 10, std::chrono::hours( 0 ), std::chrono::hours( 1 ) } };
+		static nfx::memory::MemoryCache<VisVersion, Locations> cache{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours( 1 ) } };
 
 		return cache;
 	}
 
-	internal::MemoryCache<int, GmodVersioning>& VIS::gmodVersioningCache()
+	nfx::memory::MemoryCache<VisVersion, GmodVersioning>& VIS::gmodVersioningCache()
 	{
-		static internal::MemoryCache<int, GmodVersioning> cache{ internal::MemoryCacheOptions{ 10, std::chrono::hours( 0 ), std::chrono::hours( 1 ) } };
+		static nfx::memory::MemoryCache<VisVersion, GmodVersioning> cache{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours( 1 ) } };
 
 		return cache;
 	}
 
 	const GmodVersioning& VIS::gmodVersioning()
 	{
-		static constexpr int cacheKey = 0;
+		static constexpr VisVersion cacheKey = VisVersion::LATEST;
 
 		return gmodVersioningCache().getOrCreate( cacheKey, []() {
 			auto dto = EmbeddedResource::gmodVersioning();
 			if ( !dto )
 			{
-				throw std::runtime_error( "Failed to load GMOD versioning data" );
+				throw std::runtime_error{ "Failed to load GMOD versioning data" };
 			}
 			return GmodVersioning( *dto );
 		} );
@@ -170,13 +170,13 @@ namespace dnv::vista::sdk
 	// DTO Loading
 	//----------------------------------------------
 
-	const internal::StringMap<GmodVersioningDto>& VIS::gmodVersioningDto()
+	const nfx::containers::StringMap<GmodVersioningDto>& VIS::gmodVersioningDto()
 	{
-		static auto versioningDto = []() -> internal::StringMap<GmodVersioningDto> {
+		static auto versioningDto = []() -> nfx::containers::StringMap<GmodVersioningDto> {
 			auto dto = EmbeddedResource::gmodVersioning();
 			if ( !dto )
 			{
-				throw std::runtime_error( "Failed to load GMOD versioning data" );
+				throw std::runtime_error{ "Failed to load GMOD versioning data" };
 			}
 			return std::move( *dto );
 		}();

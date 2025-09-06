@@ -3,10 +3,7 @@
  * @brief Inline implementations for performance-critical UniversalId operations
  */
 
-#pragma once
-
-#include "config/Platform.h"
-#include "constants/AlgorithmConstants.h"
+#include "config/config.h"
 
 namespace dnv::vista::sdk
 {

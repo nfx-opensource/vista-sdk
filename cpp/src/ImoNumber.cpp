@@ -3,12 +3,20 @@
  * @brief Implementation of the ImoNumber class
  */
 
-#include "dnv/vista/sdk/ImoNumber.h"
+#include <charconv>
+#include <stdexcept>
+#include <system_error>
 
-#include "dnv/vista/sdk/constants/AlgorithmConstants.h"
+#include "dnv/vista/sdk/ImoNumber.h"
 
 namespace dnv::vista::sdk
 {
+	namespace
+	{
+		/** @brief Character set for null or whitespace detection in string parsing operations. */
+		inline constexpr std::string_view NULL_OR_WHITESPACE = " \t\n\r\f\v";
+	}
+
 	//=====================================================================
 	// ImoNumber class
 	//=====================================================================
@@ -21,7 +29,7 @@ namespace dnv::vista::sdk
 	{
 		if ( !isValid( value ) )
 		{
-			throw std::invalid_argument( "Invalid IMO number: " + std::to_string( value ) );
+			throw std::invalid_argument{ "Invalid IMO number: " + std::to_string( value ) };
 		}
 
 		m_value = value;
@@ -32,7 +40,7 @@ namespace dnv::vista::sdk
 		auto result = tryParse( value );
 		if ( !result )
 		{
-			throw std::invalid_argument( "Invalid IMO number: " + std::string{ value } );
+			throw std::invalid_argument{ "Invalid IMO number: " + std::string{ value } };
 		}
 
 		m_value = result->m_value;
@@ -117,7 +125,7 @@ namespace dnv::vista::sdk
 			return std::nullopt;
 		}
 
-		if ( value.find_first_of( constants::algorithm::NULL_OR_WHITESPACE ) != std::string::npos )
+		if ( value.find_first_of( NULL_OR_WHITESPACE ) != std::string::npos )
 		{
 			return std::nullopt;
 		}
@@ -133,7 +141,6 @@ namespace dnv::vista::sdk
 			sv = sv.substr( 3 );
 		}
 
-		/* Parse the numeric part using std::from_chars for fast, locale-independent conversion */
 		int num = 0;
 		auto [ptr, ec] = std::from_chars( sv.data(), sv.data() + sv.length(), num );
 

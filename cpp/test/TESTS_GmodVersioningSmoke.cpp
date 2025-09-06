@@ -3,6 +3,13 @@
  * @brief Unit tests for the GmodVersioningSmokeTests class.
  */
 
+#include <gtest/gtest.h>
+
+#include <future>
+#include <fstream>
+#include <queue>
+#include <thread>
+
 #include "dnv/vista/sdk/GmodVersioning.h"
 #include "dnv/vista/sdk/VIS.h"
 #include "dnv/vista/sdk/VISVersion.h"
@@ -236,7 +243,7 @@ namespace dnv::vista::sdk::tests
 		std::cout << "Success/failed - " << success << "/" << failed << " (" << std::fixed << std::setprecision( 2 ) << successRate << "% success)"
 				  << std::endl;
 
-		/* Group errors by exception message */
+		// Group errors by exception message
 		std::map<std::string, int> errorGroups;
 		for ( const auto& [sourcePath, targetPath, exceptionPtr] : context.failedConversions )
 		{
@@ -260,7 +267,7 @@ namespace dnv::vista::sdk::tests
 			std::cout << "--------------------------------------------------------" << std::endl;
 		}
 
-		/* Write output files */
+		// Write output files
 		std::string sourceVersionStr{ dnv::vista::sdk::VisVersionExtensions::toVersionString( sourceGmod.visVersion() ) };
 		std::string targetVersionStr{ dnv::vista::sdk::VisVersionExtensions::toVersionString( targetGmod.visVersion() ) };
 

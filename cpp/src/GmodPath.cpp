@@ -3,17 +3,24 @@
  * @brief Implementation of GmodPath and related classes for representing paths in the Generic Product Model (GMOD).
  */
 
-#include "dnv/vista/sdk/GmodPath.h"
+#include <queue>
+
+#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/StringViewSplitter.h>
+#include <nfx/string/Utils.h>
 
 #include "internal/LocationSetsVisitor.h"
-#include "dnv/vista/sdk/internal/StringBuilderPool.h"
-#include "dnv/vista/sdk/utils/StringUtils.h"
-
+#include "dnv/vista/sdk/GmodPath.h"
 #include "dnv/vista/sdk/Locations.h"
 #include "dnv/vista/sdk/VIS.h"
 
 namespace dnv::vista::sdk
 {
+	namespace
+	{
+		/** @brief Character set for null or whitespace detection in string parsing operations. */
+		inline constexpr std::string_view NULL_OR_WHITESPACE = " \t\n\r\f\v";
+	}
 	namespace internal
 	{
 		struct PathNode
@@ -34,16 +41,16 @@ namespace dnv::vista::sdk
 		{
 			std::queue<PathNode> parts;
 			PathNode toFind;
-			std::optional<internal::StringMap<Location>> locations;
+			std::optional<nfx::containers::StringMap<Location>> locations;
 			std::optional<GmodPath> path;
 			const Gmod* gmod;
 
-			ParseContext( std::queue<PathNode>&& p, PathNode&& t, std::optional<internal::StringMap<Location>>&& l,
-				std::optional<GmodPath>&& path, const Gmod& g )
-				: parts{ std::move( p ) },
+			ParseContext( std::queue<PathNode>&& pathNodeQueue, PathNode&& t, std::optional<nfx::containers::StringMap<Location>>&& l,
+				std::optional<GmodPath>&& gmodPath, const Gmod& g )
+				: parts{ std::move( pathNodeQueue ) },
 				  toFind{ std::move( t ) },
 				  locations{ std::move( l ) },
-				  path{ std::move( path ) },
+				  path{ std::move( gmodPath ) },
 				  gmod{ &g }
 			{
 			}
@@ -69,7 +76,7 @@ namespace dnv::vista::sdk
 			{
 				if ( !context.locations.has_value() )
 				{
-					context.locations = internal::StringMap<Location>{};
+					context.locations = nfx::containers::StringMap<Location>{};
 				}
 				context.locations->emplace( toFind.code, toFind.location.value() );
 			}
@@ -196,12 +203,12 @@ namespace dnv::vista::sdk
 	{
 		if ( !m_gmod )
 		{
-			throw std::invalid_argument( "GmodPath constructor: gmod reference is null" );
+			throw std::invalid_argument{ "GmodPath constructor: gmod reference is null" };
 		}
 
 		if ( !m_node.has_value() )
 		{
-			throw std::invalid_argument( "GmodPath constructor: node is not valid" );
+			throw std::invalid_argument{ "GmodPath constructor: node is not valid" };
 		}
 
 		if ( skipVerify || m_parents.empty() )
@@ -474,7 +481,7 @@ namespace dnv::vista::sdk
 			return GmodParsePathResult::Error{ "Item is empty" };
 		}
 
-		if ( !utils::startsWith( item, gmod.rootNode().code() ) )
+		if ( !nfx::string::startsWith( item, gmod.rootNode().code() ) )
 		{
 			return GmodParsePathResult::Error{ "Path must start with {}" + gmod.rootNode().code() };
 		}
@@ -483,7 +490,7 @@ namespace dnv::vista::sdk
 		std::vector<GmodNode> nodes;
 		nodes.reserve( estimatedSegments );
 
-		for ( const auto& segment : utils::splitView( item, '/' ) )
+		for ( const auto segment : nfx::string::splitView( item, '/' ) )
 		{
 			if ( segment.empty() )
 			{
@@ -698,13 +705,13 @@ namespace dnv::vista::sdk
 			return GmodParsePathResult::Error{ "Item is empty" };
 		}
 
-		const size_t start = item.find_first_not_of( constants::algorithm::NULL_OR_WHITESPACE );
+		const size_t start = item.find_first_not_of( NULL_OR_WHITESPACE );
 		if ( start == std::string_view::npos )
 		{
 			return GmodParsePathResult::Error{ "Item is empty" };
 		}
 
-		const size_t end = item.find_last_not_of( constants::algorithm::NULL_OR_WHITESPACE ) + 1;
+		const size_t end = item.find_last_not_of( NULL_OR_WHITESPACE ) + 1;
 		item = item.substr( start, end - start );
 
 		if ( !item.empty() && item[0] == '/' )
@@ -714,10 +721,12 @@ namespace dnv::vista::sdk
 
 		std::queue<internal::PathNode> parts;
 
-		for ( const auto& partStr : utils::splitView( item, '/' ) )
+		for ( const auto partStr : nfx::string::splitView( item, '/' ) )
 		{
 			if ( partStr.empty() )
+			{
 				continue;
+			}
 
 			if ( partStr.find( '-' ) != std::string_view::npos )
 			{
@@ -807,16 +816,16 @@ namespace dnv::vista::sdk
 	{
 		if ( m_nodeIndices.empty() )
 		{
-			throw std::invalid_argument( "GmodIndividualizableSet constructor: nodeIndices cannot be empty." );
+			throw std::invalid_argument{ "GmodIndividualizableSet constructor: nodeIndices cannot be empty." };
 		}
 
 		for ( int nodeIdx : m_nodeIndices )
 		{
 			if ( static_cast<size_t>( nodeIdx ) >= m_path.length() || nodeIdx < 0 )
 			{
-				throw std::out_of_range(
+				throw std::out_of_range{
 					"GmodIndividualizableSet constructor: Node index " + std::to_string( nodeIdx ) +
-					" is out of bounds for path length " + std::to_string( m_path.length() ) + "." );
+					" is out of bounds for path length " + std::to_string( m_path.length() ) + "." };
 			}
 
 			const GmodNode& currentNode = m_path[static_cast<size_t>( nodeIdx )];
@@ -825,8 +834,8 @@ namespace dnv::vista::sdk
 			bool isInSet = ( m_nodeIndices.size() > 1 );
 			if ( !currentNode.isIndividualizable( isTargetNode, isInSet ) )
 			{
-				throw std::invalid_argument( "GmodIndividualizableSet constructor: Node '" + std::string{ currentNode.code().data() } + "' (at index " +
-											 std::to_string( nodeIdx ) + ") is not individualizable in the given context." );
+				throw std::invalid_argument{ "GmodIndividualizableSet constructor: Node '" + std::string{ currentNode.code().data() } + "' (at index " +
+											 std::to_string( nodeIdx ) + ") is not individualizable in the given context." };
 			}
 		}
 
@@ -841,10 +850,10 @@ namespace dnv::vista::sdk
 				const GmodNode& currentNode = m_path[static_cast<size_t>( currentIdx )];
 				if ( currentNode.location() != expectedLocation )
 				{
-					throw std::invalid_argument(
+					throw std::invalid_argument{
 						"GmodIndividualizableSet constructor: Nodes have different locations. Node '" +
 						std::string{ currentNode.code().data() } + "' (at index " + std::to_string( currentIdx ) +
-						") has location while first node in set had different or no location." );
+						") has location while first node in set had different or no location." };
 				}
 			}
 		}
@@ -863,8 +872,8 @@ namespace dnv::vista::sdk
 
 		if ( !foundPartOfShortPath )
 		{
-			throw std::invalid_argument(
-				"GmodIndividualizableSet constructor: No nodes in the set are part of the short path (final node or leaf node)." );
+			throw std::invalid_argument{
+				"GmodIndividualizableSet constructor: No nodes in the set are part of the short path (final node or leaf node)." };
 		}
 	}
 
@@ -876,7 +885,7 @@ namespace dnv::vista::sdk
 	{
 		if ( m_isBuilt )
 		{
-			throw std::runtime_error( "Tried to build individualizable set twice" );
+			throw std::runtime_error{ "Tried to build individualizable set twice" };
 		}
 
 		m_isBuilt = true;
@@ -897,7 +906,7 @@ namespace dnv::vista::sdk
 		{
 			if ( nodeIdx < 0 || static_cast<size_t>( nodeIdx ) >= m_path.length() )
 			{
-				throw std::out_of_range( "Node index out of bounds" );
+				throw std::out_of_range{ "Node index out of bounds" };
 			}
 
 			result.push_back( const_cast<GmodNode*>( &m_path[static_cast<size_t>( nodeIdx )] ) );
@@ -932,7 +941,7 @@ namespace dnv::vista::sdk
 
 	std::string GmodIndividualizableSet::toString() const
 	{
-		auto lease = internal::StringBuilderPool::lease();
+		auto lease = nfx::string::StringBuilderPool::lease();
 		bool firstNodeAppended = false;
 
 		for ( size_t j = 0; j < m_nodeIndices.size(); ++j )

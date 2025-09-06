@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "internal/StringBuilderPool.h"
+#include <nfx/string/StringBuilderPool.h>
 
 #include "GmodPath.h"
 
@@ -94,6 +94,7 @@ namespace dnv::vista::sdk
 		 *        Compares the `m_primaryItem` and `m_secondaryItem` members for equality.
 		 * @param other The other LocalIdItems instance to compare with.
 		 * @return true if both primary and secondary items are equal, false otherwise.
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline bool operator==( const LocalIdItems& other ) const noexcept;
 
@@ -101,6 +102,7 @@ namespace dnv::vista::sdk
 		 * @brief Inequality comparison operator.
 		 * @param other The other LocalIdItems instance to compare with.
 		 * @return true if the instances are not equal, false otherwise.
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline bool operator!=( const LocalIdItems& other ) const noexcept;
 
@@ -111,18 +113,21 @@ namespace dnv::vista::sdk
 		/**
 		 * @brief Gets the primary item.
 		 * @return A const reference to the optional primary GmodPath.
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline const std::optional<GmodPath>& primaryItem() const noexcept;
 
 		/**
 		 * @brief Gets the optional secondary item.
 		 * @return A const reference to the optional secondary GmodPath.
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline const std::optional<GmodPath>& secondaryItem() const noexcept;
 
 		/**
 		 * @brief Checks if both primary and secondary items are uninitialized (nullopt).
 		 * @return True if both `m_primaryItem` and `m_secondaryItem` are `std::nullopt`, false otherwise.
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline bool isEmpty() const noexcept;
 
@@ -130,7 +135,7 @@ namespace dnv::vista::sdk
 		// Public methods
 		//----------------------------------------------
 
-		inline void append( internal::StringBuilder& builder, bool verboseMode ) const;
+		inline void append( nfx::string::StringBuilder& builder, bool verboseMode ) const;
 
 	private:
 		//----------------------------------------------
@@ -138,7 +143,7 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 
 		inline static void appendCommonName(
-			internal::StringBuilder& builder,
+			nfx::string::StringBuilder& builder,
 			std::string_view commonName,
 			const std::optional<std::string>& location );
 

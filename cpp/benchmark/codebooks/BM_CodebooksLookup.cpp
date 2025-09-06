@@ -8,7 +8,7 @@
  * - BM_Array: Linear search through std::array (fastest for small datasets)
  * - BM_Vector: Linear search through std::vector
  * - BM_UnorderedMap: Hash table lookup via std::unordered_map
- * - BM_ChdDictionary: Perfect hash lookup via ChdDictionary
+ * - BM_ChdHashMap: Perfect hash lookup via ChdHashMap
  * - BM_Map: Red-black tree lookup via std::map
  * - BM_CodebooksAPI: SDK access via codebook() method call
  * - BM_CodebooksVISCall: SDK access via VIS::instance() call (worst case)
@@ -16,7 +16,9 @@
  * PURPOSE: Determine optimal data structure for codebook lookups with 3 elements
  */
 
-#include "dnv/vista/sdk/internal/ChdDictionary.h"
+#include <benchmark/benchmark.h>
+
+#include <nfx/containers/ChdHashMap.h>
 
 #include "dnv/vista/sdk/Codebook.h"
 #include "dnv/vista/sdk/Codebooks.h"
@@ -37,7 +39,7 @@ namespace dnv::vista::sdk::benchmarks
 		std::array<std::pair<CodebookName, Codebook>, 3> m_array;
 		std::vector<std::pair<CodebookName, Codebook>> m_vector;
 		std::unordered_map<CodebookName, Codebook> m_unorderedMap;
-		std::unique_ptr<dnv::vista::sdk::internal::ChdDictionary<Codebook>> m_chdDictionary;
+		std::unique_ptr<nfx::containers::ChdHashMap<Codebook>> m_chdHashMap;
 		std::map<CodebookName, Codebook> m_map;
 
 		bool tryGetValue( const std::array<std::pair<CodebookName, Codebook>, 3>& arr, CodebookName key, const Codebook*& outValue ) const noexcept
@@ -74,30 +76,74 @@ namespace dnv::vista::sdk::benchmarks
 			return false;
 		}
 
-		bool tryGetValue( const dnv::vista::sdk::internal::ChdDictionary<Codebook>& dict, CodebookName key, const Codebook*& outValue ) const noexcept
+		bool tryGetValue( const nfx::containers::ChdHashMap<Codebook>& dict, CodebookName key, const Codebook*& outValue ) const noexcept
 		{
-			static const char* const keyMappings[]{
-				nullptr,
-				"Quantity",
-				"Content",
-				"Calculation",
-				"State",
-				"Command",
-				"Type",
-				"FunctionalServices",
-				"MaintenanceCategory",
-				"ActivityType",
-				"Position",
-				"Detail" };
-
-			const int keyIndex = static_cast<int>( key );
-			if ( keyIndex < 1 || keyIndex >= static_cast<int>( std::size( keyMappings ) ) || keyMappings[keyIndex] == nullptr )
+			std::string_view keyName;
+			switch ( key )
 			{
-				outValue = nullptr;
-				return false;
+				case CodebookName::Quantity:
+				{
+					keyName = "Quantity";
+					break;
+				}
+				case CodebookName::Content:
+				{
+					keyName = "Content";
+					break;
+				}
+				case CodebookName::Calculation:
+				{
+					keyName = "Calculation";
+					break;
+				}
+				case CodebookName::State:
+				{
+					keyName = "State";
+					break;
+				}
+				case CodebookName::Command:
+				{
+					keyName = "Command";
+					break;
+				}
+				case CodebookName::Type:
+				{
+					keyName = "Type";
+					break;
+				}
+				case CodebookName::FunctionalServices:
+				{
+					keyName = "FunctionalServices";
+					break;
+				}
+				case CodebookName::MaintenanceCategory:
+				{
+					keyName = "MaintenanceCategory";
+					break;
+				}
+				case CodebookName::ActivityType:
+				{
+					keyName = "ActivityType";
+					break;
+				}
+				case CodebookName::Position:
+				{
+					keyName = "Position";
+					break;
+				}
+				case CodebookName::Detail:
+				{
+					keyName = "Detail";
+					break;
+				}
+				default:
+				{
+					outValue = nullptr;
+					return false;
+				}
 			}
 
-			return dict.tryGetValue( std::string_view( keyMappings[keyIndex] ), outValue );
+			return dict.tryGetValue( keyName, outValue );
 		}
 
 		template <typename T>
@@ -134,42 +180,46 @@ namespace dnv::vista::sdk::benchmarks
 
 	public:
 		CodebooksLookup() = default;
+		CodebooksLookup( const CodebooksLookup& ) = delete;
+		CodebooksLookup& operator=( const CodebooksLookup& ) = delete;
+		CodebooksLookup( CodebooksLookup&& ) = delete;
+		CodebooksLookup& operator=( CodebooksLookup&& ) = delete;
 
 		void Setup()
 		{
-			/* Initialize VIS instance and get codebooks reference */
+			// Initialize VIS instance and get codebooks reference
 			auto& vis = VIS::instance();
 			m_codebooksReference = std::cref( vis.codebooks( VisVersion::v3_7a ) );
 			const auto& codebooks_ref = m_codebooksReference->get();
 
-			/* Setup array (fixed-size, stack allocated) */
+			// Setup array (fixed-size, stack allocated)
 			m_array[0] = { CodebookName::Quantity, codebooks_ref[CodebookName::Quantity] };
 			m_array[1] = { CodebookName::Type, codebooks_ref[CodebookName::Type] };
 			m_array[2] = { CodebookName::Detail, codebooks_ref[CodebookName::Detail] };
 
-			/* Setup vector (dynamic array, heap allocated) */
+			// Setup vector (dynamic array, heap allocated)
 			m_vector.clear();
 			m_vector.reserve( 3 );
 			m_vector.emplace_back( CodebookName::Quantity, codebooks_ref[CodebookName::Quantity] );
 			m_vector.emplace_back( CodebookName::Type, codebooks_ref[CodebookName::Type] );
 			m_vector.emplace_back( CodebookName::Detail, codebooks_ref[CodebookName::Detail] );
 
-			/* Setup unordered_map (hash table, heap allocated) */
+			// Setup unordered_map (hash table, heap allocated)
 			m_unorderedMap.clear();
 			m_unorderedMap.reserve( 3 );
 			m_unorderedMap[CodebookName::Quantity] = codebooks_ref[CodebookName::Quantity];
 			m_unorderedMap[CodebookName::Type] = codebooks_ref[CodebookName::Type];
 			m_unorderedMap[CodebookName::Detail] = codebooks_ref[CodebookName::Detail];
 
-			/* Setup ChdDictionary (optimized read-only hash table) */
+			// Setup ChdHashMap (optimized read-only hash table)
 			std::vector<std::pair<std::string, Codebook>> chdItems;
 			chdItems.reserve( 3 );
 			chdItems.emplace_back( "Quantity", codebooks_ref[CodebookName::Quantity] );
 			chdItems.emplace_back( "Type", codebooks_ref[CodebookName::Type] );
 			chdItems.emplace_back( "Detail", codebooks_ref[CodebookName::Detail] );
-			m_chdDictionary = std::make_unique<dnv::vista::sdk::internal::ChdDictionary<Codebook>>( std::move( chdItems ) );
+			m_chdHashMap = std::make_unique<nfx::containers::ChdHashMap<Codebook>>( std::move( chdItems ) );
 
-			/* Setup map (red-black tree) */
+			// Setup map (red-black tree)
 			m_map.clear();
 			m_map[CodebookName::Quantity] = codebooks_ref[CodebookName::Quantity];
 			m_map[CodebookName::Type] = codebooks_ref[CodebookName::Type];
@@ -233,15 +283,15 @@ namespace dnv::vista::sdk::benchmarks
 				   tryGetValue( m_unorderedMap, CodebookName::Detail, dummy3 );
 		}
 
-		bool ChdDictionary()
+		bool ChdHashMap()
 		{
 			const Codebook* dummy1 = nullptr;
 			const Codebook* dummy2 = nullptr;
 			const Codebook* dummy3 = nullptr;
 
-			return tryGetValue( *m_chdDictionary, CodebookName::Quantity, dummy1 ) &&
-				   tryGetValue( *m_chdDictionary, CodebookName::Type, dummy2 ) &&
-				   tryGetValue( *m_chdDictionary, CodebookName::Detail, dummy3 );
+			return tryGetValue( *m_chdHashMap, CodebookName::Quantity, dummy1 ) &&
+				   tryGetValue( *m_chdHashMap, CodebookName::Type, dummy2 ) &&
+				   tryGetValue( *m_chdHashMap, CodebookName::Detail, dummy3 );
 		}
 
 		bool Map()
@@ -349,13 +399,13 @@ namespace dnv::vista::sdk::benchmarks
 		}
 	}
 
-	/**  @brief Optimized read-only hash table benchmark( ChdDictionary ) */
-	static void BM_ChdDictionary( benchmark::State& state )
+	/**  @brief Optimized read-only hash table benchmark( ChdHashMap ) */
+	static void BM_ChdHashMap( benchmark::State& state )
 	{
 		BM_Setup( state );
 		for ( auto _ : state )
 		{
-			bool result = g_benchmarkInstance.ChdDictionary();
+			bool result = g_benchmarkInstance.ChdHashMap();
 			benchmark::DoNotOptimize( result );
 		}
 	}
@@ -401,7 +451,7 @@ namespace dnv::vista::sdk::benchmarks
 	BENCHMARK( BM_Array )->MinTime( 10.0 );
 	BENCHMARK( BM_Vector )->MinTime( 10.0 );
 	BENCHMARK( BM_UnorderedMap )->MinTime( 10.0 );
-	BENCHMARK( BM_ChdDictionary )->MinTime( 10.0 );
+	BENCHMARK( BM_ChdHashMap )->MinTime( 10.0 );
 	BENCHMARK( BM_Map )->MinTime( 10.0 );
 	BENCHMARK( BM_CodebooksAPI )->MinTime( 10.0 );
 	BENCHMARK( BM_CodebooksVISCall )->MinTime( 10.0 );

@@ -1,3 +1,8 @@
+/**
+ * @file UniversalId.cpp
+ * @brief Implementation of UniversalId class
+ */
+
 #include "dnv/vista/sdk/UniversalId.h"
 
 #include "dnv/vista/sdk/ImoNumber.h"
@@ -21,7 +26,7 @@ namespace dnv::vista::sdk
 	{
 		if ( !builder.isValid() )
 		{
-			throw std::invalid_argument( "Invalid UniversalIdBuilder state" );
+			throw std::invalid_argument{ "Invalid UniversalIdBuilder state" };
 		}
 	}
 

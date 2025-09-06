@@ -3,6 +3,10 @@
  * @brief Unit tests for LocalId and LocalIdBuilder classes.
  */
 
+#include <fstream>
+
+#include <gtest/gtest.h>
+
 #include "TestDataLoader.h"
 
 #include "internal/LocalIdParsingErrorBuilder.h"
@@ -293,7 +297,6 @@ namespace dnv::vista::sdk::tests
 		if ( !file.is_open() )
 		{
 			FAIL() << "Failed to open testdata/LocalIds.txt";
-			return;
 		}
 
 		struct ErrorInfo

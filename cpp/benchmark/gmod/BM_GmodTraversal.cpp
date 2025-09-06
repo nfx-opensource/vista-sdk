@@ -3,6 +3,8 @@
  * @brief GMOD tree traversal performance benchmark testing full tree iteration
  */
 
+#include <benchmark/benchmark.h>
+
 #include "dnv/vista/sdk/VIS.h"
 
 namespace dnv::vista::sdk::benchmarks
@@ -34,9 +36,9 @@ namespace dnv::vista::sdk::benchmarks
 			BenchmarkState benchState;
 
 			TraverseHandlerWithState<BenchmarkState> handler =
-				[]( BenchmarkState& state, const std::vector<const GmodNode*>&, const GmodNode& )
+				[]( BenchmarkState& bmState, const std::vector<const GmodNode*>&, const GmodNode& )
 				-> TraversalHandlerResult {
-				++state.nodeCount;
+				++bmState.nodeCount;
 
 				return TraversalHandlerResult::Continue;
 			};

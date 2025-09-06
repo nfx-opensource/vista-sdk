@@ -3,10 +3,8 @@
  * @brief Implementation of codebook-related components
  */
 
-#include "dnv/vista/sdk/Codebook.h"
-
 #include "dnv/vista/sdk/constants/CodebookConstants.h"
-
+#include "dnv/vista/sdk/Codebook.h"
 #include "dnv/vista/sdk/Codebooks.h"
 #include "dnv/vista/sdk/MetadataTag.h"
 #include "dnv/vista/sdk/VIS.h"
@@ -27,6 +25,9 @@ namespace dnv::vista::sdk
 
 		/** @brief Stack allocation limit for non-numeric position tracking to avoid heap allocation during order validation. */
 		static constexpr size_t MAX_NON_NUMERIC = 8;
+
+		/** @brief Character set for null or whitespace detection in string parsing operations. */
+		inline constexpr std::string_view NULL_OR_WHITESPACE = " \t\n\r\f\v";
 	}
 
 	//=====================================================================
@@ -124,7 +125,7 @@ namespace dnv::vista::sdk
 					break;
 				}
 			}
-			throw std::invalid_argument( "Unknown codebook name: " + std::string{ name } );
+			throw std::invalid_argument{ "Unknown codebook name: " + std::string{ name } };
 		}
 	}
 
@@ -141,7 +142,7 @@ namespace dnv::vista::sdk
 		 */
 		alignas( 64 ) constexpr std::array<bool, 256> s_whitespaceLookup = []() constexpr {
 			std::array<bool, 256> lookup{};
-			for ( char c : constants::algorithm::NULL_OR_WHITESPACE )
+			for ( char c : NULL_OR_WHITESPACE )
 			{
 				lookup[static_cast<unsigned char>( c )] = true;
 			}
@@ -160,7 +161,7 @@ namespace dnv::vista::sdk
 				return {};
 			}
 
-			/* Find first non-whitespace */
+			// Find first non-whitespace
 			size_t first = 0;
 			const size_t size = str.size();
 			while ( first < size && isWhitespace( str[first] ) )
@@ -173,7 +174,7 @@ namespace dnv::vista::sdk
 				return {};
 			}
 
-			/* Find last non-whitespace */
+			// Find last non-whitespace
 			size_t last = size - 1;
 			while ( last > first && isWhitespace( str[last] ) )
 			{
@@ -225,7 +226,7 @@ namespace dnv::vista::sdk
 	{
 		if ( name.empty() )
 		{
-			throw std::invalid_argument( "PositionValidationResult name cannot be empty" );
+			throw std::invalid_argument{ "PositionValidationResult name cannot be empty" };
 		}
 
 		const std::string lowerName = toLower( name );
@@ -238,10 +239,10 @@ namespace dnv::vista::sdk
 			}
 		}
 
-		throw std::invalid_argument(
+		throw std::invalid_argument{
 			"Unknown PositionValidationResult name: '" +
 			std::string{ name } +
-			"'. Valid values are: Invalid, InvalidOrder, InvalidGrouping, Valid, Custom" );
+			"'. Valid values are: Invalid, InvalidOrder, InvalidGrouping, Valid, Custom" };
 	}
 
 	//=====================================================================
@@ -259,7 +260,7 @@ namespace dnv::vista::sdk
 		  m_groups{},
 		  m_rawData{}
 	{
-		/* Pre-calculate total size for better memory allocation */
+		// Pre-calculate total size for better memory allocation
 		size_t totalEstimate = 0;
 		const auto& dtoValues = dto.values();
 		const size_t groupCount = dtoValues.size();
@@ -269,14 +270,14 @@ namespace dnv::vista::sdk
 			totalEstimate += values.size();
 		}
 
-		/* Load factor calculation */
-		const size_t capacity = totalEstimate + ( totalEstimate >> 1 ); /* 1.5x */
+		// Load factor calculation
+		const size_t capacity = totalEstimate + ( totalEstimate >> 1 ); // 1.5x
 
 		m_groupMap.reserve( capacity );
-		m_rawData.reserve( groupCount + ( groupCount >> 2 ) ); /* 1.25x */
+		m_rawData.reserve( groupCount + ( groupCount >> 2 ) ); // 1.25x
 
-		internal::StringSet valueSet;
-		internal::StringSet groupSet;
+		nfx::containers::StringSet valueSet;
+		nfx::containers::StringSet groupSet;
 		valueSet.reserve( capacity );
 		groupSet.reserve( groupCount + ( groupCount >> 2 ) );
 
@@ -358,10 +359,10 @@ namespace dnv::vista::sdk
 		auto tagOpt = tryCreateTag( value );
 		if ( !tagOpt )
 		{
-			throw std::invalid_argument(
+			throw std::invalid_argument{
 				"Invalid value for metadata tag: codebook=" +
 				std::to_string( static_cast<int>( m_name ) ) +
-				", value=" + std::string{ value } );
+				", value=" + std::string{ value } };
 		}
 
 		return tagOpt.value();
@@ -501,7 +502,7 @@ namespace dnv::vista::sdk
 
 		if ( worstResult == PositionValidationResult::Valid )
 		{
-			internal::StringSet uniqueGroups;
+			nfx::containers::StringSet uniqueGroups;
 			uniqueGroups.reserve( MAX_GROUPS );
 			bool hasDefaultGroup = false;
 

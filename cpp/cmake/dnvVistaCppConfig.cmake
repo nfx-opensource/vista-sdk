@@ -83,9 +83,9 @@ endif()
 #----------------------------------------------
 
 # --- Vista SDK root ---
-set(VISTA_SDK_ROOT_DIR       "${VISTA_SDK_ROOT_DIR}"            CACHE PATH  "Vista SDK root directory"     )
-set(VISTA_SDK_RESOURCES_DIR  "${VISTA_SDK_ROOT_DIR}/resources"  CACHE PATH  "Vista SDK resources directory")
-set(VISTA_SDK_TESTDATA_DIR   "${VISTA_SDK_ROOT_DIR}/testdata"   CACHE PATH  "Vista SDK test data directory")
+set(VISTA_SDK_ROOT_DIR               "${VISTA_SDK_ROOT_DIR}"                CACHE PATH  "Vista SDK root directory"     )
+set(VISTA_SDK_RESOURCES_DIR          "${VISTA_SDK_ROOT_DIR}/resources"      CACHE PATH  "Vista SDK resources directory")
+set(VISTA_SDK_TESTDATA_DIR           "${VISTA_SDK_ROOT_DIR}/testdata"       CACHE PATH  "Vista SDK test data directory")
 
 # --- Vista c++ SDK ---
 set(VISTA_SDK_CPP_ROOT_DIR           "${VISTA_SDK_ROOT_DIR}/cpp"            CACHE PATH  "Vista SDK C++ SDK root directory"     )
@@ -153,7 +153,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${VISTA_SDK_CPP_BUILD_DIR}/bin)
 # Dependencies
 #----------------------------------------------
 
-include(Dependencies)
+include(dnvVistaCppDependencies)
 
 #----------------------------------------------
 # Resource management (TODO: Remove later)
@@ -185,7 +185,7 @@ endif()
 #----------------------------------------------
 
 # --- Source files ---
-include(Sources)
+include(dnvVistaCppSources)
 
 # --- Create shared library if requested ---
 if(VISTA_SDK_CPP_BUILD_SHARED)
@@ -235,19 +235,17 @@ function(configure_vista_target target_name)
 		PUBLIC
 			$<BUILD_INTERFACE:${VISTA_SDK_CPP_INCLUDE_DIR}>
 			$<INSTALL_INTERFACE:include>
+			${nlohmann_json_SOURCE_DIR}/include
 		PRIVATE
 			${VISTA_SDK_CPP_SOURCE_DIR}
 	)
 
 	# --- Link libraries---
 	target_link_libraries(${target_name} PRIVATE
+		nfx-core::static
 		nlohmann_json::nlohmann_json
-		zlib
-		fmt::fmt-header-only
+		zlibstatic
 	)
-
-	# --- Precompiled headers---
-	target_precompile_headers(${target_name} PRIVATE ${VISTA_SDK_CPP_SOURCE_DIR}/pch.h)
 
 	# --- Properties ---
 	set_target_properties(${target_name} PROPERTIES
@@ -270,7 +268,7 @@ if(VISTA_SDK_CPP_BUILD_SHARED)
 		)
 
 		configure_file(
-			${CMAKE_CURRENT_SOURCE_DIR}/cmake/version.rc.in
+			${CMAKE_CURRENT_SOURCE_DIR}/cmake/dnvVistaCppVersion.rc.in
 			${CMAKE_BINARY_DIR}/version.rc
 			@ONLY
 		)
@@ -286,7 +284,7 @@ endif()
 # Compiler and linker configuration
 #----------------------------------------------
 
-include(CompilersSettings)
+include(dnvVistaCppCompilersSettings)
 
 #----------------------------------------------
 # Install rules
@@ -387,7 +385,6 @@ message(STATUS "")
 
 message(STATUS "--- Dependencies ---")
 message(STATUS "nlohmann/json version           : ${NLOHMANN_VERSION}")
-message(STATUS "{fmt} version                   : ${FMT_VERSION}")
 message(STATUS "zlib-ng version                 : ${ZLIBNG_HEADER_VERSION}")
 message(STATUS "GoogleTest version              : ${GTEST_VERSION}")
 message(STATUS "Google Benchmark version        : ${BENCHMARK_VERSION}")

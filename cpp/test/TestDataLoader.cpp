@@ -2,14 +2,18 @@
  * @file TestDataLoader.cpp
  * @brief Helper utilities for loading test data from JSON files.
  */
+#include <fstream>
 
-#include "dnv/vista/sdk/internal/HashMap.h"
+#include <nfx/containers/HashMap.h>
 
 #include "TestDataLoader.h"
 
 namespace dnv::vista::sdk::test
 {
-	static internal::HashMap<std::string, nlohmann::json> g_testDataCache;
+	namespace
+	{
+		static nfx::containers::HashMap<std::string, nlohmann::json> g_testDataCache;
+	}
 
 	const nlohmann::json& loadTestData( const char* testDataPath )
 	{
@@ -24,7 +28,7 @@ namespace dnv::vista::sdk::test
 		std::ifstream jsonFile( testDataPath );
 		if ( !jsonFile.is_open() )
 		{
-			throw std::runtime_error( std::string{ "Failed to open test data file: " } + testDataPath );
+			throw std::runtime_error{ std::string{ "Failed to open test data file: " } + testDataPath };
 		}
 
 		try
@@ -40,12 +44,15 @@ namespace dnv::vista::sdk::test
 				return *result;
 			}
 
-			throw std::runtime_error( "Failed to retrieve cached test data after insertion" );
+			throw std::runtime_error{ "Failed to retrieve cached test data after insertion" };
 		}
 		catch ( const nlohmann::json::parse_error& ex )
 		{
-			throw std::runtime_error( std::string{ "JSON parse error in '" } + testDataPath + "'. Type: " + std::to_string( ex.id ) +
-									  ", Byte: " + std::to_string( ex.byte ) + ". Original what() likely too long." );
+			throw std::runtime_error{
+				std::string{ "JSON parse error in '" } + testDataPath +
+				"'. Type: " + std::to_string( ex.id ) +
+				", Byte: " + std::to_string( ex.byte ) +
+				". Original what() likely too long." };
 		}
 	}
 }

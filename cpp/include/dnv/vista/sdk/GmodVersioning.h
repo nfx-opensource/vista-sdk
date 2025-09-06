@@ -10,12 +10,12 @@
 
 #pragma once
 
-#include "internal/HashMap.h"
-#include "utils/StringUtils.h"
+#include <nfx/containers/HashMap.h>
+#include <nfx/string/Utils.h>
 
-#include "LocalId.h"
 #include "GmodPath.h"
 #include "GmodVersioningDto.h"
+#include "LocalId.h"
 
 namespace dnv::vista::sdk
 {
@@ -46,7 +46,7 @@ namespace dnv::vista::sdk
 		 *
 		 * @param dto Dictionary of GmodVersioningDto objects indexed by version string with heterogeneous lookup
 		 */
-		explicit GmodVersioning( const internal::StringMap<GmodVersioningDto>& dto );
+		explicit GmodVersioning( const nfx::containers::StringMap<GmodVersioningDto>& dto );
 
 		/** @brief Default constructor. */
 		GmodVersioning() = delete;
@@ -81,12 +81,14 @@ namespace dnv::vista::sdk
 		/**
 		 * @brief Convert a GmodNode from one version to a higher version
 		 * @throws std::invalid_argument If targetVersion is not higher than sourceVersion
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] std::optional<GmodNode> convertNode( VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion ) const;
 
 		/**
 		 * @brief Convert a GmodNode with cached target GMOD
 		 * @throws std::invalid_argument If targetVersion is not higher than sourceVersion
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] std::optional<GmodNode> convertNode(
 			VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion, const Gmod& targetGmod ) const;
@@ -98,6 +100,7 @@ namespace dnv::vista::sdk
 		 * @param targetVersion The target VIS version.
 		 * @return An optional containing the converted GmodPath if successful, otherwise std::nullopt.
 		 * @throws std::invalid_argument if source or target versions are invalid or source >= target.
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] std::optional<GmodPath> convertPath( VisVersion sourceVersion, const GmodPath& sourcePath, VisVersion targetVersion ) const;
 
@@ -158,7 +161,7 @@ namespace dnv::vista::sdk
 			/**
 			 * @brief Constructor for GmodVersioningNode
 			 */
-			GmodVersioningNode( VisVersion visVersion, const internal::StringMap<GmodNodeConversionDto>& dto );
+			GmodVersioningNode( VisVersion visVersion, const nfx::containers::StringMap<GmodNodeConversionDto>& dto );
 
 			/** @brief Default constructor. */
 			GmodVersioningNode() = default;
@@ -206,14 +209,14 @@ namespace dnv::vista::sdk
 			//----------------------------
 
 			VisVersion m_visVersion;
-			internal::StringMap<GmodNodeConversion> m_versioningNodeChanges;
+			nfx::containers::StringMap<GmodNodeConversion> m_versioningNodeChanges;
 		};
 
 		//----------------------------------------------
 		// Private member variables
 		//----------------------------------------------
 
-		internal::HashMap<VisVersion, GmodVersioningNode> m_versioningsMap;
+		nfx::containers::HashMap<VisVersion, GmodVersioningNode> m_versioningsMap;
 
 		//----------------------------------------------
 		// Private helper methods
@@ -221,6 +224,7 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Internal implementation for converting a node between adjacent versions
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] std::optional<GmodNode> convertNodeInternal(
 			VisVersion sourceVersion,
@@ -228,12 +232,14 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Internal implementation for converting a node with cached GMOD
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] std::optional<GmodNode> convertNodeInternal(
 			VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion, const Gmod& targetGmod ) const;
 
 		/**
 		 * @brief Try to get a versioning node for a specific VIS version
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline bool tryGetVersioningNode( VisVersion visVersion, const GmodVersioningNode*& versioningNode ) const;
 

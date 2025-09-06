@@ -3,7 +3,8 @@
  * @brief Unit tests for the Generic Product Model (GMOD) functionality
  */
 
-#include "dnv/vista/sdk/utils/StringUtils.h"
+#include <nfx/string/Utils.h>
+#include <gtest/gtest.h>
 
 #include "dnv/vista/sdk/GmodPath.h"
 #include "dnv/vista/sdk/VIS.h"
@@ -40,7 +41,15 @@ namespace dnv::vista::sdk::tests
 
 		struct TraversalState
 		{
-			TraversalState( int stopAfter ) : stopAfter{ stopAfter }, nodeCount{ 0 } {}
+			/**
+			 * @brief Constructs a TraversalState with a stopping condition
+			 * @param stopAfter Number of nodes after which traversal should stop
+			 */
+			TraversalState( int stopAfterNNode )
+				: stopAfter{ stopAfterNNode },
+				  nodeCount{ 0 }
+			{
+			}
 
 			int stopAfter;
 			int nodeCount;

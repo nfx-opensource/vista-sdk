@@ -6,6 +6,9 @@
 
 #pragma once
 
+#include <string>
+#include <string_view>
+
 #include "ImoNumber.h"
 #include "LocalId.h"
 
@@ -101,6 +104,7 @@ namespace dnv::vista::sdk
 		 * @brief Gets the IMO number component.
 		 * @return Constant reference to the IMO number.
 		 * @note Guaranteed to be valid for successfully constructed UniversalId.
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline const ImoNumber& imoNumber() const noexcept;
 
@@ -108,6 +112,7 @@ namespace dnv::vista::sdk
 		 * @brief Gets the Local ID component.
 		 * @return Constant reference to the Local ID.
 		 * @note Guaranteed to be valid for successfully constructed UniversalId.
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline const LocalId& localId() const noexcept;
 
@@ -118,6 +123,7 @@ namespace dnv::vista::sdk
 		/**
 		 * @brief Converts to canonical string representation.
 		 * @return String in format "data.dnv.com/IMO1234567/dnv-v2/vis-3-4a/...".
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] std::string toString() const;
 

@@ -3,9 +3,8 @@
  * @brief Inline implementations for DataChannelId class
  */
 
-#pragma once
-
-#include "dnv/vista/sdk/internal/StringBuilderPool.h"
+#include <stdexcept>
+#include <nfx/string/StringBuilderPool.h>
 
 namespace dnv::vista::sdk::transport
 {
@@ -19,22 +18,16 @@ namespace dnv::vista::sdk::transport
 
 	inline DataChannelId::DataChannelId( const LocalId& localId ) noexcept
 		: m_tag{ Tag::LocalId },
-		  m_localId{ localId }
+		  m_localId{ localId },
+		  m_shortId{ std::nullopt }
 	{
 	}
 
-	inline DataChannelId::DataChannelId( std::string_view shortId )
+	inline DataChannelId::DataChannelId( std::string_view shortId ) noexcept
 		: m_tag{ Tag::ShortId },
+		  m_localId{ std::nullopt },
 		  m_shortId{ shortId }
 	{
-		if ( m_shortId->empty() )
-		{
-			auto lease = internal::StringBuilderPool::lease();
-			auto builder = lease.builder();
-			builder.append( "DataChannelId shortId cannot be empty" );
-
-			throw std::invalid_argument( lease.toString() );
-		}
 	}
 
 	//----------------------------------------------
@@ -119,15 +112,23 @@ namespace dnv::vista::sdk::transport
 		{
 			case Tag::LocalId:
 			{
+				if ( !m_localId.has_value() ) [[unlikely]]
+				{
+					throw std::logic_error{ "Invalid state: LocalId not initialized" };
+				}
 				return std::forward<LocalIdFunc>( onLocalId )( *m_localId );
 			}
 			case Tag::ShortId:
 			{
+				if ( !m_shortId.has_value() ) [[unlikely]]
+				{
+					throw std::logic_error{ "Invalid state: ShortId not initialized" };
+				}
 				return std::forward<ShortIdFunc>( onShortId )( std::string_view{ *m_shortId } );
 			}
 			default:
 			{
-				throw std::logic_error( "Should never happen" );
+				throw std::logic_error{ "Should never happen" };
 			}
 		}
 	}
@@ -139,18 +140,26 @@ namespace dnv::vista::sdk::transport
 		{
 			case Tag::LocalId:
 			{
+				if ( !m_localId.has_value() ) [[unlikely]]
+				{
+					throw std::logic_error{ "Invalid state: LocalId not initialized" };
+				}
 				std::forward<LocalIdFunc>( onLocalId )( *m_localId );
 				break;
 			}
 			case Tag::ShortId:
 			{
+				if ( !m_shortId.has_value() ) [[unlikely]]
+				{
+					throw std::logic_error{ "Invalid state: ShortId not initialized" };
+				}
 				std::forward<ShortIdFunc>( onShortId )( std::string_view{ *m_shortId } );
 				break;
 			}
 
 			default:
 			{
-				throw std::logic_error( "Should never happen" );
+				throw std::logic_error{ "Should never happen" };
 			}
 		}
 	}

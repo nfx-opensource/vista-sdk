@@ -3,6 +3,8 @@
  * @brief Comprehensive tests for ShipId class
  */
 
+#include <gtest/gtest.h>
+
 #include "dnv/vista/sdk/transport/ShipId.h"
 #include "dnv/vista/sdk/ImoNumber.h"
 
@@ -168,8 +170,8 @@ namespace dnv::vista::sdk::tests
 
 	TEST( ShipId, ParseEmptyStringThrows )
 	{
-		EXPECT_THROW( transport::ShipId::parse( "" ), std::invalid_argument );
-		EXPECT_THROW( transport::ShipId::parse( std::string_view{} ), std::invalid_argument );
+		EXPECT_THROW( (void)transport::ShipId::parse( "" ), std::invalid_argument );
+		EXPECT_THROW( (void)transport::ShipId::parse( std::string_view{} ), std::invalid_argument );
 	}
 
 	//=====================================================================

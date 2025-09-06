@@ -10,8 +10,15 @@
 
 #pragma once
 
-#include "internal/ChdDictionary.h"
-#include "internal/HashMap.h"
+#include <optional>
+#include <string>
+#include <string_view>
+#include <vector>
+
+#include <nfx/containers/ChdHashMap.h>
+#include <nfx/containers/HashMap.h>
+
+#include "config/config.h"
 
 namespace dnv::vista::sdk
 {
@@ -162,6 +169,7 @@ namespace dnv::vista::sdk
 		/**
 		 * @brief Gets the VIS version of this GMOD instance.
 		 * @return The VisVersion enum value.
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline VisVersion visVersion() const;
 
@@ -171,6 +179,7 @@ namespace dnv::vista::sdk
 		 *          for traversing the GMOD structure.
 		 * @return A const reference to the root GmodNode.
 		 * @throws std::runtime_error If the GMOD is not properly initialized or has no root node.
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline const GmodNode& rootNode() const;
 
@@ -232,7 +241,7 @@ namespace dnv::vista::sdk
 		 * @param options Traversal configuration
 		 * @return true if completed, false if stopped early
 		 */
-		VISTA_SDK_CPP_FORCE_INLINE bool traverse( TraverseHandler handler, const TraversalOptions& options = {} ) const;
+		VISTA_SDK_CPP_INLINE bool traverse( TraverseHandler handler, const TraversalOptions& options = {} ) const;
 
 		/**
 		 * @brief Traverse GMOD tree with stateful handler
@@ -243,7 +252,7 @@ namespace dnv::vista::sdk
 		 * @return true if completed, false if stopped early
 		 */
 		template <typename TState>
-		VISTA_SDK_CPP_FORCE_INLINE bool traverse( TState& state, TraverseHandlerWithState<TState> handler, const TraversalOptions& options = {} ) const;
+		VISTA_SDK_CPP_INLINE bool traverse( TState& state, TraverseHandlerWithState<TState> handler, const TraversalOptions& options = {} ) const;
 
 		/**
 		 * @brief Traverse from specific root node
@@ -252,7 +261,7 @@ namespace dnv::vista::sdk
 		 * @param options Traversal configuration
 		 * @return true if completed, false if stopped early
 		 */
-		VISTA_SDK_CPP_FORCE_INLINE bool traverse( const GmodNode& rootNode, TraverseHandler handler, const TraversalOptions& options = {} ) const;
+		VISTA_SDK_CPP_INLINE bool traverse( const GmodNode& rootNode, TraverseHandler handler, const TraversalOptions& options = {} ) const;
 
 		/**
 		 * @brief Traverse from specific root with stateful handler
@@ -264,7 +273,7 @@ namespace dnv::vista::sdk
 		 * @return true if completed, false if stopped early
 		 */
 		template <typename TState>
-		VISTA_SDK_CPP_FORCE_INLINE bool traverse(
+		VISTA_SDK_CPP_INLINE bool traverse(
 			TState& state, const GmodNode& rootNode, TraverseHandlerWithState<TState> handler, const TraversalOptions& options = {} ) const;
 
 		/**
@@ -362,7 +371,7 @@ namespace dnv::vista::sdk
 		/**
 		 * @brief An enumerator for iterating over all nodes within a Gmod instance.
 		 * @details Provides a way to access each GmodNode in the GMOD's internal collection.
-		 *          The order of iteration depends on the underlying ChdDictionary.
+		 *          The order of iteration depends on the underlying ChdHashMap.
 		 */
 		class Enumerator final
 		{
@@ -375,9 +384,9 @@ namespace dnv::vista::sdk
 		private:
 			/**
 			 * @brief Private constructor, typically called by Gmod::enumerator().
-			 * @param map Pointer to the ChdDictionary of GmodNodes to iterate over.
+			 * @param map Pointer to the ChdHashMap of GmodNodes to iterate over.
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE Enumerator( const internal::ChdDictionary<GmodNode>* map ) noexcept;
+			VISTA_SDK_CPP_INLINE Enumerator( const nfx::containers::ChdHashMap<GmodNode>* map ) noexcept;
 
 		public:
 			/** @brief Default constructor. */
@@ -408,28 +417,29 @@ namespace dnv::vista::sdk
 			 * @return A const reference to the current GmodNode.
 			 * @throws std::runtime_error If called when the enumerator is in an invalid state
 			 *                            (e.g., before the first moveNext() or after iteration has ended).
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const GmodNode& current() const;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const GmodNode& current() const;
 
 			/**
 			 * @brief Advances the enumerator to the next GmodNode in the collection.
 			 * @return True if the enumerator was successfully advanced to the next node;
 			 *         false if the end of the collection has been passed.
 			 */
-			bool VISTA_SDK_CPP_FORCE_INLINE next() noexcept;
+			bool VISTA_SDK_CPP_INLINE next() noexcept;
 
 			/**
 			 * @brief Resets the enumerator to its initial state, positioned before the first node.
 			 * @details After calling reset, next() must be called to access the first node.
 			 */
-			void VISTA_SDK_CPP_FORCE_INLINE reset() noexcept;
+			void VISTA_SDK_CPP_INLINE reset() noexcept;
 
 			//-----------------------------
 			// Private member variables
 			//-----------------------------
 
-			const internal::ChdDictionary<GmodNode>* m_sourceMapPtr;
-			internal::ChdDictionary<GmodNode>::Iterator m_currentMapIterator;
+			const nfx::containers::ChdHashMap<GmodNode>* m_sourceMapPtr;
+			nfx::containers::ChdHashMap<GmodNode>::Iterator m_currentMapIterator;
 			bool m_isInitialState;
 		};
 
@@ -445,15 +455,47 @@ namespace dnv::vista::sdk
 		class Parents
 		{
 		public:
-			VISTA_SDK_CPP_FORCE_INLINE Parents();
-			VISTA_SDK_CPP_FORCE_INLINE void push( const GmodNode* parent );
-			VISTA_SDK_CPP_FORCE_INLINE void pop();
+			/**
+			 * @brief Constructor for parent stack
+			 * @details Initializes an empty parent stack for traversal operations
+			 */
+			VISTA_SDK_CPP_INLINE Parents();
+
+			/**
+			 * @brief Pushes a parent node onto the stack
+			 * @param parent Pointer to the parent node to add
+			 */
+			VISTA_SDK_CPP_INLINE void push( const GmodNode* parent );
+
+			/**
+			 * @brief Pops the last parent node from the stack
+			 */
+			VISTA_SDK_CPP_INLINE void pop();
+
+			/**
+			 * @brief Gets the number of times a node appears in the parent stack
+			 * @param node The node to count occurrences for
+			 * @return Number of times the node appears in the stack
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+			 */
 			[[nodiscard]] inline size_t occurrences( const GmodNode& node ) const noexcept;
+
+			/**
+			 * @brief Gets the last parent node in the stack
+			 * @return Pointer to the last parent node, or nullptr if stack is empty
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+			 */
 			[[nodiscard]] inline const GmodNode* lastOrDefault() const noexcept;
+
+			/**
+			 * @brief Gets the parent stack as a vector
+			 * @return Reference to the vector containing all parent nodes
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+			 */
 			[[nodiscard]] inline const std::vector<const GmodNode*>& asList() const noexcept;
 
 		private:
-			internal::HashMap<std::string, size_t> m_occurrences;
+			nfx::containers::HashMap<std::string, size_t> m_occurrences;
 			std::vector<const GmodNode*> m_parents;
 		};
 
@@ -470,7 +512,10 @@ namespace dnv::vista::sdk
 			size_t maxTraversalOccurrence;
 
 			TraversalContext( Parents& p, TraverseHandlerWithState<TState> h, TState& s, size_t maxOcc )
-				: parents( p ), handler( h ), state( s ), maxTraversalOccurrence( maxOcc )
+				: parents{ p },
+				  handler{ h },
+				  state{ s },
+				  maxTraversalOccurrence{ maxOcc }
 			{
 			}
 
@@ -482,6 +527,7 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Core traversal implementation
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		template <typename TState>
 		[[nodiscard]] inline TraversalHandlerResult traverseNode( TraversalContext<TState>& context, const GmodNode& node ) const;
@@ -505,7 +551,7 @@ namespace dnv::vista::sdk
 		 * @details This dictionary maps node codes (strings) to GmodNode objects.
 		 *          It owns the GmodNode instances.
 		 */
-		internal::ChdDictionary<GmodNode> m_nodeMap;
+		nfx::containers::ChdHashMap<GmodNode> m_nodeMap;
 	};
 }
 

@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include "internal/StringMap.h"
-#include "GmodNode.h"
+#include <nfx/containers/StringMap.h>
+
 #include "GmodPath.h"
 #include "Locations.h"
 
@@ -33,6 +33,7 @@ namespace dnv::vista::sdk
 		/** @brief Default constructor */
 		NodeItem() = delete;
 
+		/** @brief Construct NodeItem with specified node and locations */
 		NodeItem( GmodNode node, std::vector<Location> locations ) noexcept;
 
 		/** @brief Copy constructor */
@@ -62,13 +63,22 @@ namespace dnv::vista::sdk
 		// Accessors
 		//----------------------------------------------
 
-		/** @brief Get the GmodNode associated with this filter item */
+		/**
+		 * @brief Get the GmodNode associated with this filter item
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
 		[[nodiscard]] inline const GmodNode& node() const noexcept;
 
-		/** @brief Get the vector of locations to match for this node */
+		/**
+		 * @brief Get the vector of locations to match for this node
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
 		[[nodiscard]] inline const std::vector<Location>& locations() const noexcept;
 
-		/** @brief Check if this item matches all locations (no location filtering) */
+		/**
+		 * @brief Check if this item matches all locations (no location filtering)
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
 		[[nodiscard]] inline bool matchAllLocations() const noexcept;
 
 		//----------------------------------------------
@@ -144,6 +154,7 @@ namespace dnv::vista::sdk
 		/**
 		 * @brief Get the source GMOD path (if created from a path)
 		 * @return Optional reference to the source path
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline const std::optional<GmodPath>& sourcePath() const noexcept;
 
@@ -155,12 +166,14 @@ namespace dnv::vista::sdk
 		 * @brief Create a query from an existing GMOD path
 		 * @param path The GMOD path to base the query on
 		 * @return New query that can be further configured
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline static GmodPathQuery fromPath( const GmodPath& path );
 
 		/**
 		 * @brief Create an empty query for node-based filtering
 		 * @return New empty query that can be configured with individual nodes
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline static GmodPathQuery empty();
 
@@ -177,9 +190,10 @@ namespace dnv::vista::sdk
 		 * @param selector Function to select a node from available set nodes
 		 * @param matchAllLocations Whether to match all locations for this node
 		 * @return New query instance with the constraint added
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] GmodPathQuery withNode(
-			std::function<const GmodNode&( const internal::StringMap<GmodNode>& )> selector,
+			std::function<const GmodNode&( const nfx::containers::StringMap<GmodNode>& )> selector,
 			bool matchAllLocations = false ) const;
 
 		/**
@@ -187,9 +201,10 @@ namespace dnv::vista::sdk
 		 * @param selector Function to select a node from available set nodes
 		 * @param locations Vector of specific locations to match
 		 * @return New query instance with the constraint added
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] GmodPathQuery withNode(
-			std::function<const GmodNode&( const internal::StringMap<GmodNode>& )> selector,
+			std::function<const GmodNode&( const nfx::containers::StringMap<GmodNode>& )> selector,
 			const std::vector<Location>& locations ) const;
 
 		//----------------------------
@@ -201,6 +216,7 @@ namespace dnv::vista::sdk
 		 * @param node The GMOD node to add to the query
 		 * @param matchAllLocations Whether to match all locations for this node
 		 * @return New query instance with the constraint added
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] GmodPathQuery withNode( const GmodNode& node, bool matchAllLocations = false ) const;
 
@@ -209,6 +225,7 @@ namespace dnv::vista::sdk
 		 * @param node The GMOD node to add to the query
 		 * @param locations Vector of specific locations to match
 		 * @return New query instance with the constraint added
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] GmodPathQuery withNode( const GmodNode& node, const std::vector<Location>& locations ) const;
 
@@ -219,6 +236,7 @@ namespace dnv::vista::sdk
 		/**
 		 * @brief Remove location constraints for all nodes in the query
 		 * @return New query instance without location constraints
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline GmodPathQuery withoutLocations() const;
 
@@ -230,6 +248,7 @@ namespace dnv::vista::sdk
 		 * @brief Test if a GMOD path matches this query
 		 * @param other The path to test against this query
 		 * @return True if the path matches all query criteria
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] bool match( const GmodPath* other ) const;
 
@@ -238,15 +257,28 @@ namespace dnv::vista::sdk
 		// Private member variables
 		//----------------------------------------------
 
-		internal::StringMap<NodeItem> m_filter;
+		nfx::containers::StringMap<NodeItem> m_filter;
 		std::optional<GmodPath> m_sourcePath;
-		internal::StringMap<GmodNode> m_setNodes;
+		nfx::containers::StringMap<GmodNode> m_setNodes;
 
 		//----------------------------------------------
 		// Helper methods
 		//----------------------------------------------
 
+		/**
+		 * @brief Ensures the path uses the correct VIS version for query operations
+		 * @param path The path to validate and potentially convert
+		 * @return Path with proper VIS version for querying
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
 		[[nodiscard]] static GmodPath ensurePathVersion( const GmodPath& path );
+
+		/**
+		 * @brief Ensures the node uses the correct VIS version for query operations
+		 * @param node The node to validate and potentially convert
+		 * @return Node with proper VIS version for querying
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
 		[[nodiscard]] static GmodNode ensureNodeVersion( const GmodNode& node );
 	};
 }

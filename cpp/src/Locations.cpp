@@ -3,12 +3,11 @@
  * @brief Implements the Locations, Location, RelativeLocation, and related helper classes.
  */
 
-#include "dnv/vista/sdk/Locations.h"
+#include <nfx/string/StringBuilderPool.h>
 
+#include "dnv/vista/sdk/Locations.h"
 #include "dnv/vista/sdk/constants/LocationsConstants.h"
 #include "internal/LocationParsingErrorBuilder.h"
-#include "dnv/vista/sdk/internal/StringBuilderPool.h"
-
 #include "dnv/vista/sdk/ParsingErrors.h"
 #include "dnv/vista/sdk/VISVersion.h"
 
@@ -84,23 +83,23 @@ namespace dnv::vista::sdk
 	{
 		if ( static_cast<int>( key ) <= 0 )
 		{
-			auto lease = internal::StringBuilderPool::lease();
+			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "Unsupported code: " );
 			builder.append( std::to_string( static_cast<int>( key ) ) );
 
-			throw std::runtime_error( lease.toString() );
+			throw std::runtime_error{ lease.toString() };
 		}
 
 		auto index{ static_cast<size_t>( key ) - 1 };
 		if ( index >= m_table.size() )
 		{
-			auto lease = internal::StringBuilderPool::lease();
+			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "Unsupported code: " );
 			builder.append( std::to_string( static_cast<int>( key ) ) );
 
-			throw std::runtime_error( lease.toString() );
+			throw std::runtime_error{ lease.toString() };
 		}
 
 		return m_table[index];
@@ -182,12 +181,12 @@ namespace dnv::vista::sdk
 			}
 			else
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "Unsupported code: " );
 				builder.append( std::string_view{ &code, 1 } );
 
-				throw std::invalid_argument( lease.toString() );
+				throw std::invalid_argument{ lease.toString() };
 			}
 
 			if ( m_groups.find( key ) == m_groups.end() )
@@ -238,11 +237,11 @@ namespace dnv::vista::sdk
 		Location location;
 		if ( !tryParse( locationStr, location ) )
 		{
-			auto lease = internal::StringBuilderPool::lease();
+			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "Invalid location: " );
 			builder.append( locationStr );
-			throw std::invalid_argument( lease.toString() );
+			throw std::invalid_argument{ lease.toString() };
 		}
 
 		return location;
@@ -355,7 +354,7 @@ namespace dnv::vista::sdk
 			{
 				if ( prevDigitIndex != -1 && prevDigitIndex != static_cast<int>( i ) - 1 )
 				{
-					auto lease = internal::StringBuilderPool::lease();
+					auto lease = nfx::string::StringBuilderPool::lease();
 					auto builder = lease.builder();
 					builder.append( "Invalid location: cannot have multiple separated digits in location: '" );
 					builder.append( displayString() );
@@ -368,7 +367,7 @@ namespace dnv::vista::sdk
 
 				if ( charsStartIndex != -1 )
 				{
-					auto lease = internal::StringBuilderPool::lease();
+					auto lease = nfx::string::StringBuilderPool::lease();
 					auto builder = lease.builder();
 					builder.append( "Invalid location: numeric location should start before location code(s) in location: '" );
 					builder.append( displayString() );
@@ -400,7 +399,7 @@ namespace dnv::vista::sdk
 
 			if ( !valid )
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				const std::string& source = displayString();
 				bool first = true;
@@ -421,7 +420,7 @@ namespace dnv::vista::sdk
 					}
 				}
 
-				auto errorLease = internal::StringBuilderPool::lease();
+				auto errorLease = nfx::string::StringBuilderPool::lease();
 				auto errorMsgBuilder = errorLease.builder();
 				errorMsgBuilder.append( "Invalid location code: '" );
 				errorMsgBuilder.append( displayString() );
@@ -441,7 +440,7 @@ namespace dnv::vista::sdk
 				if ( !charDict.tryAdd( group, ch, existingValue ) )
 				{
 					const std::string_view groupName = groupNameToString( group );
-					auto lease = internal::StringBuilderPool::lease();
+					auto lease = nfx::string::StringBuilderPool::lease();
 					auto builder = lease.builder();
 					builder.append( "Invalid location: Multiple '" );
 					builder.append( groupName );
@@ -464,7 +463,7 @@ namespace dnv::vista::sdk
 				char prevCh = span[i - 1];
 				if ( !std::isdigit( prevCh ) && ch < prevCh )
 				{
-					auto lease = internal::StringBuilderPool::lease();
+					auto lease = nfx::string::StringBuilderPool::lease();
 					auto builder = lease.builder();
 					builder.append( "Invalid location: '" );
 					builder.append( displayString() );

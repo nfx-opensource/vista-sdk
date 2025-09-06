@@ -3,13 +3,12 @@
  * @brief Implementation of ISO 19848 standard data access
  */
 
+#include <nfx/containers/HashMap.h>
+#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/Utils.h>
+
 #include "dnv/vista/sdk/transport/ISO19848.h"
-
 #include "dnv/vista/sdk/constants/ISO19848Constants.h"
-#include "dnv/vista/sdk/internal/HashMap.h"
-#include "dnv/vista/sdk/internal/StringBuilderPool.h"
-#include "dnv/vista/sdk/utils/StringUtils.h"
-
 #include "dnv/vista/sdk/EmbeddedResource.h"
 
 namespace dnv::vista::sdk::transport
@@ -33,10 +32,10 @@ namespace dnv::vista::sdk::transport
 	//----------------------------------------------
 
 	ISO19848::ISO19848() noexcept
-		: m_dataChannelTypeNamesDtoCache{ internal::MemoryCacheOptions{ 10, std::chrono::hours( 1 ), std::chrono::hours( 1 ) } },
-		  m_dataChannelTypeNamesCache{ internal::MemoryCacheOptions{ 10, std::chrono::hours( 1 ), std::chrono::hours( 1 ) } },
-		  m_formatDataTypesDtoCache{ internal::MemoryCacheOptions{ 10, std::chrono::hours( 1 ), std::chrono::hours( 1 ) } },
-		  m_formatDataTypesCache{ internal::MemoryCacheOptions{ 10, std::chrono::hours( 1 ), std::chrono::hours( 1 ) } }
+		: m_dataChannelTypeNamesDtoCache{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours( 1 ) } },
+		  m_dataChannelTypeNamesCache{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours( 1 ) } },
+		  m_formatDataTypesDtoCache{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours( 1 ) } },
+		  m_formatDataTypesCache{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours( 1 ) } }
 	{
 	}
 
@@ -61,7 +60,7 @@ namespace dnv::vista::sdk::transport
 
 				return DataChannelTypeNames{ std::move( values ) };
 			},
-			[]( internal::CacheEntry& entry ) {
+			[]( nfx::memory::CacheEntry& entry ) {
 				entry.size = 1;
 				entry.slidingExpiration = std::chrono::hours( 1 );
 			} );
@@ -84,7 +83,7 @@ namespace dnv::vista::sdk::transport
 
 				return FormatDataTypes{ std::move( values ) };
 			},
-			[]( internal::CacheEntry& entry ) {
+			[]( nfx::memory::CacheEntry& entry ) {
 				entry.size = 1;
 				entry.slidingExpiration = std::chrono::hours( 1 );
 			} );
@@ -102,12 +101,12 @@ namespace dnv::vista::sdk::transport
 				const auto dto = loadDataChannelTypeNamesDto( version );
 				if ( !dto.has_value() )
 				{
-					throw std::runtime_error( "Invalid state: Failed to load DataChannelTypeNamesDto" );
+					throw std::runtime_error{ "Invalid state: Failed to load DataChannelTypeNamesDto" };
 				}
 
 				return dto.value();
 			},
-			[]( internal::CacheEntry& entry ) {
+			[]( nfx::memory::CacheEntry& entry ) {
 				entry.size = 1;
 				entry.slidingExpiration = std::chrono::hours( 1 );
 			} );
@@ -121,12 +120,12 @@ namespace dnv::vista::sdk::transport
 				const auto dto = loadFormatDataTypesDto( version );
 				if ( !dto.has_value() )
 				{
-					throw std::runtime_error( "Invalid state: Failed to load FormatDataTypesDto" );
+					throw std::runtime_error{ "Invalid state: Failed to load FormatDataTypesDto" };
 				}
 
 				return dto.value();
 			},
-			[]( internal::CacheEntry& entry ) {
+			[]( nfx::memory::CacheEntry& entry ) {
 				entry.size = 1;
 				entry.slidingExpiration = std::chrono::hours( 1 );
 			} );
@@ -150,7 +149,7 @@ namespace dnv::vista::sdk::transport
 			}
 			default:
 			{
-				throw std::invalid_argument( "Invalid ISO19848Version" );
+				throw std::invalid_argument{ "Invalid ISO19848Version" };
 			}
 		}
 	}
@@ -169,7 +168,7 @@ namespace dnv::vista::sdk::transport
 			}
 			default:
 			{
-				throw std::invalid_argument( "Invalid ISO19848Version" );
+				throw std::invalid_argument{ "Invalid ISO19848Version" };
 			}
 		}
 	}
@@ -188,7 +187,7 @@ namespace dnv::vista::sdk::transport
 
 	DataChannelTypeNames::ParseResult DataChannelTypeNames::parse( std::string_view type ) const
 	{
-		static thread_local internal::HashMap<std::string, DataChannelTypeName> s_lookupCache;
+		static thread_local nfx::containers::HashMap<std::string, DataChannelTypeName> s_lookupCache;
 		static thread_local bool s_cacheInitialized = false;
 
 		if ( !s_cacheInitialized )
@@ -221,12 +220,12 @@ namespace dnv::vista::sdk::transport
 	{
 		outValue = Value{ Value::String{ value } };
 
-		if ( utils::equals( m_type, constants::iso19848::FORMAT_TYPE_DECIMAL ) )
+		if ( nfx::string::equals( m_type, constants::iso19848::FORMAT_TYPE_DECIMAL ) )
 		{
-			datatypes::Decimal128 d;
-			if ( !datatypes::Decimal128::tryParse( value, d ) )
+			nfx::datatypes::Decimal d;
+			if ( !nfx::datatypes::Decimal::tryParse( value, d ) )
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "Invalid decimal value - Value='" );
 				builder.append( value );
@@ -238,12 +237,12 @@ namespace dnv::vista::sdk::transport
 			outValue = Value{ Value::Decimal{ d } };
 			return ValidateResult{ ValidateResult::Ok{} };
 		}
-		else if ( utils::equals( m_type, constants::iso19848::FORMAT_TYPE_DOUBLE ) )
+		else if ( nfx::string::equals( m_type, constants::iso19848::FORMAT_TYPE_DOUBLE ) )
 		{
 			double d;
-			if ( !utils::tryParseDouble( value, d ) )
+			if ( !nfx::string::tryParseDouble( value, d ) )
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "Invalid double value - Value='" );
 				builder.append( value );
@@ -255,12 +254,12 @@ namespace dnv::vista::sdk::transport
 			outValue = Value{ Value::Double{ d } };
 			return ValidateResult{ ValidateResult::Ok{} };
 		}
-		else if ( utils::equals( m_type, constants::iso19848::FORMAT_TYPE_INTEGER ) )
+		else if ( nfx::string::equals( m_type, constants::iso19848::FORMAT_TYPE_INTEGER ) )
 		{
 			int i;
-			if ( !utils::tryParseInt( value, i ) )
+			if ( !nfx::string::tryParseInt( value, i ) )
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "Invalid integer value - Value='" );
 				builder.append( value );
@@ -272,12 +271,12 @@ namespace dnv::vista::sdk::transport
 			outValue = Value{ Value::Integer{ i } };
 			return ValidateResult{ ValidateResult::Ok{} };
 		}
-		else if ( utils::equals( m_type, constants::iso19848::FORMAT_TYPE_BOOLEAN ) )
+		else if ( nfx::string::equals( m_type, constants::iso19848::FORMAT_TYPE_BOOLEAN ) )
 		{
 			bool b;
-			if ( !utils::tryParseBool( value, b ) )
+			if ( !nfx::string::tryParseBool( value, b ) )
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "Invalid boolean value - Value='" );
 				builder.append( value );
@@ -289,11 +288,11 @@ namespace dnv::vista::sdk::transport
 			outValue = Value{ Value::Boolean{ b } };
 			return ValidateResult{ ValidateResult::Ok{} };
 		}
-		else if ( utils::equals( m_type, constants::iso19848::FORMAT_TYPE_CHAR ) )
+		else if ( nfx::string::equals( m_type, constants::iso19848::FORMAT_TYPE_CHAR ) )
 		{
-			if ( !utils::hasExactLength( value, 1 ) )
+			if ( !nfx::string::hasExactLength( value, 1 ) )
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "Invalid char value - Value='" );
 				builder.append( value );
@@ -305,12 +304,12 @@ namespace dnv::vista::sdk::transport
 			outValue = Value{ Value::Char{ value[0] } };
 			return ValidateResult{ ValidateResult::Ok{} };
 		}
-		else if ( utils::equals( m_type, constants::iso19848::FORMAT_TYPE_UNSIGNED_INTEGER ) )
+		else if ( nfx::string::equals( m_type, constants::iso19848::FORMAT_TYPE_UNSIGNED_INTEGER ) )
 		{
 			std::uint32_t ui;
-			if ( !utils::tryParseUInt( value, ui ) )
+			if ( !nfx::string::tryParseUInt( value, ui ) )
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "Invalid unsigned integer value - Value='" );
 				builder.append( value );
@@ -322,12 +321,12 @@ namespace dnv::vista::sdk::transport
 			outValue = Value{ Value::UnsignedInteger{ ui } };
 			return ValidateResult{ ValidateResult::Ok{} };
 		}
-		else if ( utils::equals( m_type, constants::iso19848::FORMAT_TYPE_LONG ) )
+		else if ( nfx::string::equals( m_type, constants::iso19848::FORMAT_TYPE_LONG ) )
 		{
 			std::int64_t l;
-			if ( !utils::tryParseLong( value, l ) )
+			if ( !nfx::string::tryParseLong( value, l ) )
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "Invalid long value - Value='" );
 				builder.append( value );
@@ -339,16 +338,16 @@ namespace dnv::vista::sdk::transport
 			outValue = Value{ Value::Long{ l } };
 			return ValidateResult{ ValidateResult::Ok{} };
 		}
-		else if ( utils::equals( m_type, constants::iso19848::FORMAT_TYPE_STRING ) )
+		else if ( nfx::string::equals( m_type, constants::iso19848::FORMAT_TYPE_STRING ) )
 		{
 			return ValidateResult{ ValidateResult::Ok{} };
 		}
-		else if ( utils::equals( m_type, constants::iso19848::FORMAT_TYPE_DATETIME ) )
+		else if ( nfx::string::equals( m_type, constants::iso19848::FORMAT_TYPE_DATETIME ) )
 		{
-			datatypes::DateTimeOffset dt;
-			if ( !datatypes::DateTimeOffset::tryParse( value, dt ) )
+			nfx::time::DateTimeOffset dt;
+			if ( !nfx::time::DateTimeOffset::tryParse( value, dt ) )
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "Invalid datetime value - Value='" );
 				builder.append( value );
@@ -362,13 +361,13 @@ namespace dnv::vista::sdk::transport
 		}
 		else
 		{
-			auto lease = internal::StringBuilderPool::lease();
+			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 
 			builder.append( "Invalid format type " );
 			builder.append( m_type );
 
-			throw std::runtime_error( lease.toString() );
+			throw std::runtime_error{ lease.toString() };
 		}
 	}
 
@@ -386,7 +385,7 @@ namespace dnv::vista::sdk::transport
 
 	FormatDataTypes::ParseResult FormatDataTypes::parse( std::string_view type ) const
 	{
-		static thread_local internal::HashMap<std::string, FormatDataType> s_lookupCache;
+		static thread_local nfx::containers::HashMap<std::string, FormatDataType> s_lookupCache;
 		static thread_local bool s_cacheInitialized = false;
 
 		if ( !s_cacheInitialized )

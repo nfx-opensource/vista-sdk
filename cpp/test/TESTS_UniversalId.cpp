@@ -3,6 +3,8 @@
  * @brief Unit tests for LocalId and LocalIdBuilder classes.
  */
 
+#include <gtest/gtest.h>
+
 #include "TestDataLoader.h"
 
 #include "internal/LocalIdParsingErrorBuilder.h"
@@ -10,7 +12,6 @@
 #include "dnv/vista/sdk/Gmod.h"
 #include "dnv/vista/sdk/GmodPath.h"
 #include "dnv/vista/sdk/ImoNumber.h"
-
 #include "dnv/vista/sdk/LocalIdBuilder.h"
 #include "dnv/vista/sdk/Locations.h"
 #include "dnv/vista/sdk/ParsingErrors.h"
@@ -24,10 +25,11 @@ namespace dnv::vista::sdk::tests::test
 	//----------------------------------------------
 	// Test Data
 	//----------------------------------------------
-
-	static const std::vector<std::string> testData{ "data.dnv.com/IMO1234567/dnv-v2/vis-3-4a/621.21/S90/sec/411.1/C101/meta/qty-mass/cnt-fuel.oil/pos-inlet",
-		"data.dnv.com/IMO1234567/dnv-v2/vis-3-7a/612.21/C701.23/C633/meta/calc~accumulate" };
-
+	namespace
+	{
+		static const std::vector<std::string> testData{ "data.dnv.com/IMO1234567/dnv-v2/vis-3-4a/621.21/S90/sec/411.1/C101/meta/qty-mass/cnt-fuel.oil/pos-inlet",
+			"data.dnv.com/IMO1234567/dnv-v2/vis-3-7a/612.21/C701.23/C633/meta/calc~accumulate" };
+	}
 	//----------------------------------------------
 	// Test_TryParsing
 	//----------------------------------------------
@@ -147,7 +149,8 @@ namespace dnv::vista::sdk::tests::test
 	//----------------------------------------------
 
 	TEST( UniversalIdTests, Test_UniversalBuilder_TryWith )
-	{ /* TODO: Check this ! */
+	{
+		// TODO: Check this !
 		auto universalBuilder = UniversalIdBuilder::create( VisVersion::v3_4a ).withoutLocalId().withoutImoNumber();
 
 		(void)universalBuilder.tryWithLocalId( std::nullopt );

@@ -31,6 +31,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.26] - 2025-09-06
+
+### Added
+
+-   **nfx-core library integration**: Complete migration to nfx-core library replacing internal implementations
+    -   Migrate from internal HashMap to nfx::containers::HashMap
+    -   Migrate from internal ChdDictionary to nfx::containers::ChdHashMap
+    -   Migrate from internal MemoryCache to nfx::memory::MemoryCache
+    -   Migrate to nfx::containers::StringMap/StringSet for zero-copy string operations
+    -   Migrate to nfx::datatypes::Decimal for enhanced decimal arithmetic
+    -   Migrate to nfx::time::DateTime for improved time handling
+    -   Replace fmt::format with nfx::string::StringBuilderPool
+
+### Changed
+
+-   **BREAKING CHANGE**: Replace all internal container, memory, and string implementations with nfx-core equivalents
+    -   Complete architectural shift to nfx-core foundation
+    -   Updated method signatures and interfaces to align with nfx-core patterns
+    -   Modified internal architecture to leverage nfx-core capabilities
+-   **Compression upgrade**: Upgrade from zlib to zlib-ng v2.2.5 native API
+    -   Switch from zlib.h to zlib-ng.h header
+    -   Use zng_stream instead of z_stream type
+    -   Replace inflate functions with zng\_\* native API equivalents
+    -   Update EmbeddedResource decompression implementation
+-   **CMake build system modernization**: Clean up build configuration
+    -   Remove redundant include directories and dependencies
+    -   Clean up compiler settings and warning suppressions
+-   **API improvements**: Update Vista SDK C++ to v0.0.26 standards
+    -   Update GmodPathQuery API with improved NodeItem constructor
+    -   Replace VISTA_SDK_CPP_FORCE_INLINE with VISTA_SDK_CPP_INLINE
+    -   Update config.h documentation to reflect actual implementation
+
+### Fixed
+
+-   **Compilation warnings and includes**: Resolve build issues and missing dependencies
+    -   Fix string_view fprintf warnings in ISO19848Dtos.cpp
+    -   Add missing std headers for proper compilation
+    -   Replace fmt::print calls with std::cerr and std::fprintf
+
+### Removed
+
+-   **Legacy implementations**: Remove internal implementations in favor of nfx-core
+    -   Remove internal HashMap, ChdDictionary, MemoryCache implementations
+    -   Remove fmt:: dependencies replaced by nfx-core equivalents
+    -   Remove unused C++20 NO_UNIQUE_ADDRESS attributes
+
 ## [0.0.25] - 2025-09-05
 
 ### Changed

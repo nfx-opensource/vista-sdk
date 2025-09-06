@@ -6,6 +6,14 @@
 
 #pragma once
 
+#include <optional>
+#include <stdexcept>
+#include <tuple>
+
+#include "dnv/vista/sdk/Gmod.h"
+#include "dnv/vista/sdk/GmodNode.h"
+#include "dnv/vista/sdk/Locations.h"
+
 namespace dnv::vista::sdk
 {
 	namespace internal
@@ -14,7 +22,9 @@ namespace dnv::vista::sdk
 		{
 			size_t currentParentStart;
 
-			LocationSetsVisitor() : currentParentStart{ std::numeric_limits<size_t>().max() } {}
+			LocationSetsVisitor() : currentParentStart{ std::numeric_limits<size_t>().max() }
+			{
+			}
 
 			std::optional<std::tuple<size_t, size_t, std::optional<Location>>> visit(
 				const GmodNode& node, size_t i, const std::vector<GmodNode*>& pathParents, const GmodNode& pathTargetNode )
@@ -68,12 +78,12 @@ namespace dnv::vista::sdk
 								if ( nodes.has_value() && std::get<2>( nodes.value() ).has_value() && setNode->location().has_value() &&
 									 std::get<2>( nodes.value() ) != setNode->location() )
 								{
-									throw std::runtime_error( "Mapping error: different locations in the same nodeset" );
+									throw std::runtime_error{ "Mapping error: different locations in the same nodeset" };
 								}
 
 								if ( skippedOne != std::numeric_limits<size_t>().max() )
 								{
-									throw std::runtime_error( "Can't skip in the middle of individualizable set" );
+									throw std::runtime_error{ "Can't skip in the middle of individualizable set" };
 								}
 
 								if ( setNode->isFunctionComposition() )
@@ -82,12 +92,10 @@ namespace dnv::vista::sdk
 								}
 
 								auto location =
-									nodes.has_value() && std::get<2>( nodes.value() ).has_value()
-										? std::get<2>( nodes.value() )
-										: setNode->location();
-								size_t start = nodes.has_value()
-												   ? std::get<0>( nodes.value() )
-												   : j;
+									nodes.has_value() && std::get<2>( nodes.value() ).has_value() ? std::get<2>( nodes.value() )
+																								  : setNode->location();
+								size_t start = nodes.has_value() ? std::get<0>( nodes.value() )
+																 : j;
 								size_t end = j;
 								nodes = std::make_tuple( start, end, location );
 							}

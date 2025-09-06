@@ -3,6 +3,8 @@
  * @brief GMOD version conversion performance benchmark testing path conversion between VIS versions
  */
 
+#include <benchmark/benchmark.h>
+
 #include "dnv/vista/sdk/Gmod.h"
 #include "dnv/vista/sdk/GmodPath.h"
 #include "dnv/vista/sdk/VIS.h"
@@ -12,6 +14,8 @@ namespace dnv::vista::sdk::benchmarks
 	class GmodVersioningFixture : public benchmark::Fixture
 	{
 	public:
+		GmodVersioningFixture() = default;
+
 		virtual void SetUp( const benchmark::State& state ) override
 		{
 			(void)state;
@@ -22,13 +26,16 @@ namespace dnv::vista::sdk::benchmarks
 			std::optional<GmodPath> parsedPath;
 			if ( !m_gmod->tryParsePath( "411.1/C101.72/I101", parsedPath ) || !parsedPath.has_value() )
 			{
-				throw std::runtime_error( "Failed to parse test path" );
+				throw std::runtime_error{ "Failed to parse test path" };
 			}
 
 			m_gmodPath = std::move( parsedPath.value() );
 		}
 
-		virtual void TearDown( const benchmark::State& state ) override { (void)state; }
+		virtual void TearDown( const benchmark::State& state ) override
+		{
+			(void)state;
+		}
 
 	protected:
 		const Gmod* m_gmod = nullptr;

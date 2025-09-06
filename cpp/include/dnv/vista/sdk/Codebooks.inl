@@ -3,7 +3,7 @@
  * @brief Inline implementation of Codebooks class methods
  */
 
-#pragma once
+#include <iterator>
 
 namespace dnv::vista::sdk
 {
@@ -38,7 +38,7 @@ namespace dnv::vista::sdk
 			return m_codebooks[rawValue - 1];
 		}
 
-		throw std::invalid_argument( "Invalid codebook name: " + std::to_string( rawValue ) );
+		throw std::invalid_argument{ "Invalid codebook name: " + std::to_string( rawValue ) };
 	}
 
 	//----------------------------------------------
@@ -52,7 +52,7 @@ namespace dnv::vista::sdk
 
 	inline Codebooks::Iterator Codebooks::end() const noexcept
 	{
-		return m_codebooks.data() + NUM_CODEBOOKS;
+		return std::next( m_codebooks.data(), static_cast<std::ptrdiff_t>( m_codebooks.size() ) );
 	}
 
 	//----------------------------------------------

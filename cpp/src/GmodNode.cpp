@@ -4,7 +4,6 @@
  */
 
 #include "dnv/vista/sdk/GmodNode.h"
-
 #include "dnv/vista/sdk/Gmod.h"
 #include "dnv/vista/sdk/ParsingErrors.h"
 #include "dnv/vista/sdk/VIS.h"

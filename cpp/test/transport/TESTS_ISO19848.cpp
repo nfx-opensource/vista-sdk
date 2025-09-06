@@ -3,8 +3,10 @@
  * @brief ISO 19848 standard tests
  */
 
+#include <nfx/time/DateTime.h>
+#include <gtest/gtest.h>
+
 #include "dnv/vista/sdk/transport/ISO19848.h"
-#include "dnv/vista/sdk/datatypes/DateTimeISO8601.h"
 
 namespace dnv::vista::sdk::tests
 {
@@ -19,7 +21,7 @@ namespace dnv::vista::sdk::tests
 
 		void TearDown() override {}
 
-		/* Helper functions to reduce lambda verbosity */
+		// Helper functions to reduce lambda verbosity
 		static void unexpectedDecimal()
 		{
 			static_cast<void>( 0 );
@@ -50,10 +52,10 @@ namespace dnv::vista::sdk::tests
 			ADD_FAILURE() << "Expected specific type, got datetime";
 		}
 
-		/* Helper function to extract year from DateTimeOffset */
-		static std::string extractYearFromDateTimeOffset( const datatypes::DateTimeOffset& dto ) { return "datetime:" + std::to_string( dto.year() ); }
+		// Helper function to extract year from DateTimeOffset
+		static std::string extractYearFromDateTimeOffset( const nfx::time::DateTimeOffset& dto ) { return "datetime:" + std::to_string( dto.year() ); }
 
-		/* Type-specific suppression helpers */
+		// Type-specific suppression helpers
 		template <typename T>
 		static void suppressUnused( const T& ) { static_cast<void>( 0 ); }
 	};
@@ -95,14 +97,14 @@ namespace dnv::vista::sdk::tests
 
 	TEST_F( ISO19848Tests, Test_EmbeddedResource )
 	{
-		/* Test that we can find and read ISO19848 embedded resources */
+		// Test that we can find and read ISO19848 embedded resources
 		auto& iso = transport::ISO19848::instance();
 
-		/* Verify we can load data channel type names (uses embedded resources) */
+		// Verify we can load data channel type names (uses embedded resources)
 		auto dataChannelTypeNames = iso.dataChannelTypeNames( transport::ISO19848Version::v2024 );
 		ASSERT_NE( dataChannelTypeNames.begin(), dataChannelTypeNames.end() );
 
-		/* Verify we can load format data types (uses embedded resources) */
+		// Verify we can load format data types (uses embedded resources)
 		auto formatDataTypes = iso.formatDataTypes( transport::ISO19848Version::v2024 );
 		ASSERT_NE( formatDataTypes.begin(), formatDataTypes.end() );
 	}
@@ -265,18 +267,18 @@ namespace dnv::vista::sdk::tests
 		auto& iso = transport::ISO19848::instance();
 		auto formatDataTypes = iso.formatDataTypes( transport::ISO19848Version::v2024 );
 
-		/* Find the Integer format type for testing */
+		// Find the Integer format type for testing
 		auto parseResult = formatDataTypes.parse( "Integer" );
 		ASSERT_TRUE( parseResult.isOk() );
 		auto integerType = parseResult.ok().typeName();
 
-		/* Test switchOn method with valid integer */
+		// Test switchOn method with valid integer
 		bool switchCalled = false;
 		int switchValue = 0;
 		ASSERT_NO_THROW( {
 			integerType.switchOn(
 				"42",
-				[]( const datatypes::Decimal128& d ) {
+				[]( const nfx::datatypes::Decimal& d ) {
 					static_cast<void>( d );
 					ADD_FAILURE() << "Expected integer, got decimal";
 				},
@@ -292,7 +294,7 @@ namespace dnv::vista::sdk::tests
 					static_cast<void>( s );
 					ADD_FAILURE() << "Expected integer, got string";
 				},
-				[]( const datatypes::DateTimeOffset& tp ) {
+				[]( const nfx::time::DateTimeOffset& tp ) {
 					static_cast<void>( tp );
 					ADD_FAILURE() << "Expected integer, got datetime";
 				} );
@@ -300,12 +302,12 @@ namespace dnv::vista::sdk::tests
 		ASSERT_TRUE( switchCalled );
 		ASSERT_EQ( switchValue, 42 );
 
-		/* Test match method with valid integer */
+		// Test match method with valid integer
 		std::string matchResult;
 		ASSERT_NO_THROW( {
 			matchResult = integerType.matchOn<std::string>(
 				"123",
-				[]( const datatypes::Decimal128& d ) -> std::string {
+				[]( const nfx::datatypes::Decimal& d ) -> std::string {
 					static_cast<void>( d );
 					ADD_FAILURE() << "Expected integer, got decimal";
 					return "";
@@ -321,7 +323,7 @@ namespace dnv::vista::sdk::tests
 					ADD_FAILURE() << "Expected integer, got string";
 					return "";
 				},
-				[]( const datatypes::DateTimeOffset& tp ) -> std::string {
+				[]( const nfx::time::DateTimeOffset& tp ) -> std::string {
 					static_cast<void>( tp );
 					ADD_FAILURE() << "Expected integer, got datetime";
 					return "";
@@ -329,13 +331,13 @@ namespace dnv::vista::sdk::tests
 		} );
 		ASSERT_EQ( matchResult, "Matched integer: 123" );
 
-		/* Test that invalid values throw exceptions */
+		// Test that invalid values throw exceptions
 		ASSERT_THROW(
 			{
 				integerType.switchOn(
-					"not_a_number", []( const datatypes::Decimal128& d ) { static_cast<void>( d ); }, []( int i ) { static_cast<void>( i ); },
+					"not_a_number", []( const nfx::datatypes::Decimal& d ) { static_cast<void>( d ); }, []( int i ) { static_cast<void>( i ); },
 					[]( bool b ) { static_cast<void>( b ); }, []( std::string_view s ) { static_cast<void>( s ); },
-					[]( const datatypes::DateTimeOffset& tp ) { static_cast<void>( tp ); } );
+					[]( const nfx::time::DateTimeOffset& tp ) { static_cast<void>( tp ); } );
 			},
 			ValidationException );
 
@@ -343,7 +345,7 @@ namespace dnv::vista::sdk::tests
 			{
 				integerType.matchOn<std::string>(
 					"not_a_number",
-					[]( const datatypes::Decimal128& d ) -> std::string {
+					[]( const nfx::datatypes::Decimal& d ) -> std::string {
 						static_cast<void>( d );
 						return "";
 					},
@@ -359,7 +361,7 @@ namespace dnv::vista::sdk::tests
 						static_cast<void>( s );
 						return "";
 					},
-					[]( const datatypes::DateTimeOffset& tp ) -> std::string {
+					[]( const nfx::time::DateTimeOffset& tp ) -> std::string {
 						static_cast<void>( tp );
 						return "";
 					} );
@@ -381,11 +383,11 @@ namespace dnv::vista::sdk::tests
 		auto decimalType = parseResult.ok().typeName();
 
 		bool decimalCalled = false;
-		datatypes::Decimal128 decimalValue;
+		nfx::datatypes::Decimal decimalValue;
 		ASSERT_NO_THROW( {
 			decimalType.switchOn(
 				"123.456",
-				[&]( datatypes::Decimal128 d ) {
+				[&]( nfx::datatypes::Decimal d ) {
 					decimalCalled = true;
 					decimalValue = d;
 				},
@@ -401,17 +403,17 @@ namespace dnv::vista::sdk::tests
 					static_cast<void>( s );
 					ADD_FAILURE() << "Expected decimal, got string";
 				},
-				[]( const datatypes::DateTimeOffset& tp ) {
+				[]( const nfx::time::DateTimeOffset& tp ) {
 					static_cast<void>( tp );
 					ADD_FAILURE() << "Expected decimal, got datetime";
 				} );
 		} );
 		ASSERT_TRUE( decimalCalled );
 
-		/* Test with reasonable tolerance for IEEE 754 precision limits */
-		datatypes::Decimal128 expected( "123.456" );
-		datatypes::Decimal128 tolerance( "0.000001" );
-		datatypes::Decimal128 difference = ( decimalValue - expected ).abs();
+		// Test with reasonable tolerance for IEEE 754 precision limits
+		nfx::datatypes::Decimal expected( "123.456" );
+		nfx::datatypes::Decimal tolerance( "0.000001" );
+		nfx::datatypes::Decimal difference = ( decimalValue - expected ).abs();
 		ASSERT_TRUE( difference < tolerance );
 	}
 
@@ -429,7 +431,7 @@ namespace dnv::vista::sdk::tests
 		ASSERT_NO_THROW( {
 			integerType.switchOn(
 				"42",
-				[]( datatypes::Decimal128 d ) {
+				[]( nfx::datatypes::Decimal d ) {
 					static_cast<void>( d );
 					ADD_FAILURE() << "Expected integer, got decimal";
 				},
@@ -445,7 +447,7 @@ namespace dnv::vista::sdk::tests
 					static_cast<void>( s );
 					ADD_FAILURE() << "Expected integer, got string";
 				},
-				[]( const datatypes::DateTimeOffset& tp ) {
+				[]( const nfx::time::DateTimeOffset& tp ) {
 					static_cast<void>( tp );
 					ADD_FAILURE() << "Expected integer, got datetime";
 				} );
@@ -468,7 +470,7 @@ namespace dnv::vista::sdk::tests
 		ASSERT_NO_THROW( {
 			booleanType.switchOn(
 				"true",
-				[]( datatypes::Decimal128 d ) {
+				[]( nfx::datatypes::Decimal d ) {
 					static_cast<void>( d );
 					ADD_FAILURE() << "Expected boolean, got decimal";
 				},
@@ -484,7 +486,7 @@ namespace dnv::vista::sdk::tests
 					static_cast<void>( s );
 					ADD_FAILURE() << "Expected boolean, got string";
 				},
-				[]( const datatypes::DateTimeOffset& tp ) {
+				[]( const nfx::time::DateTimeOffset& tp ) {
 					static_cast<void>( tp );
 					ADD_FAILURE() << "Expected boolean, got datetime";
 				} );
@@ -507,7 +509,7 @@ namespace dnv::vista::sdk::tests
 		ASSERT_NO_THROW( {
 			stringType.switchOn(
 				"Hello World",
-				[]( datatypes::Decimal128 d ) {
+				[]( nfx::datatypes::Decimal d ) {
 					static_cast<void>( d );
 					ADD_FAILURE() << "Expected string, got decimal";
 				},
@@ -521,9 +523,9 @@ namespace dnv::vista::sdk::tests
 				},
 				[&]( std::string_view s ) {
 					stringCalled = true;
-					stringValue = std::string( s );
+					stringValue = std::string{ s };
 				},
-				[]( const datatypes::DateTimeOffset& tp ) {
+				[]( const nfx::time::DateTimeOffset& tp ) {
 					static_cast<void>( tp );
 					ADD_FAILURE() << "Expected string, got datetime";
 				} );
@@ -542,11 +544,11 @@ namespace dnv::vista::sdk::tests
 		auto dateTimeType = parseResult.ok().typeName();
 
 		bool dateTimeCalled = false;
-		datatypes::DateTimeOffset dateTimeValue;
+		nfx::time::DateTimeOffset dateTimeValue;
 		ASSERT_NO_THROW( {
 			dateTimeType.switchOn(
 				"1994-11-20T10:25:33Z",
-				[]( datatypes::Decimal128 d ) {
+				[]( nfx::datatypes::Decimal d ) {
 					static_cast<void>( d );
 					ADD_FAILURE() << "Expected datetime, got decimal";
 				},
@@ -562,7 +564,7 @@ namespace dnv::vista::sdk::tests
 					static_cast<void>( s );
 					ADD_FAILURE() << "Expected datetime, got string";
 				},
-				[&]( const datatypes::DateTimeOffset& dto ) {
+				[&]( const nfx::time::DateTimeOffset& dto ) {
 					dateTimeCalled = true;
 					dateTimeValue = dto;
 				} );
@@ -575,55 +577,55 @@ namespace dnv::vista::sdk::tests
 		auto& iso = transport::ISO19848::instance();
 		auto formatDataTypes = iso.formatDataTypes( transport::ISO19848Version::v2024 );
 
-		/* Test Decimal with invalid value */
+		// Test Decimal with invalid value
 		auto decimalResult = formatDataTypes.parse( "Decimal" );
 		ASSERT_TRUE( decimalResult.isOk() );
 		auto decimalType = decimalResult.ok().typeName();
 		ASSERT_THROW(
 			{
 				decimalType.switchOn(
-					"not_a_decimal", []( datatypes::Decimal128 d ) { static_cast<void>( d ); }, []( int i ) { static_cast<void>( i ); },
+					"not_a_decimal", []( nfx::datatypes::Decimal d ) { static_cast<void>( d ); }, []( int i ) { static_cast<void>( i ); },
 					[]( bool b ) { static_cast<void>( b ); }, []( std::string_view s ) { static_cast<void>( s ); },
-					[]( const datatypes::DateTimeOffset& tp ) { static_cast<void>( tp ); } );
+					[]( const nfx::time::DateTimeOffset& tp ) { static_cast<void>( tp ); } );
 			},
 			ValidationException );
 
-		/* Test Integer with invalid value */
+		// Test Integer with invalid value
 		auto integerResult = formatDataTypes.parse( "Integer" );
 		ASSERT_TRUE( integerResult.isOk() );
 		auto integerType = integerResult.ok().typeName();
 		ASSERT_THROW(
 			{
 				integerType.switchOn(
-					"not_an_integer", []( datatypes::Decimal128 d ) { static_cast<void>( d ); }, []( int i ) { static_cast<void>( i ); },
+					"not_an_integer", []( nfx::datatypes::Decimal d ) { static_cast<void>( d ); }, []( int i ) { static_cast<void>( i ); },
 					[]( bool b ) { static_cast<void>( b ); }, []( std::string_view s ) { static_cast<void>( s ); },
-					[]( const datatypes::DateTimeOffset& tp ) { static_cast<void>( tp ); } );
+					[]( const nfx::time::DateTimeOffset& tp ) { static_cast<void>( tp ); } );
 			},
 			ValidationException );
 
-		/* Test Boolean with invalid value */
+		// Test Boolean with invalid value
 		auto booleanResult = formatDataTypes.parse( "Boolean" );
 		ASSERT_TRUE( booleanResult.isOk() );
 		auto booleanType = booleanResult.ok().typeName();
 		ASSERT_THROW(
 			{
 				booleanType.switchOn(
-					"not_a_boolean", []( datatypes::Decimal128 d ) { static_cast<void>( d ); }, []( int i ) { static_cast<void>( i ); },
+					"not_a_boolean", []( nfx::datatypes::Decimal d ) { static_cast<void>( d ); }, []( int i ) { static_cast<void>( i ); },
 					[]( bool b ) { static_cast<void>( b ); }, []( std::string_view s ) { static_cast<void>( s ); },
-					[]( const datatypes::DateTimeOffset& tp ) { static_cast<void>( tp ); } );
+					[]( const nfx::time::DateTimeOffset& tp ) { static_cast<void>( tp ); } );
 			},
 			ValidationException );
 
-		/* Test DateTime with invalid value */
+		// Test DateTime with invalid value
 		auto dateTimeResult = formatDataTypes.parse( "DateTime" );
 		ASSERT_TRUE( dateTimeResult.isOk() );
 		auto dateTimeType = dateTimeResult.ok().typeName();
 		ASSERT_THROW(
 			{
 				dateTimeType.switchOn(
-					"not_a_datetime", []( datatypes::Decimal128 d ) { static_cast<void>( d ); }, []( int i ) { static_cast<void>( i ); },
+					"not_a_datetime", []( nfx::datatypes::Decimal d ) { static_cast<void>( d ); }, []( int i ) { static_cast<void>( i ); },
 					[]( bool b ) { static_cast<void>( b ); }, []( std::string_view s ) { static_cast<void>( s ); },
-					[]( const datatypes::DateTimeOffset& tp ) { static_cast<void>( tp ); } );
+					[]( const nfx::time::DateTimeOffset& tp ) { static_cast<void>( tp ); } );
 			},
 			ValidationException );
 	}
@@ -633,17 +635,17 @@ namespace dnv::vista::sdk::tests
 		auto& iso = transport::ISO19848::instance();
 		auto formatDataTypes = iso.formatDataTypes( transport::ISO19848Version::v2024 );
 
-		/* Test negative decimal */
+		// Test negative decimal
 		auto decimalResult = formatDataTypes.parse( "Decimal" );
 		ASSERT_TRUE( decimalResult.isOk() );
 		auto decimalType = decimalResult.ok().typeName();
 
 		bool negativeCalled = false;
-		datatypes::Decimal128 negativeValue;
+		nfx::datatypes::Decimal negativeValue;
 		ASSERT_NO_THROW( {
 			decimalType.switchOn(
 				"-456.789",
-				[&]( datatypes::Decimal128 d ) {
+				[&]( nfx::datatypes::Decimal d ) {
 					negativeCalled = true;
 					negativeValue = d;
 				},
@@ -659,20 +661,20 @@ namespace dnv::vista::sdk::tests
 					static_cast<void>( s );
 					ADD_FAILURE() << "Expected decimal, got string";
 				},
-				[]( const datatypes::DateTimeOffset& tp ) {
+				[]( const nfx::time::DateTimeOffset& tp ) {
 					static_cast<void>( tp );
 					ADD_FAILURE() << "Expected decimal, got datetime";
 				} );
 		} );
 		ASSERT_TRUE( negativeCalled );
 
-		/* Test with reasonable tolerance for IEEE 754 precision limits */
-		datatypes::Decimal128 expected( "-456.789" );
-		datatypes::Decimal128 tolerance( "0.000001" );
-		datatypes::Decimal128 difference = ( negativeValue - expected ).abs();
+		// Test with reasonable tolerance for IEEE 754 precision limits
+		nfx::datatypes::Decimal expected( "-456.789" );
+		nfx::datatypes::Decimal tolerance( "0.000001" );
+		nfx::datatypes::Decimal difference = ( negativeValue - expected ).abs();
 		ASSERT_TRUE( difference < tolerance );
 
-		/* Test negative integer */
+		// Test negative integer
 		auto integerResult = formatDataTypes.parse( "Integer" );
 		ASSERT_TRUE( integerResult.isOk() );
 		auto integerType = integerResult.ok().typeName();
@@ -682,7 +684,7 @@ namespace dnv::vista::sdk::tests
 		ASSERT_NO_THROW( {
 			integerType.switchOn(
 				"-123",
-				[]( datatypes::Decimal128 d ) {
+				[]( nfx::datatypes::Decimal d ) {
 					static_cast<void>( d );
 					ADD_FAILURE() << "Expected integer, got decimal";
 				},
@@ -698,7 +700,7 @@ namespace dnv::vista::sdk::tests
 					static_cast<void>( s );
 					ADD_FAILURE() << "Expected integer, got string";
 				},
-				[]( const datatypes::DateTimeOffset& tp ) {
+				[]( const nfx::time::DateTimeOffset& tp ) {
 					static_cast<void>( tp );
 					ADD_FAILURE() << "Expected integer, got datetime";
 				} );
@@ -706,7 +708,7 @@ namespace dnv::vista::sdk::tests
 		ASSERT_TRUE( negativeIntCalled );
 		ASSERT_EQ( negativeIntValue, -123 );
 
-		/* Test false boolean */
+		// Test false boolean
 		auto booleanResult = formatDataTypes.parse( "Boolean" );
 		ASSERT_TRUE( booleanResult.isOk() );
 		auto booleanType = booleanResult.ok().typeName();
@@ -716,7 +718,7 @@ namespace dnv::vista::sdk::tests
 		ASSERT_NO_THROW( {
 			booleanType.switchOn(
 				"false",
-				[]( datatypes::Decimal128 d ) {
+				[]( nfx::datatypes::Decimal d ) {
 					static_cast<void>( d );
 					ADD_FAILURE() << "Expected boolean, got decimal";
 				},
@@ -732,7 +734,7 @@ namespace dnv::vista::sdk::tests
 					static_cast<void>( s );
 					ADD_FAILURE() << "Expected boolean, got string";
 				},
-				[]( const datatypes::DateTimeOffset& tp ) {
+				[]( const nfx::time::DateTimeOffset& tp ) {
 					static_cast<void>( tp );
 					ADD_FAILURE() << "Expected boolean, got datetime";
 				} );
@@ -740,7 +742,7 @@ namespace dnv::vista::sdk::tests
 		ASSERT_TRUE( falseCalled );
 		ASSERT_FALSE( falseValue );
 
-		/* Test empty string */
+		// Test empty string
 		auto stringResult = formatDataTypes.parse( "String" );
 		ASSERT_TRUE( stringResult.isOk() );
 		auto stringType = stringResult.ok().typeName();
@@ -750,7 +752,7 @@ namespace dnv::vista::sdk::tests
 		ASSERT_NO_THROW( {
 			stringType.switchOn(
 				"",
-				[]( datatypes::Decimal128 d ) {
+				[]( nfx::datatypes::Decimal d ) {
 					static_cast<void>( d );
 					ADD_FAILURE() << "Expected string, got decimal";
 				},
@@ -764,9 +766,9 @@ namespace dnv::vista::sdk::tests
 				},
 				[&]( std::string_view s ) {
 					emptyCalled = true;
-					emptyValue = std::string( s );
+					emptyValue = std::string{ s };
 				},
-				[]( const datatypes::DateTimeOffset& tp ) {
+				[]( const nfx::time::DateTimeOffset& tp ) {
 					static_cast<void>( tp );
 					ADD_FAILURE() << "Expected string, got datetime";
 				} );
@@ -788,11 +790,11 @@ namespace dnv::vista::sdk::tests
 		ASSERT_TRUE( parseResult.isOk() );
 		auto decimalType = parseResult.ok().typeName();
 
-		/* Test match with decimal value - returns string representation */
+		// Test match with decimal value - returns string representation
 		std::string result;
 		ASSERT_NO_THROW( {
 			result = decimalType.matchOn<std::string>(
-				"123.456", []( const datatypes::Decimal128& d ) -> std::string { return "decimal:" + d.toString(); },
+				"123.456", []( const nfx::datatypes::Decimal& d ) -> std::string { return "decimal:" + d.toString(); },
 				[]( int ) -> std::string {
 					unexpectedInteger();
 					return "";
@@ -805,21 +807,21 @@ namespace dnv::vista::sdk::tests
 					unexpectedString();
 					return "";
 				},
-				[]( const datatypes::DateTimeOffset& ) -> std::string {
+				[]( const nfx::time::DateTimeOffset& ) -> std::string {
 					unexpectedDateTime();
 					return "";
 				} );
 		} );
 
-		/* Test with reasonable tolerance for the result comparison */
-		std::string expected = "decimal:" + datatypes::Decimal128( "123.456" ).toString();
+		// Test with reasonable tolerance for the result comparison
+		std::string expected = "decimal:" + nfx::datatypes::Decimal( "123.456" ).toString();
 		ASSERT_EQ( result, expected );
 
-		/* Test match with decimal value - returns double */
+		// Test match with decimal value - returns double
 		double doubleResult = 0.0;
 		ASSERT_NO_THROW( {
 			doubleResult = decimalType.matchOn<double>(
-				"987.654", []( const datatypes::Decimal128& d ) -> double { return d.toDouble(); },
+				"987.654", []( const nfx::datatypes::Decimal& d ) -> double { return d.toDouble(); },
 				[]( int ) -> double {
 					unexpectedInteger();
 					return 0.0;
@@ -832,7 +834,7 @@ namespace dnv::vista::sdk::tests
 					unexpectedString();
 					return 0.0;
 				},
-				[]( const datatypes::DateTimeOffset& ) -> double {
+				[]( const nfx::time::DateTimeOffset& ) -> double {
 					unexpectedDateTime();
 					return 0.0;
 				} );
@@ -849,12 +851,12 @@ namespace dnv::vista::sdk::tests
 		ASSERT_TRUE( parseResult.isOk() );
 		auto integerType = parseResult.ok().typeName();
 
-		/* Test match with integer value - returns string representation */
+		// Test match with integer value - returns string representation
 		std::string result;
 		ASSERT_NO_THROW( {
 			result = integerType.matchOn<std::string>(
 				"42",
-				[]( const datatypes::Decimal128& ) -> std::string {
+				[]( const nfx::datatypes::Decimal& ) -> std::string {
 					unexpectedDecimal();
 					return "";
 				},
@@ -867,19 +869,19 @@ namespace dnv::vista::sdk::tests
 					unexpectedString();
 					return "";
 				},
-				[]( const datatypes::DateTimeOffset& ) -> std::string {
+				[]( const nfx::time::DateTimeOffset& ) -> std::string {
 					unexpectedDateTime();
 					return "";
 				} );
 		} );
 		ASSERT_EQ( result, "integer:42" );
 
-		/* Test match with integer value - returns squared value */
+		// Test match with integer value - returns squared value
 		int squaredResult = 0;
 		ASSERT_NO_THROW( {
 			squaredResult = integerType.matchOn<int>(
 				"7",
-				[]( const datatypes::Decimal128& ) -> int {
+				[]( const nfx::datatypes::Decimal& ) -> int {
 					unexpectedDecimal();
 					return 0;
 				},
@@ -892,7 +894,7 @@ namespace dnv::vista::sdk::tests
 					unexpectedString();
 					return 0;
 				},
-				[]( const datatypes::DateTimeOffset& ) -> int {
+				[]( const nfx::time::DateTimeOffset& ) -> int {
 					unexpectedDateTime();
 					return 0;
 				} );
@@ -909,12 +911,12 @@ namespace dnv::vista::sdk::tests
 		ASSERT_TRUE( parseResult.isOk() );
 		auto booleanType = parseResult.ok().typeName();
 
-		/* Test match with boolean true - returns string representation */
+		// Test match with boolean true - returns string representation
 		std::string result;
 		ASSERT_NO_THROW( {
 			result = booleanType.matchOn<std::string>(
 				"true",
-				[]( const datatypes::Decimal128& ) -> std::string {
+				[]( const nfx::datatypes::Decimal& ) -> std::string {
 					unexpectedDecimal();
 					return "";
 				},
@@ -929,19 +931,19 @@ namespace dnv::vista::sdk::tests
 					unexpectedString();
 					return "";
 				},
-				[]( const datatypes::DateTimeOffset& ) -> std::string {
+				[]( const nfx::time::DateTimeOffset& ) -> std::string {
 					unexpectedDateTime();
 					return "";
 				} );
 		} );
 		ASSERT_EQ( result, "boolean:true" );
 
-		/* Test match with boolean false - returns inverted value */
+		// Test match with boolean false - returns inverted value
 		bool invertedResult = true;
 		ASSERT_NO_THROW( {
 			invertedResult = booleanType.matchOn<bool>(
 				"false",
-				[]( const datatypes::Decimal128& ) -> bool {
+				[]( const nfx::datatypes::Decimal& ) -> bool {
 					unexpectedDecimal();
 					return false;
 				},
@@ -954,7 +956,7 @@ namespace dnv::vista::sdk::tests
 					unexpectedString();
 					return false;
 				},
-				[]( const datatypes::DateTimeOffset& ) -> bool {
+				[]( const nfx::time::DateTimeOffset& ) -> bool {
 					unexpectedDateTime();
 					return false;
 				} );
@@ -971,12 +973,12 @@ namespace dnv::vista::sdk::tests
 		ASSERT_TRUE( parseResult.isOk() );
 		auto stringType = parseResult.ok().typeName();
 
-		/* Test match with string value - returns length */
+		// Test match with string value - returns length
 		size_t lengthResult = 0;
 		ASSERT_NO_THROW( {
 			lengthResult = stringType.matchOn<size_t>(
 				"Hello World",
-				[]( const datatypes::Decimal128& ) -> size_t {
+				[]( const nfx::datatypes::Decimal& ) -> size_t {
 					unexpectedDecimal();
 					return 0;
 				},
@@ -989,19 +991,19 @@ namespace dnv::vista::sdk::tests
 					return 0;
 				},
 				[]( std::string_view s ) -> size_t { return s.length(); },
-				[]( const datatypes::DateTimeOffset& ) -> size_t {
+				[]( const nfx::time::DateTimeOffset& ) -> size_t {
 					unexpectedDateTime();
 					return 0;
 				} );
 		} );
 		ASSERT_EQ( lengthResult, 11 );
 
-		/* Test match with string value - returns uppercase */
+		// Test match with string value - returns uppercase
 		std::string uppercaseResult;
 		ASSERT_NO_THROW( {
 			uppercaseResult = stringType.matchOn<std::string>(
 				"hello",
-				[]( const datatypes::Decimal128& ) -> std::string {
+				[]( const nfx::datatypes::Decimal& ) -> std::string {
 					unexpectedDecimal();
 					return "";
 				},
@@ -1018,7 +1020,7 @@ namespace dnv::vista::sdk::tests
 					std::transform( result.begin(), result.end(), result.begin(), []( unsigned char c ) { return static_cast<char>( std::toupper( c ) ); } );
 					return "string:" + result;
 				},
-				[]( const datatypes::DateTimeOffset& ) -> std::string {
+				[]( const nfx::time::DateTimeOffset& ) -> std::string {
 					unexpectedDateTime();
 					return "";
 				} );
@@ -1035,12 +1037,12 @@ namespace dnv::vista::sdk::tests
 		ASSERT_TRUE( parseResult.isOk() );
 		auto dateTimeType = parseResult.ok().typeName();
 
-		/* Test match with datetime value - returns year */
+		// Test match with datetime value - returns year
 		std::string result;
 		ASSERT_NO_THROW( {
 			result = dateTimeType.matchOn<std::string>(
 				"1994-11-20T10:25:33Z",
-				[]( const datatypes::Decimal128& ) -> std::string {
+				[]( const nfx::datatypes::Decimal& ) -> std::string {
 					unexpectedDecimal();
 					return "";
 				},
@@ -1056,16 +1058,16 @@ namespace dnv::vista::sdk::tests
 					unexpectedString();
 					return "";
 				},
-				[]( const datatypes::DateTimeOffset& dto ) -> std::string { return extractYearFromDateTimeOffset( dto ); } );
+				[]( const nfx::time::DateTimeOffset& dto ) -> std::string { return extractYearFromDateTimeOffset( dto ); } );
 		} );
 		ASSERT_EQ( result, "datetime:1994" );
 
-		/* Test match with datetime value - returns time_point duration */
+		// Test match with datetime value - returns time_point duration
 		bool durationResult = false;
 		ASSERT_NO_THROW( {
 			durationResult = dateTimeType.matchOn<bool>(
 				"1994-11-20T10:25:33Z",
-				[]( const datatypes::Decimal128& ) -> bool {
+				[]( const nfx::datatypes::Decimal& ) -> bool {
 					unexpectedDecimal();
 					return false;
 				},
@@ -1081,8 +1083,8 @@ namespace dnv::vista::sdk::tests
 					unexpectedString();
 					return false;
 				},
-				[]( const datatypes::DateTimeOffset& dto ) -> bool {
-					/* Just verify we got a valid DateTimeOffset with the expected year */
+				[]( const nfx::time::DateTimeOffset& dto ) -> bool {
+					// Just verify we got a valid DateTimeOffset with the expected year
 					return dto.year() == 1994;
 				} );
 		} );
@@ -1094,53 +1096,53 @@ namespace dnv::vista::sdk::tests
 		auto& iso = transport::ISO19848::instance();
 		auto formatDataTypes = iso.formatDataTypes( transport::ISO19848Version::v2024 );
 
-		/* Test Decimal with invalid value */
+		// Test Decimal with invalid value
 		auto decimalResult = formatDataTypes.parse( "Decimal" );
 		ASSERT_TRUE( decimalResult.isOk() );
 		auto decimalType = decimalResult.ok().typeName();
 		ASSERT_THROW(
 			{
 				decimalType.matchOn<std::string>(
-					"not_a_decimal", []( const datatypes::Decimal128& ) -> std::string { return ""; }, []( int ) -> std::string { return ""; },
+					"not_a_decimal", []( const nfx::datatypes::Decimal& ) -> std::string { return ""; }, []( int ) -> std::string { return ""; },
 					[]( bool ) -> std::string { return ""; }, []( std::string_view ) -> std::string { return ""; },
-					[]( const datatypes::DateTimeOffset& ) -> std::string { return ""; } );
+					[]( const nfx::time::DateTimeOffset& ) -> std::string { return ""; } );
 			},
 			ValidationException );
 
-		/* Test Integer with invalid value */
+		// Test Integer with invalid value
 		auto integerResult = formatDataTypes.parse( "Integer" );
 		ASSERT_TRUE( integerResult.isOk() );
 		auto integerType = integerResult.ok().typeName();
 		ASSERT_THROW(
 			{
 				integerType.matchOn<int>(
-					"not_an_integer", []( const datatypes::Decimal128& ) -> int { return 0; }, []( int ) -> int { return 0; }, []( bool ) -> int { return 0; },
-					[]( std::string_view ) -> int { return 0; }, []( const datatypes::DateTimeOffset& ) -> int { return 0; } );
+					"not_an_integer", []( const nfx::datatypes::Decimal& ) -> int { return 0; }, []( int ) -> int { return 0; }, []( bool ) -> int { return 0; },
+					[]( std::string_view ) -> int { return 0; }, []( const nfx::time::DateTimeOffset& ) -> int { return 0; } );
 			},
 			ValidationException );
 
-		/* Test Boolean with invalid value */
+		// Test Boolean with invalid value
 		auto booleanResult = formatDataTypes.parse( "Boolean" );
 		ASSERT_TRUE( booleanResult.isOk() );
 		auto booleanType = booleanResult.ok().typeName();
 		ASSERT_THROW(
 			{
 				booleanType.matchOn<bool>(
-					"not_a_boolean", []( const datatypes::Decimal128& ) -> bool { return false; }, []( int ) -> bool { return false; }, []( bool ) -> bool { return false; },
-					[]( std::string_view ) -> bool { return false; }, []( const datatypes::DateTimeOffset& ) -> bool { return false; } );
+					"not_a_boolean", []( const nfx::datatypes::Decimal& ) -> bool { return false; }, []( int ) -> bool { return false; }, []( bool ) -> bool { return false; },
+					[]( std::string_view ) -> bool { return false; }, []( const nfx::time::DateTimeOffset& ) -> bool { return false; } );
 			},
 			ValidationException );
 
-		/* Test DateTime with invalid value */
+		// Test DateTime with invalid value
 		auto dateTimeResult = formatDataTypes.parse( "DateTime" );
 		ASSERT_TRUE( dateTimeResult.isOk() );
 		auto dateTimeType = dateTimeResult.ok().typeName();
 		ASSERT_THROW(
 			{
 				dateTimeType.matchOn<std::string>(
-					"not_a_datetime", []( const datatypes::Decimal128& ) -> std::string { return ""; }, []( int ) -> std::string { return ""; },
+					"not_a_datetime", []( const nfx::datatypes::Decimal& ) -> std::string { return ""; }, []( int ) -> std::string { return ""; },
 					[]( bool ) -> std::string { return ""; }, []( std::string_view ) -> std::string { return ""; },
-					[]( const datatypes::DateTimeOffset& ) -> std::string { return ""; } );
+					[]( const nfx::time::DateTimeOffset& ) -> std::string { return ""; } );
 			},
 			ValidationException );
 	}
@@ -1150,10 +1152,10 @@ namespace dnv::vista::sdk::tests
 		auto& iso = transport::ISO19848::instance();
 		auto formatDataTypes = iso.formatDataTypes( transport::ISO19848Version::v2024 );
 
-		/* Test negative decimal with custom struct return type */
+		// Test negative decimal with custom struct return type
 		struct DecimalInfo
 		{
-			datatypes::Decimal128 value;
+			nfx::datatypes::Decimal value;
 			bool isNegative;
 			std::string toString() const { return isNegative
 													  ? "negative:" + value.toString()
@@ -1167,7 +1169,7 @@ namespace dnv::vista::sdk::tests
 		DecimalInfo info;
 		ASSERT_NO_THROW( {
 			info = decimalType.matchOn<DecimalInfo>(
-				"-456.789", []( const datatypes::Decimal128& d ) -> DecimalInfo { return { d, d < datatypes::Decimal128{ 0 } }; },
+				"-456.789", []( const nfx::datatypes::Decimal& d ) -> DecimalInfo { return { d, d < nfx::datatypes::Decimal{ 0 } }; },
 				[]( int ) -> DecimalInfo {
 					unexpectedInteger();
 					return {};
@@ -1180,21 +1182,21 @@ namespace dnv::vista::sdk::tests
 					unexpectedString();
 					return {};
 				},
-				[]( const datatypes::DateTimeOffset& ) -> DecimalInfo {
+				[]( const nfx::time::DateTimeOffset& ) -> DecimalInfo {
 					unexpectedDateTime();
 					return {};
 				} );
 		} );
 
-		/* Test with reasonable tolerance for IEEE 754 precision limits */
-		datatypes::Decimal128 expected( "-456.789" );
-		datatypes::Decimal128 tolerance( "0.000001" );
-		datatypes::Decimal128 difference = ( info.value - expected ).abs();
+		// Test with reasonable tolerance for IEEE 754 precision limits
+		nfx::datatypes::Decimal expected( "-456.789" );
+		nfx::datatypes::Decimal tolerance( "0.000001" );
+		nfx::datatypes::Decimal difference = ( info.value - expected ).abs();
 		ASSERT_TRUE( difference < tolerance );
 		ASSERT_TRUE( info.isNegative );
 		ASSERT_EQ( info.toString(), "negative:" + expected.toString() );
 
-		/* Test integer with complex calculation return */
+		// Test integer with complex calculation return
 		auto integerResult = formatDataTypes.parse( "Integer" );
 		ASSERT_TRUE( integerResult.isOk() );
 		auto integerType = integerResult.ok().typeName();
@@ -1203,12 +1205,12 @@ namespace dnv::vista::sdk::tests
 		ASSERT_NO_THROW( {
 			fibResult = integerType.matchOn<std::vector<int>>(
 				"5",
-				[]( const datatypes::Decimal128& ) -> std::vector<int> {
+				[]( const nfx::datatypes::Decimal& ) -> std::vector<int> {
 					unexpectedDecimal();
 					return {};
 				},
 				[]( int n ) -> std::vector<int> {
-					/* Generate fibonacci sequence up to n */
+					// Generate fibonacci sequence up to n
 					std::vector<int> fib;
 					if ( n <= 0 )
 					{
@@ -1235,7 +1237,7 @@ namespace dnv::vista::sdk::tests
 					unexpectedString();
 					return {};
 				},
-				[]( const datatypes::DateTimeOffset& ) -> std::vector<int> {
+				[]( const nfx::time::DateTimeOffset& ) -> std::vector<int> {
 					unexpectedDateTime();
 					return {};
 				} );
@@ -1247,7 +1249,7 @@ namespace dnv::vista::sdk::tests
 		ASSERT_EQ( fibResult[3], 2 );
 		ASSERT_EQ( fibResult[4], 3 );
 
-		/* Test empty string with optional return type */
+		// Test empty string with optional return type
 		auto stringResult = formatDataTypes.parse( "String" );
 		ASSERT_TRUE( stringResult.isOk() );
 		auto stringType = stringResult.ok().typeName();
@@ -1256,7 +1258,7 @@ namespace dnv::vista::sdk::tests
 		ASSERT_NO_THROW( {
 			optionalResult = stringType.matchOn<std::optional<std::string>>(
 				"",
-				[]( const datatypes::Decimal128& ) -> std::optional<std::string> {
+				[]( const nfx::datatypes::Decimal& ) -> std::optional<std::string> {
 					unexpectedDecimal();
 					return std::nullopt;
 				},
@@ -1269,8 +1271,8 @@ namespace dnv::vista::sdk::tests
 					return std::nullopt;
 				},
 				[]( std::string_view s ) -> std::optional<std::string> { return s.empty() ? std::nullopt
-																						  : std::make_optional( std::string( s ) ); },
-				[]( const datatypes::DateTimeOffset& ) -> std::optional<std::string> {
+																						  : std::make_optional( std::string{ s } ); },
+				[]( const nfx::time::DateTimeOffset& ) -> std::optional<std::string> {
 					unexpectedDateTime();
 					return std::nullopt;
 				} );
@@ -1284,9 +1286,9 @@ namespace dnv::vista::sdk::tests
 
 	TEST_F( ISO19848Tests, Test_FormatDataType_Value_Types_API )
 	{
-		/* Test all Value types for complete API coverage */
+		// Test all Value types for complete API coverage
 
-		/* Test String Value */
+		// Test String Value
 		{
 			transport::Value::String stringVal{ std::string_view{ "test" } };
 			ASSERT_EQ( stringVal.value(), "test" );
@@ -1304,10 +1306,10 @@ namespace dnv::vista::sdk::tests
 			ASSERT_EQ( value.string().value(), "test" );
 		}
 
-		/* Test Decimal Value */
+		// Test Decimal Value
 		{
 			transport::Value::Decimal decimalVal{ 3.14 };
-			ASSERT_EQ( decimalVal.value(), datatypes::Decimal128( 3.14 ) );
+			ASSERT_EQ( decimalVal.value(), nfx::datatypes::Decimal( 3.14 ) );
 
 			transport::Value value{ decimalVal };
 			ASSERT_FALSE( value.isString() );
@@ -1319,10 +1321,10 @@ namespace dnv::vista::sdk::tests
 			ASSERT_FALSE( value.isUnsignedInteger() );
 			ASSERT_FALSE( value.isLong() );
 			ASSERT_FALSE( value.isDouble() );
-			ASSERT_EQ( value.decimal().value(), datatypes::Decimal128( 3.14 ) );
+			ASSERT_EQ( value.decimal().value(), nfx::datatypes::Decimal( 3.14 ) );
 		}
 
-		/* Test Integer Value */
+		// Test Integer Value
 		{
 			transport::Value::Integer intVal{ 42 };
 			ASSERT_EQ( intVal.value(), 42 );
@@ -1340,7 +1342,7 @@ namespace dnv::vista::sdk::tests
 			ASSERT_EQ( value.integer().value(), 42 );
 		}
 
-		/* Test Boolean Value */
+		// Test Boolean Value
 		{
 			transport::Value::Boolean boolVal{ true };
 			ASSERT_EQ( boolVal.value(), true );
@@ -1358,9 +1360,9 @@ namespace dnv::vista::sdk::tests
 			ASSERT_EQ( value.boolean().value(), true );
 		}
 
-		/* Test DateTime Value */
+		// Test DateTime Value
 		{
-			auto dateTimeOffset = datatypes::DateTimeOffset::now();
+			auto dateTimeOffset = nfx::time::DateTimeOffset::now();
 			transport::Value::DateTime dateTimeVal{ dateTimeOffset };
 			ASSERT_EQ( dateTimeVal.value(), dateTimeOffset );
 
@@ -1377,7 +1379,7 @@ namespace dnv::vista::sdk::tests
 			ASSERT_EQ( value.dateTime().value(), dateTimeOffset );
 		}
 
-		/* Test Char Value */
+		// Test Char Value
 		{
 			transport::Value::Char charVal{ 'X' };
 			ASSERT_EQ( charVal.value(), 'X' );
@@ -1395,7 +1397,7 @@ namespace dnv::vista::sdk::tests
 			ASSERT_EQ( value.charValue().value(), 'X' );
 		}
 
-		/* Test UnsignedInteger Value */
+		// Test UnsignedInteger Value
 		{
 			transport::Value::UnsignedInteger uintVal{ 42u };
 			ASSERT_EQ( uintVal.value(), 42u );
@@ -1413,7 +1415,7 @@ namespace dnv::vista::sdk::tests
 			ASSERT_EQ( value.unsignedInteger().value(), 42u );
 		}
 
-		/* Test Long Value */
+		// Test Long Value
 		{
 			transport::Value::Long longVal{ 9223372036854775807LL };
 			ASSERT_EQ( longVal.value(), 9223372036854775807LL );
@@ -1431,7 +1433,7 @@ namespace dnv::vista::sdk::tests
 			ASSERT_EQ( value.longValue().value(), 9223372036854775807LL );
 		}
 
-		/* Test Double Value */
+		// Test Double Value
 		{
 			transport::Value::Double doubleVal{ 2.71828 };
 			ASSERT_EQ( doubleVal.value(), 2.71828 );

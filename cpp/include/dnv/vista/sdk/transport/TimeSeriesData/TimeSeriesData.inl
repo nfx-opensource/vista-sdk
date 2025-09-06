@@ -3,8 +3,6 @@
  * @brief Inline implementations for TimeSeriesData classes
  */
 
-#pragma once
-
 namespace dnv::vista::sdk::transport::timeseries
 {
 	//=====================================================================
@@ -15,13 +13,13 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Construction
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE TimeRange::TimeRange( datatypes::DateTimeOffset start, datatypes::DateTimeOffset end )
+	VISTA_SDK_CPP_INLINE TimeRange::TimeRange( nfx::time::DateTimeOffset start, nfx::time::DateTimeOffset end )
 		: m_start{ std::move( start ) },
 		  m_end{ std::move( end ) }
 	{
-		if ( start > end )
+		if ( m_start > m_end )
 		{
-			throw std::invalid_argument( "Start time must be before or equal to end time" );
+			throw std::invalid_argument{ "Start time must be before or equal to end time" };
 		}
 	}
 
@@ -29,12 +27,12 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Property access
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE const datatypes::DateTimeOffset& TimeRange::start() const noexcept
+	VISTA_SDK_CPP_INLINE const nfx::time::DateTimeOffset& TimeRange::start() const noexcept
 	{
 		return m_start;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE const datatypes::DateTimeOffset& TimeRange::end() const noexcept
+	VISTA_SDK_CPP_INLINE const nfx::time::DateTimeOffset& TimeRange::end() const noexcept
 	{
 		return m_end;
 	}
@@ -47,7 +45,7 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Construction
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE ConfigurationReference::ConfigurationReference( std::string_view id, datatypes::DateTimeOffset timeStamp )
+	VISTA_SDK_CPP_INLINE ConfigurationReference::ConfigurationReference( std::string_view id, nfx::time::DateTimeOffset timeStamp )
 		: m_id{ id },
 		  m_timeStamp{ std::move( timeStamp ) }
 	{
@@ -57,12 +55,12 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Property access
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::string& ConfigurationReference::id() const noexcept
+	VISTA_SDK_CPP_INLINE const std::string& ConfigurationReference::id() const noexcept
 	{
 		return m_id;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE const datatypes::DateTimeOffset& ConfigurationReference::timeStamp() const noexcept
+	VISTA_SDK_CPP_INLINE const nfx::time::DateTimeOffset& ConfigurationReference::timeStamp() const noexcept
 	{
 		return m_timeStamp;
 	}
@@ -71,12 +69,12 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Setters
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE void ConfigurationReference::setId( std::string_view id )
+	VISTA_SDK_CPP_INLINE void ConfigurationReference::setId( std::string_view id )
 	{
 		m_id = id;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE void ConfigurationReference::setTimeStamp( datatypes::DateTimeOffset timeStamp )
+	VISTA_SDK_CPP_INLINE void ConfigurationReference::setTimeStamp( nfx::time::DateTimeOffset timeStamp )
 	{
 		m_timeStamp = std::move( timeStamp );
 	}
@@ -89,8 +87,8 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Construction
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE TabularDataSet::TabularDataSet(
-		datatypes::DateTimeOffset timeStamp,
+	VISTA_SDK_CPP_INLINE TabularDataSet::TabularDataSet(
+		nfx::time::DateTimeOffset timeStamp,
 		size_t capacity )
 		: m_timeStamp{ std::move( timeStamp ) },
 		  m_value{},
@@ -99,8 +97,8 @@ namespace dnv::vista::sdk::transport::timeseries
 		m_value.reserve( capacity );
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE TabularDataSet::TabularDataSet(
-		datatypes::DateTimeOffset timeStamp,
+	VISTA_SDK_CPP_INLINE TabularDataSet::TabularDataSet(
+		nfx::time::DateTimeOffset timeStamp,
 		std::vector<std::string> value,
 		std::optional<std::vector<std::string>> quality )
 		: m_timeStamp{ std::move( timeStamp ) },
@@ -113,17 +111,17 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Property access
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE const datatypes::DateTimeOffset& TabularDataSet::timeStamp() const noexcept
+	VISTA_SDK_CPP_INLINE const nfx::time::DateTimeOffset& TabularDataSet::timeStamp() const noexcept
 	{
 		return m_timeStamp;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::vector<std::string>& TabularDataSet::value() const noexcept
+	VISTA_SDK_CPP_INLINE const std::vector<std::string>& TabularDataSet::value() const noexcept
 	{
 		return m_value;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::optional<std::vector<std::string>>& TabularDataSet::quality() const noexcept
+	VISTA_SDK_CPP_INLINE const std::optional<std::vector<std::string>>& TabularDataSet::quality() const noexcept
 	{
 		return m_quality;
 	}
@@ -132,17 +130,17 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Setters
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE void TabularDataSet::setTimeStamp( datatypes::DateTimeOffset timeStamp )
+	VISTA_SDK_CPP_INLINE void TabularDataSet::setTimeStamp( nfx::time::DateTimeOffset timeStamp )
 	{
 		m_timeStamp = std::move( timeStamp );
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE void TabularDataSet::setValue( std::vector<std::string> value )
+	VISTA_SDK_CPP_INLINE void TabularDataSet::setValue( std::vector<std::string> value )
 	{
 		m_value = std::move( value );
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE void TabularDataSet::setQuality( std::optional<std::vector<std::string>> quality )
+	VISTA_SDK_CPP_INLINE void TabularDataSet::setQuality( std::optional<std::vector<std::string>> quality )
 	{
 		m_quality = std::move( quality );
 	}
@@ -155,8 +153,8 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Construction
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE EventDataSet::EventDataSet(
-		datatypes::DateTimeOffset timeStamp,
+	VISTA_SDK_CPP_INLINE EventDataSet::EventDataSet(
+		nfx::time::DateTimeOffset timeStamp,
 		DataChannelId dataChannelId,
 		std::string value,
 		std::optional<std::string> quality )
@@ -171,22 +169,22 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Property access
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE const datatypes::DateTimeOffset& EventDataSet::timeStamp() const noexcept
+	VISTA_SDK_CPP_INLINE const nfx::time::DateTimeOffset& EventDataSet::timeStamp() const noexcept
 	{
 		return m_timeStamp;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE const DataChannelId& EventDataSet::dataChannelId() const noexcept
+	VISTA_SDK_CPP_INLINE const DataChannelId& EventDataSet::dataChannelId() const noexcept
 	{
 		return m_dataChannelId;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::string& EventDataSet::value() const noexcept
+	VISTA_SDK_CPP_INLINE const std::string& EventDataSet::value() const noexcept
 	{
 		return m_value;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::optional<std::string>& EventDataSet::quality() const noexcept
+	VISTA_SDK_CPP_INLINE const std::optional<std::string>& EventDataSet::quality() const noexcept
 	{
 		return m_quality;
 	}
@@ -195,22 +193,22 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Setters
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE void EventDataSet::setTimeStamp( datatypes::DateTimeOffset timeStamp )
+	VISTA_SDK_CPP_INLINE void EventDataSet::setTimeStamp( nfx::time::DateTimeOffset timeStamp )
 	{
 		m_timeStamp = std::move( timeStamp );
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE void EventDataSet::setDataChannelId( DataChannelId dataChannelId )
+	VISTA_SDK_CPP_INLINE void EventDataSet::setDataChannelId( DataChannelId dataChannelId )
 	{
 		m_dataChannelId = std::move( dataChannelId );
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE void EventDataSet::setValue( std::string_view value )
+	VISTA_SDK_CPP_INLINE void EventDataSet::setValue( std::string_view value )
 	{
 		m_value = value;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE void EventDataSet::setQuality( std::optional<std::string_view> quality )
+	VISTA_SDK_CPP_INLINE void EventDataSet::setQuality( std::optional<std::string_view> quality )
 	{
 		if ( quality )
 		{
@@ -230,7 +228,7 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Construction
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE TabularData::TabularData(
+	VISTA_SDK_CPP_INLINE TabularData::TabularData(
 		std::vector<DataChannelId> dataChannelIds,
 		std::vector<TabularDataSet> dataSets )
 		: m_dataChannelIds{ std::move( dataChannelIds ) },
@@ -242,12 +240,12 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Property access
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::vector<DataChannelId>& TabularData::dataChannelIds() const noexcept
+	VISTA_SDK_CPP_INLINE const std::vector<DataChannelId>& TabularData::dataChannelIds() const noexcept
 	{
 		return m_dataChannelIds;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::vector<TabularDataSet>& TabularData::dataSets() const noexcept
+	VISTA_SDK_CPP_INLINE const std::vector<TabularDataSet>& TabularData::dataSets() const noexcept
 	{
 		return m_dataSets;
 	}
@@ -256,12 +254,12 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Setters
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE void TabularData::setDataChannelIds( std::vector<DataChannelId> dataChannelIds )
+	VISTA_SDK_CPP_INLINE void TabularData::setDataChannelIds( std::vector<DataChannelId> dataChannelIds )
 	{
 		m_dataChannelIds = std::move( dataChannelIds );
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE void TabularData::setDataSets( std::vector<TabularDataSet> dataSets )
+	VISTA_SDK_CPP_INLINE void TabularData::setDataSets( std::vector<TabularDataSet> dataSets )
 	{
 		m_dataSets = std::move( dataSets );
 	}
@@ -274,12 +272,12 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Construction
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE EventData::EventData( size_t dataSet )
+	VISTA_SDK_CPP_INLINE EventData::EventData( size_t dataSet )
 	{
 		m_dataSet.reserve( dataSet );
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE EventData::EventData( std::vector<EventDataSet> dataSet )
+	VISTA_SDK_CPP_INLINE EventData::EventData( std::vector<EventDataSet> dataSet )
 		: m_dataSet{ std::move( dataSet ) }
 	{
 	}
@@ -288,7 +286,7 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Property access
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::vector<EventDataSet>& EventData::dataSet() const noexcept
+	VISTA_SDK_CPP_INLINE const std::vector<EventDataSet>& EventData::dataSet() const noexcept
 	{
 		return m_dataSet;
 	}
@@ -297,7 +295,7 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Setters
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE void EventData::setDataSet( std::vector<EventDataSet> dataSet )
+	VISTA_SDK_CPP_INLINE void EventData::setDataSet( std::vector<EventDataSet> dataSet )
 	{
 		m_dataSet = std::move( dataSet );
 	}
@@ -306,12 +304,12 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Collection interface
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE void EventData::add( EventDataSet dataSet )
+	VISTA_SDK_CPP_INLINE void EventData::add( EventDataSet dataSet )
 	{
 		m_dataSet.push_back( std::move( dataSet ) );
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE void EventData::clear()
+	VISTA_SDK_CPP_INLINE void EventData::clear()
 	{
 		m_dataSet.clear();
 	}
@@ -324,28 +322,28 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Construction
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE Header::Header(
+	VISTA_SDK_CPP_INLINE Header::Header(
 		ShipId shipId,
 		TimeRange timeRange,
 		std::optional<std::string> author )
 		: m_shipId{ std::move( shipId ) },
 		  m_timeRange{ std::move( timeRange ) },
-		  m_dateCreated{ datatypes::DateTimeOffset::utcNow() },
-		  m_dateModified{ datatypes::DateTimeOffset::utcNow() },
+		  m_dateCreated{ nfx::time::DateTimeOffset::utcNow() },
+		  m_dateModified{ nfx::time::DateTimeOffset::utcNow() },
 		  m_author{ std::move( author ) },
 		  m_systemConfiguration{ std::nullopt },
 		  m_customHeaders{ std::nullopt }
 	{
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE Header::Header(
+	VISTA_SDK_CPP_INLINE Header::Header(
 		ShipId shipId,
 		std::optional<TimeRange> timeRange,
-		std::optional<datatypes::DateTimeOffset> dateCreated,
-		std::optional<datatypes::DateTimeOffset> dateModified,
+		std::optional<nfx::time::DateTimeOffset> dateCreated,
+		std::optional<nfx::time::DateTimeOffset> dateModified,
 		std::optional<std::string> author,
 		std::optional<std::vector<ConfigurationReference>> systemConfiguration,
-		std::optional<internal::StringMap<Value>> customHeaders )
+		std::optional<nfx::containers::StringMap<Value>> customHeaders )
 		: m_shipId{ std::move( shipId ) },
 		  m_timeRange{ std::move( timeRange ) },
 		  m_dateCreated{ std::move( dateCreated ) },
@@ -360,37 +358,37 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Property access
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE const ShipId& Header::shipId() const noexcept
+	VISTA_SDK_CPP_INLINE const ShipId& Header::shipId() const noexcept
 	{
 		return m_shipId;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::optional<TimeRange>& Header::timeRange() const noexcept
+	VISTA_SDK_CPP_INLINE const std::optional<TimeRange>& Header::timeRange() const noexcept
 	{
 		return m_timeRange;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::optional<datatypes::DateTimeOffset>& Header::dateCreated() const noexcept
+	VISTA_SDK_CPP_INLINE const std::optional<nfx::time::DateTimeOffset>& Header::dateCreated() const noexcept
 	{
 		return m_dateCreated;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::optional<datatypes::DateTimeOffset>& Header::dateModified() const noexcept
+	VISTA_SDK_CPP_INLINE const std::optional<nfx::time::DateTimeOffset>& Header::dateModified() const noexcept
 	{
 		return m_dateModified;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::optional<std::string>& Header::author() const noexcept
+	VISTA_SDK_CPP_INLINE const std::optional<std::string>& Header::author() const noexcept
 	{
 		return m_author;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::optional<std::vector<ConfigurationReference>>& Header::systemConfiguration() const noexcept
+	VISTA_SDK_CPP_INLINE const std::optional<std::vector<ConfigurationReference>>& Header::systemConfiguration() const noexcept
 	{
 		return m_systemConfiguration;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::optional<internal::StringMap<Value>>& Header::customHeaders() const noexcept
+	VISTA_SDK_CPP_INLINE const std::optional<nfx::containers::StringMap<Value>>& Header::customHeaders() const noexcept
 	{
 		return m_customHeaders;
 	}
@@ -399,27 +397,27 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Setters
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE void Header::setShipId( ShipId shipId )
+	VISTA_SDK_CPP_INLINE void Header::setShipId( ShipId shipId )
 	{
 		m_shipId = std::move( shipId );
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE void Header::setTimeRange( std::optional<TimeRange> timeRange )
+	VISTA_SDK_CPP_INLINE void Header::setTimeRange( std::optional<TimeRange> timeRange )
 	{
 		m_timeRange = std::move( timeRange );
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE void Header::setDateCreated( std::optional<datatypes::DateTimeOffset> dateCreated )
+	VISTA_SDK_CPP_INLINE void Header::setDateCreated( std::optional<nfx::time::DateTimeOffset> dateCreated )
 	{
 		m_dateCreated = std::move( dateCreated );
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE void Header::setDateModified( std::optional<datatypes::DateTimeOffset> dateModified )
+	VISTA_SDK_CPP_INLINE void Header::setDateModified( std::optional<nfx::time::DateTimeOffset> dateModified )
 	{
 		m_dateModified = std::move( dateModified );
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE void Header::setAuthor( std::optional<std::string_view> author )
+	VISTA_SDK_CPP_INLINE void Header::setAuthor( std::optional<std::string_view> author )
 	{
 		if ( author )
 		{
@@ -431,12 +429,12 @@ namespace dnv::vista::sdk::transport::timeseries
 		}
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE void Header::setSystemConfiguration( std::optional<std::vector<ConfigurationReference>> systemConfiguration )
+	VISTA_SDK_CPP_INLINE void Header::setSystemConfiguration( std::optional<std::vector<ConfigurationReference>> systemConfiguration )
 	{
 		m_systemConfiguration = std::move( systemConfiguration );
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE void Header::setCustomHeaders( std::optional<internal::StringMap<Value>> customHeaders )
+	VISTA_SDK_CPP_INLINE void Header::setCustomHeaders( std::optional<nfx::containers::StringMap<Value>> customHeaders )
 	{
 		m_customHeaders = std::move( customHeaders );
 	}
@@ -449,11 +447,11 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Construction
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE TimeSeriesData::TimeSeriesData(
+	VISTA_SDK_CPP_INLINE TimeSeriesData::TimeSeriesData(
 		std::optional<ConfigurationReference> dataConfiguration,
 		std::optional<std::vector<TabularData>> tabularData,
 		std::optional<EventData> eventData,
-		std::optional<internal::StringMap<Value>> customDataKinds )
+		std::optional<nfx::containers::StringMap<Value>> customDataKinds )
 		: m_dataConfiguration{ std::move( dataConfiguration ) },
 		  m_tabularData{ std::move( tabularData ) },
 		  m_eventData{ std::move( eventData ) },
@@ -465,22 +463,22 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Property access
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::optional<ConfigurationReference>& TimeSeriesData::dataConfiguration() const noexcept
+	VISTA_SDK_CPP_INLINE const std::optional<ConfigurationReference>& TimeSeriesData::dataConfiguration() const noexcept
 	{
 		return m_dataConfiguration;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::optional<std::vector<TabularData>>& TimeSeriesData::tabularData() const noexcept
+	VISTA_SDK_CPP_INLINE const std::optional<std::vector<TabularData>>& TimeSeriesData::tabularData() const noexcept
 	{
 		return m_tabularData;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::optional<EventData>& TimeSeriesData::eventData() const noexcept
+	VISTA_SDK_CPP_INLINE const std::optional<EventData>& TimeSeriesData::eventData() const noexcept
 	{
 		return m_eventData;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::optional<internal::StringMap<Value>>& TimeSeriesData::customDataKinds() const noexcept
+	VISTA_SDK_CPP_INLINE const std::optional<nfx::containers::StringMap<Value>>& TimeSeriesData::customDataKinds() const noexcept
 	{
 		return m_customDataKinds;
 	}
@@ -489,22 +487,22 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Setters
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE void TimeSeriesData::setDataConfiguration( std::optional<ConfigurationReference> dataConfiguration )
+	VISTA_SDK_CPP_INLINE void TimeSeriesData::setDataConfiguration( std::optional<ConfigurationReference> dataConfiguration )
 	{
 		m_dataConfiguration = std::move( dataConfiguration );
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE void TimeSeriesData::setTabularData( std::optional<std::vector<TabularData>> tabularData )
+	VISTA_SDK_CPP_INLINE void TimeSeriesData::setTabularData( std::optional<std::vector<TabularData>> tabularData )
 	{
 		m_tabularData = std::move( tabularData );
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE void TimeSeriesData::setEventData( std::optional<EventData> eventData )
+	VISTA_SDK_CPP_INLINE void TimeSeriesData::setEventData( std::optional<EventData> eventData )
 	{
 		m_eventData = std::move( eventData );
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE void TimeSeriesData::setCustomDataKinds( std::optional<internal::StringMap<Value>> customDataKinds )
+	VISTA_SDK_CPP_INLINE void TimeSeriesData::setCustomDataKinds( std::optional<nfx::containers::StringMap<Value>> customDataKinds )
 	{
 		m_customDataKinds = std::move( customDataKinds );
 	}
@@ -517,7 +515,7 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Construction
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE Package::Package(
+	VISTA_SDK_CPP_INLINE Package::Package(
 		std::optional<Header> header,
 		std::vector<TimeSeriesData> timeSeriesData )
 		: m_header{ std::move( header ) },
@@ -529,12 +527,12 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Property access
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::optional<Header>& Package::header() const noexcept
+	VISTA_SDK_CPP_INLINE const std::optional<Header>& Package::header() const noexcept
 	{
 		return m_header;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE const std::vector<TimeSeriesData>& Package::timeSeriesData() const noexcept
+	VISTA_SDK_CPP_INLINE const std::vector<TimeSeriesData>& Package::timeSeriesData() const noexcept
 	{
 		return m_timeSeriesData;
 	}
@@ -543,12 +541,12 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Setters
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE void Package::setHeader( std::optional<Header> header )
+	VISTA_SDK_CPP_INLINE void Package::setHeader( std::optional<Header> header )
 	{
 		m_header = std::move( header );
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE void Package::setTimeSeriesData( std::vector<TimeSeriesData> timeSeriesData )
+	VISTA_SDK_CPP_INLINE void Package::setTimeSeriesData( std::vector<TimeSeriesData> timeSeriesData )
 	{
 		m_timeSeriesData = std::move( timeSeriesData );
 	}
@@ -561,7 +559,7 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Construction
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE TimeSeriesDataPackage::TimeSeriesDataPackage( Package package )
+	VISTA_SDK_CPP_INLINE TimeSeriesDataPackage::TimeSeriesDataPackage( Package package )
 		: m_package{ std::move( package ) }
 	{
 	}
@@ -570,12 +568,12 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Property access
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE const Package& TimeSeriesDataPackage::package() const noexcept
+	VISTA_SDK_CPP_INLINE const Package& TimeSeriesDataPackage::package() const noexcept
 	{
 		return m_package;
 	}
 
-	VISTA_SDK_CPP_FORCE_INLINE Package& TimeSeriesDataPackage::package() noexcept
+	VISTA_SDK_CPP_INLINE Package& TimeSeriesDataPackage::package() noexcept
 	{
 		return m_package;
 	}
@@ -584,7 +582,7 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Setters
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_FORCE_INLINE void TimeSeriesDataPackage::setPackage( Package package )
+	VISTA_SDK_CPP_INLINE void TimeSeriesDataPackage::setPackage( Package package )
 	{
 		m_package = std::move( package );
 	}

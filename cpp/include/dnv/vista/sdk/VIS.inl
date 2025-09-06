@@ -3,7 +3,7 @@
  * @brief Inline implementations for performance-critical VIS operations
  */
 
-#pragma once
+#include <nfx/string/StringBuilderPool.h>
 
 #include "CodebooksDto.h"
 #include "EmbeddedResource.h"
@@ -68,10 +68,11 @@ namespace dnv::vista::sdk
 	{
 		if ( !VisVersionExtensions::isValid( visVersion ) )
 		{
-			throw std::invalid_argument(
-				fmt::format(
-					"Invalid VIS version: {}",
-					static_cast<int>( visVersion ) ) );
+			auto lease = nfx::string::StringBuilderPool::lease();
+			auto builder = lease.builder();
+			builder.append( "Invalid VIS version: " );
+			builder.append( std::to_string( static_cast<int>( visVersion ) ) );
+			throw std::invalid_argument{ lease.toString() };
 		}
 
 		return gmodsCache().getOrCreate( visVersion, [visVersion]() {
@@ -85,10 +86,11 @@ namespace dnv::vista::sdk
 	{
 		if ( !VisVersionExtensions::isValid( visVersion ) )
 		{
-			throw std::invalid_argument(
-				fmt::format(
-					"Invalid VIS version: {}",
-					static_cast<int>( visVersion ) ) );
+			auto lease = nfx::string::StringBuilderPool::lease();
+			auto builder = lease.builder();
+			builder.append( "Invalid VIS version: " );
+			builder.append( std::to_string( static_cast<int>( visVersion ) ) );
+			throw std::invalid_argument{ lease.toString() };
 		}
 
 		return codebooksCache().getOrCreate( visVersion, [visVersion]() {
@@ -102,10 +104,11 @@ namespace dnv::vista::sdk
 	{
 		if ( !VisVersionExtensions::isValid( visVersion ) )
 		{
-			throw std::invalid_argument(
-				fmt::format(
-					"Invalid VIS version: {}",
-					static_cast<int>( visVersion ) ) );
+			auto lease = nfx::string::StringBuilderPool::lease();
+			auto builder = lease.builder();
+			builder.append( "Invalid VIS version: " );
+			builder.append( std::to_string( static_cast<int>( visVersion ) ) );
+			throw std::invalid_argument{ lease.toString() };
 		}
 
 		return locationsCache().getOrCreate(
@@ -123,20 +126,22 @@ namespace dnv::vista::sdk
 	{
 		if ( !VisVersionExtensions::isValid( visVersion ) )
 		{
-			throw std::invalid_argument(
-				fmt::format(
-					"Invalid VIS version: {}",
-					static_cast<int>( visVersion ) ) );
+			auto lease = nfx::string::StringBuilderPool::lease();
+			auto builder = lease.builder();
+			builder.append( "Invalid VIS version: " );
+			builder.append( std::to_string( static_cast<int>( visVersion ) ) );
+			throw std::invalid_argument{ lease.toString() };
 		}
 
 		return gmodDtoCache().getOrCreate( visVersion, [visVersion]() {
 			auto dto = loadGmodDto( visVersion );
 			if ( !dto )
 			{
-				throw std::runtime_error(
-					fmt::format(
-						"Failed to load GMOD DTO for version: {}",
-						VisVersionExtensions::toVersionString( visVersion ) ) );
+				auto lease = nfx::string::StringBuilderPool::lease();
+				auto builder = lease.builder();
+				builder.append( "Failed to load GMOD DTO for version: " );
+				builder.append( VisVersionExtensions::toVersionString( visVersion ) );
+				throw std::runtime_error{ lease.toString() };
 			}
 
 			return std::move( *dto );
@@ -147,20 +152,22 @@ namespace dnv::vista::sdk
 	{
 		if ( !VisVersionExtensions::isValid( visVersion ) )
 		{
-			throw std::invalid_argument(
-				fmt::format(
-					"Invalid VIS version: {}",
-					static_cast<int>( visVersion ) ) );
+			auto lease = nfx::string::StringBuilderPool::lease();
+			auto builder = lease.builder();
+			builder.append( "Invalid VIS version: " );
+			builder.append( std::to_string( static_cast<int>( visVersion ) ) );
+			throw std::invalid_argument{ lease.toString() };
 		}
 
 		return codebooksDtoCache().getOrCreate( visVersion, [visVersion]() {
 			auto dto = EmbeddedResource::codebooks( VisVersionExtensions::toVersionString( visVersion ) );
 			if ( !dto )
 			{
-				throw std::runtime_error(
-					fmt::format(
-						"Failed to load codebooks DTO for version: {}",
-						VisVersionExtensions::toVersionString( visVersion ) ) );
+				auto lease = nfx::string::StringBuilderPool::lease();
+				auto builder = lease.builder();
+				builder.append( "Failed to load codebooks DTO for version: " );
+				builder.append( VisVersionExtensions::toVersionString( visVersion ) );
+				throw std::runtime_error{ lease.toString() };
 			}
 
 			return std::move( *dto );
@@ -171,20 +178,22 @@ namespace dnv::vista::sdk
 	{
 		if ( !VisVersionExtensions::isValid( visVersion ) )
 		{
-			throw std::invalid_argument(
-				fmt::format(
-					"Invalid VIS version: {}",
-					static_cast<int>( visVersion ) ) );
+			auto lease = nfx::string::StringBuilderPool::lease();
+			auto builder = lease.builder();
+			builder.append( "Invalid VIS version: " );
+			builder.append( std::to_string( static_cast<int>( visVersion ) ) );
+			throw std::invalid_argument{ lease.toString() };
 		}
 
 		return locationsDtoCache().getOrCreate( visVersion, [visVersion]() {
 			auto dto = EmbeddedResource::locations( VisVersionExtensions::toVersionString( visVersion ) );
 			if ( !dto )
 			{
-				throw std::runtime_error(
-					fmt::format(
-						"Failed to load locations DTO for version: {}",
-						VisVersionExtensions::toVersionString( visVersion ) ) );
+				auto lease = nfx::string::StringBuilderPool::lease();
+				auto builder = lease.builder();
+				builder.append( "Failed to load locations DTO for version: " );
+				builder.append( VisVersionExtensions::toVersionString( visVersion ) );
+				throw std::runtime_error{ lease.toString() };
 			}
 
 			return std::move( *dto );
@@ -242,12 +251,12 @@ namespace dnv::vista::sdk
 
 	inline constexpr bool VIS::matchAsciiDecimal( int code ) noexcept
 	{
-		return ( code >= 48 && code <= 57 )		/* Numbers:     0-9  */
-			   || ( code >= 65 && code <= 90 )	/* Uppercase:   A-Z  */
-			   || ( code >= 97 && code <= 122 ) /* Lowercase:   a-z  */
-			   || ( code == 45					/* Hyphen:      -    */
-					  || code == 46				/* Period:      .    */
-					  || code == 95				/* Underscore:  _    */
-					  || code == 126 );			/* Tilde:       ~    */
+		return ( code >= 48 && code <= 57 )		// Numbers:     0-9
+			   || ( code >= 65 && code <= 90 )	// Uppercase:   A-Z
+			   || ( code >= 97 && code <= 122 ) // Lowercase:   a-z
+			   || ( code == 45					// Hyphen:      -
+					  || code == 46				// Period:      .
+					  || code == 95				// Underscore:  _
+					  || code == 126 );			// Tilde:       ~
 	}
 }

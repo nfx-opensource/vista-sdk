@@ -3,9 +3,8 @@
  * @brief Inline implementations for performance-critical VISVersion operations
  */
 
-#pragma once
-
-#include "internal/StringMap.h"
+#include <nfx/containers/StringMap.h>
+#include <nfx/string/StringBuilderPool.h>
 
 namespace dnv::vista::sdk
 {
@@ -28,9 +27,9 @@ namespace dnv::vista::sdk
 			return versions;
 		}
 
-		inline const internal::StringMap<VisVersion>& versionMapImpl()
+		inline const nfx::containers::StringMap<VisVersion>& versionMapImpl()
 		{
-			static const internal::StringMap<VisVersion> versionMap{
+			static const nfx::containers::StringMap<VisVersion> versionMap{
 				{ "3.4a", VisVersion::v3_4a },
 				{ "3.5a", VisVersion::v3_5a },
 				{ "3.6a", VisVersion::v3_6a },
@@ -156,7 +155,7 @@ namespace dnv::vista::sdk
 			}
 			default:
 			{
-				throw std::invalid_argument( "Invalid VIS version: " + std::to_string( static_cast<int>( version ) ) );
+				throw std::invalid_argument{ "Invalid VIS version: " + std::to_string( static_cast<int>( version ) ) };
 			}
 		}
 	}
@@ -168,6 +167,7 @@ namespace dnv::vista::sdk
 		if ( it != versionMap.end() )
 		{
 			version = it->second;
+
 			return true;
 		}
 		return false;
@@ -178,7 +178,11 @@ namespace dnv::vista::sdk
 		VisVersion result;
 		if ( !tryParse( versionString, result ) )
 		{
-			throw std::invalid_argument( fmt::format( "Invalid VIS version string: ", versionString ) );
+			auto lease = nfx::string::StringBuilderPool::lease();
+			auto builder = lease.builder();
+			builder.append( "Invalid VIS version string: " );
+			builder.append( versionString );
+			throw std::invalid_argument{ lease.toString() };
 		}
 
 		return result;

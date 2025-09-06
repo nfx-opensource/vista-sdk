@@ -5,6 +5,9 @@
 
 #pragma once
 
+#include <stdexcept>
+#include <string>
+
 namespace dnv::vista::sdk
 {
 	//=====================================================================
@@ -21,6 +24,14 @@ namespace dnv::vista::sdk
 			: std::runtime_error{ "VistaException - " + message }
 		{
 		}
+
+		VistaException( const VistaException& ) = default;
+		VistaException& operator=( const VistaException& ) = default;
+
+		VistaException( VistaException&& ) noexcept = default;
+		VistaException& operator=( VistaException&& ) noexcept = default;
+
+		virtual ~VistaException() override = default;
 	};
 
 	//=====================================================================
@@ -30,12 +41,20 @@ namespace dnv::vista::sdk
 	/**
 	 * @brief Exception thrown for validation failures
 	 */
-	class ValidationException : public VistaException
+	class ValidationException final : public VistaException
 	{
 	public:
 		explicit ValidationException( const std::string& message )
 			: VistaException{ "Validation failed - Message='" + message + "'" }
 		{
 		}
+
+		ValidationException( const ValidationException& ) = default;
+		ValidationException& operator=( const ValidationException& ) = default;
+
+		ValidationException( ValidationException&& ) noexcept = default;
+		ValidationException& operator=( ValidationException&& ) noexcept = default;
+
+		virtual ~ValidationException() override = default;
 	};
 }

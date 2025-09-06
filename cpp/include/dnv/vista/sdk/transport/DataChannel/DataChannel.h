@@ -7,11 +7,20 @@
 
 #pragma once
 
-#include "dnv/vista/sdk/config/Platform.h"
+#include <cstdint>
+
+#include <nfx/containers/StringMap.h>
+
+#include "dnv/vista/sdk/config/config.h"
 #include "dnv/vista/sdk/transport/ISO19848.h"
 #include "dnv/vista/sdk/transport/ShipId.h"
-#include "dnv/vista/sdk/internal/StringMap.h"
 #include "dnv/vista/sdk/LocalId.h"
+
+namespace nfx::datatypes
+{
+	class DateTimeOffset;
+	class Decimal;
+}
 
 namespace dnv::vista::sdk
 {
@@ -20,12 +29,6 @@ namespace dnv::vista::sdk
 	//=====================================================================
 
 	class ValidateResult;
-
-	namespace datatypes
-	{
-		class DateTimeOffset;
-		class Decimal128;
-	}
 
 	namespace transport::datachannel
 	{
@@ -59,7 +62,7 @@ namespace dnv::vista::sdk
 			//----------------------------------------------
 
 			/** @brief Default constructor with standard values */
-			VISTA_SDK_CPP_FORCE_INLINE VersionInformation();
+			VISTA_SDK_CPP_INLINE VersionInformation();
 
 			/** @brief Copy constructor */
 			VersionInformation( const VersionInformation& ) = default;
@@ -91,20 +94,23 @@ namespace dnv::vista::sdk
 			/**
 			 * @brief Get naming rule
 			 * @return Naming rule string
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::string& namingRule() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::string& namingRule() const noexcept;
 
 			/**
 			 * @brief Get naming scheme version
 			 * @return Naming scheme version string
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::string& namingSchemeVersion() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::string& namingSchemeVersion() const noexcept;
 
 			/**
 			 * @brief Get optional reference URL
 			 * @return Optional reference URL
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<std::string>& referenceUrl() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::string>& referenceUrl() const noexcept;
 
 			//----------------------------------------------
 			// Setters
@@ -114,19 +120,19 @@ namespace dnv::vista::sdk
 			 * @brief Set naming rule
 			 * @param namingRule New naming rule
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setNamingRule( std::string_view namingRule );
+			VISTA_SDK_CPP_INLINE void setNamingRule( std::string_view namingRule );
 
 			/**
 			 * @brief Set naming scheme version
 			 * @param namingSchemeVersion New naming scheme version
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setNamingSchemeVersion( std::string_view namingSchemeVersion );
+			VISTA_SDK_CPP_INLINE void setNamingSchemeVersion( std::string_view namingSchemeVersion );
 
 			/**
 			 * @brief Set reference URL
 			 * @param referenceUrl New optional reference URL
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setReferenceUrl( std::optional<std::string_view> referenceUrl );
+			VISTA_SDK_CPP_INLINE void setReferenceUrl( std::optional<std::string_view> referenceUrl );
 
 		private:
 			//----------------------------------------------
@@ -161,7 +167,7 @@ namespace dnv::vista::sdk
 			 * @param timeStamp Configuration timestamp
 			 * @param version Optional version string
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE ConfigurationReference( std::string_view id, datatypes::DateTimeOffset timeStamp, std::optional<std::string_view> version = std::nullopt );
+			VISTA_SDK_CPP_INLINE ConfigurationReference( std::string_view id, nfx::time::DateTimeOffset timeStamp, std::optional<std::string_view> version = std::nullopt );
 
 			/** @brief Copy constructor */
 			ConfigurationReference( const ConfigurationReference& ) = default;
@@ -193,20 +199,23 @@ namespace dnv::vista::sdk
 			/**
 			 * @brief Get configuration ID
 			 * @return Configuration identifier
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::string& id() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::string& id() const noexcept;
 
 			/**
 			 * @brief Get optional version
 			 * @return Optional version string
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<std::string>& version() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::string>& version() const noexcept;
 
 			/**
 			 * @brief Get timestamp
 			 * @return Configuration timestamp
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] inline const datatypes::DateTimeOffset& timeStamp() const noexcept;
+			[[nodiscard]] inline const nfx::time::DateTimeOffset& timeStamp() const noexcept;
 
 			//----------------------------------------------
 			// Setters
@@ -216,19 +225,19 @@ namespace dnv::vista::sdk
 			 * @brief Set configuration ID
 			 * @param id New configuration identifier
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setId( std::string_view id );
+			VISTA_SDK_CPP_INLINE void setId( std::string_view id );
 
 			/**
 			 * @brief Set version
 			 * @param version New optional version string
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setVersion( std::optional<std::string_view> version );
+			VISTA_SDK_CPP_INLINE void setVersion( std::optional<std::string_view> version );
 
 			/**
 			 * @brief Set timestamp
 			 * @param timeStamp New configuration timestamp
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setTimeStamp( datatypes::DateTimeOffset timeStamp );
+			VISTA_SDK_CPP_INLINE void setTimeStamp( nfx::time::DateTimeOffset timeStamp );
 
 		private:
 			//----------------------------------------------
@@ -236,7 +245,7 @@ namespace dnv::vista::sdk
 			//----------------------------------------------
 
 			std::string m_id;
-			datatypes::DateTimeOffset m_timeStamp;
+			nfx::time::DateTimeOffset m_timeStamp;
 			std::optional<std::string> m_version;
 		};
 
@@ -284,74 +293,86 @@ namespace dnv::vista::sdk
 			/**
 			 * @brief Get enumeration list
 			 * @return Optional list of acceptable values
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<std::vector<std::string>>& enumeration() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::vector<std::string>>& enumeration() const noexcept;
 
 			/**
 			 * @brief Get fraction digits
 			 * @return Optional maximum decimal places allowed
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE std::optional<uint32_t> fractionDigits() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE std::optional<uint32_t> fractionDigits() const noexcept;
 
 			/**
 			 * @brief Get exact length
 			 * @return Optional exact number of characters required
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE std::optional<uint32_t> length() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE std::optional<uint32_t> length() const noexcept;
 
 			/**
 			 * @brief Get maximum exclusive bound
 			 * @return Optional upper bound (value must be less than this)
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE std::optional<double> maxExclusive() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE std::optional<double> maxExclusive() const noexcept;
 
 			/**
 			 * @brief Get maximum inclusive bound
 			 * @return Optional upper bound (value must be less than or equal)
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE std::optional<double> maxInclusive() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE std::optional<double> maxInclusive() const noexcept;
 
 			/**
 			 * @brief Get maximum length
 			 * @return Optional maximum number of characters allowed
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE std::optional<uint32_t> maxLength() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE std::optional<uint32_t> maxLength() const noexcept;
 
 			/**
 			 * @brief Get minimum exclusive bound
 			 * @return Optional lower bound (value must be greater than this)
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE std::optional<double> minExclusive() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE std::optional<double> minExclusive() const noexcept;
 
 			/**
 			 * @brief Get minimum inclusive bound
 			 * @return Optional lower bound (value must be greater than or equal)
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE std::optional<double> minInclusive() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE std::optional<double> minInclusive() const noexcept;
 
 			/**
 			 * @brief Get minimum length
 			 * @return Optional minimum number of characters required
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE std::optional<uint32_t> minLength() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE std::optional<uint32_t> minLength() const noexcept;
 
 			/**
 			 * @brief Get regex pattern
 			 * @return Optional regex pattern for validation
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<std::string>& pattern() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::string>& pattern() const noexcept;
 
 			/**
 			 * @brief Get total digits
 			 * @return Optional exact number of digits required
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE std::optional<uint32_t> totalDigits() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE std::optional<uint32_t> totalDigits() const noexcept;
 
 			/**
 			 * @brief Get whitespace handling
 			 * @return Optional whitespace handling mode
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE std::optional<WhiteSpace> whiteSpace() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE std::optional<WhiteSpace> whiteSpace() const noexcept;
 
 			//----------------------------------------------
 			// Setters
@@ -361,61 +382,61 @@ namespace dnv::vista::sdk
 			 * @brief Set enumeration list
 			 * @param enumeration New optional enumeration values
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setEnumeration( std::optional<std::vector<std::string>> enumeration );
+			VISTA_SDK_CPP_INLINE void setEnumeration( std::optional<std::vector<std::string>> enumeration );
 
 			/**
 			 * @brief Set fraction digits
 			 * @param fractionDigits New optional fraction digits limit
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setFractionDigits( std::optional<uint32_t> fractionDigits );
+			VISTA_SDK_CPP_INLINE void setFractionDigits( std::optional<uint32_t> fractionDigits );
 
 			/**
 			 * @brief Set exact length
 			 * @param length New optional exact length requirement
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setLength( std::optional<uint32_t> length );
+			VISTA_SDK_CPP_INLINE void setLength( std::optional<uint32_t> length );
 
 			/**
 			 * @brief Set maximum exclusive bound
 			 * @param maxExclusive New optional maximum exclusive bound
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setMaxExclusive( std::optional<double> maxExclusive );
+			VISTA_SDK_CPP_INLINE void setMaxExclusive( std::optional<double> maxExclusive );
 
 			/**
 			 * @brief Set maximum inclusive bound
 			 * @param maxInclusive New optional maximum inclusive bound
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setMaxInclusive( std::optional<double> maxInclusive );
+			VISTA_SDK_CPP_INLINE void setMaxInclusive( std::optional<double> maxInclusive );
 
 			/**
 			 * @brief Set maximum length
 			 * @param maxLength New optional maximum length
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setMaxLength( std::optional<uint32_t> maxLength );
+			VISTA_SDK_CPP_INLINE void setMaxLength( std::optional<uint32_t> maxLength );
 
 			/**
 			 * @brief Set minimum exclusive bound
 			 * @param minExclusive New optional minimum exclusive bound
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setMinExclusive( std::optional<double> minExclusive );
+			VISTA_SDK_CPP_INLINE void setMinExclusive( std::optional<double> minExclusive );
 
 			/**
 			 * @brief Set minimum inclusive bound
 			 * @param minInclusive New optional minimum inclusive bound
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setMinInclusive( std::optional<double> minInclusive );
+			VISTA_SDK_CPP_INLINE void setMinInclusive( std::optional<double> minInclusive );
 
 			/**
 			 * @brief Set minimum length
 			 * @param minLength New optional minimum length
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setMinLength( std::optional<uint32_t> minLength );
+			VISTA_SDK_CPP_INLINE void setMinLength( std::optional<uint32_t> minLength );
 
 			/**
 			 * @brief Set regex pattern
 			 * @param pattern New optional regex pattern
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setPattern( std::optional<std::string> pattern );
+			VISTA_SDK_CPP_INLINE void setPattern( std::optional<std::string> pattern );
 
 			/**
 			 * @brief Set total digits with validation
@@ -428,7 +449,7 @@ namespace dnv::vista::sdk
 			 * @brief Set whitespace handling
 			 * @param whiteSpace New optional whitespace handling mode
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setWhiteSpace( std::optional<WhiteSpace> whiteSpace );
+			VISTA_SDK_CPP_INLINE void setWhiteSpace( std::optional<WhiteSpace> whiteSpace );
 
 			//----------------------------------------------
 			// Validation
@@ -439,6 +460,7 @@ namespace dnv::vista::sdk
 			 * @param value String value to validate
 			 * @param format Format context for validation
 			 * @return ValidateResult with success or error messages
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
 			[[nodiscard]] ValidateResult validateValue( const std::string& value, const class Format& format ) const;
 
@@ -468,6 +490,7 @@ namespace dnv::vista::sdk
 			 * @brief Validate numeric value against bounds
 			 * @param number Numeric value to validate
 			 * @return ValidateResult with success or bound violation errors
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
 			[[nodiscard]] ValidateResult validateNumber( double number ) const;
 
@@ -475,8 +498,9 @@ namespace dnv::vista::sdk
 			 * @brief Count decimal places in a number
 			 * @param decimal Decimal value to analyze
 			 * @return Number of decimal places
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] static uint32_t countDecimalPlaces( datatypes::Decimal128 decimal );
+			[[nodiscard]] static uint32_t countDecimalPlaces( nfx::datatypes::Decimal decimal );
 		};
 
 		//=====================================================================
@@ -495,7 +519,7 @@ namespace dnv::vista::sdk
 			//----------------------------------------------
 
 			/** @brief Default constructor with min/max values*/
-			VISTA_SDK_CPP_FORCE_INLINE Range();
+			VISTA_SDK_CPP_INLINE Range();
 
 			/**
 			 * @brief Constructs Range with validation
@@ -503,7 +527,7 @@ namespace dnv::vista::sdk
 			 * @param high Upper bound (must be >= low)
 			 * @throws std::invalid_argument If low > high
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE Range( double low, double high );
+			VISTA_SDK_CPP_INLINE Range( double low, double high );
 
 			/** @brief Copy constructor */
 			Range( const Range& ) = default;
@@ -531,14 +555,16 @@ namespace dnv::vista::sdk
 			/**
 			 * @brief Get lower bound
 			 * @return Lower bound value
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE double low() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE double low() const noexcept;
 
 			/**
 			 * @brief Get upper bound
 			 * @return Upper bound value
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE double high() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE double high() const noexcept;
 
 			//----------------------------------------------
 			// Setters
@@ -588,7 +614,7 @@ namespace dnv::vista::sdk
 			 * @brief Constructs Unit with required symbol
 			 * @param unitSymbol Unit symbol
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE explicit Unit( std::string_view unitSymbol );
+			VISTA_SDK_CPP_INLINE explicit Unit( std::string_view unitSymbol );
 
 			/** @brief Copy constructor */
 			Unit( const Unit& ) = default;
@@ -616,20 +642,23 @@ namespace dnv::vista::sdk
 			/**
 			 * @brief Get unit symbol
 			 * @return Unit symbol string
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::string& unitSymbol() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::string& unitSymbol() const noexcept;
 
 			/**
 			 * @brief Get optional quantity name
 			 * @return Optional quantity name
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<std::string>& quantityName() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::string>& quantityName() const noexcept;
 
 			/**
 			 * @brief Get optional custom elements
 			 * @return Optional custom elements dictionary
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<internal::StringMap<Value>>& customElements() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<nfx::containers::StringMap<Value>>& customElements() const noexcept;
 
 			//----------------------------------------------
 			// Setters
@@ -639,19 +668,19 @@ namespace dnv::vista::sdk
 			 * @brief Set unit symbol
 			 * @param unitSymbol New unit symbol
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setUnitSymbol( std::string_view unitSymbol );
+			VISTA_SDK_CPP_INLINE void setUnitSymbol( std::string_view unitSymbol );
 
 			/**
 			 * @brief Set quantity name
 			 * @param quantityName New optional quantity name
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setQuantityName( std::optional<std::string> quantityName );
+			VISTA_SDK_CPP_INLINE void setQuantityName( std::optional<std::string> quantityName );
 
 			/**
 			 * @brief Set custom elements
 			 * @param customElements New optional custom elements
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setCustomElements( std::optional<internal::StringMap<Value>> customElements );
+			VISTA_SDK_CPP_INLINE void setCustomElements( std::optional<nfx::containers::StringMap<Value>> customElements );
 
 		private:
 			//----------------------------------------------
@@ -660,7 +689,7 @@ namespace dnv::vista::sdk
 
 			std::string m_unitSymbol;
 			std::optional<std::string> m_quantityName;
-			std::optional<internal::StringMap<Value>> m_customElements;
+			std::optional<nfx::containers::StringMap<Value>> m_customElements;
 		};
 
 		//=====================================================================
@@ -686,7 +715,7 @@ namespace dnv::vista::sdk
 			 * @param dataChannelListId Configuration reference for data channel list
 			 * @param author Author information
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE Header(
+			VISTA_SDK_CPP_INLINE Header(
 				ShipId shipId,
 				ConfigurationReference dataChannelListId,
 				std::optional<std::string> author );
@@ -700,13 +729,13 @@ namespace dnv::vista::sdk
 			 * @param dateCreated Creation timestamp
 			 * @param customHeaders Custom headers dictionary
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE Header(
+			VISTA_SDK_CPP_INLINE Header(
 				ShipId shipId,
 				ConfigurationReference dataChannelListId,
 				std::optional<VersionInformation> versionInformation,
 				std::optional<std::string> author,
-				std::optional<datatypes::DateTimeOffset> dateCreated,
-				std::optional<internal::StringMap<Value>> customHeaders );
+				std::optional<nfx::time::DateTimeOffset> dateCreated,
+				std::optional<nfx::containers::StringMap<Value>> customHeaders );
 
 			/** @brief Copy constructor */
 			Header( const Header& ) = default;
@@ -734,38 +763,44 @@ namespace dnv::vista::sdk
 			/**
 			 * @brief Get ship ID
 			 * @return Ship identifier
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const ShipId& shipId() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const ShipId& shipId() const noexcept;
 
 			/**
 			 * @brief Get data channel list ID
 			 * @return Configuration reference for data channel list
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const ConfigurationReference& dataChannelListId() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const ConfigurationReference& dataChannelListId() const noexcept;
 
 			/**
 			 * @brief Get version information
 			 * @return Optional version information
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<VersionInformation>& versionInformation() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<VersionInformation>& versionInformation() const noexcept;
 
 			/**
 			 * @brief Get author
 			 * @return Optional author string
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<std::string>& author() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::string>& author() const noexcept;
 
 			/**
 			 * @brief Get date created
 			 * @return Optional creation timestamp (UtcNow default)
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<datatypes::DateTimeOffset>& dateCreated() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<nfx::time::DateTimeOffset>& dateCreated() const noexcept;
 
 			/**
 			 * @brief Get custom headers
 			 * @return Optional custom headers dictionary
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<internal::StringMap<Value>>& customHeaders() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<nfx::containers::StringMap<Value>>& customHeaders() const noexcept;
 
 			//----------------------------------------------
 			// Setters
@@ -775,37 +810,37 @@ namespace dnv::vista::sdk
 			 * @brief Set ship ID
 			 * @param shipId New ship identifier
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setShipId( ShipId shipId );
+			VISTA_SDK_CPP_INLINE void setShipId( ShipId shipId );
 
 			/**
 			 * @brief Set data channel list ID
 			 * @param dataChannelListId New configuration reference
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setDataChannelListId( ConfigurationReference dataChannelListId );
+			VISTA_SDK_CPP_INLINE void setDataChannelListId( ConfigurationReference dataChannelListId );
 
 			/**
 			 * @brief Set version information
 			 * @param versionInformation New optional version information
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setVersionInformation( std::optional<VersionInformation> versionInformation );
+			VISTA_SDK_CPP_INLINE void setVersionInformation( std::optional<VersionInformation> versionInformation );
 
 			/**
 			 * @brief Set author
 			 * @param author New optional author string
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setAuthor( std::optional<std::string> author );
+			VISTA_SDK_CPP_INLINE void setAuthor( std::optional<std::string> author );
 
 			/**
 			 * @brief Set date created
 			 * @param dateCreated New optional creation timestamp
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setDateCreated( std::optional<datatypes::DateTimeOffset> dateCreated );
+			VISTA_SDK_CPP_INLINE void setDateCreated( std::optional<nfx::time::DateTimeOffset> dateCreated );
 
 			/**
 			 * @brief Set custom headers
 			 * @param customHeaders New optional custom headers dictionary
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setCustomHeaders( std::optional<internal::StringMap<Value>> customHeaders );
+			VISTA_SDK_CPP_INLINE void setCustomHeaders( std::optional<nfx::containers::StringMap<Value>> customHeaders );
 
 		private:
 			//----------------------------------------------
@@ -816,8 +851,8 @@ namespace dnv::vista::sdk
 			ConfigurationReference m_dataChannelListId;
 			std::optional<VersionInformation> m_versionInformation;
 			std::optional<std::string> m_author;
-			std::optional<datatypes::DateTimeOffset> m_dateCreated;
-			std::optional<internal::StringMap<Value>> m_customHeaders;
+			std::optional<nfx::time::DateTimeOffset> m_dateCreated;
+			std::optional<nfx::containers::StringMap<Value>> m_customHeaders;
 		};
 
 		//=====================================================================
@@ -835,7 +870,7 @@ namespace dnv::vista::sdk
 			//----------------------------------------------
 
 			/** @brief Default constructor with standard naming rule */
-			VISTA_SDK_CPP_FORCE_INLINE NameObject();
+			VISTA_SDK_CPP_INLINE NameObject();
 
 			/** @brief Copy constructor */
 			NameObject( const NameObject& ) = default;
@@ -863,14 +898,16 @@ namespace dnv::vista::sdk
 			/**
 			 * @brief Get naming rule
 			 * @return Naming rule string
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::string& namingRule() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::string& namingRule() const noexcept;
 
 			/**
 			 * @brief Get custom name objects
 			 * @return Optional custom name objects dictionary
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<internal::StringMap<Value>>& customNameObjects() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<nfx::containers::StringMap<Value>>& customNameObjects() const noexcept;
 
 			//----------------------------------------------
 			// Setters
@@ -880,13 +917,13 @@ namespace dnv::vista::sdk
 			 * @brief Set naming rule
 			 * @param namingRule New naming rule string
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setNamingRule( std::string namingRule );
+			VISTA_SDK_CPP_INLINE void setNamingRule( std::string namingRule );
 
 			/**
 			 * @brief Set custom name objects
 			 * @param customNameObjects New optional custom name objects
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setCustomNameObjects( std::optional<internal::StringMap<Value>> customNameObjects );
+			VISTA_SDK_CPP_INLINE void setCustomNameObjects( std::optional<nfx::containers::StringMap<Value>> customNameObjects );
 
 		private:
 			//----------------------------------------------
@@ -894,7 +931,7 @@ namespace dnv::vista::sdk
 			//----------------------------------------------
 
 			std::string m_namingRule;
-			std::optional<internal::StringMap<Value>> m_customNameObjects;
+			std::optional<nfx::containers::StringMap<Value>> m_customNameObjects;
 		};
 
 		//=====================================================================
@@ -947,20 +984,23 @@ namespace dnv::vista::sdk
 			 * @brief Get format type
 			 * @return Format type string
 			 * @throws std::invalid_operation If type not set
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::string& type() const;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::string& type() const;
 
 			/**
 			 * @brief Get restriction
 			 * @return Optional validation restriction
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<Restriction>& restriction() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<Restriction>& restriction() const noexcept;
 
 			/**
 			 * @brief Check if format is decimal type
 			 * @return True if type is "Decimal"
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE bool isDecimal() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE bool isDecimal() const noexcept;
 
 			//----------------------------------------------
 			// Setters
@@ -971,13 +1011,13 @@ namespace dnv::vista::sdk
 			 * @param type New format type
 			 * @throws std::invalid_argument If invalid format type
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setType( std::string_view type );
+			VISTA_SDK_CPP_INLINE void setType( std::string_view type );
 
 			/**
 			 * @brief Set restriction
 			 * @param restriction New optional validation restriction
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setRestriction( std::optional<Restriction> restriction );
+			VISTA_SDK_CPP_INLINE void setRestriction( std::optional<Restriction> restriction );
 
 			//----------------------------------------------
 			// Validation
@@ -988,6 +1028,7 @@ namespace dnv::vista::sdk
 			 * @param value String value to validate
 			 * @param parsedValue Output parsed value
 			 * @return ValidateResult with success or error messages
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
 			[[nodiscard]] ValidateResult validateValue( const std::string& value, Value& parsedValue ) const;
 
@@ -1051,26 +1092,30 @@ namespace dnv::vista::sdk
 			 * @brief Get channel type
 			 * @return Channel type string
 			 * @throws std::invalid_operation If type not set
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
 			[[nodiscard]] const std::string& type() const;
 
 			/**
 			 * @brief Get update cycle
 			 * @return Optional update cycle in seconds
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE std::optional<double> updateCycle() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE std::optional<double> updateCycle() const noexcept;
 
 			/**
 			 * @brief Get calculation period
 			 * @return Optional calculation period in seconds
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE std::optional<double> calculationPeriod() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE std::optional<double> calculationPeriod() const noexcept;
 
 			/**
 			 * @brief Check if channel type is alert
 			 * @return True if type is "Alert"
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE bool isAlert() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE bool isAlert() const noexcept;
 
 			//----------------------------------------------
 			// Setters
@@ -1132,7 +1177,7 @@ namespace dnv::vista::sdk
 			 * @param unit Unit information
 			 * @param alertPriority Alert priority
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE Property(
+			VISTA_SDK_CPP_INLINE Property(
 				DataChannelType dataChannelType,
 				Format format,
 				std::optional<Range> range,
@@ -1165,56 +1210,65 @@ namespace dnv::vista::sdk
 			/**
 			 * @brief Get data channel type
 			 * @return Reference to channel type
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const DataChannelType& dataChannelType() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const DataChannelType& dataChannelType() const noexcept;
 
 			/**
 			 * @brief Get format
 			 * @return Reference to data format
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const Format& format() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const Format& format() const noexcept;
 
 			/**
 			 * @brief Get range
 			 * @return Optional numeric range
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<Range>& range() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<Range>& range() const noexcept;
 
 			/**
 			 * @brief Get unit
 			 * @return Optional unit information
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<Unit>& unit() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<Unit>& unit() const noexcept;
 
 			/**
 			 * @brief Get quality coding
 			 * @return Optional quality coding string
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<std::string>& qualityCoding() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::string>& qualityCoding() const noexcept;
 
 			/**
 			 * @brief Get alert priority
 			 * @return Optional alert priority string
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<std::string>& alertPriority() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::string>& alertPriority() const noexcept;
 
 			/**
 			 * @brief Get name
 			 * @return Optional property name
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<std::string>& name() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::string>& name() const noexcept;
 
 			/**
 			 * @brief Get remarks
 			 * @return Optional remarks string
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<std::string>& remarks() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::string>& remarks() const noexcept;
 
 			/**
 			 * @brief Get custom properties
 			 * @return Optional custom properties dictionary
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<internal::StringMap<Value>>& customProperties() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<nfx::containers::StringMap<Value>>& customProperties() const noexcept;
 
 			//----------------------------------------------
 			// Setters
@@ -1224,55 +1278,55 @@ namespace dnv::vista::sdk
 			 * @brief Set data channel type
 			 * @param dataChannelType New channel type
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setDataChannelType( DataChannelType dataChannelType );
+			VISTA_SDK_CPP_INLINE void setDataChannelType( DataChannelType dataChannelType );
 
 			/**
 			 * @brief Set format
 			 * @param format New data format
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setFormat( Format format );
+			VISTA_SDK_CPP_INLINE void setFormat( Format format );
 
 			/**
 			 * @brief Set range
 			 * @param range New optional numeric range
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setRange( std::optional<Range> range );
+			VISTA_SDK_CPP_INLINE void setRange( std::optional<Range> range );
 
 			/**
 			 * @brief Set unit
 			 * @param unit New optional unit information
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setUnit( std::optional<Unit> unit );
+			VISTA_SDK_CPP_INLINE void setUnit( std::optional<Unit> unit );
 
 			/**
 			 * @brief Set quality coding
 			 * @param qualityCoding New optional quality coding
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setQualityCoding( std::optional<std::string> qualityCoding );
+			VISTA_SDK_CPP_INLINE void setQualityCoding( std::optional<std::string> qualityCoding );
 
 			/**
 			 * @brief Set alert priority
 			 * @param alertPriority New optional alert priority
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setAlertPriority( std::optional<std::string> alertPriority );
+			VISTA_SDK_CPP_INLINE void setAlertPriority( std::optional<std::string> alertPriority );
 
 			/**
 			 * @brief Set name
 			 * @param name New optional property name
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setName( std::optional<std::string> name );
+			VISTA_SDK_CPP_INLINE void setName( std::optional<std::string> name );
 
 			/**
 			 * @brief Set remarks
 			 * @param remarks New optional remarks
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setRemarks( std::optional<std::string> remarks );
+			VISTA_SDK_CPP_INLINE void setRemarks( std::optional<std::string> remarks );
 
 			/**
 			 * @brief Set custom properties
 			 * @param customProperties New optional custom properties
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setCustomProperties( std::optional<internal::StringMap<Value>> customProperties );
+			VISTA_SDK_CPP_INLINE void setCustomProperties( std::optional<nfx::containers::StringMap<Value>> customProperties );
 
 			//----------------------------------------------
 			// Validation
@@ -1281,6 +1335,7 @@ namespace dnv::vista::sdk
 			/**
 			 * @brief Validate property business rules
 			 * @return ValidateResult with success or error messages
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
 			[[nodiscard]] ValidateResult validate() const;
 
@@ -1297,7 +1352,7 @@ namespace dnv::vista::sdk
 			std::optional<std::string> m_alertPriority;
 			std::optional<std::string> m_name;
 			std::optional<std::string> m_remarks;
-			std::optional<internal::StringMap<Value>> m_customProperties;
+			std::optional<nfx::containers::StringMap<Value>> m_customProperties;
 		};
 
 		//=====================================================================
@@ -1322,7 +1377,7 @@ namespace dnv::vista::sdk
 			 * @param localId Required local identifier
 			 * @param shortId Optional short identifier
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE DataChannelId( LocalId localId, std::optional<std::string> shortId );
+			VISTA_SDK_CPP_INLINE DataChannelId( LocalId localId, std::optional<std::string> shortId );
 
 			/** @brief Copy constructor */
 			DataChannelId( const DataChannelId& ) = default;
@@ -1338,7 +1393,7 @@ namespace dnv::vista::sdk
 			//----------------------------------------------
 
 			/** @brief Copy assignment operator */
-			DataChannelId& operator=( const DataChannelId& ) = default;
+			DataChannelId& operator=( const DataChannelId& ) = delete;
 
 			/** @brief Move assignment operator */
 			DataChannelId& operator=( DataChannelId&& ) noexcept = default;
@@ -1350,20 +1405,23 @@ namespace dnv::vista::sdk
 			/**
 			 * @brief Get local ID
 			 * @return Local identifier
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const LocalId& localId() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const LocalId& localId() const noexcept;
 
 			/**
 			 * @brief Get short ID
 			 * @return Optional short identifier
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<std::string>& shortId() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::string>& shortId() const noexcept;
 
 			/**
 			 * @brief Get name object
 			 * @return Optional name object
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::optional<NameObject>& nameObject() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<NameObject>& nameObject() const noexcept;
 
 			//----------------------------------------------
 			// Setters
@@ -1373,19 +1431,19 @@ namespace dnv::vista::sdk
 			 * @brief Set local ID
 			 * @param localId New local identifier
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setLocalId( LocalId localId );
+			VISTA_SDK_CPP_INLINE void setLocalId( LocalId localId );
 
 			/**
 			 * @brief Set short ID
 			 * @param shortId New optional short identifier
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setShortId( std::optional<std::string> shortId );
+			VISTA_SDK_CPP_INLINE void setShortId( std::optional<std::string> shortId );
 
 			/**
 			 * @brief Set name object
 			 * @param nameObject New optional name object
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setNameObject( std::optional<NameObject> nameObject );
+			VISTA_SDK_CPP_INLINE void setNameObject( std::optional<NameObject> nameObject );
 
 		private:
 			//----------------------------------------------
@@ -1436,7 +1494,7 @@ namespace dnv::vista::sdk
 			//----------------------------------------------
 
 			/** @brief Copy assignment operator */
-			DataChannel& operator=( const DataChannel& ) = default;
+			DataChannel& operator=( const DataChannel& ) = delete;
 
 			/** @brief Move assignment operator */
 			DataChannel& operator=( DataChannel&& ) noexcept = default;
@@ -1448,13 +1506,15 @@ namespace dnv::vista::sdk
 			/**
 			 * @brief Get data channel ID
 			 * @return Reference to channel identifier
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const DataChannelId& dataChannelId() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const DataChannelId& dataChannelId() const noexcept;
 
 			/**
 			 * @brief Get property
 			 * @return Reference to channel property
 			 * @throws std::invalid_operation If property not set
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
 			[[nodiscard]] const Property& property() const;
 
@@ -1466,7 +1526,7 @@ namespace dnv::vista::sdk
 			 * @brief Set data channel ID
 			 * @param dataChannelId New channel identifier
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setDataChannelId( DataChannelId dataChannelId );
+			VISTA_SDK_CPP_INLINE void setDataChannelId( DataChannelId dataChannelId );
 
 			/**
 			 * @brief Set property with validation
@@ -1535,14 +1595,16 @@ namespace dnv::vista::sdk
 			/**
 			 * @brief Get number of data channels
 			 * @return Count of data channels
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE size_type size() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE size_type size() const noexcept;
 
 			/**
 			 * @brief Check if collection is empty
 			 * @return True if no data channels
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE bool isEmpty() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE bool isEmpty() const noexcept;
 
 			/**
 			 * @brief Clear all data channels
@@ -1558,24 +1620,27 @@ namespace dnv::vista::sdk
 			 * @param index Channel index
 			 * @return Reference to data channel
 			 * @throws std::out_of_range If index invalid
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const DataChannel& operator[]( size_type index ) const;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const DataChannel& operator[]( size_type index ) const;
 
 			/**
 			 * @brief Access data channel by short ID
 			 * @param shortId Short identifier
 			 * @return Reference to data channel
 			 * @throws std::out_of_range If short ID not found
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const DataChannel& operator[]( const std::string& shortId ) const;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const DataChannel& operator[]( const std::string& shortId ) const;
 
 			/**
 			 * @brief Access data channel by local ID
 			 * @param localId Local identifier
 			 * @return Reference to data channel
 			 * @throws std::out_of_range If local ID not found
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const DataChannel& operator[]( const LocalId& localId ) const;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const DataChannel& operator[]( const LocalId& localId ) const;
 
 			//----------------------------------------------
 			// Safe lookup methods
@@ -1585,6 +1650,7 @@ namespace dnv::vista::sdk
 			 * @brief Try to get data channel by short ID
 			 * @param shortId Short identifier to search for
 			 * @return Pointer to data channel if found, nullptr otherwise
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
 			[[nodiscard]] const DataChannel* tryGetByShortId( const std::string& shortId ) const;
 
@@ -1592,6 +1658,7 @@ namespace dnv::vista::sdk
 			 * @brief Try to get data channel by short ID (string_view overload)
 			 * @param shortId Short identifier to search for
 			 * @return Pointer to data channel if found, nullptr otherwise
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
 			[[nodiscard]] const DataChannel* tryGetByShortId( std::string_view shortId ) const;
 
@@ -1599,6 +1666,7 @@ namespace dnv::vista::sdk
 			 * @brief Try to get data channel by local ID
 			 * @param localId Local identifier to search for
 			 * @return Pointer to data channel if found, nullptr otherwise
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
 			[[nodiscard]] const DataChannel* tryGetByLocalId( const LocalId& localId ) const;
 
@@ -1634,26 +1702,30 @@ namespace dnv::vista::sdk
 			/**
 			 * @brief Get iterator to beginning
 			 * @return Iterator to first data channel
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE iterator begin() noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE iterator begin() noexcept;
 
 			/**
 			 * @brief Get const iterator to beginning
 			 * @return Const iterator to first data channel
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const_iterator begin() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const_iterator begin() const noexcept;
 
 			/**
 			 * @brief Get iterator to end
 			 * @return Iterator past last data channel
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE iterator end() noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE iterator end() noexcept;
 
 			/**
 			 * @brief Get const iterator to end
 			 * @return Const iterator past last data channel
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const_iterator end() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const_iterator end() const noexcept;
 
 			//----------------------------------------------
 			// Data access
@@ -1662,8 +1734,9 @@ namespace dnv::vista::sdk
 			/**
 			 * @brief Get read-only data channels
 			 * @return Const reference to internal vector
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const std::vector<DataChannel>& dataChannels() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const std::vector<DataChannel>& dataChannels() const noexcept;
 
 		private:
 			//----------------------------------------------
@@ -1671,7 +1744,7 @@ namespace dnv::vista::sdk
 			//----------------------------------------------
 
 			std::vector<DataChannel> m_dataChannels;
-			internal::StringMap<std::reference_wrapper<const DataChannel>> m_shortIdMap;
+			nfx::containers::StringMap<std::reference_wrapper<const DataChannel>> m_shortIdMap;
 			std::unordered_map<LocalId, std::reference_wrapper<const DataChannel>> m_localIdMap;
 		};
 
@@ -1697,7 +1770,7 @@ namespace dnv::vista::sdk
 			 * @param header Package header with metadata
 			 * @param dataChannelList Collection of data channels
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE Package( Header header, DataChannelList dataChannelList );
+			VISTA_SDK_CPP_INLINE Package( Header header, DataChannelList dataChannelList );
 
 			/** @brief Copy constructor */
 			Package( const Package& ) = default;
@@ -1725,26 +1798,30 @@ namespace dnv::vista::sdk
 			/**
 			 * @brief Get header
 			 * @return Reference to package header
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const Header& header() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const Header& header() const noexcept;
 
 			/**
 			 * @brief Get header (mutable)
 			 * @return Mutable reference to package header
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE Header& header() noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE Header& header() noexcept;
 
 			/**
 			 * @brief Get data channel list
 			 * @return Reference to data channel collection
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const DataChannelList& dataChannelList() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const DataChannelList& dataChannelList() const noexcept;
 
 			/**
 			 * @brief Get data channel list (mutable)
 			 * @return Mutable reference to data channel collection
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE DataChannelList& dataChannelList() noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE DataChannelList& dataChannelList() noexcept;
 
 			//----------------------------------------------
 			// Setters
@@ -1754,13 +1831,13 @@ namespace dnv::vista::sdk
 			 * @brief Set header
 			 * @param header New package header
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setHeader( Header header );
+			VISTA_SDK_CPP_INLINE void setHeader( Header header );
 
 			/**
 			 * @brief Set data channel list
 			 * @param dataChannelList New data channel collection
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setDataChannelList( DataChannelList dataChannelList );
+			VISTA_SDK_CPP_INLINE void setDataChannelList( DataChannelList dataChannelList );
 
 		private:
 			//----------------------------------------------
@@ -1793,7 +1870,7 @@ namespace dnv::vista::sdk
 			 * @brief Constructs DataChannelListPackage with required package
 			 * @param package Package containing header and data channel list
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE explicit DataChannelListPackage( Package package );
+			VISTA_SDK_CPP_INLINE explicit DataChannelListPackage( Package package );
 
 			/** @brief Copy constructor */
 			DataChannelListPackage( const DataChannelListPackage& ) = default;
@@ -1821,26 +1898,30 @@ namespace dnv::vista::sdk
 			/**
 			 * @brief Get package
 			 * @return Reference to contained package
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const Package& package() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const Package& package() const noexcept;
 
 			/**
 			 * @brief Get package (mutable)
 			 * @return Mutable reference to contained package
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE Package& package() noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE Package& package() noexcept;
 
 			/**
 			 * @brief Get data channel list
 			 * @return Reference to data channel list from package
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE const DataChannelList& dataChannelList() const noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE const DataChannelList& dataChannelList() const noexcept;
 
 			/**
 			 * @brief Get data channel list (mutable convenience)
 			 * @return Mutable reference to data channel list from package
+			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_FORCE_INLINE DataChannelList& dataChannelList() noexcept;
+			[[nodiscard]] VISTA_SDK_CPP_INLINE DataChannelList& dataChannelList() noexcept;
 
 			//----------------------------------------------
 			// Setters
@@ -1850,7 +1931,7 @@ namespace dnv::vista::sdk
 			 * @brief Set package
 			 * @param package New package
 			 */
-			VISTA_SDK_CPP_FORCE_INLINE void setPackage( Package package );
+			VISTA_SDK_CPP_INLINE void setPackage( Package package );
 
 		private:
 			//----------------------------------------------

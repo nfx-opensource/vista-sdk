@@ -3,7 +3,8 @@
  * @brief Unit tests for the GmodVersioning class.
  */
 
-#include "dnv/vista/sdk/utils/StringUtils.h"
+#include <nfx/string/Utils.h>
+#include <gtest/gtest.h>
 
 #include "TestDataLoader.h"
 
@@ -38,7 +39,7 @@ namespace dnv::vista::sdk::tests
 				}
 				catch ( [[maybe_unused]] const std::exception& ex )
 				{
-					internal::StringMap<GmodVersioningDto> emptyDto;
+					nfx::containers::StringMap<GmodVersioningDto> emptyDto;
 					m_gmodVersioning = std::make_unique<GmodVersioning>( emptyDto );
 				}
 
@@ -52,7 +53,7 @@ namespace dnv::vista::sdk::tests
 			}
 			catch ( [[maybe_unused]] const std::exception& ex )
 			{
-				fmt::print( stderr, "ERROR: Test setup failed: {}\n", ex.what() );
+				std::cerr << "ERROR: Test setup failed: " << ex.what() << "\n";
 				m_setupSuccess = false;
 			}
 		}
@@ -68,8 +69,6 @@ namespace dnv::vista::sdk::tests
 
 	TEST_F( GmodVersioningTest, ConvertLocalId )
 	{
-		ASSERT_TRUE( m_setupSuccess ) << "Test setup failed";
-
 		// Test case 1: Basic conversion
 		std::string sourceLocalIdStr = "/dnv-v2/vis-3-4a/411.1/C101/sec/411.1/C101.64i/S201/meta/cnt-condensate";
 		std::string targetLocalIdStr = "/dnv-v2/vis-3-5a/411.1/C101/sec/411.1/C101.64/S201/meta/cnt-condensate";
@@ -122,7 +121,7 @@ namespace dnv::vista::sdk::tests
 
 		PathState state( gmod );
 
-		TraverseHandlerWithState<PathState> handler = []( PathState& state, const std::vector<const GmodNode*>& parents,
+		TraverseHandlerWithState<PathState> handler = []( PathState& pathState, const std::vector<const GmodNode*>& parents,
 														  const GmodNode& node ) -> TraversalHandlerResult {
 			if ( parents.empty() )
 			{
@@ -139,9 +138,9 @@ namespace dnv::vista::sdk::tests
 				}
 			}
 
-			GmodPath path( state.gmod, node, std::move( parentValues ) );
+			GmodPath path( pathState.gmod, node, std::move( parentValues ) );
 
-			if ( path.toString() == state.targetPath )
+			if ( path.toString() == pathState.targetPath )
 			{
 				return TraversalHandlerResult::Stop;
 			}
@@ -281,7 +280,9 @@ namespace dnv::vista::sdk::tests
 					errorNodes += code + ", ";
 				}
 
-				fmt::print( stderr, "ERROR: Failed nodes for {}: {}\n", dnv::vista::sdk::VisVersionExtensions::toVersionString( pair.first ), errorNodes );
+				std::cerr << "ERROR: Failed nodes for "
+						  << dnv::vista::sdk::VisVersionExtensions::toVersionString( pair.first )
+						  << ": " << errorNodes << "\n";
 			}
 		}
 	}
@@ -461,7 +462,6 @@ namespace dnv::vista::sdk::tests
 
 	TEST_F( GmodVersioningTest, Test_Conversion_Exceptions )
 	{
-
 		// UNCOVERED MES CASE due to missing conversion codes, e.g. merge + normal assignment change
 		std::string sourcePath = "244.1i/H101.111/H401";
 		std::string targetExpected = "244.1i/H101.11/H407.1/H401";
@@ -489,7 +489,6 @@ namespace dnv::vista::sdk::tests
 
 	TEST_F( GmodVersioningTest, ConvertGmodPathWithLocation )
 	{
-
 		std::string sourcePath = "691.811i-A/H101.11-1";
 		std::string expectedPath = "691.83111i-A/H101.11-1";
 		VisVersion sourceVersion = VisVersion::v3_7a;

@@ -3,14 +3,14 @@
  * @brief Inline implementations for performance-critical LocalIdBuilder operations
  */
 
-#pragma once
+#include <optional>
+#include <vector>
 
-#include "config/Platform.h"
-#include "constants/AlgorithmConstants.h"
+#include <nfx/string/StringBuilderPool.h>
+
+#include "config/config.h"
 #include "constants/ISO19848Constants.h"
 #include "constants/LocalIdConstants.h"
-#include "internal/StringBuilderPool.h"
-
 #include "CodebookName.h"
 
 namespace dnv::vista::sdk
@@ -60,7 +60,7 @@ namespace dnv::vista::sdk
 	{
 		if ( m_visVersion != other.m_visVersion )
 		{
-			throw std::invalid_argument( "Cant compare local IDs from different VIS versions" );
+			throw std::invalid_argument{ "Cant compare local IDs from different VIS versions" };
 		}
 
 		return m_items.primaryItem() == other.m_items.primaryItem() &&
@@ -266,8 +266,8 @@ namespace dnv::vista::sdk
 
 	inline std::string LocalIdBuilder::toString() const
 	{
-		/* LocalId format: /dnv-v2/vis-{version}/{primary-item}[/sec/{secondary-item}][~{description}]/meta/{metadata-tags} */
-		auto lease = internal::StringBuilderPool::lease();
+		// LocalId format: /dnv-v2/vis-{version}/{primary-item}[/sec/{secondary-item}][~{description}]/meta/{metadata-tags}
+		auto lease = nfx::string::StringBuilderPool::lease();
 		auto builder = lease.builder();
 
 		toString( builder );
@@ -280,25 +280,25 @@ namespace dnv::vista::sdk
 	{
 		if ( !m_visVersion.has_value() )
 		{
-			throw std::invalid_argument( "No VisVersion configured on LocalId" );
+			throw std::invalid_argument{ "No VisVersion configured on LocalId" };
 		}
 
-		/* Naming rule prefix: "/dnv-v2" */
+		// Naming rule prefix: "/dnv-v2"
 		builder.append( "/" );
 		builder.append( constants::iso19848::ANNEX_C_NAMING_RULE );
 		builder.append( "/" );
 
-		/* VIS version: "vis-{major}-{minor}{patch}" */
+		// VIS version: "vis-{major}-{minor}{patch}"
 		builder.append( VisVersionExtensions::toVersionString( *m_visVersion ) );
 		builder.append( "/" );
 
-		/* Items section: primary item [+ secondary item] [+ description] */
+		// Items section: primary item [+ secondary item] [+ description]
 		m_items.append( builder, m_verboseMode );
 
-		/* Metadata section prefix: "/meta" */
+		// Metadata section prefix: "/meta"
 		builder.append( "meta/" );
 
-		/* Metadata tags: {prefix}{separator}{value} */
+		// Metadata tags: {prefix}{separator}{value}
 		auto appendMetadata = [&builder]( const std::optional<MetadataTag>& tag ) {
 			if ( tag.has_value() )
 			{
@@ -319,7 +319,7 @@ namespace dnv::vista::sdk
 		appendMetadata( m_position );
 		appendMetadata( m_detail );
 
-		/* Cleanup trailing slash */
+		// Cleanup trailing slash
 		if ( builder.length() > 0 && builder[builder.length() - 1] == '/' )
 		{
 			builder.resize( builder.length() - 1 );

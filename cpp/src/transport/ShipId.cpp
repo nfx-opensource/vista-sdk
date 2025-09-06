@@ -3,8 +3,7 @@
  * @brief Implementation of ShipId class
  */
 
-#include "dnv/vista/sdk/utils/StringUtils.h"
-
+#include <nfx/string/Utils.h>
 #include "dnv/vista/sdk/transport/ShipId.h"
 
 namespace dnv::vista::sdk::transport
@@ -23,7 +22,7 @@ namespace dnv::vista::sdk::transport
 	{
 		if ( m_otherId->empty() )
 		{
-			throw std::invalid_argument( "ShipId otherId cannot be empty" );
+			throw std::invalid_argument{ "ShipId otherId cannot be empty" };
 		}
 	}
 
@@ -37,7 +36,7 @@ namespace dnv::vista::sdk::transport
 		{
 			case Tag::IMO:
 			{
-				/* In ISO-19848, IMO number as ShipID should include "IMO" prefix */
+				// In ISO-19848, IMO number as ShipID should include "IMO" prefix
 				return m_imoNumber->toString();
 			}
 			case Tag::Other:
@@ -46,7 +45,7 @@ namespace dnv::vista::sdk::transport
 			}
 			default:
 			{
-				throw std::runtime_error( "Invalid ShipId state: corrupted tag" );
+				throw std::runtime_error{ "Invalid ShipId state: corrupted tag" };
 			}
 		}
 	}
@@ -59,11 +58,11 @@ namespace dnv::vista::sdk::transport
 	{
 		if ( value.empty() )
 		{
-			throw std::invalid_argument( "ShipId::parse: value cannot be empty" );
+			throw std::invalid_argument{ "ShipId::parse: value cannot be empty" };
 		}
 
-		/* In ISO-19848, IMO number as ShipID should be prefixed with "IMO" */
-		if ( value.size() >= 3 && utils::iequals( value.substr( 0, 3 ), "IMO" ) )
+		// In ISO-19848, IMO number as ShipID should be prefixed with "IMO"
+		if ( value.size() >= 3 && nfx::string::iequals( value.substr( 0, 3 ), "IMO" ) )
 		{
 			auto imoOpt = ImoNumber::tryParse( value );
 			if ( imoOpt.has_value() )
@@ -72,7 +71,7 @@ namespace dnv::vista::sdk::transport
 			}
 		}
 
-		/* If not a valid IMO number, treat as other identifier */
-		return ShipId{ std::string{ value } };
+		// If not a valid IMO number, treat as other identifier
+		return ShipId{ value };
 	}
 }

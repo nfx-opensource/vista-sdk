@@ -3,10 +3,13 @@
  * @brief Implementation of data transfer objects for locations in the VIS standard
  */
 
+#include <nfx/string/StringBuilderPool.h>
+#include <iostream>
+#include <cstdio>
+
 #include "dnv/vista/sdk/LocationsDto.h"
 
 #include "dnv/vista/sdk/constants/DtoKeysConstants.h"
-#include "dnv/vista/sdk/internal/StringBuilderPool.h"
 
 namespace dnv::vista::sdk
 {
@@ -73,39 +76,39 @@ namespace dnv::vista::sdk
 		{
 			if ( !json.is_object() )
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "ERROR: JSON value for RelativeLocationsDto is not an object\n" );
 
-				fmt::print( stderr, "{}", lease.toString() );
+				std::fprintf( stderr, "%s", lease.toString().c_str() );
 
 				return std::nullopt;
 			}
 
-			/* Cache iterators to avoid multiple lookups */
+			// Cache iterators to avoid multiple lookups
 			const auto codeIt = json.find( constants::dto::LOCATIONS_DTO_KEY_CODE );
 			const auto nameIt = json.find( constants::dto::LOCATIONS_DTO_KEY_NAME );
 			const auto defIt = json.find( constants::dto::LOCATIONS_DTO_KEY_DEFINITION );
 
 			if ( codeIt == json.end() || !codeIt->is_string() )
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "ERROR: RelativeLocationsDto JSON missing required '" );
 				builder.append( constants::dto::LOCATIONS_DTO_KEY_CODE );
-				builder.append( "' field or not a string" );
-				fmt::print( stderr, "{}\n", lease.toString() );
+				builder.append( "' field or not a string\n" );
+				std::fprintf( stderr, "%s", lease.toString().c_str() );
 
 				return std::nullopt;
 			}
 			if ( nameIt == json.end() || !nameIt->is_string() )
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "ERROR: RelativeLocationsDto JSON missing required '" );
 				builder.append( constants::dto::LOCATIONS_DTO_KEY_NAME );
-				builder.append( "' field or not a string" );
-				fmt::print( stderr, "{}\n", lease.toString() );
+				builder.append( "' field or not a string\n" );
+				std::fprintf( stderr, "%s", lease.toString().c_str() );
 
 				return std::nullopt;
 			}
@@ -113,13 +116,13 @@ namespace dnv::vista::sdk
 			std::string codeStr = codeIt->get<std::string>();
 			if ( codeStr.empty() || codeStr.length() != 1 )
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "ERROR: RelativeLocationsDto (hint: code='" );
 				builder.append( codeHint );
 				builder.append( "') has invalid code format\n" );
 
-				fmt::print( stderr, "{}", lease.toString() );
+				std::fprintf( stderr, "%s", lease.toString().c_str() );
 
 				return std::nullopt;
 			}
@@ -127,13 +130,13 @@ namespace dnv::vista::sdk
 			std::string tempName = nameIt->get<std::string>();
 			if ( tempName.empty() )
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "WARN: Empty name field found in RelativeLocationsDto code='" );
 				builder.append( codeStr );
 				builder.append( "'\n" );
 
-				fmt::print( stderr, "{}", lease.toString() );
+				std::fprintf( stderr, "%s", lease.toString().c_str() );
 			}
 
 			char tempCode = codeStr[0];
@@ -147,13 +150,13 @@ namespace dnv::vista::sdk
 				}
 				else if ( !defIt->is_null() )
 				{
-					auto lease = internal::StringBuilderPool::lease();
+					auto lease = nfx::string::StringBuilderPool::lease();
 					auto builder = lease.builder();
 					builder.append( "WARN: RelativeLocationsDto code='" );
 					builder.append( codeStr );
 					builder.append( "' has non-string definition field\n" );
 
-					fmt::print( stderr, "{}", lease.toString() );
+					std::fprintf( stderr, "%s", lease.toString().c_str() );
 				}
 			}
 
@@ -163,7 +166,7 @@ namespace dnv::vista::sdk
 		}
 		catch ( const nlohmann::json::exception& ex )
 		{
-			auto lease = internal::StringBuilderPool::lease();
+			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "ERROR: JSON exception during RelativeLocationsDto parsing (hint: code='" );
 			builder.append( codeHint );
@@ -171,13 +174,13 @@ namespace dnv::vista::sdk
 			builder.append( ex.what() );
 			builder.append( "\n" );
 
-			fmt::print( stderr, "{}", lease.toString() );
+			std::fprintf( stderr, "%s", lease.toString().c_str() );
 
 			return std::nullopt;
 		}
 		catch ( const std::exception& ex )
 		{
-			auto lease = internal::StringBuilderPool::lease();
+			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "ERROR: Standard exception during RelativeLocationsDto parsing (hint: code='" );
 			builder.append( codeHint );
@@ -185,7 +188,7 @@ namespace dnv::vista::sdk
 			builder.append( ex.what() );
 			builder.append( "\n" );
 
-			fmt::print( stderr, "{}", lease.toString() );
+			std::fprintf( stderr, "%s", lease.toString().c_str() );
 
 			return std::nullopt;
 		}
@@ -196,7 +199,7 @@ namespace dnv::vista::sdk
 		auto dtoOpt = RelativeLocationsDto::tryFromJson( json );
 		if ( !dtoOpt.has_value() )
 		{
-			throw std::invalid_argument( "Failed to deserialize RelativeLocationsDto from JSON" );
+			throw std::invalid_argument{ "Failed to deserialize RelativeLocationsDto from JSON" };
 		}
 
 		return std::move( dtoOpt ).value();
@@ -248,13 +251,13 @@ namespace dnv::vista::sdk
 		dto.m_name = nameIt->get<std::string>();
 		if ( dto.m_name.empty() )
 		{
-			auto lease = internal::StringBuilderPool::lease();
+			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "WARN: Empty name field found in RelativeLocationsDto code='" );
 			builder.append( std::string{ 1, dto.m_code } );
 			builder.append( "'\n" );
 
-			fmt::print( stderr, "{}", lease.toString() );
+			std::fprintf( stderr, "%s", lease.toString().c_str() );
 		}
 
 		if ( defIt != j.end() && defIt->is_string() )
@@ -263,13 +266,13 @@ namespace dnv::vista::sdk
 
 			if ( dto.m_definition.has_value() && dto.m_definition->empty() )
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "WARN: Empty definition field found in RelativeLocationsDto code='" );
 				builder.append( std::string{ 1, dto.m_code } );
 				builder.append( "'\n" );
 
-				fmt::print( stderr, "{}", lease.toString() );
+				std::fprintf( stderr, "%s", lease.toString().c_str() );
 			}
 		}
 		else
@@ -294,40 +297,40 @@ namespace dnv::vista::sdk
 		{
 			if ( !json.is_object() )
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "ERROR: JSON value for LocationsDto is not an object\n" );
 
-				fmt::print( stderr, "{}", lease.toString() );
+				std::fprintf( stderr, "%s", lease.toString().c_str() );
 
 				return std::nullopt;
 			}
 
-			/* Cache iterators to avoid multiple lookups */
+			// Cache iterators to avoid multiple lookups
 			const auto visIt = json.find( constants::dto::LOCATIONS_DTO_KEY_VIS_RELEASE );
 			const auto itemsIt = json.find( constants::dto::LOCATIONS_DTO_KEY_ITEMS );
 
 			if ( visIt == json.end() || !visIt->is_string() )
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "ERROR: LocationsDto JSON missing required '" );
 				builder.append( constants::dto::LOCATIONS_DTO_KEY_VIS_RELEASE );
-				builder.append( "' field or not a string" );
+				builder.append( "' field or not a string\n" );
 
-				fmt::print( stderr, "{}\n", lease.toString() );
+				std::fprintf( stderr, "%s", lease.toString().c_str() );
 
 				return std::nullopt;
 			}
 			if ( itemsIt == json.end() || !itemsIt->is_array() )
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "ERROR: LocationsDto JSON missing required '" );
 				builder.append( constants::dto::LOCATIONS_DTO_KEY_ITEMS );
-				builder.append( "' array" );
+				builder.append( "' array\n" );
 
-				fmt::print( stderr, "{}\n", lease.toString() );
+				std::fprintf( stderr, "%s", lease.toString().c_str() );
 
 				return std::nullopt;
 			}
@@ -338,7 +341,7 @@ namespace dnv::vista::sdk
 		}
 		catch ( const nlohmann::json::exception& ex )
 		{
-			auto lease = internal::StringBuilderPool::lease();
+			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "ERROR: JSON exception during LocationsDto parsing (hint: visRelease='" );
 			builder.append( visHint );
@@ -346,13 +349,13 @@ namespace dnv::vista::sdk
 			builder.append( ex.what() );
 			builder.append( "\n" );
 
-			fmt::print( stderr, "{}", lease.toString() );
+			std::fprintf( stderr, "%s", lease.toString().c_str() );
 
 			return std::nullopt;
 		}
 		catch ( const std::exception& ex )
 		{
-			auto lease = internal::StringBuilderPool::lease();
+			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "ERROR: Standard exception during LocationsDto parsing (hint: visRelease='" );
 			builder.append( visHint );
@@ -360,7 +363,7 @@ namespace dnv::vista::sdk
 			builder.append( ex.what() );
 			builder.append( "\n" );
 
-			fmt::print( stderr, "{}", lease.toString() );
+			std::fprintf( stderr, "%s", lease.toString().c_str() );
 
 			return std::nullopt;
 		}
@@ -371,7 +374,7 @@ namespace dnv::vista::sdk
 		auto dtoOpt = LocationsDto::tryFromJson( json );
 		if ( !dtoOpt.has_value() )
 		{
-			throw std::invalid_argument( "Failed to deserialize LocationsDto from JSON" );
+			throw std::invalid_argument{ "Failed to deserialize LocationsDto from JSON" };
 		}
 
 		return std::move( dtoOpt ).value();
@@ -402,32 +405,36 @@ namespace dnv::vista::sdk
 
 		if ( visIt == j.end() || !visIt->is_string() )
 		{
+			auto lease = nfx::string::StringBuilderPool::lease();
+			auto builder = lease.builder();
+			builder.append( "LocationsDto JSON missing required '" );
+			builder.append( constants::dto::LOCATIONS_DTO_KEY_VIS_RELEASE );
+			builder.append( "' field" );
+
 			throw nlohmann::json::parse_error::create(
-				101, 0u,
-				fmt::format(
-					"LocationsDto JSON missing required '{}' field",
-					constants::dto::LOCATIONS_DTO_KEY_VIS_RELEASE ),
-				nullptr );
+				101, 0u, lease.toString(), nullptr );
 		}
 		if ( itemsIt == j.end() || !itemsIt->is_array() )
 		{
+			auto lease2 = nfx::string::StringBuilderPool::lease();
+			auto builder2 = lease2.builder();
+			builder2.append( "LocationsDto JSON missing required '" );
+			builder2.append( constants::dto::LOCATIONS_DTO_KEY_ITEMS );
+			builder2.append( "' field" );
+
 			throw nlohmann::json::parse_error::create(
-				101, 0u,
-				fmt::format(
-					"LocationsDto JSON missing required '{}' field",
-					constants::dto::LOCATIONS_DTO_KEY_ITEMS ),
-				nullptr );
+				101, 0u, lease2.toString(), nullptr );
 		}
 
 		dto.m_visVersion = visIt->get<std::string>();
 
 		if ( dto.m_visVersion.empty() )
 		{
-			auto lease = internal::StringBuilderPool::lease();
+			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "WARN: Empty visVersion field found in LocationsDto\n" );
 
-			fmt::print( stderr, "{}", lease.toString() );
+			std::fprintf( stderr, "%s", lease.toString().c_str() );
 		}
 
 		const auto& jsonArray = *itemsIt;
@@ -450,11 +457,11 @@ namespace dnv::vista::sdk
 			}
 			else
 			{
-				auto lease = internal::StringBuilderPool::lease();
+				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "WARN: Skipping invalid RelativeLocationsDto item during parsing\n" );
 
-				fmt::print( stderr, "{}", lease.toString() );
+				std::fprintf( stderr, "%s", lease.toString().c_str() );
 			}
 		}
 

@@ -3,6 +3,7 @@
  * @brief Implementation of GmodPathQuery class
  */
 
+#include "dnv/vista/sdk/GmodNode.h"
 #include "dnv/vista/sdk/GmodPathQuery.h"
 #include "dnv/vista/sdk/VIS.h"
 
@@ -50,12 +51,12 @@ namespace dnv::vista::sdk
 	//----------------------------
 
 	GmodPathQuery GmodPathQuery::withNode(
-		std::function<const GmodNode&( const internal::StringMap<GmodNode>& )> selector,
+		std::function<const GmodNode&( const nfx::containers::StringMap<GmodNode>& )> selector,
 		bool matchAllLocations ) const
 	{
 		if ( !m_sourcePath.has_value() )
 		{
-			throw std::runtime_error( "withNode with selector can only be used on path-based queries" );
+			throw std::runtime_error{ "withNode with selector can only be used on path-based queries" };
 		}
 
 		GmodPathQuery result = *this;
@@ -63,7 +64,7 @@ namespace dnv::vista::sdk
 		auto it = result.m_filter.find( node.code() );
 		if ( it == result.m_filter.end() )
 		{
-			throw std::runtime_error( "Expected to find a filter on the node in the path" );
+			throw std::runtime_error{ "Expected to find a filter on the node in the path" };
 		}
 
 		it->second.setLocations( {} );
@@ -73,7 +74,7 @@ namespace dnv::vista::sdk
 	}
 
 	GmodPathQuery GmodPathQuery::withNode(
-		std::function<const GmodNode&( const internal::StringMap<GmodNode>& )> selector,
+		std::function<const GmodNode&( const nfx::containers::StringMap<GmodNode>& )> selector,
 		const std::vector<Location>& locations ) const
 	{
 		if ( !m_sourcePath.has_value() )
@@ -151,7 +152,7 @@ namespace dnv::vista::sdk
 		const auto target = ensurePathVersion( *other );
 
 		// Build map of target nodes and their locations
-		internal::StringMap<std::vector<Location>> targetNodes;
+		nfx::containers::StringMap<std::vector<Location>> targetNodes;
 
 		// Include all parents and the final node
 		for ( const auto& parent : target.parents() )

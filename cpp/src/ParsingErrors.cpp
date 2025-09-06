@@ -3,6 +3,8 @@
  * @brief Implementation of ParsingErrors class
  */
 
+#include <stdexcept>
+
 #include "dnv/vista/sdk/ParsingErrors.h"
 
 namespace dnv::vista::sdk
@@ -25,7 +27,8 @@ namespace dnv::vista::sdk
 	{
 	}
 
-	ParsingErrors::ParsingErrors() : m_errors{}
+	ParsingErrors::ParsingErrors()
+		: m_errors{}
 	{
 	}
 
@@ -47,13 +50,13 @@ namespace dnv::vista::sdk
 
 		constexpr std::string_view header = "Parsing errors:\n";
 
-		/* Pre-calculate exact capacity */
+		// Pre-calculate exact capacity
 		size_t capacity = header.size();
 		for ( const auto& error : m_errors )
 		{
 			capacity += 1 + error.type.size() + 3 + error.message.size() + 1;
-			/*          ↑                       ↑                          ↑  */
-			/*        '\t'                    " - "                      '\n' */
+			//          ↑                       ↑                          ↑
+			//        '\t'                    " - "                      '\n'
 		}
 
 		std::string result;
@@ -102,7 +105,7 @@ namespace dnv::vista::sdk
 	{
 		if ( m_index == 0 || m_index > m_data->size() )
 		{
-			throw std::out_of_range( "Enumerator not positioned on valid element" );
+			throw std::out_of_range{ "Enumerator not positioned on valid element" };
 		}
 
 		return ( *m_data )[m_index - 1];
@@ -112,15 +115,15 @@ namespace dnv::vista::sdk
 	// ParsingErrors::ErrorEntry struct
 	//----------------------------------------------
 
-	ParsingErrors::ErrorEntry::ErrorEntry( std::string_view type, std::string_view message )
-		: type{ type },
-		  message{ message }
+	ParsingErrors::ErrorEntry::ErrorEntry( std::string_view errorType, std::string_view errorMessage )
+		: type{ errorType },
+		  message{ errorMessage }
 	{
 	}
 
-	ParsingErrors::ErrorEntry::ErrorEntry( std::string&& type, std::string&& message )
-		: type{ std::move( type ) },
-		  message{ std::move( message ) }
+	ParsingErrors::ErrorEntry::ErrorEntry( std::string&& errorType, std::string&& errorMessage )
+		: type{ std::move( errorType ) },
+		  message{ std::move( errorMessage ) }
 	{
 	}
 }

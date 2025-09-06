@@ -3,9 +3,9 @@
  * @brief Inline implementations for performance-critical MetadataTag operations
  */
 
-#pragma once
+#include <stdexcept>
 
-#include "config/Platform.h"
+#include "config/config.h"
 
 namespace dnv::vista::sdk
 {
@@ -26,7 +26,7 @@ namespace dnv::vista::sdk
 
 		if ( m_name != other.m_name )
 		{
-			throw std::invalid_argument( "Can't compare tags with different names" );
+			throw std::invalid_argument{ "Can't compare tags with different names" };
 		}
 
 		return true;

@@ -4,7 +4,6 @@
  */
 
 #include "dnv/vista/sdk/Codebooks.h"
-
 #include "dnv/vista/sdk/CodebooksDto.h"
 #include "dnv/vista/sdk/VISVersion.h"
 
