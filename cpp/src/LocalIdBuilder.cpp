@@ -693,8 +693,9 @@ namespace dnv::vista::sdk
 			auto builder = lease.builder();
 			builder.append( "Couldn't parse local ID from: '" );
 			builder.append( localIdStr );
-			builder.append( "'. " );
+			builder.append( "'.\n" );
 			builder.append( errors.toString() );
+
 			throw std::invalid_argument{ lease.toString() };
 		}
 

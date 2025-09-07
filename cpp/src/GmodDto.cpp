@@ -148,7 +148,7 @@ namespace dnv::vista::sdk
 				builder.append( constants::dto::GMOD_DTO_KEY_NAME );
 				builder.append( "' field. Defaulting name to empty string.\n" );
 
-				std::fprintf( stderr, "%s", lease.toString().c_str() );
+				// std::fprintf( stderr, "%s", lease.toString().c_str() );
 
 				tempName = "";
 			}
@@ -189,7 +189,7 @@ namespace dnv::vista::sdk
 				builder.append( tempCode );
 				builder.append( "'\n" );
 
-				std::fprintf( stderr, "%s", lease.toString().c_str() );
+				// std::fprintf( stderr, "%s", lease.toString().c_str() );
 			}
 
 			std::optional<std::string> tempCommonName = std::nullopt;
@@ -458,7 +458,8 @@ namespace dnv::vista::sdk
 				builder.append( "') has null '" );
 				builder.append( constants::dto::GMOD_DTO_KEY_NAME );
 				builder.append( "' field. Defaulting name to empty string.\n" );
-				std::fprintf( stderr, "%s", lease.toString().c_str() );
+
+				// std::fprintf( stderr, "%s", lease.toString().c_str() );
 				tempName = "";
 			}
 			else
@@ -470,7 +471,8 @@ namespace dnv::vista::sdk
 				builder.append( "') has non-string '" );
 				builder.append( constants::dto::GMOD_DTO_KEY_NAME );
 				builder.append( "' field. Defaulting name to empty string.\n" );
-				std::fprintf( stderr, "%s", lease.toString().c_str() );
+
+				// std::fprintf( stderr, "%s", lease.toString().c_str() );
 				tempName = "";
 			}
 		}
@@ -484,7 +486,7 @@ namespace dnv::vista::sdk
 			builder.append( constants::dto::GMOD_DTO_KEY_NAME );
 			builder.append( "' field. Defaulting name to empty string.\n" );
 
-			std::fprintf( stderr, "%s", lease.toString().c_str() );
+			// std::fprintf( stderr, "%s", lease.toString().c_str() );
 			tempName = "";
 		}
 

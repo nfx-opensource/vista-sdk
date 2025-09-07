@@ -16,11 +16,20 @@ endif()
 #----------------------------------------------
 
 set(SAMPLE_SOURCES
-	Sample_BasicUsage.cpp
-	Sample_Codebooks.cpp
-	Sample_GMOD.cpp
-	Sample_LocalId.cpp
-	Sample_TimeSeriesDataPackage.cpp
+	basic/Sample_BasicUsage.cpp
+	basic/Sample_Codebooks.cpp
+	basic/Sample_GMOD.cpp
+	basic/Sample_LocalId.cpp
+	builders/Sample_Builders_LocalId.cpp
+	builders/Sample_Builders_LocalIdQuery.cpp
+	iso19848/Sample_TimeSeriesDataPackage.cpp
+	parse/Sample_Parse_GmodPath.cpp
+	parse/Sample_Parse_LocalId.cpp
+	parse/Sample_Parse_MetadataTag.cpp
+	versioning/Sample_Versioning_GmodNode.cpp
+	versioning/Sample_Versioning_GmodPath.cpp
+	versioning/Sample_Versioning_LocalId.cpp
+	VIS/Sample_VIS_Gmod.cpp
 )
 
 #----------------------------------------------
@@ -154,6 +163,9 @@ foreach(sample_source ${SAMPLE_SOURCES})
 			CXX_EXTENSIONS OFF
 			POSITION_INDEPENDENT_CODE ON
 			DEBUG_POSTFIX "-d"
+			RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/samples"
+			RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/samples"
+			RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/samples"
 		)
 
 		#----------------------------------------------

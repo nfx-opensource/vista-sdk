@@ -2,7 +2,6 @@
  * @file Codebook.cpp
  * @brief Implementation of codebook-related components
  */
-
 #include "dnv/vista/sdk/constants/CodebookConstants.h"
 #include "dnv/vista/sdk/Codebook.h"
 #include "dnv/vista/sdk/Codebooks.h"

@@ -31,6 +31,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.29] - 2025-09-07
+
+### Added
+
+-   **Complete sample file suite**: Comprehensive collection of example applications demonstrating all SDK functionality
+    -   Add `builders/Sample_Builders_LocalId.cpp` - LocalId builder patterns with fluent API examples
+    -   Add `builders/Sample_Builders_LocalIdQuery.cpp` - LocalIdQuery builder for complex filtering operations
+    -   Add `parse/Sample_Parse_MetadataTag.cpp` - MetadataTag parsing with codebook validation
+    -   Add `parse/Sample_Parse_LocalId.cpp` - LocalId parsing with enhanced error handling patterns
+    -   Add `parse/Sample_Parse_GmodPath.cpp` - GmodPath parsing with full path and error capture support
+    -   Add `versioning/Sample_Versioning_GmodNode.cpp` - GmodNode version conversion (691.81 → 691.8311)
+    -   Add `versioning/Sample_Versioning_GmodPath.cpp` - GmodPath version conversion with metadata preservation
+    -   Add `versioning/Sample_Versioning_LocalId.cpp` - LocalId version conversion between VIS versions
+
+### Changed
+
+-   **Comprehensive sample organization**: Complete restructuring of C++ sample files into logical functional categories
+    -   Add `basic/` directory for fundamental SDK concepts (BasicUsage, Codebooks, GMOD, LocalId)
+    -   Add `builders/` directory for builder pattern examples (LocalId, LocalIdQuery)
+    -   Add `parse/` directory for parsing functionality examples (MetadataTag, LocalId, GmodPath)
+    -   Add `versioning/` directory for version conversion examples (GmodNode, GmodPath, LocalId)
+    -   Add `vis/` directory for VIS-specific functionality (Gmod usage patterns)
+    -   Add `iso19848/` directory for transport layer examples
+
+### Fixed
+
+-   **Code formatting and error handling**: Clean up whitespace and improve error messaging across multiple source files
+    -   Comment out debug fprintf statements in DTO classes for cleaner production output
+    -   Improve GmodPath error message formatting for better user experience
+    -   Enhance LocalIdBuilder error message formatting with proper newline handling
+
 ## [0.0.28] - 2025-09-07
 
 ### Added
@@ -48,7 +79,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     -   Remove VISTA_SDK_CPP_COPY_RESOURCES legacy resource copying system
     -   Organize build outputs: tests in bin/tests/, benchmarks in bin/benchmarks/
     -   Improve CTest discovery with proper working directory configuration
-    -   Add proper descriptions to NFX_CORE cache variables for better CMake UX
 -   **Test infrastructure modernization**: Replace hardcoded paths with portable solutions
     -   Update all test files to use TestDataLoader for JSON files or macro-based path resolution for text files
     -   Remove terrible multiple-path guessing patterns (e.g., "../testdata/", "../../testdata/")
@@ -61,7 +91,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     -   Remove CopyResources and CopyTestData build targets
     -   Remove hardcoded "resources" directory dependencies
     -   Remove multiple fallback path attempts in test files
-    -   Remove convenience build targets (tests, benchmarks) for cleaner build system
+    -   Remove build targets (tests, benchmarks)
 
 ### Fixed
 

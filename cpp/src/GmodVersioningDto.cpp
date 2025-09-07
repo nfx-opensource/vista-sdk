@@ -343,7 +343,7 @@ namespace dnv::vista::sdk
 			builder.append( constants::dto::GMODVERSIONING_DTO_KEY_OPERATIONS );
 			builder.append( "' field\n" );
 
-			std::fprintf( stderr, "%s", lease.toString().c_str() );
+			// std::fprintf( stderr, "%s", lease.toString().c_str() );
 		}
 
 		const auto sourceIt = j.find( constants::dto::GMODVERSIONING_DTO_KEY_SOURCE );
@@ -369,7 +369,7 @@ namespace dnv::vista::sdk
 			builder.append( constants::dto::GMODVERSIONING_DTO_KEY_SOURCE );
 			builder.append( "' field\n" );
 
-			std::fprintf( stderr, "%s", lease.toString().c_str() );
+			// std::fprintf( stderr, "%s", lease.toString().c_str() );
 		}
 
 		const auto targetIt = j.find( constants::dto::GMODVERSIONING_DTO_KEY_TARGET );
@@ -395,7 +395,7 @@ namespace dnv::vista::sdk
 			builder.append( constants::dto::GMODVERSIONING_DTO_KEY_TARGET );
 			builder.append( "' field\n" );
 
-			std::fprintf( stderr, "%s", lease.toString().c_str() );
+			// std::fprintf( stderr, "%s", lease.toString().c_str() );
 		}
 
 		const auto oldAssignmentIt = j.find( constants::dto::GMODVERSIONING_DTO_KEY_OLD_ASSIGNMENT );

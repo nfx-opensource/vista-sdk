@@ -483,7 +483,7 @@ namespace dnv::vista::sdk
 
 		if ( !nfx::string::startsWith( item, gmod.rootNode().code() ) )
 		{
-			return GmodParsePathResult::Error{ "Path must start with {}" + gmod.rootNode().code() };
+			return GmodParsePathResult::Error{ "Path must start with \'" + gmod.rootNode().code() + "\'" };
 		}
 
 		const size_t estimatedSegments = item.length() / 3;
