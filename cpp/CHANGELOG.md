@@ -31,6 +31,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.27] - 2025-09-07
+
+### Added
+
+-   **LocalIdQueryBuilder.withoutLocations() method**: New fluent API method for removing location constraints
+    -   Remove location constraints from primary and secondary items in queries
+    -   Enable location-agnostic LocalId matching for flexible query operations
+    -   Maintain fluent builder pattern consistency with immutable design
+
+### Changed
+
+-   **LocalIdQueryBuilder API improvements**: Enhanced builder pattern implementation
+    -   Make accessor methods inline for improved runtime performance
+    -   Optimize factory method implementation for better consistency
+    -   Update method signatures to follow established patterns
+
+## [0.0.27] - 2025-09-07
+
 ## [0.0.26] - 2025-09-06
 
 ### Added

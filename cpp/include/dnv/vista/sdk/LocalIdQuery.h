@@ -180,7 +180,7 @@ namespace dnv::vista::sdk
 		 * @return New empty query builder instance
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] static LocalIdQueryBuilder empty();
+		[[nodiscard]] inline static LocalIdQueryBuilder empty();
 
 		/**
 		 * @brief Create a query builder from an existing LocalId string
@@ -308,6 +308,17 @@ namespace dnv::vista::sdk
 		[[nodiscard]] LocalIdQueryBuilder withTags( const MetadataTagsQuery& tags ) const;
 
 		//----------------------------------------------
+		// Location configuration
+		//----------------------------------------------
+
+		/**
+		 * @brief Remove location constraints from all path queries
+		 * @return New builder instance with location constraints removed
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		[[nodiscard]] LocalIdQueryBuilder withoutLocations() const;
+
+		//----------------------------------------------
 		// Accessors
 		//----------------------------------------------
 
@@ -316,14 +327,14 @@ namespace dnv::vista::sdk
 		 * @return Optional GmodPath of the primary item, or nullopt if not set or configured differently
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] std::optional<GmodPath> primaryItem() const;
+		[[nodiscard]] inline std::optional<GmodPath> primaryItem() const;
 
 		/**
 		 * @brief Get the current secondary item path (if configured from path)
 		 * @return Optional GmodPath of the secondary item, or nullopt if not set or configured differently
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] std::optional<GmodPath> secondaryItem() const;
+		[[nodiscard]] inline std::optional<GmodPath> secondaryItem() const;
 
 	private:
 		//----------------------------------------------

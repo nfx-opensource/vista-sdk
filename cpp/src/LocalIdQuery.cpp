@@ -124,7 +124,7 @@ namespace dnv::vista::sdk
 
 	LocalIdQueryBuilder LocalIdQueryBuilder::from( const LocalId& localId )
 	{
-		LocalIdQueryBuilder builder = empty();
+		LocalIdQueryBuilder builder{};
 
 		// Configure primary item - check if it exists first
 		if ( localId.primaryItem().has_value() )
@@ -282,6 +282,29 @@ namespace dnv::vista::sdk
 	{
 		LocalIdQueryBuilder result = *this;
 		result.m_tags = tags;
+		return result;
+	}
+
+	//----------------------------------------------
+	// Location configuration
+	//----------------------------------------------
+
+	LocalIdQueryBuilder LocalIdQueryBuilder::withoutLocations() const
+	{
+		LocalIdQueryBuilder result = *this;
+
+		// Remove location constraints from primary item if it exists
+		if ( result.m_primaryItem.has_value() )
+		{
+			result.m_primaryItem = result.m_primaryItem->withoutLocations();
+		}
+
+		// Remove location constraints from secondary item if it exists
+		if ( result.m_secondaryItem.has_value() )
+		{
+			result.m_secondaryItem = result.m_secondaryItem->withoutLocations();
+		}
+
 		return result;
 	}
 
