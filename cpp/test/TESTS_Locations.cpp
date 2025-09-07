@@ -19,7 +19,7 @@ namespace dnv::vista::sdk::tests
 {
 	namespace
 	{
-		constexpr const char* LOCATIONS_TEST_DATA_PATH = "testdata/Locations.json";
+		constexpr const char* LOCATIONS_TEST_DATA_FILE = "Locations.json";
 	}
 
 	//=====================================================================
@@ -39,7 +39,7 @@ namespace dnv::vista::sdk::tests
 	static std::vector<LocationParseValidParam> loadValidLocationData()
 	{
 		std::vector<LocationParseValidParam> params;
-		const nlohmann::json& jsonData = test::loadTestData( LOCATIONS_TEST_DATA_PATH );
+		const nlohmann::json& jsonData = test::loadTestData( LOCATIONS_TEST_DATA_FILE );
 		const std::string dataKey = "locations";
 
 		if ( jsonData.contains( dataKey ) && jsonData[dataKey].is_array() )
@@ -71,7 +71,7 @@ namespace dnv::vista::sdk::tests
 	static std::vector<LocationParseInvalidParam> loadInvalidLocationData()
 	{
 		std::vector<LocationParseInvalidParam> params;
-		const nlohmann::json& jsonData = test::loadTestData( LOCATIONS_TEST_DATA_PATH );
+		const nlohmann::json& jsonData = test::loadTestData( LOCATIONS_TEST_DATA_FILE );
 		const std::string dataKey = "locations";
 
 		if ( jsonData.contains( dataKey ) && jsonData[dataKey].is_array() )

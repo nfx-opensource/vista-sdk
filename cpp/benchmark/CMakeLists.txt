@@ -161,59 +161,9 @@ foreach(benchmark_source ${BENCHMARK_SOURCES})
 			CXX_EXTENSIONS OFF
 			POSITION_INDEPENDENT_CODE ON
 			DEBUG_POSTFIX "-d"
+			RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/benchmarks"
+			RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/benchmarks"
+			RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/benchmarks"
 		)
-
-		#----------------------------------------------
-		# Add to benchmark target
-		#----------------------------------------------
-
-        if(NOT TARGET benchmarks)
-			add_custom_target(benchmarks)
-		endif()
-		add_dependencies(benchmarks ${benchmark_target_name})
 	endif()
 endforeach()
-
-#----------------------------------------------
-# Benchmark execution
-#----------------------------------------------
-
-if(TARGET benchmarks AND VISTA_SDK_CPP_RUN_BENCHMARKS)
-	set(BENCHMARK_OUTPUT_DIR "${VISTA_SDK_CPP_BIN_DIR}/$<CONFIG>/benchmark_results")
-	string(TIMESTAMP BENCHMARK_TIMESTAMP "%Y%m%d_%H%M%S")
-
-	add_custom_target(run_benchmarks ALL
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${BENCHMARK_OUTPUT_DIR}
-		COMMENT "Running Vista SDK C++ Benchmark Suite..."
-		SOURCES ${BENCHMARK_SOURCES}
-	)
-
-	set_target_properties(run_benchmarks PROPERTIES
-		FOLDER "Benchmarks"
-		EXCLUDE_FROM_DEFAULT_BUILD FALSE
-	)
-
-	foreach(benchmark_source ${BENCHMARK_SOURCES})
-		get_filename_component(benchmark_target_name ${benchmark_source} NAME_WE)
-		set(OUTPUT_FILE "${BENCHMARK_OUTPUT_DIR}/${benchmark_target_name}_${BENCHMARK_TIMESTAMP}.txt")
-
-		add_custom_command(TARGET run_benchmarks POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E echo ""
-			COMMAND ${CMAKE_COMMAND} -E echo "================================================================================"
-			COMMAND ${CMAKE_COMMAND} -E echo "Running: ${benchmark_target_name} -> ${OUTPUT_FILE}"
-			COMMAND ${CMAKE_COMMAND} -E echo "================================================================================"
-			COMMAND powershell -Command "$ProgressPreference='SilentlyContinue'; $output = & '${VISTA_SDK_CPP_BIN_DIR}/$<CONFIG>/${benchmark_target_name}.exe' --benchmark_format=console 2>&1; $output | ForEach-Object { Write-Host $_; Add-Content -Path '${OUTPUT_FILE}' -Value $_ -Force }"
-			COMMAND ${CMAKE_COMMAND} -E echo ""
-			COMMAND ${CMAKE_COMMAND} -E echo "Results saved to: ${OUTPUT_FILE}"
-			WORKING_DIRECTORY "$<TARGET_FILE_DIR:${benchmark_target_name}>"
-			VERBATIM
-		)
-	endforeach()
-
-	add_dependencies(run_benchmarks benchmarks)
-	message(STATUS "Benchmark execution enabled - results will be saved to ${BENCHMARK_OUTPUT_DIR}")
-else()
-	if(TARGET benchmarks)
-		message(STATUS "Benchmark execution disabled - use -DVISTA_SDK_CPP_RUN_BENCHMARKS=ON to enable")
-	endif()
-endif()

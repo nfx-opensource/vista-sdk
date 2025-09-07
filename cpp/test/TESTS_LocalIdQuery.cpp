@@ -10,6 +10,7 @@
  */
 
 #include <fstream>
+#include <string>
 
 #include <gtest/gtest.h>
 
@@ -28,6 +29,23 @@ namespace dnv::vista::sdk::tests
 {
 	namespace LocalIdQueryTests
 	{
+		//=====================================================================
+		// Helper Functions
+		//=====================================================================
+
+		/**
+		 * @brief Get the path to test data directory
+		 * @return Path to test data files (LocalIds.txt)
+		 */
+		std::string localIdQueryTestDataPath()
+		{
+#ifdef VISTA_SDK_TESTDATA_DIR
+			return std::string( VISTA_SDK_TESTDATA_DIR ) + "/LocalIds.txt";
+#else
+			return "testdata/LocalIds.txt";
+#endif
+		}
+
 		//=====================================================================
 		// Test Data Structure
 		//=====================================================================
@@ -530,10 +548,10 @@ namespace dnv::vista::sdk::tests
 
 		TEST_F( LocalIdQueryTest, Test_Consistency_Smoke_Test )
 		{
-			std::ifstream file( "testdata/LocalIds.txt" );
+			std::ifstream file( localIdQueryTestDataPath() );
 			if ( !file.is_open() )
 			{
-				FAIL() << "Failed to open testdata/LocalIds.txt";
+				FAIL() << "Failed to open " << localIdQueryTestDataPath();
 			}
 
 			std::vector<std::pair<std::string, std::optional<std::string>>> errored;

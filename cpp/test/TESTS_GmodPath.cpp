@@ -15,8 +15,8 @@ namespace dnv::vista::sdk::tests
 {
 	namespace
 	{
-		constexpr const char* GMOD_PATH_TEST_DATA_PATH = "testdata/GmodPaths.json";
-		constexpr const char* INDIVIDUALIZABLE_SETS_TEST_DATA_PATH = "testdata/IndividualizableSets.json";
+		constexpr const char* GMOD_PATH_TEST_DATA_FILE = "GmodPaths.json";
+		constexpr const char* INDIVIDUALIZABLE_SETS_TEST_DATA_FILE = "IndividualizableSets.json";
 	}
 
 	namespace GmodTestsFixture
@@ -42,7 +42,7 @@ namespace dnv::vista::sdk::tests
 		static std::vector<GmodPathParseValidParam> loadValidGmodPathData()
 		{
 			std::vector<GmodPathParseValidParam> params;
-			const nlohmann::json& jsonData = test::loadTestData( GMOD_PATH_TEST_DATA_PATH );
+			const nlohmann::json& jsonData = test::loadTestData( GMOD_PATH_TEST_DATA_FILE );
 			const std::string dataKey = "Valid";
 
 			if ( jsonData.contains( dataKey ) && jsonData[dataKey].is_array() )
@@ -74,7 +74,7 @@ namespace dnv::vista::sdk::tests
 		static std::vector<GmodPathParseInvalidParam> loadInvalidGmodPathData()
 		{
 			std::vector<GmodPathParseInvalidParam> params;
-			const nlohmann::json& jsonData = test::loadTestData( GMOD_PATH_TEST_DATA_PATH );
+			const nlohmann::json& jsonData = test::loadTestData( GMOD_PATH_TEST_DATA_FILE );
 			const std::string dataKey = "Invalid";
 
 			if ( jsonData.contains( dataKey ) && jsonData[dataKey].is_array() )
@@ -108,7 +108,7 @@ namespace dnv::vista::sdk::tests
 		static std::vector<IndividualizableSetsTestData> LoadIndividualizableSetsData()
 		{
 			std::vector<IndividualizableSetsTestData> params;
-			const nlohmann::json& jsonData = test::loadTestData( INDIVIDUALIZABLE_SETS_TEST_DATA_PATH );
+			const nlohmann::json& jsonData = test::loadTestData( INDIVIDUALIZABLE_SETS_TEST_DATA_FILE );
 
 			if ( jsonData.is_array() )
 			{

@@ -28,7 +28,6 @@ namespace dnv::vista::sdk
 		//=====================================================================
 
 		static constexpr std::string_view VIS_RELEASE_KEY = "visRelease";
-		static constexpr std::string_view RESOURCES_DIR = "resources";
 
 		// Compression buffer sizes for zlib streaming decompression
 		static constexpr size_t CHUNK_IN_SIZE = 65536;	 // 64KB input buffer for reading compressed data
@@ -37,6 +36,25 @@ namespace dnv::vista::sdk
 		// zlib window bits configuration for gzip format
 		// 15 = maximum window size (32KB), +16 = gzip format detection
 		static constexpr int GZIP_MAX_WINDOW_BITS = 15 + 16;
+
+		//=====================================================================
+		// Resource directory configuration
+		//=====================================================================
+
+		/**
+		 * @brief Get the configured resource directory path
+		 * @return The resource directory path to use for loading resources
+		 */
+		static std::filesystem::path resourceDirectory()
+		{
+#ifdef VISTA_SDK_RESOURCES_DIR
+			// Use compile-time configured resource directory
+			return std::filesystem::path{ VISTA_SDK_RESOURCES_DIR };
+#else
+			// Default: resources subdirectory relative to current working directory
+			return std::filesystem::current_path() / "resources";
+#endif
+		}
 	}
 
 	//=====================================================================
@@ -603,7 +621,7 @@ namespace dnv::vista::sdk
 			}
 		}
 
-		const auto resourcesDir = std::filesystem::current_path() / RESOURCES_DIR;
+		const auto resourcesDir = resourceDirectory();
 
 		std::vector<std::string> foundNames;
 		foundNames.reserve( 50 );
@@ -794,7 +812,7 @@ namespace dnv::vista::sdk
 			}
 		}
 
-		const auto resourcePath = std::filesystem::current_path() / RESOURCES_DIR / resourceName;
+		const auto resourcePath = resourceDirectory() / resourceName;
 
 		try
 		{

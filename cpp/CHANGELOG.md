@@ -31,6 +31,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.28] - 2025-09-07
+
+### Added
+
+-   **Configurable resource and test data paths**: Implement compile-time configurable directory paths for development flexibility
+    -   Add VISTA_SDK_RESOURCES_DIR compile definition for configurable resource loading during development
+    -   Add VISTA_SDK_TESTDATA_DIR compile definition for configurable test data access during development
+    -   Replace hardcoded "resources" and "testdata" strings with macro-based configuration
+    -   Enable flexible development environment setup with different directory structures
+
+### Changed
+
+-   **Build system cleanup**: Remove deprecated CMake options and improve organization
+    -   Remove VISTA_SDK_CPP_RUN_TESTS and VISTA_SDK_CPP_RUN_BENCHMARKS options (unused)
+    -   Remove VISTA_SDK_CPP_COPY_RESOURCES legacy resource copying system
+    -   Organize build outputs: tests in bin/tests/, benchmarks in bin/benchmarks/
+    -   Improve CTest discovery with proper working directory configuration
+    -   Add proper descriptions to NFX_CORE cache variables for better CMake UX
+-   **Test infrastructure modernization**: Replace hardcoded paths with portable solutions
+    -   Update all test files to use TestDataLoader for JSON files or macro-based path resolution for text files
+    -   Remove terrible multiple-path guessing patterns (e.g., "../testdata/", "../../testdata/")
+    -   Implement consistent path resolution across all test files
+    -   Fix EmbeddedResource to use configurable resource directory instead of hardcoded "resources"
+
+### Removed
+
+-   **Legacy resource management**: Remove outdated resource copying and hardcoded path dependencies
+    -   Remove CopyResources and CopyTestData build targets
+    -   Remove hardcoded "resources" directory dependencies
+    -   Remove multiple fallback path attempts in test files
+    -   Remove convenience build targets (tests, benchmarks) for cleaner build system
+
+### Fixed
+
+-   **Development workflow improvements**: Resolve hardcoded path issues in development environment
+    -   Replace terrible multiple-path guessing patterns with consistent macro-based fallbacks
+    -   Resolve CTest discovery failures with proper working directory configuration
+    -   Fix systematic hardcoded "testdata/" paths across multiple test files for development consistency
+    -   Note: Runtime SDK relocation still requires manual path configuration (absolute paths embedded at compile time)
+
 ## [0.0.27] - 2025-09-07
 
 ### Added

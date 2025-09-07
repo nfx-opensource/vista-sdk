@@ -18,17 +18,7 @@ if(NOT VISTA_SDK_CPP_BUILD_STATIC AND NOT VISTA_SDK_CPP_BUILD_SHARED)
 	set(VISTA_SDK_CPP_BUILD_SHARED ON CACHE BOOL "Build shared library (fallback)" FORCE)
 endif()
 
-# --- Enable test building if running tests is requested ---
-if(VISTA_SDK_CPP_RUN_TESTS AND NOT VISTA_SDK_CPP_BUILD_TESTS)
-	message(STATUS "VISTA_SDK_CPP_RUN_TESTS=ON requires building tests. Enabling VISTA_SDK_CPP_BUILD_TESTS.")
-	set(VISTA_SDK_CPP_BUILD_TESTS ON CACHE BOOL "Build tests (required for running)" FORCE)
-endif()
 
-# --- Enable benchmark building if running benchmarks is requested ---
-if(VISTA_SDK_CPP_RUN_BENCHMARKS AND NOT VISTA_SDK_CPP_BUILD_BENCHMARKS)
-	message(STATUS "VISTA_SDK_CPP_RUN_BENCHMARKS=ON requires building benchmarks. Enabling VISTA_SDK_CPP_BUILD_BENCHMARKS.")
-	set(VISTA_SDK_CPP_BUILD_BENCHMARKS ON CACHE BOOL "Build benchmarks (required for running)" FORCE)
-endif()
 
 # --- Validate CMake version ---
 if(CMAKE_VERSION VERSION_LESS "3.20")
@@ -156,31 +146,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${VISTA_SDK_CPP_BUILD_DIR}/bin)
 include(dnvVistaCppDependencies)
 
 #----------------------------------------------
-# Resource management (TODO: Remove later)
-#----------------------------------------------
-
-if(VISTA_SDK_CPP_COPY_RESOURCES)
-	if(EXISTS ${VISTA_SDK_RESOURCES_DIR})
-		set(VISTA_SDK_CPP_RESOURCES_OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources)
-
-		add_custom_target(CopyResources ALL
-			COMMAND ${CMAKE_COMMAND} -E make_directory ${VISTA_SDK_CPP_RESOURCES_OUTPUT_DIR}
-			COMMAND ${CMAKE_COMMAND} -E copy_directory
-				${VISTA_SDK_RESOURCES_DIR}
-				${VISTA_SDK_CPP_RESOURCES_OUTPUT_DIR}
-			COMMENT "Copying VISTA SDK resources to build directory ($<CONFIG>)"
-			VERBATIM
-		)
-
-		message(STATUS "Resources will be copied from ${VISTA_SDK_RESOURCES_DIR} to ${VISTA_SDK_CPP_RESOURCES_OUTPUT_DIR} at build time")
-	else()
-		message(WARNING "Resources directory not found: ${VISTA_SDK_RESOURCES_DIR}. Skipping resource copy.")
-	endif()
-else()
-	message(STATUS "Skipping resource copy based on VISTA_SDK_CPP_COPY_RESOURCES option.")
-endif()
-
-#----------------------------------------------
 # Library definition
 #----------------------------------------------
 
@@ -247,7 +212,6 @@ function(configure_vista_target target_name)
 		zlibstatic
 	)
 
-	# --- Properties ---
 	set_target_properties(${target_name} PROPERTIES
 		CXX_STANDARD 20
 		CXX_STANDARD_REQUIRED ON
@@ -256,6 +220,11 @@ function(configure_vista_target target_name)
 		SOVERSION ${PROJECT_VERSION_MAJOR}
 		POSITION_INDEPENDENT_CODE ON
 		DEBUG_POSTFIX "-d"
+	)
+
+	# --- Configure resource ---
+	target_compile_definitions(${target_name} PRIVATE
+		VISTA_SDK_RESOURCES_DIR="${VISTA_SDK_RESOURCES_DIR}"
 	)
 endfunction()
 
@@ -371,9 +340,7 @@ elseif(VISTA_SDK_CPP_BUILD_SHARED)
 endif()
 message(STATUS "Build tests                     : ${VISTA_SDK_CPP_BUILD_TESTS}")
 message(STATUS "Build smoke tests               : ${VISTA_SDK_CPP_BUILD_SMOKE_TESTS}")
-message(STATUS "Run tests                       : ${VISTA_SDK_CPP_RUN_TESTS}")
 message(STATUS "Build benchmarks                : ${VISTA_SDK_CPP_BUILD_BENCHMARKS}")
-message(STATUS "Run benchmarks                  : ${VISTA_SDK_CPP_RUN_BENCHMARKS}")
 message(STATUS "Build samples                   : ${VISTA_SDK_CPP_BUILD_SAMPLES}")
 message(STATUS "Build documentation             : ${VISTA_SDK_CPP_BUILD_DOCUMENTATION}")
 message(STATUS "Copy resources                  : ${VISTA_SDK_CPP_COPY_RESOURCES}")

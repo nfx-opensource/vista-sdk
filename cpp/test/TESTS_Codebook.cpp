@@ -15,7 +15,7 @@ namespace dnv::vista::sdk::test
 {
 	namespace
 	{
-		constexpr const char* TEST_DATA_PATH = "testdata/Codebook.json";
+		constexpr const char* TEST_DATA_FILE = "Codebook.json";
 	}
 
 	namespace CodebookTestFixture
@@ -23,7 +23,7 @@ namespace dnv::vista::sdk::test
 		class CodebookTest : public ::testing::Test
 		{
 		protected:
-			CodebookTest() : m_jsonData{ loadTestData( TEST_DATA_PATH ) } {}
+			CodebookTest() : m_jsonData{ loadTestData( TEST_DATA_FILE ) } {}
 
 			const Codebooks& getCodebooks()
 			{
@@ -117,7 +117,7 @@ namespace dnv::vista::sdk::test
 		static std::vector<PositionValidationParam> positionValidationData()
 		{
 			std::vector<PositionValidationParam> data;
-			const nlohmann::json& jsonDataFromFile = loadTestData( TEST_DATA_PATH );
+			const nlohmann::json& jsonDataFromFile = loadTestData( TEST_DATA_FILE );
 
 			if ( jsonDataFromFile.contains( "ValidPosition" ) && jsonDataFromFile["ValidPosition"].is_array() )
 			{
@@ -186,7 +186,7 @@ namespace dnv::vista::sdk::test
 		static std::vector<PositionsParam> positionsData()
 		{
 			std::vector<PositionsParam> data;
-			const nlohmann::json& jsonDataFromFile = loadTestData( TEST_DATA_PATH );
+			const nlohmann::json& jsonDataFromFile = loadTestData( TEST_DATA_FILE );
 
 			if ( jsonDataFromFile.contains( "Positions" ) && jsonDataFromFile["Positions"].is_array() )
 			{
@@ -229,7 +229,7 @@ namespace dnv::vista::sdk::test
 		static std::vector<StatesParam> statesData()
 		{
 			std::vector<StatesParam> data;
-			const nlohmann::json& jsonDataFromFile = loadTestData( TEST_DATA_PATH );
+			const nlohmann::json& jsonDataFromFile = loadTestData( TEST_DATA_FILE );
 
 			if ( jsonDataFromFile.contains( "States" ) && jsonDataFromFile["States"].is_array() )
 			{
@@ -278,7 +278,7 @@ namespace dnv::vista::sdk::test
 		static std::vector<TagParam> tagData()
 		{
 			std::vector<TagParam> data;
-			const nlohmann::json& jsonDataFromFile = loadTestData( TEST_DATA_PATH );
+			const nlohmann::json& jsonDataFromFile = loadTestData( TEST_DATA_FILE );
 
 			if ( jsonDataFromFile.contains( "Tag" ) && jsonDataFromFile["Tag"].is_array() )
 			{
@@ -344,7 +344,7 @@ namespace dnv::vista::sdk::test
 		static std::vector<DetailTagParam> detailTagData()
 		{
 			std::vector<DetailTagParam> data;
-			const nlohmann::json& jsonDataFromFile = loadTestData( TEST_DATA_PATH );
+			const nlohmann::json& jsonDataFromFile = loadTestData( TEST_DATA_FILE );
 
 			if ( jsonDataFromFile.contains( "DetailTag" ) && jsonDataFromFile["DetailTag"].is_array() )
 			{

@@ -4,6 +4,7 @@
  */
 
 #include <fstream>
+#include <string>
 
 #include <gtest/gtest.h>
 
@@ -13,6 +14,19 @@ namespace dnv::vista::sdk::test
 {
 	namespace
 	{
+		/**
+		 * @brief Get the path to test data directory
+		 * @return Path to test data files (LocalIds.txt)
+		 */
+		std::string iSOStringTestDataPath()
+		{
+#ifdef VISTA_SDK_TESTDATA_DIR
+			return std::string( VISTA_SDK_TESTDATA_DIR ) + "/LocalIds.txt";
+#else
+			return "testdata/LocalIds.txt";
+#endif
+		}
+
 		struct SmokeContext
 		{
 			int count = 0;
@@ -56,34 +70,10 @@ namespace dnv::vista::sdk::test
 
 	TEST( IsISOStringTests, SmokeTest_Parsing )
 	{
-		std::vector<std::string> possiblePaths = {
-			"testdata/LocalIds.txt",
-			"../testdata/LocalIds.txt",
-			"../../testdata/LocalIds.txt",
-			"../../../testdata/LocalIds.txt",
-		};
-
-		std::ifstream file;
-		std::string attemptedPaths;
-		bool fileOpened = false;
-
-		for ( const auto& path : possiblePaths )
+		std::ifstream file( iSOStringTestDataPath() );
+		if ( !file.is_open() )
 		{
-			file.open( path );
-			if ( file.is_open() )
-			{
-				fileOpened = true;
-				break;
-			}
-
-			attemptedPaths += path + ", ";
-			file.clear();
-		}
-
-		if ( !fileOpened )
-		{
-			ASSERT_TRUE( false ) << "Failed to open LocalIds.txt. Attempted paths: " << attemptedPaths;
-			return;
+			FAIL() << "Failed to open " << iSOStringTestDataPath();
 		}
 
 		SmokeContext context;

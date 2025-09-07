@@ -208,7 +208,7 @@ namespace dnv::vista::sdk::tests
 	{
 		ASSERT_TRUE( m_setupSuccess ) << "Test setup failed";
 
-		const auto& testData = test::loadTestData( "testdata/GmodPaths.json" );
+		const auto& testData = test::loadTestData( "GmodPaths.json" );
 		const auto& validPaths = testData["Valid"];
 
 		for ( const auto& item : validPaths )

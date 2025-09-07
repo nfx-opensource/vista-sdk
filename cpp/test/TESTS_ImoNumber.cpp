@@ -5,6 +5,8 @@
 
 #include <fstream>
 
+#include "TestDataLoader.h"
+
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
@@ -12,6 +14,11 @@
 
 namespace dnv::vista::sdk::test
 {
+	namespace
+	{
+		constexpr const char* TEST_DATA_FILE = "ImoNumbers.json";
+	}
+
 	class ImoNumberTests : public ::testing::Test
 	{
 	protected:
@@ -26,46 +33,7 @@ namespace dnv::vista::sdk::test
 
 		virtual void SetUp() override
 		{
-			std::vector<std::string> possiblePaths{
-				"testdata/ImoNumbers.json",
-				"../testdata/ImoNumbers.json",
-				"../../testdata/ImoNumbers.json",
-				"../../../testdata/ImoNumbers.json",
-				"./ImoNumbers.json" };
-
-			std::ifstream file;
-			std::string attemptedPaths;
-			bool fileOpened = false;
-
-			for ( const auto& path : possiblePaths )
-			{
-				file.open( path );
-				if ( file.is_open() )
-				{
-					fileOpened = true;
-					break;
-				}
-
-				attemptedPaths += path + ", ";
-				file.clear();
-			}
-
-			if ( !fileOpened )
-			{
-				ASSERT_TRUE( false ) << "Failed to open ImoNumbers.json. Attempted paths: " << attemptedPaths;
-				return;
-			}
-
-			nlohmann::json data;
-			try
-			{
-				data = nlohmann::json::parse( file );
-			}
-			catch ( [[maybe_unused]] const nlohmann::json::parse_error& ex )
-			{
-				ASSERT_TRUE( false ) << "Failed to parse ImoNumbers.json: " << ex.what();
-				return;
-			}
+			const nlohmann::json& data = loadTestData( TEST_DATA_FILE );
 
 			ASSERT_TRUE( data.is_object() || data.is_array() ) << "JSON data is not a valid object or array";
 

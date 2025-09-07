@@ -27,7 +27,8 @@ namespace dnv::vista::sdk::tests::test
 	//----------------------------------------------
 	namespace
 	{
-		static const std::vector<std::string> testData{ "data.dnv.com/IMO1234567/dnv-v2/vis-3-4a/621.21/S90/sec/411.1/C101/meta/qty-mass/cnt-fuel.oil/pos-inlet",
+		static const std::vector<std::string> testData{
+			"data.dnv.com/IMO1234567/dnv-v2/vis-3-4a/621.21/S90/sec/411.1/C101/meta/qty-mass/cnt-fuel.oil/pos-inlet",
 			"data.dnv.com/IMO1234567/dnv-v2/vis-3-7a/612.21/C701.23/C633/meta/calc~accumulate" };
 	}
 	//----------------------------------------------

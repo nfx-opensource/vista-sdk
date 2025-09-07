@@ -47,27 +47,6 @@ if(VISTA_SDK_CPP_BUILD_SMOKE_TESTS)
 endif()
 
 #----------------------------------------------
-# Copy test data at build time
-#----------------------------------------------
-
-if(EXISTS ${VISTA_SDK_TESTDATA_DIR})
-	set(VISTA_SDK_CPP_TEST_DATA_OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testdata)
-
-	if(NOT TARGET CopyTestData)
-		add_custom_target(CopyTestData ALL
-			COMMAND ${CMAKE_COMMAND} -E make_directory ${VISTA_SDK_CPP_TEST_DATA_OUTPUT_DIR}
-			COMMAND ${CMAKE_COMMAND} -E copy_directory
-				${VISTA_SDK_TESTDATA_DIR} ${VISTA_SDK_CPP_TEST_DATA_OUTPUT_DIR}
-			COMMENT "Copying VISTA SDK testdata to build directory ($<CONFIG>)"
-			VERBATIM
-		)
-		message(STATUS "Test data will be copied from ${VISTA_SDK_TESTDATA_DIR} to ${VISTA_SDK_CPP_TEST_DATA_OUTPUT_DIR} at build time")
-	endif()
-else()
-	message(WARNING "Test data directory not found: ${VISTA_SDK_TESTDATA_DIR}. Skipping test data copy.")
-endif()
-
-#----------------------------------------------
 # Configure test executables
 #----------------------------------------------
 
@@ -204,24 +183,11 @@ foreach(test_source ${TEST_SOURCES})
 		)
 
 		#----------------------------------------------
-		# Test dependencies
+		# Configure test data
 		#----------------------------------------------
 
-		if(TARGET CopyTestData)
-			add_dependencies(${test_target_name} CopyTestData)
-		endif()
-
-		#----------------------------------------------
-		# Test discovery and registration
-		#----------------------------------------------
-
-		gtest_discover_tests(${test_target_name}
-			WORKING_DIRECTORY "$<TARGET_FILE_DIR:${test_target_name}>"
-			DISCOVERY_MODE PRE_TEST
-			DISCOVERY_VERBOSE_OUTPUT TRUE
-			PROPERTIES
-				TIMEOUT 120
-				OUTPUT_ON_FAILURE TRUE
+		target_compile_definitions(${test_target_name} PRIVATE
+			VISTA_SDK_TESTDATA_DIR="${VISTA_SDK_TESTDATA_DIR}"
 		)
 
 		#----------------------------------------------
@@ -234,6 +200,20 @@ foreach(test_source ${TEST_SOURCES})
 			CXX_EXTENSIONS OFF
 			POSITION_INDEPENDENT_CODE ON
 			DEBUG_POSTFIX "-d"
+			RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests"
+			RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests"
+			RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests"
+		)
+
+		#----------------------------------------------
+		# Test discovery and registration
+		#----------------------------------------------
+
+		gtest_discover_tests(${test_target_name}
+			WORKING_DIRECTORY "$<TARGET_FILE_DIR:${test_target_name}>"
+			DISCOVERY_MODE PRE_TEST
+			PROPERTIES
+				TIMEOUT 120
 		)
 	endif()
 endforeach()

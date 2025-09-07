@@ -4,6 +4,7 @@
  */
 
 #include <fstream>
+#include <string>
 
 #include <gtest/gtest.h>
 
@@ -24,7 +25,20 @@ namespace dnv::vista::sdk::tests
 {
 	namespace
 	{
-		constexpr const char* INVALID_LOCAL_IDS_TEST_DATA_PATH = "testdata/InvalidLocalIds.json";
+		constexpr const char* INVALID_LOCAL_IDS_TEST_DATA_FILE = "InvalidLocalIds.json";
+
+		/**
+		 * @brief Get the full path to the LocalIds test data file
+		 * @return Full path to LocalIds.txt using the configured test data directory
+		 */
+		std::string localIdsTestDataPath()
+		{
+#ifdef VISTA_SDK_TESTDATA_DIR
+			return std::string{ VISTA_SDK_TESTDATA_DIR } + "/LocalIds.txt";
+#else
+			return "testdata/LocalIds.txt";
+#endif
+		}
 	}
 
 	//=====================================================================
@@ -111,7 +125,8 @@ namespace dnv::vista::sdk::tests
 	public:
 		static std::vector<std::pair<Input, std::string>> testData()
 		{
-			return { { Input{ "411.1/C101.31-2" }, "/dnv-v2/vis-3-4a/411.1/C101.31-2/meta" },
+			return {
+				{ Input{ "411.1/C101.31-2" }, "/dnv-v2/vis-3-4a/411.1/C101.31-2/meta" },
 				{ Input{ "411.1/C101.31-2", "", "temperature", "exhaust.gas", "inlet" }, "/dnv-v2/vis-3-4a/411.1/C101.31-2/meta/qty-temperature/cnt-exhaust.gas/pos-inlet" },
 				{ Input{ "411.1/C101.63/S206", "", "temperature", "exhaust.gas", "inlet", VisVersion::v3_4a, true }, "/dnv-v2/vis-3-4a/411.1/C101.63/S206/~propulsion.engine/~cooling.system/meta/qty-temperature/cnt-exhaust.gas/pos-inlet" },
 				{ Input{ "411.1/C101.63/S206", "411.1/C101.31-5", "temperature", "exhaust.gas", "inlet", VisVersion::v3_4a, true }, "/dnv-v2/vis-3-4a/411.1/C101.63/S206/sec/411.1/C101.31-5/~propulsion.engine/~cooling.system/~for.propulsion.engine/~cylinder.5/meta/qty-temperature/cnt-exhaust.gas/pos-inlet" },
@@ -293,10 +308,10 @@ namespace dnv::vista::sdk::tests
 
 	TEST( LocalIdTests, SmokeTest_Parsing )
 	{
-		std::ifstream file( "testdata/LocalIds.txt" );
+		std::ifstream file( localIdsTestDataPath() );
 		if ( !file.is_open() )
 		{
-			FAIL() << "Failed to open testdata/LocalIds.txt";
+			FAIL() << "Failed to open LocalIds.txt at path: " << localIdsTestDataPath();
 		}
 
 		struct ErrorInfo
@@ -381,7 +396,7 @@ namespace dnv::vista::sdk::tests
 	static std::vector<std::pair<std::string, std::vector<std::string>>> invalidLocalIdsData()
 	{
 		std::vector<std::pair<std::string, std::vector<std::string>>> data;
-		const nlohmann::json& jsonDataFromFile = test::loadTestData( INVALID_LOCAL_IDS_TEST_DATA_PATH );
+		const nlohmann::json& jsonDataFromFile = test::loadTestData( INVALID_LOCAL_IDS_TEST_DATA_FILE );
 
 		if ( jsonDataFromFile.contains( "InvalidLocalIds" ) && jsonDataFromFile["InvalidLocalIds"].is_array() )
 		{

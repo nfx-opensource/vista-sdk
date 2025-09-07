@@ -8,6 +8,7 @@
  */
 
 #include <fstream>
+#include <string_view>
 
 #include <nfx/containers/ChdHashMap.h>
 
@@ -18,7 +19,18 @@ namespace dnv::vista::sdk::test
 {
 	namespace
 	{
-		constexpr const char* TEST_DATA_PATH = "testdata/hashValues.txt";
+		/**
+		 * @brief Get the full path to the hash values test data file
+		 * @return Full path to hashValues.txt using the configured test data directory
+		 */
+		std::string testDataPath()
+		{
+#ifdef VISTA_SDK_TESTDATA_DIR
+			return std::string{ VISTA_SDK_TESTDATA_DIR } + "/hashValues.txt";
+#else
+			return "testdata/hashValues.txt";
+#endif
+		}
 
 		/**
 		 * @brief Structure to hold a test case with key and expected hash value
@@ -37,7 +49,7 @@ namespace dnv::vista::sdk::test
 		{
 			std::vector<HashTestCase> testCases;
 
-			const std::string hashValuesPath = TEST_DATA_PATH;
+			const std::string hashValuesPath = testDataPath();
 
 			std::ifstream file( hashValuesPath );
 			if ( !file.is_open() )
