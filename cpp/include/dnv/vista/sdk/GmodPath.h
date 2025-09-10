@@ -310,7 +310,7 @@ namespace dnv::vista::sdk
 		 * @throws std::invalid_argument if parsing fails
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] VISTA_SDK_CPP_INLINE static GmodPath parse( std::string_view item, const Gmod& gmod, const Locations& locations );
+		[[nodiscard]] static GmodPath parse( std::string_view item, const Gmod& gmod, const Locations& locations );
 
 		/**
 		 * @brief Parses a full path string using specified VIS version
@@ -320,7 +320,7 @@ namespace dnv::vista::sdk
 		 * @throws std::invalid_argument if parsing fails
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] VISTA_SDK_CPP_INLINE static GmodPath parseFullPath( std::string_view item, VisVersion visVersion );
+		[[nodiscard]] static GmodPath parseFullPath( std::string_view item, VisVersion visVersion );
 
 		/**
 		 * @brief Attempts to parse a path string, returning success/failure
@@ -343,7 +343,7 @@ namespace dnv::vista::sdk
 		 * @return True if parsing succeeded, false otherwise
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] VISTA_SDK_CPP_INLINE static bool tryParse(
+		[[nodiscard]] static bool tryParse(
 			std::string_view item, const Gmod& gmod, const Locations& locations, std::optional<GmodPath>& outPath );
 
 		/**
@@ -367,7 +367,7 @@ namespace dnv::vista::sdk
 		 * @return True if parsing succeeded, false otherwise
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] VISTA_SDK_CPP_INLINE static bool tryParseFullPath(
+		[[nodiscard]] static bool tryParseFullPath(
 			std::string_view item, const Gmod& gmod, const Locations& locations, std::optional<GmodPath>& outPath );
 
 		//----------------------------------------------
@@ -391,30 +391,6 @@ namespace dnv::vista::sdk
 		const Gmod* m_gmod;
 		std::optional<GmodNode> m_node;
 		std::vector<GmodNode> m_parents;
-
-	private:
-		//----------------------------------------------
-		// Private static parsing methods
-		//----------------------------------------------
-
-		/**
-		 * @brief Internal helper for parsing partial path strings with traversal
-		 * @param item The path string to parse (allows partial paths)
-		 * @param gmod The GMOD instance for node lookup and traversal
-		 * @param locations The locations instance for location parsing
-		 * @return Parse result with either success path or error message
-		 * @details Uses GMOD traversal to find complete hierarchical path from partial input
-		 */
-		static GmodParsePathResult parseInternal( std::string_view item, const Gmod& gmod, const Locations& locations );
-
-		/**
-		 * @brief Internal helper for parsing full path strings
-		 * @param item The path string to parse
-		 * @param gmod The GMOD instance for node lookup
-		 * @param locations The locations instance for location parsing
-		 * @return Parse result with either success path or error message
-		 */
-		static GmodParsePathResult parseFullPathInternal( std::string_view item, const Gmod& gmod, const Locations& locations );
 
 	public:
 		//----------------------------------------------

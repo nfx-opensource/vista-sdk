@@ -31,6 +31,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.31] - 2025-09-10
+
+### Changed
+
+-   **Parsing architecture refactoring**: Complete reorganization of parsing logic from private static methods to internal namespace
+    -   Move `LocalIdBuilder` parsing methods from private class members to `internal` namespace for better separation of concerns
+    -   Move `GmodPath` parsing methods from private static methods to `internal` namespace for consistent architecture
+    -   Extract `parseInternal()` and `parseFullPathInternal()` from `GmodPath` class to `internal` namespace
+    -   Extract `tryParseInternal()`, `parseMetaTag()`, `advanceParser()`, and helper functions from `LocalIdBuilder` class to `internal` namespace
+    -   Remove internal implementation details from public header files for cleaner API surface
+    -   Improve code organization with consistent internal/public separation across parsing components
+
 ## [0.0.30] - 2025-09-10
 
 ### Added
@@ -162,8 +174,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     -   Make accessor methods inline for improved runtime performance
     -   Optimize factory method implementation for better consistency
     -   Update method signatures to follow established patterns
-
-## [0.0.27] - 2025-09-07
 
 ## [0.0.26] - 2025-09-06
 

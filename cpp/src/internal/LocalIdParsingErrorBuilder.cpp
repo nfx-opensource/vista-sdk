@@ -305,6 +305,11 @@ namespace dnv::vista::sdk::internal
 
 	LocalIdParsingErrorBuilder& LocalIdParsingErrorBuilder::addError( LocalIdParsingState state, const std::string& message )
 	{
+		if ( message.empty() )
+		{
+			return addError( state );
+		}
+
 		if ( m_errors.size() == m_errors.capacity() )
 		{
 			// 8 × sizeof(std::pair<LocationValidationResult, std::string>) = 8 × (4 + 32) = ~288 bytes

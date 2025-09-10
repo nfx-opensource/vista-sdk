@@ -29,13 +29,6 @@ namespace dnv::vista::sdk
 	enum class CodebookName : std::uint8_t;
 	enum class VisVersion;
 
-	namespace internal
-	{
-		class LocalIdParsingErrorBuilder;
-		class LocationParsingErrorBuilder;
-		enum class LocalIdParsingState;
-	}
-
 	//=====================================================================
 	// LocalIdBuilder class
 	//=====================================================================
@@ -773,82 +766,6 @@ namespace dnv::vista::sdk
 		static std::string codebookNametoString( CodebookName name );
 
 	private:
-		//----------------------------------------------
-		// Private static helper parsing methods
-		//----------------------------------------------
-
-		/**
-		 * @brief Internal core parsing logic used by public `tryParse` methods.
-		 * @param[in] localIdStr The complete Local ID string to parse.
-		 * @param[in,out] errorBuilder A helper object to accumulate parsing errors.
-		 * @param[out] localIdBuilder Output parameter where the successfully parsed builder is placed.
-		 * @return True if parsing succeeded (potentially with non-critical errors recorded), false if a critical error occurred.
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] static bool tryParseInternal(
-			std::string_view localIdStr, internal::LocalIdParsingErrorBuilder& errorBuilder, std::optional<LocalIdBuilder>& localIdBuilder );
-
-		/**
-		 * @brief Advances the parsing index `i` past the current `segment` and the following separator '/'.
-		 * @param[in,out] i The current parsing index within the input string.
-		 * @param[in] segment The string view representing the segment just processed.
-		 */
-		static void advanceParser( size_t& i, std::string_view segment );
-
-		/**
-		 * @brief Advances the parsing index `i` and updates the parsing `state`.
-		 * @param[in,out] i The current parsing index.
-		 * @param[in] segment The segment just processed.
-		 * @param[in,out] state The current parsing state (will be updated based on standard progression).
-		 */
-		static void advanceParser( size_t& i, std::string_view segment, internal::LocalIdParsingState& state );
-
-		/**
-		 * @brief Advances the parsing index `i` and explicitly sets the parsing `state` to `to`.
-		 * @param[in,out] i The current parsing index.
-		 * @param[in] segment The segment just processed.
-		 * @param[in,out] state The current parsing state (will be set to `to`).
-		 * @param[in] to The target `LocalIdParsingState` to transition to.
-		 */
-		static void advanceParser( size_t& i, std::string_view segment, internal::LocalIdParsingState& state, internal::LocalIdParsingState to );
-
-		/**
-		 * @brief Explicitly sets the parsing `state` to `to`.
-		 * @param[in,out] state The current parsing state (will be set to `to`).
-		 * @param[in] to The target `LocalIdParsingState` to transition to.
-		 */
-		static void advanceParser( internal::LocalIdParsingState& state, internal::LocalIdParsingState to );
-
-		/**
-		 * @brief Converts a metadata prefix string (e.g., "q", "qty") to its corresponding `LocalIdParsingState`.
-		 * @param[in] prefix The string view representing the metadata prefix.
-		 * @return An `std::optional<LocalIdParsingState>` containing the state if the prefix is recognized,
-		 *         or `std::nullopt` otherwise.
-		 */
-		static std::optional<internal::LocalIdParsingState> metaPrefixToState( std::string_view prefix );
-
-		/**
-		 * @brief Determines the expected next parsing state in the standard metadata sequence.
-		 * @param[in] prev The previous `LocalIdParsingState` (must be a metadata state).
-		 * @return An `std::optional<LocalIdParsingState>` containing the next expected state,
-		 *         or `std::nullopt` if `prev` is the last state in the sequence (e.g., MetaDetail).
-		 */
-		static std::optional<internal::LocalIdParsingState> nextParsingState( internal::LocalIdParsingState prev );
-
-		/**
-		 * @brief Parses a single metadata tag segment (e.g., "q-value" or "qty-value").
-		 * @param[in] codebookName The expected `CodebookName` for this tag.
-		 * @param[in,out] state The current parsing state (updated on success).
-		 * @param[in,out] i The current parsing index (updated on success).
-		 * @param[in] segment The string view representing the full metadata segment (e.g., "q-value").
-		 * @param[out] tag Output parameter where the successfully parsed `MetadataTag` is placed.
-		 * @param[in] codebooks A pointer to the loaded codebooks, used for validation.
-		 * @param[in,out] errorBuilder Used to record errors encountered during parsing.
-		 * @return True if the segment was successfully parsed as the expected tag, false otherwise.
-		 */
-		static bool parseMetaTag( CodebookName codebookName, internal::LocalIdParsingState& state, size_t& i, std::string_view segment, std::optional<MetadataTag>& tag,
-			const Codebooks* codebooks, internal::LocalIdParsingErrorBuilder& errorBuilder );
-
 	private:
 		//----------------------------------------------
 		// Private member variables
