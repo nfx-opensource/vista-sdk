@@ -8,7 +8,9 @@
 #include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/transport/ISO19848.h"
-#include "dnv/vista/sdk/constants/ISO19848Constants.h"
+
+#include "internal/constants/ISO19848.h"
+#include "dnv/vista/sdk/config/ISO19848.h"
 #include "dnv/vista/sdk/EmbeddedResource.h"
 
 namespace dnv::vista::sdk::transport
@@ -141,11 +143,11 @@ namespace dnv::vista::sdk::transport
 		{
 			case ISO19848Version::v2018:
 			{
-				return EmbeddedResource::dataChannelTypeNames( constants::iso19848::VERSION_2018 );
+				return EmbeddedResource::dataChannelTypeNames( iso19848::version::v2018 );
 			}
 			case ISO19848Version::v2024:
 			{
-				return EmbeddedResource::dataChannelTypeNames( constants::iso19848::VERSION_2024 );
+				return EmbeddedResource::dataChannelTypeNames( iso19848::version::v2024 );
 			}
 			default:
 			{
@@ -160,11 +162,11 @@ namespace dnv::vista::sdk::transport
 		{
 			case ISO19848Version::v2018:
 			{
-				return EmbeddedResource::formatDataTypes( constants::iso19848::VERSION_2018 );
+				return EmbeddedResource::formatDataTypes( iso19848::version::v2018 );
 			}
 			case ISO19848Version::v2024:
 			{
-				return EmbeddedResource::formatDataTypes( constants::iso19848::VERSION_2024 );
+				return EmbeddedResource::formatDataTypes( iso19848::version::v2024 );
 			}
 			default:
 			{
@@ -220,7 +222,7 @@ namespace dnv::vista::sdk::transport
 	{
 		outValue = Value{ Value::String{ value } };
 
-		if ( nfx::string::equals( m_type, constants::iso19848::FORMAT_TYPE_DECIMAL ) )
+		if ( nfx::string::equals( m_type, internal::constants::iso19848::FORMAT_TYPE_DECIMAL ) )
 		{
 			nfx::datatypes::Decimal d;
 			if ( !nfx::datatypes::Decimal::tryParse( value, d ) )
@@ -237,7 +239,7 @@ namespace dnv::vista::sdk::transport
 			outValue = Value{ Value::Decimal{ d } };
 			return ValidateResult{ ValidateResult::Ok{} };
 		}
-		else if ( nfx::string::equals( m_type, constants::iso19848::FORMAT_TYPE_DOUBLE ) )
+		else if ( nfx::string::equals( m_type, internal::constants::iso19848::FORMAT_TYPE_DOUBLE ) )
 		{
 			double d;
 			if ( !nfx::string::tryParseDouble( value, d ) )
@@ -254,7 +256,7 @@ namespace dnv::vista::sdk::transport
 			outValue = Value{ Value::Double{ d } };
 			return ValidateResult{ ValidateResult::Ok{} };
 		}
-		else if ( nfx::string::equals( m_type, constants::iso19848::FORMAT_TYPE_INTEGER ) )
+		else if ( nfx::string::equals( m_type, internal::constants::iso19848::FORMAT_TYPE_INTEGER ) )
 		{
 			int i;
 			if ( !nfx::string::tryParseInt( value, i ) )
@@ -271,7 +273,7 @@ namespace dnv::vista::sdk::transport
 			outValue = Value{ Value::Integer{ i } };
 			return ValidateResult{ ValidateResult::Ok{} };
 		}
-		else if ( nfx::string::equals( m_type, constants::iso19848::FORMAT_TYPE_BOOLEAN ) )
+		else if ( nfx::string::equals( m_type, internal::constants::iso19848::FORMAT_TYPE_BOOLEAN ) )
 		{
 			bool b;
 			if ( !nfx::string::tryParseBool( value, b ) )
@@ -288,7 +290,7 @@ namespace dnv::vista::sdk::transport
 			outValue = Value{ Value::Boolean{ b } };
 			return ValidateResult{ ValidateResult::Ok{} };
 		}
-		else if ( nfx::string::equals( m_type, constants::iso19848::FORMAT_TYPE_CHAR ) )
+		else if ( nfx::string::equals( m_type, internal::constants::iso19848::FORMAT_TYPE_CHAR ) )
 		{
 			if ( !nfx::string::hasExactLength( value, 1 ) )
 			{
@@ -304,7 +306,7 @@ namespace dnv::vista::sdk::transport
 			outValue = Value{ Value::Char{ value[0] } };
 			return ValidateResult{ ValidateResult::Ok{} };
 		}
-		else if ( nfx::string::equals( m_type, constants::iso19848::FORMAT_TYPE_UNSIGNED_INTEGER ) )
+		else if ( nfx::string::equals( m_type, internal::constants::iso19848::FORMAT_TYPE_UNSIGNED_INTEGER ) )
 		{
 			std::uint32_t ui;
 			if ( !nfx::string::tryParseUInt( value, ui ) )
@@ -321,7 +323,7 @@ namespace dnv::vista::sdk::transport
 			outValue = Value{ Value::UnsignedInteger{ ui } };
 			return ValidateResult{ ValidateResult::Ok{} };
 		}
-		else if ( nfx::string::equals( m_type, constants::iso19848::FORMAT_TYPE_LONG ) )
+		else if ( nfx::string::equals( m_type, internal::constants::iso19848::FORMAT_TYPE_LONG ) )
 		{
 			std::int64_t l;
 			if ( !nfx::string::tryParseLong( value, l ) )
@@ -338,11 +340,11 @@ namespace dnv::vista::sdk::transport
 			outValue = Value{ Value::Long{ l } };
 			return ValidateResult{ ValidateResult::Ok{} };
 		}
-		else if ( nfx::string::equals( m_type, constants::iso19848::FORMAT_TYPE_STRING ) )
+		else if ( nfx::string::equals( m_type, internal::constants::iso19848::FORMAT_TYPE_STRING ) )
 		{
 			return ValidateResult{ ValidateResult::Ok{} };
 		}
-		else if ( nfx::string::equals( m_type, constants::iso19848::FORMAT_TYPE_DATETIME ) )
+		else if ( nfx::string::equals( m_type, internal::constants::iso19848::FORMAT_TYPE_DATETIME ) )
 		{
 			nfx::time::DateTimeOffset dt;
 			if ( !nfx::time::DateTimeOffset::tryParse( value, dt ) )

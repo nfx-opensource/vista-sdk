@@ -4,8 +4,6 @@
  */
 #pragma once
 
-#include <nfx/string/StringBuilderPool.h>
-
 #include "GmodPath.h"
 
 namespace dnv::vista::sdk
@@ -135,20 +133,11 @@ namespace dnv::vista::sdk
 		// Public methods
 		//----------------------------------------------
 
-		inline void append( nfx::string::StringBuilder& builder, bool verboseMode ) const;
+		void append( nfx::string::StringBuilder& builder, bool verboseMode ) const;
 
 	private:
 		//----------------------------------------------
-		// Private helper methods
-		//----------------------------------------------
-
-		inline static void appendCommonName(
-			nfx::string::StringBuilder& builder,
-			std::string_view commonName,
-			const std::optional<std::string>& location );
-
-		//----------------------------------------------
-		// Member variables
+		// Private member variables
 		//----------------------------------------------
 
 		/** @brief The optional primary item path. */

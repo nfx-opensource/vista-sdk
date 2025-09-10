@@ -2,7 +2,11 @@
  * @file Codebook.cpp
  * @brief Implementation of codebook-related components
  */
-#include "dnv/vista/sdk/constants/CodebookConstants.h"
+
+#include <nfx/string/Utils.h>
+
+#include "internal/constants/Codebook.h"
+
 #include "dnv/vista/sdk/Codebook.h"
 #include "dnv/vista/sdk/Codebooks.h"
 #include "dnv/vista/sdk/MetadataTag.h"
@@ -41,7 +45,7 @@ namespace dnv::vista::sdk
 			{
 				case 5:
 				{
-					if ( name == constants::codebook::CODEBOOK_NAME_TYPE )
+					if ( name == internal::constants::codebook::NAME_TYPE )
 					{
 						return CodebookName::Type;
 					}
@@ -49,11 +53,11 @@ namespace dnv::vista::sdk
 				}
 				case 6:
 				{
-					if ( name == constants::codebook::CODEBOOK_NAME_STATE )
+					if ( name == internal::constants::codebook::NAME_STATE )
 					{
 						return CodebookName::State;
 					}
-					if ( name == constants::codebook::CODEBOOK_NAME_DETAIL )
+					if ( name == internal::constants::codebook::NAME_DETAIL )
 					{
 						return CodebookName::Detail;
 					}
@@ -61,11 +65,11 @@ namespace dnv::vista::sdk
 				}
 				case 8:
 				{
-					if ( name == constants::codebook::CODEBOOK_NAME_CONTENT )
+					if ( name == internal::constants::codebook::NAME_CONTENT )
 					{
 						return CodebookName::Content;
 					}
-					if ( name == constants::codebook::CODEBOOK_NAME_COMMAND )
+					if ( name == internal::constants::codebook::NAME_COMMAND )
 					{
 						return CodebookName::Command;
 					}
@@ -73,7 +77,7 @@ namespace dnv::vista::sdk
 				}
 				case 9:
 				{
-					if ( name == constants::codebook::CODEBOOK_NAME_POSITION )
+					if ( name == internal::constants::codebook::NAME_POSITION )
 					{
 						return CodebookName::Position;
 					}
@@ -81,7 +85,7 @@ namespace dnv::vista::sdk
 				}
 				case 10:
 				{
-					if ( name == constants::codebook::CODEBOOK_NAME_QUANTITY )
+					if ( name == internal::constants::codebook::NAME_QUANTITY )
 					{
 						return CodebookName::Quantity;
 					}
@@ -89,7 +93,7 @@ namespace dnv::vista::sdk
 				}
 				case 12:
 				{
-					if ( name == constants::codebook::CODEBOOK_NAME_CALCULATION )
+					if ( name == internal::constants::codebook::NAME_CALCULATION )
 					{
 						return CodebookName::Calculation;
 					}
@@ -97,7 +101,7 @@ namespace dnv::vista::sdk
 				}
 				case 13:
 				{
-					if ( name == constants::codebook::CODEBOOK_NAME_ACTIVITY_TYPE )
+					if ( name == internal::constants::codebook::NAME_ACTIVITY_TYPE )
 					{
 						return CodebookName::ActivityType;
 					}
@@ -105,7 +109,7 @@ namespace dnv::vista::sdk
 				}
 				case 19:
 				{
-					if ( name == constants::codebook::CODEBOOK_NAME_FUNCTIONAL_SERVICES )
+					if ( name == internal::constants::codebook::NAME_FUNCTIONAL_SERVICES )
 					{
 						return CodebookName::FunctionalServices;
 					}
@@ -113,7 +117,7 @@ namespace dnv::vista::sdk
 				}
 				case 20:
 				{
-					if ( name == constants::codebook::CODEBOOK_NAME_MAINTENANCE_CATEGORY )
+					if ( name == internal::constants::codebook::NAME_MAINTENANCE_CATEGORY )
 					{
 						return CodebookName::MaintenanceCategory;
 					}
@@ -185,35 +189,6 @@ namespace dnv::vista::sdk
 	}
 
 	//=====================================================================
-	// PositionValidationResult string conversion
-	//=====================================================================
-
-	namespace
-	{
-		static constexpr std::array<std::pair<std::string_view, PositionValidationResult>, 5> s_validationResultMap{
-			{ { constants::codebook::CODEBOOK_POSITION_VALIDATION_INVALID, PositionValidationResult::Invalid },
-				{ constants::codebook::CODEBOOK_POSITION_VALIDATION_INVALID_ORDER, PositionValidationResult::InvalidOrder },
-				{ constants::codebook::CODEBOOK_POSITION_VALIDATION_INVALID_GROUPING, PositionValidationResult::InvalidGrouping },
-				{ constants::codebook::CODEBOOK_POSITION_VALIDATION_VALID, PositionValidationResult::Valid },
-				{ constants::codebook::CODEBOOK_POSITION_VALIDATION_CUSTOM, PositionValidationResult::Custom } } };
-
-		[[nodiscard]] static std::string toLower( std::string_view input ) noexcept
-		{
-			std::string result;
-			result.reserve( input.size() );
-
-			for ( char c : input )
-			{
-				result.push_back( ( c >= 'A' && c <= 'Z' )
-									  ? ( c + 32 )
-									  : c );
-			}
-
-			return result;
-		}
-	}
-
-	//=====================================================================
 	// PositionValidationResults class
 	//=====================================================================
 
@@ -228,14 +203,27 @@ namespace dnv::vista::sdk
 			throw std::invalid_argument{ "PositionValidationResult name cannot be empty" };
 		}
 
-		const std::string lowerName = toLower( name );
+		const std::string lowerName = nfx::string::toLower( name );
 
-		for ( const auto& [key, value] : s_validationResultMap )
+		if ( lowerName == internal::constants::codebook::POSITION_VALIDATION_INVALID )
 		{
-			if ( key == lowerName )
-			{
-				return value;
-			}
+			return PositionValidationResult::Invalid;
+		}
+		if ( lowerName == internal::constants::codebook::POSITION_VALIDATION_INVALID_ORDER )
+		{
+			return PositionValidationResult::InvalidOrder;
+		}
+		if ( lowerName == internal::constants::codebook::POSITION_VALIDATION_INVALID_GROUPING )
+		{
+			return PositionValidationResult::InvalidGrouping;
+		}
+		if ( lowerName == internal::constants::codebook::POSITION_VALIDATION_VALID )
+		{
+			return PositionValidationResult::Valid;
+		}
+		if ( lowerName == internal::constants::codebook::POSITION_VALIDATION_CUSTOM )
+		{
+			return PositionValidationResult::Custom;
 		}
 
 		throw std::invalid_argument{
@@ -294,7 +282,7 @@ namespace dnv::vista::sdk
 				std::string valueStr{ valueTrimmed };
 				trimmedValues.emplace_back( std::move( valueStr ) );
 
-				if ( trimmedValues.back() != constants::codebook::CODEBOOK_GROUP_NUMBER )
+				if ( trimmedValues.back() != internal::constants::codebook::GROUP_NUMBER )
 				{
 					m_groupMap.emplace( trimmedValues.back(), groupStr );
 					valueSet.emplace( trimmedValues.back() );
@@ -511,18 +499,18 @@ namespace dnv::vista::sdk
 
 				if ( isDigitArray[i] )
 				{
-					group = constants::codebook::CODEBOOK_GROUP_NUMBER;
+					group = internal::constants::codebook::GROUP_NUMBER;
 				}
 				else
 				{
 					auto it = m_groupMap.find( positions[i] );
 					group = ( it != m_groupMap.end() ) ? std::string_view{ it->second }
-													   : constants::codebook::CODEBOOK_GROUP_UNKNOWN;
+													   : internal::constants::codebook::GROUP_UNKNOWN;
 				}
 
 				uniqueGroups.emplace( group );
 
-				if ( group == constants::codebook::CODEBOOK_GROUP_DEFAULT )
+				if ( group == internal::constants::codebook::GROUP_DEFAULT )
 				{
 					hasDefaultGroup = true;
 				}

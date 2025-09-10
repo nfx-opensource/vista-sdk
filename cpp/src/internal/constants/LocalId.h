@@ -1,9 +1,8 @@
 /**
- * @file LocalIdConstants.h
+ * @file LocalId.h
  * @brief LocalId parsing and string building constants
  * @details Contains prefix constants used for LocalId parsing state transitions
  *          and string serialization operations
- * @todo Development-only file - remove before production release
  */
 
 #pragma once
@@ -11,7 +10,7 @@
 #include <cstdint>
 #include <string_view>
 
-namespace dnv::vista::sdk::constants::localId
+namespace dnv::vista::sdk::internal::constants::localId
 {
 	//----------------------------------------------
 	// LocalId prefix constants

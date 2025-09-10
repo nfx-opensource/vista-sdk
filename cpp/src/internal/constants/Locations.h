@@ -1,9 +1,8 @@
 /**
- * @file LocationsConstants.h
+ * @file Locations.h
  * @brief Location parsing and validation constants
  * @details Contains character codes, group names, and error message templates
  *          for location parsing and validation operations
- * @todo Development-only file - remove before production release
  */
 
 #pragma once
@@ -11,7 +10,7 @@
 #include <cstdint>
 #include <string_view>
 
-namespace dnv::vista::sdk::constants::locations
+namespace dnv::vista::sdk::internal::constants::locations
 {
 	//----------------------------------------------
 	// Location character constants

@@ -53,7 +53,7 @@ namespace dnv::vista::sdk
 		auto lease = nfx::string::StringBuilderPool::lease();
 		auto builder = lease.builder();
 
-		builder.append( constants::iso19848::ANNEX_C_NAMING_ENTITY );
+		builder.append( iso19848::annex_c::NAMING_ENTITY );
 		builder.push_back( '/' );
 		builder.append( m_imoNumber->toString() );
 		builder.append( m_localIdBuilder->toString() );
@@ -268,7 +268,7 @@ namespace dnv::vista::sdk
 				}
 				case internal::LocalIdParsingState::NamingEntity:
 				{
-					if ( segment != constants::iso19848::ANNEX_C_NAMING_ENTITY )
+					if ( segment != iso19848::annex_c::NAMING_ENTITY )
 					{
 						errorBuilder.addError(
 							state,

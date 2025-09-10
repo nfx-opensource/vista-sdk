@@ -6,10 +6,11 @@
 #include <regex>
 
 #include <nfx/string/StringBuilderPool.h>
-
 #include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/transport/DataChannel/DataChannel.h"
+
+#include "internal/constants/ISO19848.h"
 
 namespace dnv::vista::sdk::transport::datachannel
 {
@@ -266,6 +267,15 @@ namespace dnv::vista::sdk::transport::datachannel
 	Format::Format( std::string_view type )
 	{
 		setType( type );
+	}
+
+	//----------------------------------------------
+	// Property access
+	//----------------------------------------------
+
+	bool Format::isDecimal() const noexcept
+	{
+		return m_type && *m_type == internal::constants::iso19848::FORMAT_TYPE_DECIMAL;
 	}
 
 	//----------------------------------------------

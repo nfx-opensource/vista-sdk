@@ -4,7 +4,7 @@
  * @details Inline method implementations for data channel classes
  */
 
-#include "dnv/vista/sdk/constants/ISO19848Constants.h"
+#include "dnv/vista/sdk/config/ISO19848.h"
 
 namespace dnv::vista::sdk::transport::datachannel
 {
@@ -17,9 +17,9 @@ namespace dnv::vista::sdk::transport::datachannel
 	//----------------------------------------------
 
 	VISTA_SDK_CPP_INLINE VersionInformation::VersionInformation()
-		: m_namingRule{ constants::iso19848::ANNEX_C_NAMING_RULE },
-		  m_namingSchemeVersion{ constants::iso19848::ANNEX_C_NAMING_SCHEME_VERSION },
-		  m_referenceUrl{ constants::iso19848::ANNEX_C_REFERENCE_URL }
+		: m_namingRule{ iso19848::annex_c::NAMING_RULE },
+		  m_namingSchemeVersion{ iso19848::annex_c::NAMING_SCHEME_VERSION },
+		  m_referenceUrl{ iso19848::annex_c::REFERENCE_URL }
 	{
 	}
 
@@ -465,7 +465,7 @@ namespace dnv::vista::sdk::transport::datachannel
 	//----------------------------------------------
 
 	VISTA_SDK_CPP_INLINE NameObject::NameObject()
-		: m_namingRule{ constants::iso19848::ANNEX_C_NAMING_RULE }
+		: m_namingRule{ iso19848::annex_c::NAMING_RULE }
 	{
 	}
 
@@ -517,11 +517,6 @@ namespace dnv::vista::sdk::transport::datachannel
 	VISTA_SDK_CPP_INLINE const std::optional<Restriction>& Format::restriction() const noexcept
 	{
 		return m_restriction;
-	}
-
-	VISTA_SDK_CPP_INLINE bool Format::isDecimal() const noexcept
-	{
-		return m_type && *m_type == constants::iso19848::FORMAT_TYPE_DECIMAL;
 	}
 
 	//----------------------------------------------

@@ -4,11 +4,12 @@
  */
 
 #include <cstdio>
+
 #include <nfx/string/StringBuilderPool.h>
 
 #include "dnv/vista/sdk/GmodVersioningDto.h"
 
-#include "dnv/vista/sdk/constants/DtoKeysConstants.h"
+#include "internal/constants/DtoKeys.h"
 
 namespace dnv::vista::sdk
 {
@@ -22,7 +23,7 @@ namespace dnv::vista::sdk
 		{
 			try
 			{
-				const auto it = json.find( constants::dto::GMODVERSIONING_DTO_KEY_VIS_RELEASE );
+				const auto it = json.find( internal::constants::dto::KEY_VIS_RELEASE );
 				if ( it != json.end() && it->is_string() )
 				{
 					const auto& str = it->get_ref<const std::string&>();
@@ -30,11 +31,11 @@ namespace dnv::vista::sdk
 					return std::string_view{ str };
 				}
 
-				return constants::dto::GMODVERSIONING_DTO_UNKNOWN_VERSION;
+				return internal::constants::dto::error::UNKNOWN_VERSION;
 			}
 			catch ( ... )
 			{
-				return constants::dto::GMODVERSIONING_DTO_UNKNOWN_VERSION;
+				return internal::constants::dto::error::UNKNOWN_VERSION;
 			}
 		}
 
@@ -42,7 +43,7 @@ namespace dnv::vista::sdk
 		{
 			try
 			{
-				const auto it = json.find( constants::dto::GMODVERSIONING_DTO_KEY_OLD_ASSIGNMENT );
+				const auto it = json.find( internal::constants::dto::gmodversioning::KEY_OLD_ASSIGNMENT );
 				if ( it != json.end() && it->is_string() )
 				{
 					const auto& str = it->get_ref<const std::string&>();
@@ -50,11 +51,11 @@ namespace dnv::vista::sdk
 					return std::string_view{ str };
 				}
 
-				return constants::dto::GMODVERSIONING_DTO_UNKNOWN_OLD_ASSIGNMENT;
+				return internal::constants::dto::error::UNKNOWN_OLD_ASSIGNMENT;
 			}
 			catch ( ... )
 			{
-				return constants::dto::GMODVERSIONING_DTO_UNKNOWN_OLD_ASSIGNMENT;
+				return internal::constants::dto::error::UNKNOWN_OLD_ASSIGNMENT;
 			}
 		}
 
@@ -62,7 +63,7 @@ namespace dnv::vista::sdk
 		{
 			try
 			{
-				const auto it = json.find( constants::dto::GMODVERSIONING_DTO_KEY_SOURCE );
+				const auto it = json.find( internal::constants::dto::gmodversioning::KEY_SOURCE );
 				if ( it != json.end() && it->is_string() )
 				{
 					const auto& str = it->get_ref<const std::string&>();
@@ -70,11 +71,11 @@ namespace dnv::vista::sdk
 					return std::string_view{ str };
 				}
 
-				return constants::dto::GMODVERSIONING_DTO_UNKNOWN_SOURCE;
+				return internal::constants::dto::error::UNKNOWN_SOURCE;
 			}
 			catch ( ... )
 			{
-				return constants::dto::GMODVERSIONING_DTO_UNKNOWN_SOURCE;
+				return internal::constants::dto::error::UNKNOWN_SOURCE;
 			}
 		}
 	}
@@ -168,24 +169,24 @@ namespace dnv::vista::sdk
 
 	void from_json( const nlohmann::json& j, GmodVersioningAssignmentChangeDto& dto )
 	{
-		const auto oldAssignmentIt = j.find( constants::dto::GMODVERSIONING_DTO_KEY_OLD_ASSIGNMENT );
+		const auto oldAssignmentIt = j.find( internal::constants::dto::gmodversioning::KEY_OLD_ASSIGNMENT );
 		if ( oldAssignmentIt == j.end() || !oldAssignmentIt->is_string() )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "GmodVersioningAssignmentChangeDto JSON missing required '" );
-			builder.append( constants::dto::GMODVERSIONING_DTO_KEY_OLD_ASSIGNMENT );
+			builder.append( internal::constants::dto::gmodversioning::KEY_OLD_ASSIGNMENT );
 			builder.append( "' field or not a string" );
 			throw nlohmann::json::parse_error::create( 101, 0u, lease.toString(), nullptr );
 		}
 
-		const auto currentAssignmentIt = j.find( constants::dto::GMODVERSIONING_DTO_KEY_CURRENT_ASSIGNMENT );
+		const auto currentAssignmentIt = j.find( internal::constants::dto::gmodversioning::KEY_CURRENT_ASSIGNMENT );
 		if ( currentAssignmentIt == j.end() || !currentAssignmentIt->is_string() )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "GmodVersioningAssignmentChangeDto JSON missing required '" );
-			builder.append( constants::dto::GMODVERSIONING_DTO_KEY_CURRENT_ASSIGNMENT );
+			builder.append( internal::constants::dto::gmodversioning::KEY_CURRENT_ASSIGNMENT );
 			builder.append( "' field or not a string" );
 			throw nlohmann::json::parse_error::create( 101, 0u, lease.toString(), nullptr );
 		}
@@ -212,8 +213,8 @@ namespace dnv::vista::sdk
 	void to_json( nlohmann::json& j, const GmodVersioningAssignmentChangeDto& dto )
 	{
 		j = nlohmann::json{
-			{ constants::dto::GMODVERSIONING_DTO_KEY_OLD_ASSIGNMENT, dto.m_oldAssignment },
-			{ constants::dto::GMODVERSIONING_DTO_KEY_CURRENT_ASSIGNMENT, dto.m_currentAssignment } };
+			{ internal::constants::dto::gmodversioning::KEY_OLD_ASSIGNMENT, dto.m_oldAssignment },
+			{ internal::constants::dto::gmodversioning::KEY_CURRENT_ASSIGNMENT, dto.m_currentAssignment } };
 	}
 
 	//=====================================================================
@@ -304,7 +305,7 @@ namespace dnv::vista::sdk
 
 	void from_json( const nlohmann::json& j, GmodNodeConversionDto& dto )
 	{
-		const auto opsIt = j.find( constants::dto::GMODVERSIONING_DTO_KEY_OPERATIONS );
+		const auto opsIt = j.find( internal::constants::dto::gmodversioning::KEY_OPERATIONS );
 		if ( opsIt != j.end() )
 		{
 			if ( !opsIt->is_array() )
@@ -312,7 +313,7 @@ namespace dnv::vista::sdk
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "GmodNodeConversionDto JSON field '" );
-				builder.append( constants::dto::GMODVERSIONING_DTO_KEY_OPERATIONS );
+				builder.append( internal::constants::dto::gmodversioning::KEY_OPERATIONS );
 				builder.append( "' is not an array" );
 				throw nlohmann::json::type_error::create( 302, lease.toString(), nullptr );
 			}
@@ -327,7 +328,7 @@ namespace dnv::vista::sdk
 					auto lease = nfx::string::StringBuilderPool::lease();
 					auto builder = lease.builder();
 					builder.append( "GmodNodeConversionDto JSON field '" );
-					builder.append( constants::dto::GMODVERSIONING_DTO_KEY_OPERATIONS );
+					builder.append( internal::constants::dto::gmodversioning::KEY_OPERATIONS );
 					builder.append( "' contains non-string element" );
 					throw nlohmann::json::type_error::create( 302, lease.toString(), nullptr );
 				}
@@ -340,13 +341,13 @@ namespace dnv::vista::sdk
 			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "WARN: GmodNodeConversionDto JSON missing optional '" );
-			builder.append( constants::dto::GMODVERSIONING_DTO_KEY_OPERATIONS );
+			builder.append( internal::constants::dto::gmodversioning::KEY_OPERATIONS );
 			builder.append( "' field\n" );
 
 			// std::fprintf( stderr, "%s", lease.toString().c_str() );
 		}
 
-		const auto sourceIt = j.find( constants::dto::GMODVERSIONING_DTO_KEY_SOURCE );
+		const auto sourceIt = j.find( internal::constants::dto::gmodversioning::KEY_SOURCE );
 		if ( sourceIt != j.end() )
 		{
 			if ( !sourceIt->is_string() )
@@ -354,7 +355,7 @@ namespace dnv::vista::sdk
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "GmodNodeConversionDto JSON field '" );
-				builder.append( constants::dto::GMODVERSIONING_DTO_KEY_SOURCE );
+				builder.append( internal::constants::dto::gmodversioning::KEY_SOURCE );
 				builder.append( "' is not a string" );
 				throw nlohmann::json::type_error::create( 302, lease.toString(), nullptr );
 			}
@@ -366,13 +367,13 @@ namespace dnv::vista::sdk
 			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "WARN: GmodNodeConversionDto JSON missing optional '" );
-			builder.append( constants::dto::GMODVERSIONING_DTO_KEY_SOURCE );
+			builder.append( internal::constants::dto::gmodversioning::KEY_SOURCE );
 			builder.append( "' field\n" );
 
 			// std::fprintf( stderr, "%s", lease.toString().c_str() );
 		}
 
-		const auto targetIt = j.find( constants::dto::GMODVERSIONING_DTO_KEY_TARGET );
+		const auto targetIt = j.find( internal::constants::dto::gmodversioning::KEY_TARGET );
 		if ( targetIt != j.end() )
 		{
 			if ( !targetIt->is_string() )
@@ -380,7 +381,7 @@ namespace dnv::vista::sdk
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "GmodNodeConversionDto JSON field '" );
-				builder.append( constants::dto::GMODVERSIONING_DTO_KEY_TARGET );
+				builder.append( internal::constants::dto::gmodversioning::KEY_TARGET );
 				builder.append( "' is not a string" );
 				throw nlohmann::json::type_error::create( 302, lease.toString(), nullptr );
 			}
@@ -392,13 +393,13 @@ namespace dnv::vista::sdk
 			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "WARN: GmodNodeConversionDto JSON missing optional '" );
-			builder.append( constants::dto::GMODVERSIONING_DTO_KEY_TARGET );
+			builder.append( internal::constants::dto::gmodversioning::KEY_TARGET );
 			builder.append( "' field\n" );
 
 			// std::fprintf( stderr, "%s", lease.toString().c_str() );
 		}
 
-		const auto oldAssignmentIt = j.find( constants::dto::GMODVERSIONING_DTO_KEY_OLD_ASSIGNMENT );
+		const auto oldAssignmentIt = j.find( internal::constants::dto::gmodversioning::KEY_OLD_ASSIGNMENT );
 		if ( oldAssignmentIt != j.end() )
 		{
 			if ( !oldAssignmentIt->is_string() )
@@ -406,7 +407,7 @@ namespace dnv::vista::sdk
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "GmodNodeConversionDto JSON field '" );
-				builder.append( constants::dto::GMODVERSIONING_DTO_KEY_OLD_ASSIGNMENT );
+				builder.append( internal::constants::dto::gmodversioning::KEY_OLD_ASSIGNMENT );
 				builder.append( "' is not a string" );
 				throw nlohmann::json::type_error::create( 302, lease.toString(), nullptr );
 			}
@@ -417,7 +418,7 @@ namespace dnv::vista::sdk
 			dto.m_oldAssignment.clear();
 		}
 
-		const auto newAssignmentIt = j.find( constants::dto::GMODVERSIONING_DTO_KEY_NEW_ASSIGNMENT );
+		const auto newAssignmentIt = j.find( internal::constants::dto::gmodversioning::KEY_NEW_ASSIGNMENT );
 		if ( newAssignmentIt != j.end() )
 		{
 			if ( !newAssignmentIt->is_string() )
@@ -425,7 +426,7 @@ namespace dnv::vista::sdk
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "GmodNodeConversionDto JSON field '" );
-				builder.append( constants::dto::GMODVERSIONING_DTO_KEY_NEW_ASSIGNMENT );
+				builder.append( internal::constants::dto::gmodversioning::KEY_NEW_ASSIGNMENT );
 				builder.append( "' is not a string" );
 				throw nlohmann::json::type_error::create( 302, lease.toString(), nullptr );
 			}
@@ -436,7 +437,7 @@ namespace dnv::vista::sdk
 			dto.m_newAssignment.clear();
 		}
 
-		const auto deleteAssignmentIt = j.find( constants::dto::GMODVERSIONING_DTO_KEY_DELETE_ASSIGNMENT );
+		const auto deleteAssignmentIt = j.find( internal::constants::dto::gmodversioning::KEY_DELETE_ASSIGNMENT );
 		if ( deleteAssignmentIt != j.end() )
 		{
 			if ( !deleteAssignmentIt->is_boolean() )
@@ -444,7 +445,7 @@ namespace dnv::vista::sdk
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "GmodNodeConversionDto JSON field '" );
-				builder.append( constants::dto::GMODVERSIONING_DTO_KEY_DELETE_ASSIGNMENT );
+				builder.append( internal::constants::dto::gmodversioning::KEY_DELETE_ASSIGNMENT );
 				builder.append( "' is not a boolean" );
 				throw nlohmann::json::type_error::create( 302, lease.toString(), nullptr );
 			}
@@ -479,12 +480,12 @@ namespace dnv::vista::sdk
 	void to_json( nlohmann::json& j, const GmodNodeConversionDto& dto )
 	{
 		j = nlohmann::json{
-			{ constants::dto::GMODVERSIONING_DTO_KEY_OPERATIONS, dto.m_operations },
-			{ constants::dto::GMODVERSIONING_DTO_KEY_SOURCE, dto.m_source },
-			{ constants::dto::GMODVERSIONING_DTO_KEY_TARGET, dto.m_target },
-			{ constants::dto::GMODVERSIONING_DTO_KEY_OLD_ASSIGNMENT, dto.m_oldAssignment },
-			{ constants::dto::GMODVERSIONING_DTO_KEY_NEW_ASSIGNMENT, dto.m_newAssignment },
-			{ constants::dto::GMODVERSIONING_DTO_KEY_DELETE_ASSIGNMENT, dto.m_deleteAssignment } };
+			{ internal::constants::dto::gmodversioning::KEY_OPERATIONS, dto.m_operations },
+			{ internal::constants::dto::gmodversioning::KEY_SOURCE, dto.m_source },
+			{ internal::constants::dto::gmodversioning::KEY_TARGET, dto.m_target },
+			{ internal::constants::dto::gmodversioning::KEY_OLD_ASSIGNMENT, dto.m_oldAssignment },
+			{ internal::constants::dto::gmodversioning::KEY_NEW_ASSIGNMENT, dto.m_newAssignment },
+			{ internal::constants::dto::gmodversioning::KEY_DELETE_ASSIGNMENT, dto.m_deleteAssignment } };
 	}
 
 	//=====================================================================
@@ -576,20 +577,20 @@ namespace dnv::vista::sdk
 
 	void from_json( const nlohmann::json& j, GmodVersioningDto& dto )
 	{
-		const auto visReleaseIt = j.find( constants::dto::GMODVERSIONING_DTO_KEY_VIS_RELEASE );
+		const auto visReleaseIt = j.find( internal::constants::dto::KEY_VIS_RELEASE );
 		if ( visReleaseIt == j.end() || !visReleaseIt->is_string() )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "GmodVersioningDto JSON missing required '" );
-			builder.append( constants::dto::GMODVERSIONING_DTO_KEY_VIS_RELEASE );
+			builder.append( internal::constants::dto::KEY_VIS_RELEASE );
 			builder.append( "' field or not a string" );
 			throw nlohmann::json::parse_error::create( 101, 0u, lease.toString(), nullptr );
 		}
 		dto.m_visVersion = visReleaseIt->get<std::string>();
 
 		dto.m_items.clear();
-		const auto itemsIt = j.find( constants::dto::GMODVERSIONING_DTO_KEY_ITEMS );
+		const auto itemsIt = j.find( internal::constants::dto::gmodversioning::KEY_ITEMS );
 		if ( itemsIt != j.end() )
 		{
 			if ( !itemsIt->is_object() )
@@ -597,7 +598,7 @@ namespace dnv::vista::sdk
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "GmodVersioningDto JSON field '" );
-				builder.append( constants::dto::GMODVERSIONING_DTO_KEY_ITEMS );
+				builder.append( internal::constants::dto::gmodversioning::KEY_ITEMS );
 				builder.append( "' is not an object" );
 				throw nlohmann::json::type_error::create( 302, lease.toString(), nullptr );
 			}
@@ -665,7 +666,7 @@ namespace dnv::vista::sdk
 			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "WARN: No '" );
-			builder.append( constants::dto::GMODVERSIONING_DTO_KEY_ITEMS );
+			builder.append( internal::constants::dto::gmodversioning::KEY_ITEMS );
 			builder.append( "' object found in GMOD versioning data for VIS version " );
 			builder.append( dto.m_visVersion );
 			builder.append( "'\n" );
@@ -676,11 +677,11 @@ namespace dnv::vista::sdk
 
 	void to_json( nlohmann::json& j, const GmodVersioningDto& dto )
 	{
-		j = nlohmann::json{ { constants::dto::GMODVERSIONING_DTO_KEY_VIS_RELEASE, dto.m_visVersion } };
+		j = nlohmann::json{ { internal::constants::dto::KEY_VIS_RELEASE, dto.m_visVersion } };
 
 		if ( !dto.m_items.empty() )
 		{
-			j[constants::dto::GMODVERSIONING_DTO_KEY_ITEMS] = dto.m_items;
+			j[internal::constants::dto::gmodversioning::KEY_ITEMS] = dto.m_items;
 
 			size_t emptyOperationsCount = 0;
 			for ( const auto& [key, value] : dto.m_items )
@@ -703,7 +704,7 @@ namespace dnv::vista::sdk
 		}
 		else
 		{
-			j[constants::dto::GMODVERSIONING_DTO_KEY_ITEMS] = nlohmann::json::object();
+			j[internal::constants::dto::gmodversioning::KEY_ITEMS] = nlohmann::json::object();
 		}
 	}
 }

@@ -1000,7 +1000,7 @@ namespace dnv::vista::sdk
 			 * @return True if type is "Decimal"
 			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_INLINE bool isDecimal() const noexcept;
+			[[nodiscard]] bool isDecimal() const noexcept;
 
 			//----------------------------------------------
 			// Setters

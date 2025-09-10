@@ -238,7 +238,7 @@ namespace dnv::vista::sdk
 		 * @param version The VIS version associated with this node.
 		 * @param dto The DTO containing the node's data.
 		 */
-		inline GmodNode( VisVersion version, const GmodNodeDto& dto ) noexcept;
+		GmodNode( VisVersion version, const GmodNodeDto& dto ) noexcept;
 
 		/** @brief Default constructor. */
 		GmodNode() = default;
@@ -351,7 +351,7 @@ namespace dnv::vista::sdk
 		 * @return Optional GmodNode value, or std::nullopt if not applicable or not found.
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] inline std::optional<GmodNode> productType() const noexcept;
+		[[nodiscard]] std::optional<GmodNode> productType() const noexcept;
 
 		/**
 		 * @brief Gets the product selection node associated with this function node, if applicable.
@@ -359,7 +359,7 @@ namespace dnv::vista::sdk
 		 * @return Optional GmodNode value, or std::nullopt if not applicable or not found.
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] inline std::optional<GmodNode> productSelection() const noexcept;
+		[[nodiscard]] std::optional<GmodNode> productSelection() const noexcept;
 
 		//----------------------------------------------
 		// Node location methods
@@ -435,7 +435,7 @@ namespace dnv::vista::sdk
 		 * @return True if the node is individualizable under the given conditions, false otherwise.
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] inline bool isIndividualizable( bool isTargetNode = false, bool isInSet = false ) const noexcept;
+		[[nodiscard]] bool isIndividualizable( bool isTargetNode = false, bool isInSet = false ) const noexcept;
 
 		/**
 		 * @brief Checks if the node represents a function composition.
@@ -443,7 +443,7 @@ namespace dnv::vista::sdk
 		 * @return True if the node's metadata indicates it's an asset or product function composition, false otherwise.
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] inline bool isFunctionComposition() const noexcept;
+		[[nodiscard]] bool isFunctionComposition() const noexcept;
 
 		/**
 		 * @brief Checks if the node is mappable.
@@ -452,7 +452,7 @@ namespace dnv::vista::sdk
 		 * @return True if the node is considered mappable based on its type and properties, false otherwise.
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] inline bool isMappable() const noexcept;
+		[[nodiscard]] bool isMappable() const noexcept;
 
 		/**
 		 * @brief Checks if the node is a product selection.

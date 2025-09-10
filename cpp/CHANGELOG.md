@@ -31,6 +31,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.30] - 2025-09-10
+
+### Added
+
+-   **ISO19848 configuration header**: New centralized configuration for ISO 19848 transport layer
+    -   Add `config/ISO19848.h` for ISO 19848 transport layer configuration constants
+    -   Provide centralized configuration for ISO 19848 implementation
+
+### Changed
+
+-   **Constants architecture refactoring**: Complete reorganization of SDK constants from public API to internal implementation
+    -   Move all constants files from `include/dnv/vista/sdk/constants/` to `src/internal/constants/` for internal-only access
+    -   Change namespace from `dnv::vista::sdk::constants::` to `dnv::vista::sdk::internal::constants::`
+-   **DTO parsing constants refactoring**: Complete migration to domain-specific namespace organization
+    -   Reorganize `DtoKeys.h` constants into domain-specific namespaces: `codebook`, `gmod`, `gmodversioning`, `iso19848`, `locations`, `error`
+    -   Update all DTO implementation files to use new namespace structure: `internal::constants::dto::<domain>::KEY_*`
+    -   Consolidate error constants into unified `error` namespace with consistent naming conventions
+-   **Implementation file migrations**: Move implementations from inline headers to separate source files
+    -   Extract `CodebookName` implementation from `CodebookName.inl` to `CodebookName.cpp`
+    -   Extract `LocalIdItems` implementation from `LocalIdItems.inl` to `LocalIdItems.cpp`
+    -   Extract GMOD static methods from `Gmod.inl` to `Gmod.cpp` and node methods from `GmodNode.inl` to `GmodNode.cpp`
+-   **Code optimization and library usage improvements**:
+    -   Simplify `PositionValidationResults::fromString()` with direct if-else pattern instead of array lookup
+    -   Remove unnecessary static array `s_validationResultMap` for better performance and simplicity
+-   **Namespace restructuring**: Improve API encapsulation across all constant domains
+    -   Update codebook namespace: `constants::codebook::` → `internal::constants::codebook::`
+    -   Update GMOD namespace: `constants::gmod::` → `internal::constants::gmodnode::`
+    -   Update LocalId namespace: `constants::localId::` → `internal::constants::localId::`
+    -   Update locations namespace: `constants::locations::` → `internal::constants::locations::`
+    -   Update ISO19848 namespace: `constants::iso19848::` → `internal::constants::iso19848::`
+
+### Removed
+
+-   **Public API cleanup**: Remove unnecessary files and reduce public interface complexity
+    -   Remove `CodebookName.inl` file (implementation moved to `.cpp`)
+    -   Remove redundant array-based string-to-enum lookup patterns
+    -   Remove `appendCommonName()` static method declaration from `LocalIdItems.h` (moved to anonymous namespace in implementation)
+    -   Remove constant prefixes (e.g., `CODEBOOK_NAME_POSITION` → `NAME_POSITION`) for cleaner namespace organization
+    -   Remove unnecessary dependency includes from header files
+
+### Fixed
+
+-   **Compiler warnings**: Add `[[maybe_unused]]` attributes to suppress unused parameter warnings in sample files
+    -   Update `Sample_Parse_LocalId.cpp` and `Sample_VIS_Gmod.cpp` with proper parameter annotations
+    -   Improve code quality and eliminate build warnings
+
 ## [0.0.29] - 2025-09-07
 
 ### Added

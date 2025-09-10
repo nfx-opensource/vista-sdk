@@ -294,49 +294,49 @@ namespace dnv::vista::sdk
 		 * @param type The node type string (e.g., "SYS", "E", "VE").
 		 * @return True if the type suggests it can be a parent, false otherwise.
 		 */
-		inline static constexpr bool isPotentialParent( std::string_view type ) noexcept;
+		static bool isPotentialParent( std::string_view type ) noexcept;
 
 		/**
 		 * @brief Checks if a GMOD node, based on its metadata, is a leaf node.
 		 * @param metadata The metadata of the GmodNode.
 		 * @return True if the node is considered a leaf node, false otherwise.
 		 */
-		inline static bool isLeafNode( const GmodNodeMetadata& metadata ) noexcept;
+		static bool isLeafNode( const GmodNodeMetadata& metadata ) noexcept;
 
 		/**
 		 * @brief Checks if a GMOD node, based on its metadata, is a function node.
 		 * @param metadata The metadata of the GmodNode.
 		 * @return True if the node is a function node, false otherwise.
 		 */
-		inline static bool isFunctionNode( const GmodNodeMetadata& metadata ) noexcept;
+		static bool isFunctionNode( const GmodNodeMetadata& metadata ) noexcept;
 
 		/**
 		 * @brief Checks if a GMOD node, based on its metadata, represents a product selection.
 		 * @param metadata The metadata of the GmodNode.
 		 * @return True if the node is a product selection, false otherwise.
 		 */
-		inline static bool isProductSelection( const GmodNodeMetadata& metadata ) noexcept;
+		static bool isProductSelection( const GmodNodeMetadata& metadata ) noexcept;
 
 		/**
 		 * @brief Checks if a GMOD node, based on its metadata, represents a product type.
 		 * @param metadata The metadata of the GmodNode.
 		 * @return True if the node is a product type, false otherwise.
 		 */
-		inline static bool isProductType( const GmodNodeMetadata& metadata ) noexcept;
+		static bool isProductType( const GmodNodeMetadata& metadata ) noexcept;
 
 		/**
 		 * @brief Checks if a GMOD node, based on its metadata, represents an asset.
 		 * @param metadata The metadata of the GmodNode.
 		 * @return True if the node is an asset, false otherwise.
 		 */
-		inline static bool isAsset( const GmodNodeMetadata& metadata ) noexcept;
+		static bool isAsset( const GmodNodeMetadata& metadata ) noexcept;
 
 		/**
 		 * @brief Checks if a GMOD node, based on its metadata, is an asset function node.
 		 * @param metadata The metadata of the GmodNode.
 		 * @return True if the node is an asset function node, false otherwise.
 		 */
-		inline static bool isAssetFunctionNode( const GmodNodeMetadata& metadata ) noexcept;
+		static bool isAssetFunctionNode( const GmodNodeMetadata& metadata ) noexcept;
 
 		/**
 		 * @brief Checks if the relationship between a parent and child node constitutes a product type assignment.
@@ -344,7 +344,7 @@ namespace dnv::vista::sdk
 		 * @param child Pointer to the child GmodNode. Can be nullptr.
 		 * @return True if it's a product type assignment, false otherwise or if inputs are invalid.
 		 */
-		inline static bool isProductTypeAssignment( const GmodNode* parent, const GmodNode* child ) noexcept;
+		static bool isProductTypeAssignment( const GmodNode* parent, const GmodNode* child ) noexcept;
 
 		/**
 		 * @brief Checks if the relationship between a parent and child node constitutes a product selection assignment.
@@ -352,7 +352,7 @@ namespace dnv::vista::sdk
 		 * @param child Pointer to the child GmodNode. Can be nullptr.
 		 * @return True if it's a product selection assignment, false otherwise or if inputs are invalid.
 		 */
-		inline static bool isProductSelectionAssignment( const GmodNode* parent, const GmodNode* child ) noexcept;
+		static bool isProductSelectionAssignment( const GmodNode* parent, const GmodNode* child ) noexcept;
 
 		//----------------------------------------------
 		// Enumeration

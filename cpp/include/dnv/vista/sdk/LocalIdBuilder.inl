@@ -9,8 +9,8 @@
 #include <nfx/string/StringBuilderPool.h>
 
 #include "config/config.h"
-#include "constants/ISO19848Constants.h"
-#include "constants/LocalIdConstants.h"
+#include "dnv/vista/sdk/config/ISO19848.h"
+
 #include "CodebookName.h"
 
 namespace dnv::vista::sdk
@@ -285,7 +285,7 @@ namespace dnv::vista::sdk
 
 		// Naming rule prefix: "/dnv-v2"
 		builder.append( "/" );
-		builder.append( constants::iso19848::ANNEX_C_NAMING_RULE );
+		builder.append( iso19848::annex_c::NAMING_RULE );
 		builder.append( "/" );
 
 		// VIS version: "vis-{major}-{minor}{patch}"

@@ -43,7 +43,7 @@ namespace dnv::vista::sdk::samples
 				// Handle success as you please
 				return id;
 			}
-			catch ( const std::exception& e )
+			catch ( [[maybe_unused]] const std::exception& e )
 			{
 				return std::nullopt;
 			}

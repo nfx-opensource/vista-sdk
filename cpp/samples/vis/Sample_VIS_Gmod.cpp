@@ -27,12 +27,12 @@ namespace dnv::vista::sdk::samples
 		};
 
 		// Static handlers for traverse operations
-		static TraversalHandlerResult basicHandler( const std::vector<const GmodNode*>& parents, const GmodNode& node )
+		static TraversalHandlerResult basicHandler( [[maybe_unused]] const std::vector<const GmodNode*>& parents, [[maybe_unused]] const GmodNode& node )
 		{
 			return TraversalHandlerResult::Continue;
 		}
 
-		static TraversalHandlerResult stateHandler( CustomTraversalContext& ctx, const std::vector<const GmodNode*>& parents, const GmodNode& node )
+		static TraversalHandlerResult stateHandler( CustomTraversalContext& ctx, [[maybe_unused]] const std::vector<const GmodNode*>& parents, [[maybe_unused]] const GmodNode& node )
 		{
 			// Access context properties during the traversal
 			ctx.counter++;
@@ -42,7 +42,7 @@ namespace dnv::vista::sdk::samples
 			return TraversalHandlerResult::Continue;
 		}
 
-		static TraversalHandlerResult leafFinder( CustomTraversalContext& ctx, const std::vector<const GmodNode*>& parents, const GmodNode& node )
+		static TraversalHandlerResult leafFinder( CustomTraversalContext& ctx, [[maybe_unused]] const std::vector<const GmodNode*>& parents, const GmodNode& node )
 		{
 			if ( node.children().empty() )
 			{
@@ -52,7 +52,7 @@ namespace dnv::vista::sdk::samples
 			return TraversalHandlerResult::Continue;
 		}
 
-		static TraversalHandlerResult fromNodeHandler( CustomTraversalContext& ctx, const std::vector<const GmodNode*>& parents, const GmodNode& node )
+		static TraversalHandlerResult fromNodeHandler( CustomTraversalContext& ctx, [[maybe_unused]] const std::vector<const GmodNode*>& parents, [[maybe_unused]] const GmodNode& node )
 		{
 			ctx.counter++;
 			return TraversalHandlerResult::Continue;

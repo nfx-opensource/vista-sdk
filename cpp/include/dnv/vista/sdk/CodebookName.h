@@ -116,7 +116,7 @@ namespace dnv::vista::sdk
 		 * @throws std::invalid_argument If the prefix is empty or unknown.
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] inline static CodebookName fromPrefix( std::string_view prefix );
+		[[nodiscard]] static CodebookName fromPrefix( std::string_view prefix );
 
 		/**
 		 * @brief Convert a CodebookName to its string prefix view
@@ -125,8 +125,6 @@ namespace dnv::vista::sdk
 		 * @throws std::invalid_argument If the name is unknown
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] inline static std::string_view toPrefix( CodebookName name );
+		[[nodiscard]] static std::string_view toPrefix( CodebookName name );
 	};
 }
-
-#include "CodebookName.inl"

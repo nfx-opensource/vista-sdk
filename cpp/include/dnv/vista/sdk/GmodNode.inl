@@ -7,52 +7,9 @@
 #include <nfx/string/Utils.h>
 
 #include "config/config.h"
-#include "constants/GmodConstants.h"
 
 namespace dnv::vista::sdk
 {
-	//=====================================================================
-	// Relationship utility
-	//=====================================================================
-
-	namespace
-	{
-		static constexpr size_t estimateChildrenCount( std::string_view category, std::string_view type ) noexcept
-		{
-			if ( category == constants::gmod::GMODNODE_CATEGORY_PRODUCT && type == constants::gmod::GMODNODE_TYPE_TYPE )
-			{
-				return 0;
-			}
-			if ( nfx::string::contains( category, constants::gmod::GMODNODE_CATEGORY_FUNCTION ) )
-			{
-				return 16;
-			}
-			if ( category == constants::gmod::GMODNODE_CATEGORY_ASSET )
-			{
-				return 4;
-			}
-			return 8;
-		}
-
-		static constexpr size_t estimateParentsCount( std::string_view category, std::string_view type ) noexcept
-		{
-			if ( category == constants::gmod::GMODNODE_CATEGORY_PRODUCT && type == constants::gmod::GMODNODE_TYPE_TYPE )
-			{
-				return 1;
-			}
-			if ( nfx::string::contains( category, constants::gmod::GMODNODE_CATEGORY_FUNCTION ) )
-			{
-				return 2;
-			}
-			if ( category == constants::gmod::GMODNODE_CATEGORY_ASSET )
-			{
-				return 1;
-			}
-
-			return 1;
-		}
-	}
-
 	//=====================================================================
 	// GmodNodeMetadata class
 	//=====================================================================
@@ -193,35 +150,6 @@ namespace dnv::vista::sdk
 	// GmodNode class
 	//=====================================================================
 
-	//----------------------------------------------
-	// Construction
-	//----------------------------------------------
-
-	inline GmodNode::GmodNode( VisVersion version, const GmodNodeDto& dto ) noexcept
-		: m_code{ dto.code() },
-		  m_location{ std::nullopt },
-		  m_visVersion{ version },
-		  m_metadata{
-			  dto.category(),
-			  dto.type(), dto.name(),
-			  dto.commonName(),
-			  dto.definition(),
-			  dto.commonDefinition(),
-			  dto.installSubstructure(),
-			  dto.normalAssignmentNames().has_value() ? *dto.normalAssignmentNames()
-													  : nfx::containers::StringMap<std::string>() },
-		  m_children{},
-		  m_parents{},
-		  m_childrenSet{}
-	{
-		size_t expectedChildren = estimateChildrenCount( dto.category(), dto.type() );
-		size_t expectedParents = estimateParentsCount( dto.category(), dto.type() );
-
-		m_children.reserve( expectedChildren );
-		m_parents.reserve( expectedParents );
-		m_childrenSet.reserve( expectedChildren );
-	}
-
 	inline GmodNode::GmodNode( const GmodNode& other ) noexcept
 		: m_code{ other.m_code },
 		  m_location{ other.m_location },
@@ -322,144 +250,9 @@ namespace dnv::vista::sdk
 		return m_parents;
 	}
 
-	inline std::optional<GmodNode> GmodNode::productType() const noexcept
-	{
-		if ( m_children.size() != 1 )
-		{
-			return std::nullopt;
-		}
-
-		if ( !nfx::string::contains( m_metadata.category(), constants::gmod::GMODNODE_CATEGORY_FUNCTION ) )
-		{
-			return std::nullopt;
-		}
-
-		const GmodNode* child = m_children[0];
-		if ( !child )
-		{
-			return std::nullopt;
-		}
-
-		if ( child->m_metadata.category() != constants::gmod::GMODNODE_CATEGORY_PRODUCT )
-		{
-			return std::nullopt;
-		}
-
-		if ( child->m_metadata.type() != constants::gmod::GMODNODE_TYPE_TYPE )
-		{
-			return std::nullopt;
-		}
-
-		return *child;
-	}
-
-	inline std::optional<GmodNode> GmodNode::productSelection() const noexcept
-	{
-		if ( m_children.size() != 1 )
-		{
-			return std::nullopt;
-		}
-
-		if ( !nfx::string::contains( m_metadata.category(), constants::gmod::GMODNODE_CATEGORY_FUNCTION ) )
-		{
-			return std::nullopt;
-		}
-
-		const GmodNode* child = m_children[0];
-		if ( !child )
-		{
-			return std::nullopt;
-		}
-
-		if ( !nfx::string::contains( child->m_metadata.category(), constants::gmod::GMODNODE_CATEGORY_PRODUCT ) )
-		{
-			return std::nullopt;
-		}
-
-		if ( child->m_metadata.type() != constants::gmod::GMODNODE_TYPE_SELECTION )
-		{
-			return std::nullopt;
-		}
-
-		return *child;
-	}
-
 	//----------------------------------------------
 	// Node type checking methods
 	//----------------------------------------------
-
-	inline bool GmodNode::isIndividualizable( bool isTargetNode, bool isInSet ) const noexcept
-	{
-		if ( m_metadata.type() == constants::gmod::GMODNODE_TYPE_GROUP )
-		{
-			return false;
-		}
-		if ( m_metadata.type() == constants::gmod::GMODNODE_TYPE_SELECTION )
-		{
-			return false;
-		}
-		if ( isProductType() )
-		{
-			return false;
-		}
-		if ( m_metadata.category() == constants::gmod::GMODNODE_CATEGORY_ASSET && m_metadata.type() == constants::gmod::GMODNODE_TYPE_TYPE )
-		{
-			return false;
-		}
-		if ( isFunctionComposition() )
-		{
-			if ( m_code.empty() )
-			{
-				return false;
-			}
-
-			return m_code.back() == 'i' || isInSet || isTargetNode;
-		}
-
-		return true;
-	}
-
-	inline bool GmodNode::isFunctionComposition() const noexcept
-	{
-		return (
-				   m_metadata.category() == constants::gmod::GMODNODE_CATEGORY_ASSET_FUNCTION ||
-				   m_metadata.category() == constants::gmod::GMODNODE_CATEGORY_PRODUCT_FUNCTION ) &&
-			   m_metadata.type() == constants::gmod::GMODNODE_TYPE_COMPOSITION;
-	}
-
-	inline bool GmodNode::isMappable() const noexcept
-	{
-		auto productTypeOpt = productType();
-		if ( productTypeOpt.has_value() )
-		{
-			return false;
-		}
-
-		auto productSelectionOpt = productSelection();
-		if ( productSelectionOpt.has_value() )
-		{
-			return false;
-		}
-
-		if ( m_metadata.category().find( constants::gmod::GMODNODE_CATEGORY_PRODUCT ) != std::string::npos &&
-			 m_metadata.type() == constants::gmod::GMODNODE_TYPE_SELECTION )
-		{
-			return false;
-		}
-
-		if ( m_metadata.category() == constants::gmod::GMODNODE_CATEGORY_ASSET )
-		{
-			return false;
-		}
-
-		if ( m_code.empty() )
-		{
-			return false;
-		}
-
-		char lastChar = m_code.back();
-		return lastChar != 'a' && lastChar != 's';
-	}
 
 	inline bool GmodNode::isRoot() const noexcept
 	{

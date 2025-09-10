@@ -5,10 +5,6 @@
 
 #include <stdexcept>
 
-#include <nfx/string/StringBuilderPool.h>
-#include <nfx/string/Utils.h>
-
-#include "constants/CodebookConstants.h"
 #include "GmodNode.h"
 
 namespace dnv::vista::sdk
@@ -30,11 +26,7 @@ namespace dnv::vista::sdk
 			return *nodePtr;
 		}
 
-		auto lease = nfx::string::StringBuilderPool::lease();
-		auto builder = lease.builder();
-		builder.append( "Key not found in Gmod node map: " );
-		builder.append( key );
-		throw std::out_of_range{ lease.toString() };
+		throw std::out_of_range{ "Key not found in Gmod node map: " + std::string{ key } };
 	}
 
 	//----------------------------------------------
@@ -63,127 +55,6 @@ namespace dnv::vista::sdk
 	VISTA_SDK_CPP_INLINE bool Gmod::tryGetNode( std::string_view code, const GmodNode*& node ) const noexcept
 	{
 		return m_nodeMap.tryGetValue( code, node );
-	}
-
-	//----------------------------------------------
-	// Static state inspection methods
-	//----------------------------------------------
-
-	inline constexpr bool Gmod::isPotentialParent( std::string_view type ) noexcept
-	{
-		/**
-		 * Length 4: "Leaf" - constants::gmod::GMODNODE_TYPE_LEAF
-		 *   - Represents terminal nodes in the GMOD hierarchy
-		 *   - Cannot have child nodes
-		 *
-		 * Length 5: "Group" - constants::gmod::GMODNODE_TYPE_GROUP
-		 *   - Represents container nodes that can hold other nodes
-		 *   - Used for organizational grouping in the hierarchy
-		 *
-		 * Length 9: "Selection" - constants::gmod::GMODNODE_TYPE_SELECTION
-		 *   - Represents selection nodes for product configurations
-		 *   - Can contain multiple selectable options
-		 */
-
-		if ( nfx::string::hasExactLength( type, 4 ) )
-		{
-			return nfx::string::equals( type, constants::gmod::GMODNODE_TYPE_LEAF );
-		}
-		else if ( nfx::string::hasExactLength( type, 5 ) )
-		{
-			return nfx::string::equals( type, constants::gmod::GMODNODE_TYPE_GROUP );
-		}
-		else if ( nfx::string::hasExactLength( type, 9 ) )
-		{
-			return nfx::string::equals( type, constants::gmod::GMODNODE_TYPE_SELECTION );
-		}
-
-		return false;
-	}
-
-	inline bool Gmod::isLeafNode( const GmodNodeMetadata& metadata ) noexcept
-	{
-		const auto& fullType = metadata.fullType();
-		return nfx::string::equals( fullType, constants::gmod::GMODNODE_FULLTYPE_ASSET_FUNCTION_LEAF ) ||
-			   nfx::string::equals( fullType, constants::gmod::GMODNODE_FULLTYPE_PRODUCT_FUNCTION_LEAF );
-	}
-
-	inline bool Gmod::isFunctionNode( const GmodNodeMetadata& metadata ) noexcept
-	{
-		const auto& category = metadata.category();
-
-		return !nfx::string::equals( category, constants::gmod::GMODNODE_CATEGORY_PRODUCT ) &&
-			   !nfx::string::equals( category, constants::gmod::GMODNODE_CATEGORY_ASSET );
-	}
-
-	inline bool Gmod::isProductSelection( const GmodNodeMetadata& metadata ) noexcept
-	{
-		return nfx::string::equals( metadata.category(), constants::gmod::GMODNODE_CATEGORY_PRODUCT ) &&
-			   nfx::string::equals( metadata.type(), constants::gmod::GMODNODE_TYPE_SELECTION );
-	}
-
-	inline bool Gmod::isProductType( const GmodNodeMetadata& metadata ) noexcept
-	{
-		return nfx::string::equals( metadata.category(), constants::gmod::GMODNODE_CATEGORY_PRODUCT ) &&
-			   nfx::string::equals( metadata.type(), constants::gmod::GMODNODE_TYPE_TYPE );
-	}
-
-	inline bool Gmod::isAsset( const GmodNodeMetadata& metadata ) noexcept
-	{
-		return nfx::string::equals( metadata.category(), constants::gmod::GMODNODE_CATEGORY_ASSET );
-	}
-
-	inline bool Gmod::isAssetFunctionNode( const GmodNodeMetadata& metadata ) noexcept
-	{
-		return nfx::string::equals( metadata.category(), constants::gmod::GMODNODE_CATEGORY_ASSET_FUNCTION );
-	}
-
-	inline bool Gmod::isProductTypeAssignment( const GmodNode* parent, const GmodNode* child ) noexcept
-	{
-		if ( !parent || !child )
-		{
-			return false;
-		}
-
-		const auto& parentCategory = parent->metadata().category();
-		const auto& childCategory = child->metadata().category();
-		const auto& childType = child->metadata().type();
-
-		if ( !nfx::string::contains( parentCategory, constants::gmod::GMODNODE_CATEGORY_FUNCTION ) )
-		{
-			return false;
-		}
-		if ( !nfx::string::equals( childCategory, constants::gmod::GMODNODE_CATEGORY_PRODUCT ) ||
-			 !nfx::string::equals( childType, constants::gmod::GMODNODE_TYPE_TYPE ) )
-		{
-			return false;
-		}
-
-		return true;
-	}
-
-	inline bool Gmod::isProductSelectionAssignment( const GmodNode* parent, const GmodNode* child ) noexcept
-	{
-		if ( !parent || !child )
-		{
-			return false;
-		}
-
-		const auto& parentCategory = parent->metadata().category();
-		const auto& childCategory = child->metadata().category();
-		const auto& childType = child->metadata().type();
-
-		if ( !nfx::string::contains( parentCategory, constants::gmod::GMODNODE_CATEGORY_FUNCTION ) )
-		{
-			return false;
-		}
-		if ( !nfx::string::equals( childCategory, constants::gmod::GMODNODE_CATEGORY_PRODUCT ) ||
-			 !nfx::string::equals( childType, constants::gmod::GMODNODE_TYPE_SELECTION ) )
-		{
-			return false;
-		}
-
-		return true;
 	}
 
 	//----------------------------------------------

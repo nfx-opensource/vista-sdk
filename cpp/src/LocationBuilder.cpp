@@ -6,7 +6,8 @@
 #include <nfx/string/StringBuilderPool.h>
 
 #include "dnv/vista/sdk/LocationBuilder.h"
-#include "dnv/vista/sdk/constants/LocationsConstants.h"
+
+#include "internal/constants/Locations.h"
 #include "dnv/vista/sdk/Exceptions.h"
 #include "dnv/vista/sdk/Locations.h"
 #include "dnv/vista/sdk/VISVersion.h"
@@ -240,27 +241,27 @@ namespace dnv::vista::sdk
 				{
 					case LocationGroup::Side:
 					{
-						return constants::locations::GROUP_NAME_SIDE;
+						return internal::constants::locations::GROUP_NAME_SIDE;
 					}
 					case LocationGroup::Vertical:
 					{
-						return constants::locations::GROUP_NAME_VERTICAL;
+						return internal::constants::locations::GROUP_NAME_VERTICAL;
 					}
 					case LocationGroup::Transverse:
 					{
-						return constants::locations::GROUP_NAME_TRANSVERSE;
+						return internal::constants::locations::GROUP_NAME_TRANSVERSE;
 					}
 					case LocationGroup::Longitudinal:
 					{
-						return constants::locations::GROUP_NAME_LONGITUDINAL;
+						return internal::constants::locations::GROUP_NAME_LONGITUDINAL;
 					}
 					case LocationGroup::Number:
 					{
-						return constants::locations::GROUP_NAME_NUMBER;
+						return internal::constants::locations::GROUP_NAME_NUMBER;
 					}
 					default:
 					{
-						return constants::locations::GROUP_NAME_UNKNOWN;
+						return internal::constants::locations::GROUP_NAME_UNKNOWN;
 					}
 				}
 			}();

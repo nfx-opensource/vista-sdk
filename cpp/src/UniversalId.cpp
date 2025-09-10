@@ -38,7 +38,7 @@ namespace dnv::vista::sdk
 	{
 		std::ostringstream oss;
 
-		oss << constants::iso19848::ANNEX_C_NAMING_ENTITY;
+		oss << iso19848::annex_c::NAMING_ENTITY;
 		oss << "/" << m_imoNumber.toString();
 		oss << m_localId.toString();
 

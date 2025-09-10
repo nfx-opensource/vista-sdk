@@ -6,7 +6,8 @@
 #include <nfx/string/StringBuilderPool.h>
 
 #include "dnv/vista/sdk/Locations.h"
-#include "dnv/vista/sdk/constants/LocationsConstants.h"
+
+#include "internal/constants/Locations.h"
 #include "internal/LocationParsingErrorBuilder.h"
 #include "dnv/vista/sdk/ParsingErrors.h"
 #include "dnv/vista/sdk/VISVersion.h"
@@ -21,27 +22,27 @@ namespace dnv::vista::sdk
 			{
 				case LocationGroup::Number:
 				{
-					return constants::locations::GROUP_NAME_NUMBER;
+					return internal::constants::locations::GROUP_NAME_NUMBER;
 				}
 				case LocationGroup::Side:
 				{
-					return constants::locations::GROUP_NAME_SIDE;
+					return internal::constants::locations::GROUP_NAME_SIDE;
 				}
 				case LocationGroup::Vertical:
 				{
-					return constants::locations::GROUP_NAME_VERTICAL;
+					return internal::constants::locations::GROUP_NAME_VERTICAL;
 				}
 				case LocationGroup::Transverse:
 				{
-					return constants::locations::GROUP_NAME_TRANSVERSE;
+					return internal::constants::locations::GROUP_NAME_TRANSVERSE;
 				}
 				case LocationGroup::Longitudinal:
 				{
-					return constants::locations::GROUP_NAME_LONGITUDINAL;
+					return internal::constants::locations::GROUP_NAME_LONGITUDINAL;
 				}
 				default:
 				{
-					return constants::locations::GROUP_NAME_UNKNOWN;
+					return internal::constants::locations::GROUP_NAME_UNKNOWN;
 				}
 			}
 		}
@@ -146,36 +147,36 @@ namespace dnv::vista::sdk
 
 			m_relativeLocations.emplace_back( code, relLocDto.name(), loc, relLocDto.definition() );
 
-			if ( code == constants::locations::CHAR_HORIZONTAL ||
-				 code == constants::locations::CHAR_VERTICAL )
+			if ( code == internal::constants::locations::CHAR_HORIZONTAL ||
+				 code == internal::constants::locations::CHAR_VERTICAL )
 			{
 				continue;
 			}
 
 			LocationGroup key;
-			if ( code == constants::locations::CHAR_NUMBER )
+			if ( code == internal::constants::locations::CHAR_NUMBER )
 			{
 				key = LocationGroup::Number;
 			}
-			else if ( code == constants::locations::CHAR_PORT ||
-					  code == constants::locations::CHAR_CENTER ||
-					  code == constants::locations::CHAR_STARBOARD )
+			else if ( code == internal::constants::locations::CHAR_PORT ||
+					  code == internal::constants::locations::CHAR_CENTER ||
+					  code == internal::constants::locations::CHAR_STARBOARD )
 			{
 				key = LocationGroup::Side;
 			}
-			else if ( code == constants::locations::CHAR_UPPER ||
-					  code == constants::locations::CHAR_MIDDLE ||
-					  code == constants::locations::CHAR_LOWER )
+			else if ( code == internal::constants::locations::CHAR_UPPER ||
+					  code == internal::constants::locations::CHAR_MIDDLE ||
+					  code == internal::constants::locations::CHAR_LOWER )
 			{
 				key = LocationGroup::Vertical;
 			}
-			else if ( code == constants::locations::CHAR_INBOARD ||
-					  code == constants::locations::CHAR_OUTBOARD )
+			else if ( code == internal::constants::locations::CHAR_INBOARD ||
+					  code == internal::constants::locations::CHAR_OUTBOARD )
 			{
 				key = LocationGroup::Transverse;
 			}
-			else if ( code == constants::locations::CHAR_FORWARD ||
-					  code == constants::locations::CHAR_AFT )
+			else if ( code == internal::constants::locations::CHAR_FORWARD ||
+					  code == internal::constants::locations::CHAR_AFT )
 			{
 				key = LocationGroup::Longitudinal;
 			}
@@ -407,7 +408,7 @@ namespace dnv::vista::sdk
 				for ( char c : source )
 				{
 					if ( !std::isdigit( c ) &&
-						 ( c == constants::locations::CHAR_NUMBER || m_locationCodes.find( c ) == m_locationCodes.end() ) )
+						 ( c == internal::constants::locations::CHAR_NUMBER || m_locationCodes.find( c ) == m_locationCodes.end() ) )
 					{
 						if ( !first )
 						{
