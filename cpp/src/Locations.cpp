@@ -14,37 +14,233 @@
 
 namespace dnv::vista::sdk
 {
-	namespace
+	namespace internal
 	{
+		/**
+		 * @brief Convert a LocationGroup enum value to its string representation
+		 * @param group The LocationGroup enum value to convert
+		 * @return String view representation of the location group
+		 */
 		static constexpr std::string_view groupNameToString( LocationGroup group )
 		{
 			switch ( group )
 			{
 				case LocationGroup::Number:
 				{
-					return internal::constants::locations::GROUP_NAME_NUMBER;
+					return constants::locations::GROUP_NAME_NUMBER;
 				}
 				case LocationGroup::Side:
 				{
-					return internal::constants::locations::GROUP_NAME_SIDE;
+					return constants::locations::GROUP_NAME_SIDE;
 				}
 				case LocationGroup::Vertical:
 				{
-					return internal::constants::locations::GROUP_NAME_VERTICAL;
+					return constants::locations::GROUP_NAME_VERTICAL;
 				}
 				case LocationGroup::Transverse:
 				{
-					return internal::constants::locations::GROUP_NAME_TRANSVERSE;
+					return constants::locations::GROUP_NAME_TRANSVERSE;
 				}
 				case LocationGroup::Longitudinal:
 				{
-					return internal::constants::locations::GROUP_NAME_LONGITUDINAL;
+					return constants::locations::GROUP_NAME_LONGITUDINAL;
 				}
 				default:
 				{
-					return internal::constants::locations::GROUP_NAME_UNKNOWN;
+					return constants::locations::GROUP_NAME_UNKNOWN;
 				}
 			}
+		}
+
+		//----------------------------------------------
+		// Internal parsing implementation
+		//----------------------------------------------
+
+		/**
+		 * @brief Internal core method to parse a location string
+		 * @param locationCodes The set of valid location codes for quick lookup
+		 * @param reversedGroups The map from character codes to their location groups
+		 * @param span The string_view representing the current segment of the location string to parse
+		 * @param originalStr The original, full location string (optional, used for context in errors)
+		 * @param location Output parameter: if parsing succeeds, this is set to the parsed `Location`
+		 * @param errorBuilder The `LocationParsingErrorBuilder` to accumulate errors
+		 * @return True if parsing was successful to the point of forming a valid `Location`, false otherwise.
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		static bool tryParse(
+			const std::unordered_set<char>& locationCodes, const std::map<char, LocationGroup>& reversedGroups,
+			std::string_view span, const std::optional<std::string>& originalStr, Location& location,
+			LocationParsingErrorBuilder& errorBuilder )
+		{
+			auto displayString =
+				[&span, &originalStr]() -> std::string { return originalStr.has_value()
+																	? *originalStr
+																	: std::string{ span }; };
+
+			if ( span.empty() )
+			{
+				errorBuilder.addError(
+					LocationValidationResult::NullOrWhiteSpace,
+					"Invalid location: contains only whitespace" );
+
+				return false;
+			}
+
+			bool isOnlyWhitespace = std::all_of( span.begin(), span.end(), []( unsigned char c_uc ) { return std::isspace( c_uc ); } );
+
+			if ( isOnlyWhitespace )
+			{
+				errorBuilder.addError(
+					LocationValidationResult::NullOrWhiteSpace,
+					"Invalid location: contains only whitespace" );
+
+				return false;
+			}
+
+			std::string result;
+			LocationCharDict charDict{};
+
+			int digitStartIndex = -1;
+			int prevDigitIndex = -1;
+			int charsStartIndex = -1;
+
+			for ( size_t i = 0; i < span.length(); ++i )
+			{
+				char ch = span[i];
+
+				if ( std::isdigit( ch ) )
+				{
+					if ( prevDigitIndex != -1 && prevDigitIndex != static_cast<int>( i ) - 1 )
+					{
+						auto lease = nfx::string::StringBuilderPool::lease();
+						auto builder = lease.builder();
+						builder.append( "Invalid location: cannot have multiple separated digits in location: '" );
+						builder.append( displayString() );
+						builder.append( "'" );
+
+						errorBuilder.addError( LocationValidationResult::Invalid, lease.toString() );
+
+						return false;
+					}
+
+					if ( charsStartIndex != -1 )
+					{
+						auto lease = nfx::string::StringBuilderPool::lease();
+						auto builder = lease.builder();
+						builder.append( "Invalid location: numeric location should start before location code(s) in location: '" );
+						builder.append( displayString() );
+						builder.append( "'" );
+
+						errorBuilder.addError( LocationValidationResult::InvalidOrder, lease.toString() );
+
+						return false;
+					}
+
+					if ( digitStartIndex == -1 )
+					{
+						digitStartIndex = static_cast<int>( i );
+					}
+
+					prevDigitIndex = static_cast<int>( i );
+
+					result.push_back( ch );
+
+					continue;
+				}
+
+				if ( charsStartIndex == -1 )
+				{
+					charsStartIndex = static_cast<int>( i );
+				}
+
+				bool valid = locationCodes.find( ch ) != locationCodes.end();
+
+				if ( !valid )
+				{
+					auto lease = nfx::string::StringBuilderPool::lease();
+					auto builder = lease.builder();
+					const std::string& source = displayString();
+					bool first = true;
+
+					for ( char c : source )
+					{
+						if ( !std::isdigit( c ) &&
+							 ( c == constants::locations::CHAR_NUMBER || locationCodes.find( c ) == locationCodes.end() ) )
+						{
+							if ( !first )
+							{
+								builder.append( "," );
+							}
+							first = false;
+							builder.append( "'" );
+							builder.append( std::string_view{ &c, 1 } );
+							builder.append( "'" );
+						}
+					}
+
+					auto errorLease = nfx::string::StringBuilderPool::lease();
+					auto errorMsgBuilder = errorLease.builder();
+					errorMsgBuilder.append( "Invalid location code: '" );
+					errorMsgBuilder.append( displayString() );
+					errorMsgBuilder.append( "' with invalid location code(s): " );
+					errorMsgBuilder.append( lease.toString() );
+
+					errorBuilder.addError( LocationValidationResult::InvalidCode, errorLease.toString() );
+
+					return false;
+				}
+
+				if ( reversedGroups.find( ch ) != reversedGroups.end() )
+				{
+					LocationGroup group = reversedGroups.at( ch );
+					std::optional<char> existingValue;
+
+					if ( !charDict.tryAdd( group, ch, existingValue ) )
+					{
+						const std::string_view groupName = groupNameToString( group );
+						auto lease = nfx::string::StringBuilderPool::lease();
+						auto builder = lease.builder();
+						builder.append( "Invalid location: Multiple '" );
+						builder.append( groupName );
+						builder.append( "' values. Got both '" );
+						builder.append( std::string_view{ &existingValue.value(), 1 } );
+						builder.append( "' and '" );
+						builder.append( std::string_view{ &ch, 1 } );
+						builder.append( "' in '" );
+						builder.append( displayString() );
+						builder.append( "'" );
+
+						errorBuilder.addError( LocationValidationResult::Invalid, lease.toString() );
+
+						return false;
+					}
+				}
+
+				if ( i > 0 && charsStartIndex != static_cast<int>( i ) )
+				{
+					char prevCh = span[i - 1];
+					if ( !std::isdigit( prevCh ) && ch < prevCh )
+					{
+						auto lease = nfx::string::StringBuilderPool::lease();
+						auto builder = lease.builder();
+						builder.append( "Invalid location: '" );
+						builder.append( displayString() );
+						builder.append( "' not alphabetically sorted" );
+
+						errorBuilder.addError( LocationValidationResult::InvalidOrder, lease.toString() );
+
+						return false;
+					}
+				}
+
+				result.push_back( ch );
+			}
+
+			location = Location( originalStr.has_value()
+									 ? *originalStr
+									 : result );
+
+			return true;
 		}
 	}
 
@@ -262,7 +458,7 @@ namespace dnv::vista::sdk
 
 		internal::LocationParsingErrorBuilder errorBuilder;
 
-		return tryParseInternal( value.value(), value, location, errorBuilder );
+		return internal::tryParse( m_locationCodes, m_reversedGroups, value.value(), value, location, errorBuilder );
 	}
 
 	bool Locations::tryParse( const std::optional<std::string>& value, Location& location, ParsingErrors& errors ) const
@@ -282,7 +478,7 @@ namespace dnv::vista::sdk
 
 		internal::LocationParsingErrorBuilder errorBuilder = internal::LocationParsingErrorBuilder::create();
 
-		bool result = tryParseInternal( value.value(), value, location, errorBuilder );
+		bool result = internal::tryParse( m_locationCodes, m_reversedGroups, value.value(), value, location, errorBuilder );
 		errors = errorBuilder.build();
 
 		return result;
@@ -292,197 +488,19 @@ namespace dnv::vista::sdk
 	{
 		internal::LocationParsingErrorBuilder errorBuilder;
 
-		return tryParseInternal( value, std::nullopt, location, errorBuilder );
+		return internal::tryParse( m_locationCodes, m_reversedGroups, value, std::nullopt, location, errorBuilder );
 	}
 
 	bool Locations::tryParse( std::string_view value, Location& location, ParsingErrors& errors ) const
 	{
 		internal::LocationParsingErrorBuilder errorBuilder;
 
-		bool result = tryParseInternal( value, std::nullopt, location, errorBuilder );
+		bool result = internal::tryParse( m_locationCodes, m_reversedGroups, value, std::nullopt, location, errorBuilder );
 		if ( !result )
 		{
 			errors = errorBuilder.build();
 		}
 
 		return result;
-	}
-
-	//----------------------------------------------
-	// Private Methods
-	//----------------------------------------------
-
-	bool Locations::tryParseInternal(
-		std::string_view span, const std::optional<std::string>& originalStr, Location& location, internal::LocationParsingErrorBuilder& errorBuilder ) const
-	{
-		auto displayString =
-			[&span, &originalStr]() -> std::string { return originalStr.has_value()
-																? *originalStr
-																: std::string{ span }; };
-
-		if ( span.empty() )
-		{
-			errorBuilder.addError(
-				internal::LocationValidationResult::NullOrWhiteSpace,
-				"Invalid location: contains only whitespace" );
-
-			return false;
-		}
-
-		bool isOnlyWhitespace = std::all_of( span.begin(), span.end(), []( unsigned char c_uc ) { return std::isspace( c_uc ); } );
-
-		if ( isOnlyWhitespace )
-		{
-			errorBuilder.addError(
-				internal::LocationValidationResult::NullOrWhiteSpace,
-				"Invalid location: contains only whitespace" );
-
-			return false;
-		}
-
-		std::string result;
-		LocationCharDict charDict{};
-
-		int digitStartIndex = -1;
-		int prevDigitIndex = -1;
-		int charsStartIndex = -1;
-
-		for ( size_t i = 0; i < span.length(); ++i )
-		{
-			char ch = span[i];
-
-			if ( std::isdigit( ch ) )
-			{
-				if ( prevDigitIndex != -1 && prevDigitIndex != static_cast<int>( i ) - 1 )
-				{
-					auto lease = nfx::string::StringBuilderPool::lease();
-					auto builder = lease.builder();
-					builder.append( "Invalid location: cannot have multiple separated digits in location: '" );
-					builder.append( displayString() );
-					builder.append( "'" );
-
-					errorBuilder.addError( internal::LocationValidationResult::Invalid, lease.toString() );
-
-					return false;
-				}
-
-				if ( charsStartIndex != -1 )
-				{
-					auto lease = nfx::string::StringBuilderPool::lease();
-					auto builder = lease.builder();
-					builder.append( "Invalid location: numeric location should start before location code(s) in location: '" );
-					builder.append( displayString() );
-					builder.append( "'" );
-
-					errorBuilder.addError( internal::LocationValidationResult::InvalidOrder, lease.toString() );
-
-					return false;
-				}
-
-				if ( digitStartIndex == -1 )
-				{
-					digitStartIndex = static_cast<int>( i );
-				}
-
-				prevDigitIndex = static_cast<int>( i );
-
-				result.push_back( ch );
-
-				continue;
-			}
-
-			if ( charsStartIndex == -1 )
-			{
-				charsStartIndex = static_cast<int>( i );
-			}
-
-			bool valid = m_locationCodes.find( ch ) != m_locationCodes.end();
-
-			if ( !valid )
-			{
-				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
-				const std::string& source = displayString();
-				bool first = true;
-
-				for ( char c : source )
-				{
-					if ( !std::isdigit( c ) &&
-						 ( c == internal::constants::locations::CHAR_NUMBER || m_locationCodes.find( c ) == m_locationCodes.end() ) )
-					{
-						if ( !first )
-						{
-							builder.append( "," );
-						}
-						first = false;
-						builder.append( "'" );
-						builder.append( std::string_view{ &c, 1 } );
-						builder.append( "'" );
-					}
-				}
-
-				auto errorLease = nfx::string::StringBuilderPool::lease();
-				auto errorMsgBuilder = errorLease.builder();
-				errorMsgBuilder.append( "Invalid location code: '" );
-				errorMsgBuilder.append( displayString() );
-				errorMsgBuilder.append( "' with invalid location code(s): " );
-				errorMsgBuilder.append( lease.toString() );
-
-				errorBuilder.addError( internal::LocationValidationResult::InvalidCode, errorLease.toString() );
-
-				return false;
-			}
-
-			if ( m_reversedGroups.find( ch ) != m_reversedGroups.end() )
-			{
-				LocationGroup group = m_reversedGroups.at( ch );
-				std::optional<char> existingValue;
-
-				if ( !charDict.tryAdd( group, ch, existingValue ) )
-				{
-					const std::string_view groupName = groupNameToString( group );
-					auto lease = nfx::string::StringBuilderPool::lease();
-					auto builder = lease.builder();
-					builder.append( "Invalid location: Multiple '" );
-					builder.append( groupName );
-					builder.append( "' values. Got both '" );
-					builder.append( std::string_view{ &existingValue.value(), 1 } );
-					builder.append( "' and '" );
-					builder.append( std::string_view{ &ch, 1 } );
-					builder.append( "' in '" );
-					builder.append( displayString() );
-					builder.append( "'" );
-
-					errorBuilder.addError( internal::LocationValidationResult::Invalid, lease.toString() );
-
-					return false;
-				}
-			}
-
-			if ( i > 0 && charsStartIndex != static_cast<int>( i ) )
-			{
-				char prevCh = span[i - 1];
-				if ( !std::isdigit( prevCh ) && ch < prevCh )
-				{
-					auto lease = nfx::string::StringBuilderPool::lease();
-					auto builder = lease.builder();
-					builder.append( "Invalid location: '" );
-					builder.append( displayString() );
-					builder.append( "' not alphabetically sorted" );
-
-					errorBuilder.addError( internal::LocationValidationResult::InvalidOrder, lease.toString() );
-
-					return false;
-				}
-			}
-
-			result.push_back( ch );
-		}
-
-		location = Location( originalStr.has_value()
-								 ? *originalStr
-								 : result );
-
-		return true;
 	}
 }

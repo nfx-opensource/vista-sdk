@@ -9,6 +9,7 @@
 #pragma once
 
 #include <unordered_set>
+#include <string_view>
 #include <string>
 
 #include "config/config.h"
@@ -544,25 +545,6 @@ namespace dnv::vista::sdk
 		[[nodiscard]] static VISTA_SDK_CPP_INLINE bool tryParseInt( std::string_view span, int start, int length, int& number );
 
 	private:
-		//----------------------------------------------
-		// Private Methods
-		//----------------------------------------------
-
-		/**
-		 * @brief Internal core method to parse a location string.
-		 * @param span The string_view representing the current segment of the location string to parse.
-		 * @param originalStr The original, full location string (optional, used for context in errors).
-		 * @param location Output parameter: if parsing succeeds, this is set to the parsed `Location`.
-		 * @param errorBuilder The `LocationParsingErrorBuilder` to accumulate errors.
-		 * @return True if parsing was successful to the point of forming a valid `Location`, false otherwise.
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] bool tryParseInternal(
-			std::string_view span,
-			const std::optional<std::string>& originalStr,
-			Location& location,
-			internal::LocationParsingErrorBuilder& errorBuilder ) const;
-
 		//----------------------------------------------
 		// Private member variables
 		//----------------------------------------------

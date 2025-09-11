@@ -13,7 +13,7 @@
 
 namespace dnv::vista::sdk
 {
-	namespace GmodVersioningDtoInternal
+	namespace internal
 	{
 		//=====================================================================
 		// JSON parsing helper functions
@@ -90,7 +90,7 @@ namespace dnv::vista::sdk
 
 	std::optional<GmodVersioningAssignmentChangeDto> GmodVersioningAssignmentChangeDto::tryFromJson( const nlohmann::json& json )
 	{
-		const auto oldAssignmentHint = GmodVersioningDtoInternal::extractOldAssignmentHint( json );
+		const auto oldAssignmentHint = internal::extractOldAssignmentHint( json );
 
 		try
 		{
@@ -140,7 +140,7 @@ namespace dnv::vista::sdk
 
 	GmodVersioningAssignmentChangeDto GmodVersioningAssignmentChangeDto::fromJson( const nlohmann::json& json )
 	{
-		const auto oldAssignmentHint = GmodVersioningDtoInternal::extractOldAssignmentHint( json );
+		const auto oldAssignmentHint = internal::extractOldAssignmentHint( json );
 		auto dtoOpt = GmodVersioningAssignmentChangeDto::tryFromJson( json );
 		if ( !dtoOpt.has_value() )
 		{
@@ -227,7 +227,7 @@ namespace dnv::vista::sdk
 
 	std::optional<GmodNodeConversionDto> GmodNodeConversionDto::tryFromJson( const nlohmann::json& json )
 	{
-		const auto sourceHint = GmodVersioningDtoInternal::extractSourceHint( json );
+		const auto sourceHint = internal::extractSourceHint( json );
 
 		try
 		{
@@ -276,7 +276,7 @@ namespace dnv::vista::sdk
 
 	GmodNodeConversionDto GmodNodeConversionDto::fromJson( const nlohmann::json& json )
 	{
-		const auto sourceHint = GmodVersioningDtoInternal::extractSourceHint( json );
+		const auto sourceHint = internal::extractSourceHint( json );
 		auto dtoOpt = GmodNodeConversionDto::tryFromJson( json );
 		if ( !dtoOpt.has_value() )
 		{
@@ -498,7 +498,7 @@ namespace dnv::vista::sdk
 
 	std::optional<GmodVersioningDto> GmodVersioningDto::tryFromJson( const nlohmann::json& json )
 	{
-		const auto visHint = GmodVersioningDtoInternal::extractVisHint( json );
+		const auto visHint = internal::extractVisHint( json );
 
 		try
 		{
@@ -548,7 +548,7 @@ namespace dnv::vista::sdk
 
 	GmodVersioningDto GmodVersioningDto::fromJson( const nlohmann::json& json )
 	{
-		const auto visHint = GmodVersioningDtoInternal::extractVisHint( json );
+		const auto visHint = internal::extractVisHint( json );
 		auto dtoOpt = GmodVersioningDto::tryFromJson( json );
 		if ( !dtoOpt.has_value() )
 		{

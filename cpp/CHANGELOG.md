@@ -31,6 +31,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.34] - 2025-09-11
+
+### Changed
+
+-   **Internal namespace architecture refactoring**: Complete migration of implementation details from private class members to `internal` namespace
+    -   Move `LocationBuilder::withValueInternal()` methods from private class members to `internal::withValue()` static function
+    -   Move `Locations::tryParseInternal()` method from private class member to `internal::tryParse()` static function
+    -   Extract `GmodPath` parsing functions to consistent `internal` namespace naming (`parseInternal` → `parse`, `parseFullPathInternal` → `parseFullPath`)
+    -   Extract `LocalIdBuilder::tryParseInternal()` to `internal::tryParse()` for consistent naming patterns
+    -   Extract `GmodVersioning::convertNodeInternal()` to `internal::convertNode()` for consistent naming patterns
+-   **Public API surface cleanup**: Remove implementation details from public header files
+    -   Remove private method declarations from `LocationBuilder.h` (withValueInternal methods no longer exposed)
+    -   Remove private method declarations from `Locations.h` (tryParseInternal method no longer exposed)
+-   **Implementation consistency improvements**: Standardize internal function naming across all parsing components
+    -   Remove "Internal" suffixes from functions now properly encapsulated in `internal` namespace
+    -   Improve code organization with consistent public/private separation patterns
+    -   Establish unified architecture for internal implementation details
+
+### Fixed
+
+-   **LocationBuilder fluent API**: Resolve critical bug in fluent method chaining where methods were not properly creating immutable copies
+    -   Fix `withSide()`, `withVertical()`, `withTransverse()`, `withLongitudinal()` methods to create proper result copies before modification
+    -   Fix `withValue(char)` method to use copy-based modification pattern instead of const member modification
+    -   Ensure all fluent methods follow immutable builder pattern with `LocationBuilder result = *this` copy semantics
+    -   Resolve compilation errors from attempting to modify const member variables in const methods
+-   **Method implementation**: Simplify `withNumber()` and `withValue(int)` with direct inline validation instead of complex internal delegation
+    -   Replace `withValueInternal()` delegation with direct number validation and assignment
+    -   Improve code readability and reduce unnecessary function call overhead
+    -   Maintain identical validation behavior while simplifying implementation architecture
+
 ## [0.0.33] - 2025-09-11
 
 ### Added

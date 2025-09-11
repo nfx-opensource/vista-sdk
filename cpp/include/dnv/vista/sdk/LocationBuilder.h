@@ -308,30 +308,6 @@ namespace dnv::vista::sdk
 
 	private:
 		//----------------------------------------------
-		// Private helper methods
-		//----------------------------------------------
-
-		/**
-		 * @brief Internal method for setting integer values with validation.
-		 * @param group The LocationGroup to validate against.
-		 * @param value The integer value to set.
-		 * @return A new LocationBuilder instance with the updated component.
-		 * @throws std::invalid_argument If validation fails.
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] LocationBuilder withValueInternal( LocationGroup group, int value ) const;
-
-		/**
-		 * @brief Internal method for setting character values with validation.
-		 * @param group The LocationGroup to validate against.
-		 * @param value The character value to set.
-		 * @return A new LocationBuilder instance with the updated component.
-		 * @throws std::invalid_argument If validation fails.
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] LocationBuilder withValueInternal( LocationGroup group, char value ) const;
-
-		//----------------------------------------------
 		// Private member variables
 		//----------------------------------------------
 

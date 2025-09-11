@@ -13,7 +13,7 @@
 
 namespace dnv::vista::sdk
 {
-	namespace GmodDtoInternal
+	namespace internal
 	{
 		//=====================================================================
 		// JSON parsing helper functions
@@ -70,7 +70,7 @@ namespace dnv::vista::sdk
 
 	std::optional<GmodNodeDto> GmodNodeDto::tryFromJson( const nlohmann::json& json )
 	{
-		const auto codeHint = GmodDtoInternal::extractNameHint( json );
+		const auto codeHint = internal::extractNameHint( json );
 
 		try
 		{
@@ -370,7 +370,7 @@ namespace dnv::vista::sdk
 
 	GmodNodeDto GmodNodeDto::fromJson( const nlohmann::json& json )
 	{
-		const auto codeHint = GmodDtoInternal::extractNameHint( json );
+		const auto codeHint = internal::extractNameHint( json );
 		auto dtoOpt = GmodNodeDto::tryFromJson( json );
 		if ( !dtoOpt.has_value() )
 		{
@@ -674,7 +674,7 @@ namespace dnv::vista::sdk
 
 	std::optional<GmodDto> GmodDto::tryFromJson( const nlohmann::json& json )
 	{
-		const auto visHint = GmodDtoInternal::extractVisHint( json );
+		const auto visHint = internal::extractVisHint( json );
 
 		try
 		{
@@ -898,7 +898,7 @@ namespace dnv::vista::sdk
 
 	GmodDto GmodDto::fromJson( const nlohmann::json& json )
 	{
-		const auto visHint = GmodDtoInternal::extractVisHint( json );
+		const auto visHint = internal::extractVisHint( json );
 		auto dtoOpt = GmodDto::tryFromJson( json );
 		if ( !dtoOpt.has_value() )
 		{

@@ -16,7 +16,7 @@
 
 namespace dnv::vista::sdk
 {
-	namespace
+	namespace internal
 	{
 		//=====================================================================
 		// Internal helper functions
@@ -106,11 +106,11 @@ namespace dnv::vista::sdk
 					if ( nodeRef.location().has_value() )
 					{
 						const auto locationStr = nodeRef.location()->toString();
-						appendCommonName( builder, name, std::optional<std::string>( locationStr ) );
+						internal::appendCommonName( builder, name, std::optional<std::string>( locationStr ) );
 					}
 					else
 					{
-						appendCommonName( builder, name, std::nullopt );
+						internal::appendCommonName( builder, name, std::nullopt );
 					}
 					builder.push_back( '/' );
 				}
@@ -135,11 +135,11 @@ namespace dnv::vista::sdk
 					if ( nodeRef.location().has_value() )
 					{
 						const auto locationStr = nodeRef.location()->toString();
-						appendCommonName( builder, name, std::optional<std::string>( locationStr ) );
+						internal::appendCommonName( builder, name, std::optional<std::string>( locationStr ) );
 					}
 					else
 					{
-						appendCommonName( builder, name, std::nullopt );
+						internal::appendCommonName( builder, name, std::nullopt );
 					}
 					builder.push_back( '/' );
 				}

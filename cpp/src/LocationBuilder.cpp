@@ -14,6 +14,110 @@
 
 namespace dnv::vista::sdk
 {
+	namespace internal
+	{
+		/**
+		 * @brief Internal method for setting character values with validation.
+		 * @param reversedGroups Map for validating character values.
+		 * @param side Reference to side member variable.
+		 * @param vertical Reference to vertical member variable.
+		 * @param transverse Reference to transverse member variable.
+		 * @param longitudinal Reference to longitudinal member variable.
+		 * @param group The LocationGroup to validate against.
+		 * @param value The character value to set.
+		 * @throws ValidationException If validation fails.
+		 */
+		static void withValue(
+			const std::map<char, LocationGroup>* reversedGroups,
+			std::optional<char>& side,
+			std::optional<char>& vertical,
+			std::optional<char>& transverse,
+			std::optional<char>& longitudinal,
+			LocationGroup group,
+			char value )
+		{
+			if ( group == LocationGroup::Number )
+			{
+				throw std::invalid_argument{ "Character values are not valid for Number group" };
+			}
+
+			const auto it = reversedGroups->find( value );
+			if ( it == reversedGroups->end() || it->second != group )
+			{
+				const std::string_view groupName = [group]() {
+					switch ( group )
+					{
+						case LocationGroup::Side:
+						{
+							return internal::constants::locations::GROUP_NAME_SIDE;
+						}
+						case LocationGroup::Vertical:
+						{
+							return internal::constants::locations::GROUP_NAME_VERTICAL;
+						}
+						case LocationGroup::Transverse:
+						{
+							return internal::constants::locations::GROUP_NAME_TRANSVERSE;
+						}
+						case LocationGroup::Longitudinal:
+						{
+							return internal::constants::locations::GROUP_NAME_LONGITUDINAL;
+						}
+						case LocationGroup::Number:
+						{
+							return internal::constants::locations::GROUP_NAME_NUMBER;
+						}
+						default:
+						{
+							return internal::constants::locations::GROUP_NAME_UNKNOWN;
+						}
+					}
+				}();
+
+				auto lease = nfx::string::StringBuilderPool::lease();
+				auto builder = lease.builder();
+				builder.append( "The value '" );
+				builder.push_back( value );
+				builder.append( "' is an invalid " );
+				builder.append( groupName );
+				builder.append( " value" );
+				throw ValidationException{ lease.toString() };
+			}
+
+			switch ( group )
+			{
+				case LocationGroup::Side:
+				{
+					side = value;
+					break;
+				}
+				case LocationGroup::Vertical:
+				{
+					vertical = value;
+					break;
+				}
+				case LocationGroup::Transverse:
+				{
+					transverse = value;
+					break;
+				}
+				case LocationGroup::Longitudinal:
+				{
+					longitudinal = value;
+					break;
+				}
+				case LocationGroup::Number:
+				{
+					throw std::invalid_argument{ "Number group should not contain character values" };
+				}
+				default:
+				{
+					throw std::invalid_argument{ "Unsupported LocationGroup" };
+				}
+			}
+		}
+	}
+
 	//=====================================================================
 	// LocationBuilder class
 	//=====================================================================
@@ -140,7 +244,14 @@ namespace dnv::vista::sdk
 
 	LocationBuilder LocationBuilder::withNumber( int number ) const
 	{
-		return withValueInternal( LocationGroup::Number, number );
+		if ( number < 1 )
+		{
+			throw ValidationException{ "Value should be greater than 0" };
+		}
+
+		LocationBuilder result = *this;
+		result.m_number = number;
+		return result;
 	}
 
 	LocationBuilder LocationBuilder::withoutNumber() const
@@ -154,7 +265,9 @@ namespace dnv::vista::sdk
 
 	LocationBuilder LocationBuilder::withSide( char side ) const
 	{
-		return withValueInternal( LocationGroup::Side, side );
+		LocationBuilder result = *this;
+		internal::withValue( m_reversedGroups, result.m_side, result.m_vertical, result.m_transverse, result.m_longitudinal, LocationGroup::Side, side );
+		return result;
 	}
 
 	LocationBuilder LocationBuilder::withoutSide() const
@@ -168,7 +281,9 @@ namespace dnv::vista::sdk
 
 	LocationBuilder LocationBuilder::withVertical( char vertical ) const
 	{
-		return withValueInternal( LocationGroup::Vertical, vertical );
+		LocationBuilder result = *this;
+		internal::withValue( m_reversedGroups, result.m_side, result.m_vertical, result.m_transverse, result.m_longitudinal, LocationGroup::Vertical, vertical );
+		return result;
 	}
 
 	LocationBuilder LocationBuilder::withoutVertical() const
@@ -182,7 +297,9 @@ namespace dnv::vista::sdk
 
 	LocationBuilder LocationBuilder::withTransverse( char transverse ) const
 	{
-		return withValueInternal( LocationGroup::Transverse, transverse );
+		LocationBuilder result = *this;
+		internal::withValue( m_reversedGroups, result.m_side, result.m_vertical, result.m_transverse, result.m_longitudinal, LocationGroup::Transverse, transverse );
+		return result;
 	}
 
 	LocationBuilder LocationBuilder::withoutTransverse() const
@@ -196,7 +313,9 @@ namespace dnv::vista::sdk
 
 	LocationBuilder LocationBuilder::withLongitudinal( char longitudinal ) const
 	{
-		return withValueInternal( LocationGroup::Longitudinal, longitudinal );
+		LocationBuilder result = *this;
+		internal::withValue( m_reversedGroups, result.m_side, result.m_vertical, result.m_transverse, result.m_longitudinal, LocationGroup::Longitudinal, longitudinal );
+		return result;
 	}
 
 	LocationBuilder LocationBuilder::withoutLongitudinal() const
@@ -205,119 +324,12 @@ namespace dnv::vista::sdk
 	}
 
 	//----------------------------
-	// Internal implementation
-	//----------------------------
-
-	LocationBuilder LocationBuilder::withValueInternal( LocationGroup group, int value ) const
-	{
-		if ( group != LocationGroup::Number )
-		{
-			throw ValidationException{ "Integer values are only valid for Number group" };
-		}
-
-		if ( value < 1 )
-		{
-			throw ValidationException{ "Value should be greater than 0" };
-		}
-
-		LocationBuilder result = *this;
-		result.m_number = value;
-
-		return result;
-	}
-
-	LocationBuilder LocationBuilder::withValueInternal( LocationGroup group, char value ) const
-	{
-		if ( group == LocationGroup::Number )
-		{
-			throw std::invalid_argument{ "Character values are not valid for Number group" };
-		}
-
-		const auto it = m_reversedGroups->find( value );
-		if ( it == m_reversedGroups->end() || it->second != group )
-		{
-			const std::string_view groupName = [group]() {
-				switch ( group )
-				{
-					case LocationGroup::Side:
-					{
-						return internal::constants::locations::GROUP_NAME_SIDE;
-					}
-					case LocationGroup::Vertical:
-					{
-						return internal::constants::locations::GROUP_NAME_VERTICAL;
-					}
-					case LocationGroup::Transverse:
-					{
-						return internal::constants::locations::GROUP_NAME_TRANSVERSE;
-					}
-					case LocationGroup::Longitudinal:
-					{
-						return internal::constants::locations::GROUP_NAME_LONGITUDINAL;
-					}
-					case LocationGroup::Number:
-					{
-						return internal::constants::locations::GROUP_NAME_NUMBER;
-					}
-					default:
-					{
-						return internal::constants::locations::GROUP_NAME_UNKNOWN;
-					}
-				}
-			}();
-
-			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
-			builder.append( "The value '" );
-			builder.push_back( value );
-			builder.append( "' is an invalid " );
-			builder.append( groupName );
-			builder.append( " value" );
-			throw ValidationException{ lease.toString() };
-		}
-
-		LocationBuilder result = *this;
-		switch ( group )
-		{
-			case LocationGroup::Side:
-			{
-				result.m_side = value;
-				break;
-			}
-			case LocationGroup::Vertical:
-			{
-				result.m_vertical = value;
-				break;
-			}
-			case LocationGroup::Transverse:
-			{
-				result.m_transverse = value;
-				break;
-			}
-			case LocationGroup::Longitudinal:
-			{
-				result.m_longitudinal = value;
-				break;
-			}
-			case LocationGroup::Number:
-			{
-				throw std::invalid_argument{ "Number group should not contain character values" };
-			}
-			default:
-			{
-				throw std::invalid_argument{ "Unsupported LocationGroup" };
-			}
-		}
-		return result;
-	}
-
-	//----------------------------
 	// Value
 	//----------------------------
 
 	LocationBuilder LocationBuilder::withValue( int value ) const
 	{
-		return withValueInternal( LocationGroup::Number, value );
+		return withNumber( value );
 	}
 
 	LocationBuilder LocationBuilder::withValue( char value ) const
@@ -333,7 +345,9 @@ namespace dnv::vista::sdk
 			throw ValidationException{ lease.toString() };
 		}
 
-		return withValueInternal( it->second, value );
+		LocationBuilder result = *this;
+		internal::withValue( m_reversedGroups, result.m_side, result.m_vertical, result.m_transverse, result.m_longitudinal, it->second, value );
+		return result;
 	}
 
 	LocationBuilder LocationBuilder::withoutValue( LocationGroup group ) const

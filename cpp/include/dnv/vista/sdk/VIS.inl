@@ -17,7 +17,9 @@ namespace dnv::vista::sdk
 	// Construction
 	//----------------------------------------------
 
-	inline VIS::VIS() {}
+	inline VIS::VIS()
+	{
+	}
 
 	//----------------------------------------------
 	// Singleton access

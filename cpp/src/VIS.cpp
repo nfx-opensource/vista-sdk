@@ -15,7 +15,7 @@
 
 namespace dnv::vista::sdk
 {
-	namespace
+	namespace internal
 	{
 		//=====================================================================
 		// Helper functions
@@ -123,7 +123,7 @@ namespace dnv::vista::sdk
 		{
 			if ( !VisVersionExtensions::isValid( version ) )
 			{
-				throwInvalidVersionError( version );
+				internal::throwInvalidVersionError( version );
 			}
 
 			result.try_emplace( version, gmod( version ) );
@@ -141,7 +141,7 @@ namespace dnv::vista::sdk
 		{
 			if ( !VisVersionExtensions::isValid( version ) )
 			{
-				throwInvalidVersionError( version );
+				internal::throwInvalidVersionError( version );
 			}
 
 			result.try_emplace( version, codebooks( version ) );
@@ -159,7 +159,7 @@ namespace dnv::vista::sdk
 		{
 			if ( !VisVersionExtensions::isValid( version ) )
 			{
-				throwInvalidVersionError( version );
+				internal::throwInvalidVersionError( version );
 			}
 
 			result.try_emplace( version, locations( version ) );

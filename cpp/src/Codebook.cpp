@@ -37,7 +37,7 @@ namespace dnv::vista::sdk
 	// Enum mapping tables
 	//=====================================================================
 
-	namespace
+	namespace internal
 	{
 		constexpr CodebookName codebookNameFromString( std::string_view name )
 		{
@@ -241,7 +241,7 @@ namespace dnv::vista::sdk
 	//----------------------------------------------
 
 	Codebook::Codebook( const CodebookDto& dto )
-		: m_name{ codebookNameFromString( dto.name() ) },
+		: m_name{ internal::codebookNameFromString( dto.name() ) },
 		  m_groupMap{},
 		  m_standardValues{},
 		  m_groups{},

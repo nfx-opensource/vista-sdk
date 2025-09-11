@@ -14,132 +14,129 @@
 #include "dnv/vista/sdk/GmodNode.h"
 #include "dnv/vista/sdk/Locations.h"
 
-namespace dnv::vista::sdk
+namespace dnv::vista::sdk::internal
 {
-	namespace internal
+	struct LocationSetsVisitor
 	{
-		struct LocationSetsVisitor
+		size_t currentParentStart;
+
+		LocationSetsVisitor() : currentParentStart{ std::numeric_limits<size_t>().max() }
 		{
-			size_t currentParentStart;
+		}
 
-			LocationSetsVisitor() : currentParentStart{ std::numeric_limits<size_t>().max() }
+		std::optional<std::tuple<size_t, size_t, std::optional<Location>>> visit(
+			const GmodNode& node, size_t i, const std::vector<GmodNode*>& pathParents, const GmodNode& pathTargetNode )
+		{
+			bool isParent = Gmod::isPotentialParent( node.metadata().type() );
+			bool isTargetNode = ( static_cast<size_t>( i ) == pathParents.size() );
+
+			if ( currentParentStart == std::numeric_limits<size_t>().max() )
 			{
-			}
-
-			std::optional<std::tuple<size_t, size_t, std::optional<Location>>> visit(
-				const GmodNode& node, size_t i, const std::vector<GmodNode*>& pathParents, const GmodNode& pathTargetNode )
-			{
-				bool isParent = Gmod::isPotentialParent( node.metadata().type() );
-				bool isTargetNode = ( static_cast<size_t>( i ) == pathParents.size() );
-
-				if ( currentParentStart == std::numeric_limits<size_t>().max() )
+				if ( isParent )
 				{
-					if ( isParent )
-					{
-						currentParentStart = i;
-					}
-					if ( node.isIndividualizable( isTargetNode ) )
-					{
-						return std::make_tuple( i, i, node.location() );
-					}
+					currentParentStart = i;
 				}
-				else
+				if ( node.isIndividualizable( isTargetNode ) )
 				{
-					if ( isParent || isTargetNode )
+					return std::make_tuple( i, i, node.location() );
+				}
+			}
+			else
+			{
+				if ( isParent || isTargetNode )
+				{
+					std::optional<std::tuple<size_t, size_t, std::optional<Location>>> nodes = std::nullopt;
+
+					if ( currentParentStart + 1 == i )
 					{
-						std::optional<std::tuple<size_t, size_t, std::optional<Location>>> nodes = std::nullopt;
+						if ( node.isIndividualizable( isTargetNode ) )
+							nodes = std::make_tuple( i, i, node.location() );
+					}
+					else
+					{
+						size_t skippedOne = std::numeric_limits<size_t>().max();
+						bool hasComposition = false;
 
-						if ( currentParentStart + 1 == i )
+						for ( size_t j = currentParentStart + 1; j <= i; ++j )
 						{
-							if ( node.isIndividualizable( isTargetNode ) )
-								nodes = std::make_tuple( i, i, node.location() );
-						}
-						else
-						{
-							size_t skippedOne = std::numeric_limits<size_t>().max();
-							bool hasComposition = false;
+							const GmodNode* setNode = ( j < pathParents.size() )
+														  ? pathParents[j]
+														  : &pathTargetNode;
 
-							for ( size_t j = currentParentStart + 1; j <= i; ++j )
+							if ( !setNode->isIndividualizable( j == pathParents.size(), true ) )
 							{
-								const GmodNode* setNode = ( j < pathParents.size() )
-															  ? pathParents[j]
-															  : &pathTargetNode;
-
-								if ( !setNode->isIndividualizable( j == pathParents.size(), true ) )
+								if ( nodes.has_value() )
 								{
-									if ( nodes.has_value() )
-									{
-										skippedOne = j;
-									}
-
-									continue;
+									skippedOne = j;
 								}
 
-								if ( nodes.has_value() && std::get<2>( nodes.value() ).has_value() && setNode->location().has_value() &&
-									 std::get<2>( nodes.value() ) != setNode->location() )
-								{
-									throw std::runtime_error{ "Mapping error: different locations in the same nodeset" };
-								}
-
-								if ( skippedOne != std::numeric_limits<size_t>().max() )
-								{
-									throw std::runtime_error{ "Can't skip in the middle of individualizable set" };
-								}
-
-								if ( setNode->isFunctionComposition() )
-								{
-									hasComposition = true;
-								}
-
-								auto location =
-									nodes.has_value() && std::get<2>( nodes.value() ).has_value() ? std::get<2>( nodes.value() )
-																								  : setNode->location();
-								size_t start = nodes.has_value() ? std::get<0>( nodes.value() )
-																 : j;
-								size_t end = j;
-								nodes = std::make_tuple( start, end, location );
+								continue;
 							}
 
-							if ( nodes.has_value() && std::get<0>( nodes.value() ) == std::get<1>( nodes.value() ) && hasComposition )
+							if ( nodes.has_value() && std::get<2>( nodes.value() ).has_value() && setNode->location().has_value() &&
+								 std::get<2>( nodes.value() ) != setNode->location() )
 							{
-								nodes = std::nullopt;
+								throw std::runtime_error{ "Mapping error: different locations in the same nodeset" };
 							}
+
+							if ( skippedOne != std::numeric_limits<size_t>().max() )
+							{
+								throw std::runtime_error{ "Can't skip in the middle of individualizable set" };
+							}
+
+							if ( setNode->isFunctionComposition() )
+							{
+								hasComposition = true;
+							}
+
+							auto location =
+								nodes.has_value() && std::get<2>( nodes.value() ).has_value() ? std::get<2>( nodes.value() )
+																							  : setNode->location();
+							size_t start = nodes.has_value() ? std::get<0>( nodes.value() )
+															 : j;
+							size_t end = j;
+							nodes = std::make_tuple( start, end, location );
 						}
 
-						currentParentStart = i;
-						if ( nodes.has_value() )
+						if ( nodes.has_value() && std::get<0>( nodes.value() ) == std::get<1>( nodes.value() ) && hasComposition )
 						{
-							bool hasLeafNode = false;
-							size_t startIdx = std::get<0>( nodes.value() );
-							size_t endIdx = std::get<1>( nodes.value() );
-
-							for ( size_t j = startIdx; j <= endIdx; ++j )
-							{
-								const GmodNode* setNode = ( j < pathParents.size() )
-															  ? pathParents[j]
-															  : &pathTargetNode;
-								if ( setNode->isLeafNode() || j == pathParents.size() )
-								{
-									hasLeafNode = true;
-
-									break;
-								}
-							}
-							if ( hasLeafNode )
-							{
-								return nodes;
-							}
+							nodes = std::nullopt;
 						}
 					}
 
-					if ( isTargetNode && node.isIndividualizable( isTargetNode ) )
+					currentParentStart = i;
+					if ( nodes.has_value() )
 					{
-						return std::make_tuple( i, i, node.location() );
+						bool hasLeafNode = false;
+						size_t startIdx = std::get<0>( nodes.value() );
+						size_t endIdx = std::get<1>( nodes.value() );
+
+						for ( size_t j = startIdx; j <= endIdx; ++j )
+						{
+							const GmodNode* setNode = ( j < pathParents.size() )
+														  ? pathParents[j]
+														  : &pathTargetNode;
+							if ( setNode->isLeafNode() || j == pathParents.size() )
+							{
+								hasLeafNode = true;
+
+								break;
+							}
+						}
+						if ( hasLeafNode )
+						{
+							return nodes;
+						}
 					}
 				}
 
-				return std::nullopt;
+				if ( isTargetNode && node.isIndividualizable( isTargetNode ) )
+				{
+					return std::make_tuple( i, i, node.location() );
+				}
 			}
-		};
-	}
+
+			return std::nullopt;
+		}
+	};
 }

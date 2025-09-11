@@ -27,7 +27,7 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 
 		/** @brief Character set for null or whitespace detection in string parsing operations. */
-		inline constexpr std::string_view NULL_OR_WHITESPACE = " \t\n\r\f\v";
+		static constexpr std::string_view NULL_OR_WHITESPACE = " \t\n\r\f\v";
 		struct PathNode
 		{
 			std::string_view code;
@@ -63,7 +63,7 @@ namespace dnv::vista::sdk
 		};
 
 		/** @brief Handler function for GMOD traversal during path parsing */
-		inline static TraversalHandlerResult parseInternalHandler(
+		static TraversalHandlerResult parseHandler(
 			ParseContext& context, const std::vector<const GmodNode*>& parents, const GmodNode& current )
 		{
 			PathNode& toFind = context.toFind;
@@ -205,7 +205,7 @@ namespace dnv::vista::sdk
 		 * @return Parse result with either success path or error message
 		 * @details Uses GMOD traversal to find complete hierarchical path from partial input
 		 */
-		static GmodParsePathResult parseInternal( std::string_view item, const Gmod& gmod, const Locations& locations )
+		static GmodParsePathResult parse( std::string_view item, const Gmod& gmod, const Locations& locations )
 		{
 			if ( gmod.visVersion() != locations.visVersion() )
 			{
@@ -288,7 +288,7 @@ namespace dnv::vista::sdk
 
 			internal::ParseContext context( std::move( parts ), std::move( toFind ), std::nullopt, std::nullopt, gmod );
 
-			TraverseHandlerWithState<internal::ParseContext> handler = internal::parseInternalHandler;
+			TraverseHandlerWithState<internal::ParseContext> handler = internal::parseHandler;
 			gmod.traverse( context, *baseNode, handler );
 
 			if ( !context.path.has_value() )
@@ -306,7 +306,7 @@ namespace dnv::vista::sdk
 		 * @param locations The locations instance for location parsing
 		 * @return Parse result with either success path or error message
 		 */
-		static GmodParsePathResult parseFullPathInternal( std::string_view item, const Gmod& gmod, const Locations& locations )
+		static GmodParsePathResult parseFullPath( std::string_view item, const Gmod& gmod, const Locations& locations )
 		{
 			if ( item.empty() )
 			{
@@ -793,7 +793,7 @@ namespace dnv::vista::sdk
 
 	GmodPath GmodPath::parse( std::string_view item, const Gmod& gmod, const Locations& locations )
 	{
-		GmodParsePathResult result = internal::parseInternal( item, gmod, locations );
+		GmodParsePathResult result = internal::parse( item, gmod, locations );
 
 		if ( result.isOk() )
 		{
@@ -810,7 +810,7 @@ namespace dnv::vista::sdk
 		VIS& vis = VIS::instance();
 		const Gmod& gmod = vis.gmod( visVersion );
 		const Locations& locations = vis.locations( visVersion );
-		GmodParsePathResult result = internal::parseFullPathInternal( item, gmod, locations );
+		GmodParsePathResult result = internal::parseFullPath( item, gmod, locations );
 
 		if ( result.isOk() )
 		{
@@ -826,7 +826,7 @@ namespace dnv::vista::sdk
 		std::string_view item, const Gmod& gmod,
 		const Locations& locations, std::optional<GmodPath>& outPath )
 	{
-		GmodParsePathResult result = internal::parseInternal( item, gmod, locations );
+		GmodParsePathResult result = internal::parse( item, gmod, locations );
 		outPath.reset();
 
 		if ( result.isOk() )
@@ -841,7 +841,7 @@ namespace dnv::vista::sdk
 	bool GmodPath::tryParseFullPath(
 		std::string_view item, const Gmod& gmod, const Locations& locations, std::optional<GmodPath>& outPath )
 	{
-		GmodParsePathResult result = internal::parseFullPathInternal( item, gmod, locations );
+		GmodParsePathResult result = internal::parseFullPath( item, gmod, locations );
 
 		if ( result.isOk() )
 		{

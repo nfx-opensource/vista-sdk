@@ -383,7 +383,7 @@ namespace dnv::vista::sdk
 		 * @return True if parsing succeeded (potentially with non-critical errors recorded), false if a critical error occurred.
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		static bool tryParseInternal(
+		static bool tryParse(
 			std::string_view localIdStr,
 			LocalIdParsingErrorBuilder& errorBuilder,
 			std::optional<LocalIdBuilder>& localIdBuilder )
@@ -1608,7 +1608,7 @@ namespace dnv::vista::sdk
 	{
 		localId = std::nullopt;
 		auto errorBuilder = internal::LocalIdParsingErrorBuilder::create();
-		bool success = internal::tryParseInternal( localIdStr, errorBuilder, localId );
+		bool success = internal::tryParse( localIdStr, errorBuilder, localId );
 
 		errors = errorBuilder.build();
 

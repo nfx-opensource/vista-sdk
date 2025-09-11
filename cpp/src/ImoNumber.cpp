@@ -11,7 +11,7 @@
 
 namespace dnv::vista::sdk
 {
-	namespace
+	namespace internal
 	{
 		/** @brief Character set for null or whitespace detection in string parsing operations. */
 		inline constexpr std::string_view NULL_OR_WHITESPACE = " \t\n\r\f\v";
@@ -125,7 +125,7 @@ namespace dnv::vista::sdk
 			return std::nullopt;
 		}
 
-		if ( value.find_first_of( NULL_OR_WHITESPACE ) != std::string::npos )
+		if ( value.find_first_of( internal::NULL_OR_WHITESPACE ) != std::string::npos )
 		{
 			return std::nullopt;
 		}

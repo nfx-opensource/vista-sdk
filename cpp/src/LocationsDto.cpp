@@ -13,13 +13,13 @@
 
 namespace dnv::vista::sdk
 {
-	namespace
+	namespace internal
 	{
 		//=====================================================================
 		// JSON parsing helper functions
 		//=====================================================================
 
-		std::string_view extractCodeHint( const nlohmann::json& json ) noexcept
+		static std::string_view extractCodeHint( const nlohmann::json& json ) noexcept
 		{
 			try
 			{
@@ -39,7 +39,7 @@ namespace dnv::vista::sdk
 			}
 		}
 
-		std::string_view extractVisHint( const nlohmann::json& json ) noexcept
+		static std::string_view extractVisHint( const nlohmann::json& json ) noexcept
 		{
 			try
 			{
@@ -70,7 +70,7 @@ namespace dnv::vista::sdk
 
 	std::optional<RelativeLocationsDto> RelativeLocationsDto::tryFromJson( const nlohmann::json& json )
 	{
-		const auto codeHint = extractCodeHint( json );
+		const auto codeHint = internal::extractCodeHint( json );
 
 		try
 		{
@@ -291,7 +291,7 @@ namespace dnv::vista::sdk
 
 	std::optional<LocationsDto> LocationsDto::tryFromJson( const nlohmann::json& json )
 	{
-		const auto visHint = extractVisHint( json );
+		const auto visHint = internal::extractVisHint( json );
 
 		try
 		{

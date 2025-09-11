@@ -13,7 +13,7 @@
 
 namespace dnv::vista::sdk
 {
-	namespace
+	namespace internal
 	{
 		//=====================================================================
 		// Relationship utility
@@ -80,8 +80,8 @@ namespace dnv::vista::sdk
 		  m_parents{},
 		  m_childrenSet{}
 	{
-		size_t expectedChildren = estimateChildrenCount( dto.category(), dto.type() );
-		size_t expectedParents = estimateParentsCount( dto.category(), dto.type() );
+		size_t expectedChildren = internal::estimateChildrenCount( dto.category(), dto.type() );
+		size_t expectedParents = internal::estimateParentsCount( dto.category(), dto.type() );
 
 		m_children.reserve( expectedChildren );
 		m_parents.reserve( expectedParents );

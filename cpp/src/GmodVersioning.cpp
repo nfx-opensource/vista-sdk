@@ -206,7 +206,7 @@ namespace dnv::vista::sdk
 		 * @brief Internal implementation for converting a node between adjacent versions
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		static std::optional<GmodNode> convertNodeInternal(
+		static std::optional<GmodNode> convertNode(
 			const nfx::containers::HashMap<VisVersion, GmodVersioningNode>& versioningsMap,
 			VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion )
 		{
@@ -244,7 +244,7 @@ namespace dnv::vista::sdk
 		 * @brief Internal implementation for converting a node with cached GMOD
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		static std::optional<GmodNode> convertNodeInternal(
+		static std::optional<GmodNode> convertNode(
 			const nfx::containers::HashMap<VisVersion, GmodVersioningNode>& versioningsMap,
 			VisVersion sourceVersion, const GmodNode& sourceNode,
 			VisVersion targetVersion, const Gmod& targetGmod )
@@ -340,7 +340,7 @@ namespace dnv::vista::sdk
 
 			const VisVersion target = source + 1;
 
-			node = internal::convertNodeInternal( static_cast<internal::GmodVersioningMap_impl*>( m_impl )->versioningsMap, source, *node, target );
+			node = internal::convertNode( static_cast<internal::GmodVersioningMap_impl*>( m_impl )->versioningsMap, source, *node, target );
 
 			++source;
 		}
@@ -372,11 +372,11 @@ namespace dnv::vista::sdk
 
 			if ( target == targetVersion )
 			{
-				node = internal::convertNodeInternal( static_cast<internal::GmodVersioningMap_impl*>( m_impl )->versioningsMap, source, *node, target, targetGmod );
+				node = internal::convertNode( static_cast<internal::GmodVersioningMap_impl*>( m_impl )->versioningsMap, source, *node, target, targetGmod );
 			}
 			else
 			{
-				node = internal::convertNodeInternal( static_cast<internal::GmodVersioningMap_impl*>( m_impl )->versioningsMap, source, *node, target );
+				node = internal::convertNode( static_cast<internal::GmodVersioningMap_impl*>( m_impl )->versioningsMap, source, *node, target );
 			}
 
 			++source;

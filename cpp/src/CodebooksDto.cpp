@@ -14,7 +14,7 @@
 
 namespace dnv::vista::sdk
 {
-	namespace CodebooksDtoInternal
+	namespace internal
 	{
 		//=====================================================================
 		// JSON parsing helper functions
@@ -71,7 +71,7 @@ namespace dnv::vista::sdk
 
 	std::optional<CodebookDto> CodebookDto::tryFromJson( const nlohmann::json& json )
 	{
-		const auto nameHint = CodebooksDtoInternal::extractNameHint( json );
+		const auto nameHint = internal::extractNameHint( json );
 
 		try
 		{
@@ -206,7 +206,7 @@ namespace dnv::vista::sdk
 
 	CodebookDto CodebookDto::fromJson( const nlohmann::json& json )
 	{
-		const auto nameHint = CodebooksDtoInternal::extractNameHint( json );
+		const auto nameHint = internal::extractNameHint( json );
 		auto dtoOpt = CodebookDto::tryFromJson( json );
 		if ( !dtoOpt.has_value() )
 		{
@@ -288,7 +288,7 @@ namespace dnv::vista::sdk
 
 	std::optional<CodebooksDto> CodebooksDto::tryFromJson( const nlohmann::json& json )
 	{
-		const auto visHint = CodebooksDtoInternal::extractVisHint( json );
+		const auto visHint = internal::extractVisHint( json );
 
 		try
 		{
@@ -415,7 +415,7 @@ namespace dnv::vista::sdk
 
 	CodebooksDto CodebooksDto::fromJson( const nlohmann::json& json )
 	{
-		const auto visHint = CodebooksDtoInternal::extractVisHint( json );
+		const auto visHint = internal::extractVisHint( json );
 		auto dtoOpt = CodebooksDto::tryFromJson( json );
 		if ( !dtoOpt.has_value() )
 		{
