@@ -3,7 +3,6 @@
  * @brief Implementation of data transfer objects for locations in the VIS standard
  */
 
-#include <iostream>
 #include <cstdio>
 
 #include <nfx/string/StringBuilderPool.h>

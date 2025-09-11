@@ -5,6 +5,7 @@
 
 #include "dnv/vista/sdk/GmodVersioning.h"
 
+#include "internal/GmodVersioningNode.h"
 #include "internal/LocationSetsVisitor.h"
 #include "dnv/vista/sdk/Gmod.h"
 #include "dnv/vista/sdk/GmodNode.h"
@@ -17,107 +18,264 @@
 
 namespace dnv::vista::sdk
 {
-	//=====================================================================
-	// Static helper functions
-	//=====================================================================
+	namespace internal
+	{
+		//=====================================================================
+		// GmodVersioningMap pimpl
+		//=====================================================================
 
-	/**
-	 * @brief Get thread-local buffer for current parents processing
-	 * @return Reference to thread-local vector for reuse across calls
-	 */
-	static std::vector<const GmodNode*>& currentParentsBuffer()
-	{
-		thread_local std::vector<const GmodNode*> buffer;
-		return buffer;
-	}
-
-	/**
-	 * @brief Get thread-local buffer for remaining nodes processing
-	 * @return Reference to thread-local vector for reuse across calls
-	 */
-	static std::vector<const GmodNode*>& remainingBuffer()
-	{
-		thread_local std::vector<const GmodNode*> buffer;
-		return buffer;
-	}
-	static void addToPath( const Gmod& gmod, std::vector<GmodNode>& path, const GmodNode& node )
-	{
-		if ( !path.empty() )
+		class GmodVersioningMap_impl
 		{
-			const GmodNode& prev = path.back();
-			if ( !prev.isChild( node ) )
+		public:
+			nfx::containers::HashMap<VisVersion, GmodVersioningNode> versioningsMap;
+
+			explicit GmodVersioningMap_impl( const nfx::containers::StringMap<GmodVersioningDto>& dto )
 			{
-				for ( int j = static_cast<int>( path.size() ) - 1; j >= 0; --j )
+				versioningsMap.reserve( dto.size() );
+
+				for ( const auto& [versionStr, versioningDto] : dto )
 				{
-					const GmodNode& parent = path[static_cast<size_t>( j )];
+					VisVersion version = VisVersionExtensions::parse( versionStr );
+					versioningsMap.insertOrAssign( version, GmodVersioningNode{ version, versioningDto.items() } );
+				}
+			}
+		};
 
-					auto& currentParentsBuf = currentParentsBuffer();
-					currentParentsBuf.clear();
-					const size_t currentParentsCount = static_cast<size_t>( j + 1 );
-					currentParentsBuf.reserve( currentParentsCount );
+		//=====================================================================
+		// Static helper functions and thread-local utilities
+		//=====================================================================
 
-					for ( size_t k = 0; k < currentParentsCount; ++k )
+		/**
+		 * @brief Get thread-local buffer for current parents processing
+		 * @return Reference to thread-local vector for reuse across calls
+		 */
+		static std::vector<const GmodNode*>& currentParentsBuffer()
+		{
+			thread_local std::vector<const GmodNode*> buffer;
+			return buffer;
+		}
+
+		/**
+		 * @brief Get thread-local buffer for remaining nodes processing
+		 * @return Reference to thread-local vector for reuse across calls
+		 */
+		static std::vector<const GmodNode*>& remainingBuffer()
+		{
+			thread_local std::vector<const GmodNode*> buffer;
+			return buffer;
+		}
+
+		static void addToPath( const Gmod& gmod, std::vector<GmodNode>& path, const GmodNode& node )
+		{
+			if ( !path.empty() )
+			{
+				const GmodNode& prev = path.back();
+				if ( !prev.isChild( node ) )
+				{
+					for ( int j = static_cast<int>( path.size() ) - 1; j >= 0; --j )
 					{
-						currentParentsBuf.push_back( &path[k] );
-					}
+						const GmodNode& parent = path[static_cast<size_t>( j )];
 
-					auto& remainingBuf = remainingBuffer();
-					remainingBuf.clear();
-					remainingBuf.reserve( 16 );
+						auto& currentParentsBuf = currentParentsBuffer();
+						currentParentsBuf.clear();
+						const size_t currentParentsCount = static_cast<size_t>( j + 1 );
+						currentParentsBuf.reserve( currentParentsCount );
 
-					if ( !gmod.pathExistsBetween( currentParentsBuf, node, remainingBuf ) )
-					{
-						bool hasOtherAssetFunction = false;
-						const std::string_view parentCode = parent.code();
-						for ( const GmodNode* pathNode : currentParentsBuf )
+						for ( size_t k = 0; k < currentParentsCount; ++k )
 						{
-							if ( pathNode->isAssetFunctionNode() && pathNode->code() != parentCode )
-							{
-								hasOtherAssetFunction = true;
-								break;
-							}
+							currentParentsBuf.push_back( &path[k] );
 						}
 
-						if ( !hasOtherAssetFunction )
-						{
-							throw std::runtime_error{ "Tried to remove last asset function node" };
-						}
-						path.erase( path.begin() + static_cast<std::ptrdiff_t>( j ) );
-					}
-					else
-					{
-						const auto nodeLocation = node.location();
-						if ( nodeLocation.has_value() )
-						{
-							path.reserve( path.size() + remainingBuf.size() );
+						auto& remainingBuf = remainingBuffer();
+						remainingBuf.clear();
+						remainingBuf.reserve( 16 );
 
-							for ( const GmodNode* n : remainingBuf )
+						if ( !gmod.pathExistsBetween( currentParentsBuf, node, remainingBuf ) )
+						{
+							bool hasOtherAssetFunction = false;
+							const std::string_view parentCode = parent.code();
+							for ( const GmodNode* pathNode : currentParentsBuf )
 							{
-								if ( n->isIndividualizable( false, true ) )
+								if ( pathNode->isAssetFunctionNode() && pathNode->code() != parentCode )
 								{
-									path.emplace_back( n->tryWithLocation( nodeLocation.value() ) );
+									hasOtherAssetFunction = true;
+									break;
 								}
-								else
+							}
+
+							if ( !hasOtherAssetFunction )
+							{
+								throw std::runtime_error{ "Tried to remove last asset function node" };
+							}
+							path.erase( path.begin() + static_cast<std::ptrdiff_t>( j ) );
+						}
+						else
+						{
+							const auto nodeLocation = node.location();
+							if ( nodeLocation.has_value() )
+							{
+								path.reserve( path.size() + remainingBuf.size() );
+
+								for ( const GmodNode* n : remainingBuf )
+								{
+									if ( n->isIndividualizable( false, true ) )
+									{
+										path.emplace_back( n->tryWithLocation( nodeLocation.value() ) );
+									}
+									else
+									{
+										path.emplace_back( *n );
+									}
+								}
+							}
+							else
+							{
+								path.reserve( path.size() + remainingBuf.size() );
+								for ( const GmodNode* n : remainingBuf )
 								{
 									path.emplace_back( *n );
 								}
 							}
+							break;
 						}
-						else
-						{
-							path.reserve( path.size() + remainingBuf.size() );
-							for ( const GmodNode* n : remainingBuf )
-							{
-								path.emplace_back( *n );
-							}
-						}
-						break;
 					}
 				}
 			}
+
+			path.emplace_back( node );
 		}
 
-		path.emplace_back( node );
+		//----------------------------------------------
+		// Internal validation methods
+		//----------------------------------------------
+
+		/**
+		 * @brief Validate source and target versions
+		 */
+		static void validateSourceAndTargetVersions( VisVersion sourceVersion, VisVersion targetVersion )
+		{
+			if ( sourceVersion == VisVersion::Unknown )
+			{
+				throw std::invalid_argument{ "Invalid source VIS Version: Unknown" };
+			}
+
+			if ( targetVersion == VisVersion::Unknown )
+			{
+				throw std::invalid_argument{ "Invalid target VIS Version: Unknown" };
+			}
+
+			if ( sourceVersion >= targetVersion )
+			{
+				throw std::invalid_argument{ "Source version must be earlier than target version" };
+			}
+		}
+
+		/**
+		 * @brief Validate source and target version pair
+		 */
+		static void validateSourceAndTargetVersionPair( VisVersion sourceVersion, VisVersion targetVersion )
+		{
+			if ( sourceVersion >= targetVersion )
+			{
+				throw std::invalid_argument{ "Source version must be less than target version" };
+			}
+
+			if ( static_cast<int>( targetVersion ) - static_cast<int>( sourceVersion ) != 100 )
+			{
+				throw std::invalid_argument{ "Target version must be exactly one version higher than source version" };
+			}
+		}
+
+		//----------------------------------------------
+		// Internal versioning node utilities
+		//----------------------------------------------
+
+		/**
+		 * @brief Try to get a versioning node for a specific VIS version
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		static bool tryGetVersioningNode( const nfx::containers::HashMap<VisVersion, GmodVersioningNode>& versioningsMap,
+			VisVersion visVersion, const GmodVersioningNode*& versioningNode )
+		{
+			versioningNode = versioningsMap.tryGetValue( visVersion );
+
+			return versioningNode != nullptr;
+		}
+
+		/**
+		 * @brief Internal implementation for converting a node between adjacent versions
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		static std::optional<GmodNode> convertNodeInternal(
+			const nfx::containers::HashMap<VisVersion, GmodVersioningNode>& versioningsMap,
+			VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion )
+		{
+			validateSourceAndTargetVersionPair( sourceVersion, targetVersion );
+
+			std::string_view nextCodeView = sourceNode.code();
+
+			const internal::GmodVersioningNode* versioningNode = nullptr;
+			if ( tryGetVersioningNode( versioningsMap, targetVersion, versioningNode ) )
+			{
+				const internal::GmodNodeConversion* change = nullptr;
+				if ( versioningNode->tryGetCodeChanges( nextCodeView, change ) && change && change->target.has_value() )
+				{
+					nextCodeView = change->target.value();
+				}
+			}
+
+			const auto& targetGmod = VIS::instance().gmod( targetVersion );
+
+			const GmodNode* targetNodePtr = nullptr;
+			if ( !targetGmod.tryGetNode( nextCodeView, targetNodePtr ) )
+			{
+				return std::nullopt;
+			}
+
+			if ( sourceNode.location().has_value() )
+			{
+				return targetNodePtr->tryWithLocation( sourceNode.location().value() );
+			}
+
+			return *targetNodePtr;
+		}
+
+		/**
+		 * @brief Internal implementation for converting a node with cached GMOD
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		static std::optional<GmodNode> convertNodeInternal(
+			const nfx::containers::HashMap<VisVersion, GmodVersioningNode>& versioningsMap,
+			VisVersion sourceVersion, const GmodNode& sourceNode,
+			VisVersion targetVersion, const Gmod& targetGmod )
+		{
+			validateSourceAndTargetVersionPair( sourceVersion, targetVersion );
+
+			std::string_view nextCodeView = sourceNode.code();
+
+			const internal::GmodVersioningNode* versioningNode = nullptr;
+			if ( tryGetVersioningNode( versioningsMap, targetVersion, versioningNode ) )
+			{
+				const internal::GmodNodeConversion* change = nullptr;
+				if ( versioningNode->tryGetCodeChanges( nextCodeView, change ) && change && change->target.has_value() )
+				{
+					nextCodeView = change->target.value();
+				}
+			}
+
+			const GmodNode* targetNodePtr = nullptr;
+			if ( !targetGmod.tryGetNode( nextCodeView, targetNodePtr ) )
+			{
+				return std::nullopt;
+			}
+
+			if ( sourceNode.location().has_value() )
+			{
+				return targetNodePtr->tryWithLocation( sourceNode.location().value() );
+			}
+
+			return *targetNodePtr;
+		}
 	}
 
 	//=====================================================================
@@ -129,16 +287,28 @@ namespace dnv::vista::sdk
 	//----------------------------------------------
 
 	GmodVersioning::GmodVersioning( const nfx::containers::StringMap<GmodVersioningDto>& dto )
+		: m_impl( new internal::GmodVersioningMap_impl{ dto } )
 	{
-		m_versioningsMap.reserve( dto.size() );
-
-		for ( const auto& [versionStr, versioningDto] : dto )
-		{
-			VisVersion version = VisVersionExtensions::parse( versionStr );
-
-			m_versioningsMap.insertOrAssign( version, GmodVersioningNode( version, versioningDto.items() ) );
-		}
 	}
+
+	GmodVersioning::GmodVersioning( GmodVersioning&& other ) noexcept
+		: m_impl( other.m_impl )
+	{
+		other.m_impl = nullptr;
+	}
+
+	//----------------------------------------------
+	// Destruction
+	//----------------------------------------------
+
+	GmodVersioning::~GmodVersioning()
+	{
+		if ( m_impl )
+		{
+			delete static_cast<internal::GmodVersioningMap_impl*>( m_impl );
+			m_impl = nullptr;
+		}
+	};
 
 	//----------------------------------------------
 	// Conversion
@@ -156,7 +326,7 @@ namespace dnv::vista::sdk
 			return std::nullopt;
 		}
 
-		validateSourceAndTargetVersions( sourceVersion, targetVersion );
+		internal::validateSourceAndTargetVersions( sourceVersion, targetVersion );
 
 		std::optional<GmodNode> node = sourceNode;
 		VisVersion source = sourceVersion;
@@ -170,7 +340,7 @@ namespace dnv::vista::sdk
 
 			const VisVersion target = source + 1;
 
-			node = convertNodeInternal( source, *node, target );
+			node = internal::convertNodeInternal( static_cast<internal::GmodVersioningMap_impl*>( m_impl )->versioningsMap, source, *node, target );
 
 			++source;
 		}
@@ -186,7 +356,7 @@ namespace dnv::vista::sdk
 			return std::nullopt;
 		}
 
-		validateSourceAndTargetVersions( sourceVersion, targetVersion );
+		internal::validateSourceAndTargetVersions( sourceVersion, targetVersion );
 
 		std::optional<GmodNode> node = sourceNode;
 		VisVersion source = sourceVersion;
@@ -202,11 +372,11 @@ namespace dnv::vista::sdk
 
 			if ( target == targetVersion )
 			{
-				node = convertNodeInternal( source, *node, target, targetGmod );
+				node = internal::convertNodeInternal( static_cast<internal::GmodVersioningMap_impl*>( m_impl )->versioningsMap, source, *node, target, targetGmod );
 			}
 			else
 			{
-				node = convertNodeInternal( source, *node, target );
+				node = internal::convertNodeInternal( static_cast<internal::GmodVersioningMap_impl*>( m_impl )->versioningsMap, source, *node, target );
 			}
 
 			++source;
@@ -355,7 +525,7 @@ namespace dnv::vista::sdk
 
 			if ( codeChanged )
 			{
-				addToPath( targetGmod, path, qualifyingNode.second );
+				internal::addToPath( targetGmod, path, qualifyingNode.second );
 			}
 
 			else if ( normalAssignmentChanged ) // AC || AN || AD
@@ -364,7 +534,7 @@ namespace dnv::vista::sdk
 
 				if ( !codeChanged )
 				{
-					addToPath( targetGmod, path, qualifyingNode.second );
+					internal::addToPath( targetGmod, path, qualifyingNode.second );
 				}
 
 				if ( wasDeleted )
@@ -392,7 +562,7 @@ namespace dnv::vista::sdk
 						{
 							targetNormalAssignmentVal = targetNormalAssignmentVal.tryWithLocation( *qualifyingNode.second.location() );
 						}
-						addToPath( targetGmod, path, targetNormalAssignmentVal );
+						internal::addToPath( targetGmod, path, targetNormalAssignmentVal );
 
 						// AC The previous normal assignment
 						if ( sourceNormalAssignment.has_value() && targetNormalAssignment.has_value() &&
@@ -419,7 +589,7 @@ namespace dnv::vista::sdk
 
 			if ( !codeChanged && !normalAssignmentChanged )
 			{
-				addToPath( targetGmod, path, qualifyingNode.second );
+				internal::addToPath( targetGmod, path, qualifyingNode.second );
 			}
 
 			if ( !path.empty() && path.back().code() == targetEndNode->code() )
@@ -563,113 +733,5 @@ namespace dnv::vista::sdk
 		return builder.has_value()
 				   ? std::make_optional( builder->build() )
 				   : std::nullopt;
-	}
-
-	//----------------------------------------------
-	// GmodVersioning::GmodVersioningNode class
-	//----------------------------------------------
-
-	//----------------------------
-	// Construction
-	//----------------------------
-
-	GmodVersioning::GmodVersioningNode::GmodVersioningNode( VisVersion visVersion, const nfx::containers::StringMap<GmodNodeConversionDto>& dto )
-		: m_visVersion{ visVersion }
-	{
-		for ( const auto& [code, dtoNode] : dto )
-		{
-			GmodNodeConversion conversion;
-			conversion.source = dtoNode.source();
-			if ( dtoNode.target().empty() )
-			{
-				conversion.target = std::nullopt;
-			}
-			else
-			{
-				conversion.target = dtoNode.target();
-			}
-			conversion.oldAssignment = dtoNode.oldAssignment();
-			conversion.newAssignment = dtoNode.newAssignment();
-			conversion.deleteAssignment = dtoNode.deleteAssignment();
-
-			if ( !dtoNode.operations().empty() )
-			{
-				for ( const auto& type : dtoNode.operations() )
-				{
-					conversion.operations.insert( parseConversionType( type ) );
-				}
-			}
-
-			m_versioningNodeChanges.emplace( code, conversion );
-		}
-	}
-
-	//----------------------------
-	// Private helper methods
-	//----------------------------
-
-	std::optional<GmodNode> GmodVersioning::convertNodeInternal(
-		[[maybe_unused]] VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion ) const
-	{
-		validateSourceAndTargetVersionPair( sourceNode.visVersion(), targetVersion );
-
-		std::string_view nextCodeView = sourceNode.code();
-
-		const GmodVersioningNode* versioningNode = nullptr;
-		if ( tryGetVersioningNode( targetVersion, versioningNode ) )
-		{
-			const GmodNodeConversion* change = nullptr;
-			if ( versioningNode->tryGetCodeChanges( nextCodeView, change ) && change && change->target.has_value() )
-			{
-				nextCodeView = change->target.value();
-			}
-		}
-
-		const auto& targetGmod = VIS::instance().gmod( targetVersion );
-
-		const GmodNode* targetNodePtr = nullptr;
-		if ( !targetGmod.tryGetNode( nextCodeView, targetNodePtr ) )
-		{
-			return std::nullopt;
-		}
-
-		if ( sourceNode.location().has_value() )
-		{
-			return targetNodePtr->tryWithLocation( sourceNode.location().value() );
-		}
-
-		return *targetNodePtr;
-	}
-
-	std::optional<GmodNode> GmodVersioning::convertNodeInternal(
-		[[maybe_unused]] VisVersion sourceVersion, const GmodNode& sourceNode,
-		VisVersion targetVersion, const Gmod& targetGmod ) const
-	{
-		validateSourceAndTargetVersionPair( sourceNode.visVersion(), targetVersion );
-
-		std::string_view nextCodeView = sourceNode.code();
-
-		const GmodVersioningNode* versioningNode = nullptr;
-		if ( tryGetVersioningNode( targetVersion, versioningNode ) )
-		{
-			const GmodNodeConversion* change = nullptr;
-			if ( versioningNode->tryGetCodeChanges( nextCodeView, change ) && change && change->target.has_value() )
-			{
-				nextCodeView = change->target.value();
-			}
-		}
-
-		const GmodNode* targetNodePtr = nullptr;
-		if ( !targetGmod.tryGetNode( nextCodeView, targetNodePtr ) )
-		{
-			return std::nullopt;
-		}
-
-		if ( sourceNode.location().has_value() )
-		{
-			return targetNodePtr->tryWithLocation( sourceNode.location().value() );
-		}
-
-		return *targetNodePtr;
 	}
 }

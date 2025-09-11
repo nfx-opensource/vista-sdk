@@ -31,6 +31,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.33] - 2025-09-11
+
+### Added
+
+-   **Internal API structures**: New internal headers `GmodVersioningNode.h` and `GmodVersioningNode.inl` for complete implementation hiding
+-   **Pimpl pattern implementation**: Complete void pointer implementation for `GmodVersioning` class ensuring zero implementation exposure
+-   **Internal namespace architecture**: `dnv::vista::sdk::internal` namespace with all implementation details completely hidden from public API
+
+### Changed
+
+-   **GmodVersioning API**: Complete architectural transformation from exposed implementation to opaque Pimpl pattern
+    -   Removed `GmodVersioningNode` and `GmodNodeConversion` from public API surface
+    -   Deleted copy constructor and copy assignment operator for proper resource management
+    -   Added custom move constructor with proper ownership transfer semantics
+-   **VIS API**: Changed `gmodVersioningDto()` from static method to instance method
+-   **Implementation extraction**: Moved all static helper functions and versioning logic to `internal` namespace
+    -   Extracted `addToPath()`, `validateSourceAndTargetVersions()`, `validateSourceAndTargetVersionPair()` to internal scope
+    -   Moved `convertNodeInternal()` overloads from class methods to internal static functions
+    -   Relocated thread-local buffer utilities to internal implementation
+-   **File organization**: Restructured implementation files for clean public/private separation
+    -   Deleted `GmodVersioning.inl` from public headers
+    -   Added internal implementation files with proper encapsulation
+
+### Removed
+
+-   **Public implementation exposure**: Eliminated all internal data structures from public API
+    -   Removed `nfx::containers::HashMap<VisVersion, GmodVersioningNode> m_versioningsMap` from public interface
+    -   Removed `GmodVersioningNode` nested class from public API
+    -   Removed `GmodNodeConversion` struct from public interface
+    -   Removed `ConversionType` enum from public API
+-   **Copy semantics**: Deleted copy constructor and copy assignment operator to prevent resource duplication
+
+### Fixed
+
+-   **Memory management**: Proper RAII implementation with custom destructor for Pimpl pattern
+-   **API encapsulation**: Zero internal implementation leakage through complete void pointer abstraction
+-   **Move semantics**: Correct ownership transfer in move constructor preventing double deletion
+
 ## [0.0.32] - 2025-09-11
 
 ### Changed

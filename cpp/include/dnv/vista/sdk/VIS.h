@@ -12,6 +12,7 @@
 
 #include <nfx/containers/StringMap.h>
 #include <nfx/memory/MemoryCache.h>
+#include <nfx/string/Utils.h>
 
 #include "Codebooks.h"
 #include "Gmod.h"
@@ -238,7 +239,7 @@ namespace dnv::vista::sdk
 		 * @throws std::runtime_error If the versioning DTOs cannot be loaded.
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] static const nfx::containers::StringMap<GmodVersioningDto>& gmodVersioningDto();
+		[[nodiscard]] const nfx::containers::StringMap<GmodVersioningDto>& gmodVersioningDto();
 
 		//----------------------------------------------
 		// Conversion

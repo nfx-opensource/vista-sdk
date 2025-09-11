@@ -37,7 +37,6 @@ set(PUBLIC_HEADERS
 	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/GmodPathQuery.h
 	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/GmodPathQuery.inl
 	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/GmodVersioning.h
-	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/GmodVersioning.inl
 	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/GmodVersioningDto.h
 	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/GmodVersioningDto.inl
 	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/ImoNumber.h
@@ -81,6 +80,8 @@ set(PRIVATE_HEADERS
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/constants/LocalId.h
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/constants/Locations.h
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/EmbeddedResource.h
+    ${VISTA_SDK_CPP_SOURCE_DIR}/internal/GmodVersioningNode.h
+    ${VISTA_SDK_CPP_SOURCE_DIR}/internal/GmodVersioningNode.inl
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/LocalIdParsingErrorBuilder.h
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/LocationParsingErrorBuilder.h
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/LocationSetsVisitor.h
