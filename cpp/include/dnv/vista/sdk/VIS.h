@@ -10,8 +10,8 @@
 
 #include <vector>
 
+#include <nfx/containers/StringMap.h>
 #include <nfx/memory/MemoryCache.h>
-#include <nfx/string/Utils.h>
 
 #include "Codebooks.h"
 #include "Gmod.h"
@@ -208,7 +208,7 @@ namespace dnv::vista::sdk
 		 * @throws std::runtime_error If the GMOD DTO cannot be loaded or found for the specified version.
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] inline const GmodDto& gmodDto( VisVersion visVersion );
+		[[nodiscard]] const GmodDto& gmodDto( VisVersion visVersion );
 
 		/**
 		 * @brief Retrieves the Codebooks Data Transfer Object (DTO) for a specific VIS version.
@@ -218,7 +218,7 @@ namespace dnv::vista::sdk
 		 * @throws std::runtime_error If the Codebooks DTO cannot be loaded or found.
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] inline const CodebooksDto& codebooksDto( VisVersion visVersion );
+		[[nodiscard]] const CodebooksDto& codebooksDto( VisVersion visVersion );
 
 		/**
 		 * @brief Retrieves the Locations Data Transfer Object (DTO) for a specific VIS version.
@@ -228,7 +228,7 @@ namespace dnv::vista::sdk
 		 * @throws std::runtime_error If the Locations DTO cannot be loaded or found.
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] inline const LocationsDto& locationsDto( VisVersion visVersion );
+		[[nodiscard]] const LocationsDto& locationsDto( VisVersion visVersion );
 
 		/**
 		 * @brief Retrieves the GMOD versioning DTOs.

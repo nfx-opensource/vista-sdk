@@ -31,6 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.32] - 2025-09-11
+
+### Changed
+
+-   **EmbeddedResource API cleanup**: Moved `EmbeddedResource` class from public API to internal implementation
+-   **Resource caching simplification**: Removed all resource-level caching and synchronization
+
 ## [0.0.31] - 2025-09-10
 
 ### Changed

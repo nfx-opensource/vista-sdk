@@ -25,8 +25,6 @@ set(PUBLIC_HEADERS
 	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/CodebookName.h
 	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/CodebooksDto.h
 	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/CodebooksDto.inl
-	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/EmbeddedResource.h
-	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/EmbeddedResource.inl
 	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/Exceptions.h
 	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/Gmod.h
 	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/Gmod.inl
@@ -82,12 +80,14 @@ set(PRIVATE_HEADERS
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/constants/ISO19848.h
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/constants/LocalId.h
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/constants/Locations.h
+	${VISTA_SDK_CPP_SOURCE_DIR}/internal/EmbeddedResource.h
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/LocalIdParsingErrorBuilder.h
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/LocationParsingErrorBuilder.h
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/LocationSetsVisitor.h
 )
 
 set(PRIVATE_SOURCES
+	${VISTA_SDK_CPP_SOURCE_DIR}/internal/EmbeddedResource.cpp
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/LocalIdParsingErrorBuilder.cpp
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/LocationParsingErrorBuilder.cpp
 	${VISTA_SDK_CPP_SOURCE_DIR}/transport/DataChannel/DataChannel.cpp
@@ -100,7 +100,6 @@ set(PRIVATE_SOURCES
 	${VISTA_SDK_CPP_SOURCE_DIR}/CodebookName.cpp
 	${VISTA_SDK_CPP_SOURCE_DIR}/Codebooks.cpp
 	${VISTA_SDK_CPP_SOURCE_DIR}/CodebooksDto.cpp
-	${VISTA_SDK_CPP_SOURCE_DIR}/EmbeddedResource.cpp
 	${VISTA_SDK_CPP_SOURCE_DIR}/Gmod.cpp
 	${VISTA_SDK_CPP_SOURCE_DIR}/GmodDto.cpp
 	${VISTA_SDK_CPP_SOURCE_DIR}/GmodNode.cpp

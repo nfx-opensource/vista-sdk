@@ -167,6 +167,5 @@ namespace dnv::vista::sdk::internal::constants::dto
 
 		/** @brief Unknown ISO19848 type fallback constant. */
 		inline constexpr std::string_view UNKNOWN_TYPE = "[unknown type]";
-
 	}
 }

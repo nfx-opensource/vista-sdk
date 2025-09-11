@@ -4,14 +4,13 @@
  */
 
 #include <nfx/containers/HashMap.h>
-#include <nfx/string/StringBuilderPool.h>
 #include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/transport/ISO19848.h"
 
+#include "internal/EmbeddedResource.h"
 #include "internal/constants/ISO19848.h"
 #include "dnv/vista/sdk/config/ISO19848.h"
-#include "dnv/vista/sdk/EmbeddedResource.h"
 
 namespace dnv::vista::sdk::transport
 {
@@ -143,11 +142,11 @@ namespace dnv::vista::sdk::transport
 		{
 			case ISO19848Version::v2018:
 			{
-				return EmbeddedResource::dataChannelTypeNames( iso19848::version::v2018 );
+				return internal::EmbeddedResource::dataChannelTypeNames( iso19848::version::v2018 );
 			}
 			case ISO19848Version::v2024:
 			{
-				return EmbeddedResource::dataChannelTypeNames( iso19848::version::v2024 );
+				return internal::EmbeddedResource::dataChannelTypeNames( iso19848::version::v2024 );
 			}
 			default:
 			{
@@ -162,11 +161,11 @@ namespace dnv::vista::sdk::transport
 		{
 			case ISO19848Version::v2018:
 			{
-				return EmbeddedResource::formatDataTypes( iso19848::version::v2018 );
+				return internal::EmbeddedResource::formatDataTypes( iso19848::version::v2018 );
 			}
 			case ISO19848Version::v2024:
 			{
-				return EmbeddedResource::formatDataTypes( iso19848::version::v2024 );
+				return internal::EmbeddedResource::formatDataTypes( iso19848::version::v2024 );
 			}
 			default:
 			{
@@ -227,13 +226,7 @@ namespace dnv::vista::sdk::transport
 			nfx::datatypes::Decimal d;
 			if ( !nfx::datatypes::Decimal::tryParse( value, d ) )
 			{
-				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
-				builder.append( "Invalid decimal value - Value='" );
-				builder.append( value );
-				builder.append( "'" );
-
-				return ValidateResult{ ValidateResult::Invalid{ { lease.toString() } } };
+				return ValidateResult{ ValidateResult::Invalid{ { "Invalid decimal value - Value='" + std::string( value ) + "'" } } };
 			}
 
 			outValue = Value{ Value::Decimal{ d } };
@@ -244,13 +237,7 @@ namespace dnv::vista::sdk::transport
 			double d;
 			if ( !nfx::string::tryParseDouble( value, d ) )
 			{
-				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
-				builder.append( "Invalid double value - Value='" );
-				builder.append( value );
-				builder.append( "'" );
-
-				return ValidateResult{ ValidateResult::Invalid{ { lease.toString() } } };
+				return ValidateResult{ ValidateResult::Invalid{ { "Invalid double value - Value='" + std::string( value ) + "'" } } };
 			}
 
 			outValue = Value{ Value::Double{ d } };
@@ -261,13 +248,7 @@ namespace dnv::vista::sdk::transport
 			int i;
 			if ( !nfx::string::tryParseInt( value, i ) )
 			{
-				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
-				builder.append( "Invalid integer value - Value='" );
-				builder.append( value );
-				builder.append( "'" );
-
-				return ValidateResult{ ValidateResult::Invalid{ { lease.toString() } } };
+				return ValidateResult{ ValidateResult::Invalid{ { "Invalid integer value - Value='" + std::string( value ) + "'" } } };
 			}
 
 			outValue = Value{ Value::Integer{ i } };
@@ -278,13 +259,7 @@ namespace dnv::vista::sdk::transport
 			bool b;
 			if ( !nfx::string::tryParseBool( value, b ) )
 			{
-				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
-				builder.append( "Invalid boolean value - Value='" );
-				builder.append( value );
-				builder.append( "'" );
-
-				return ValidateResult{ ValidateResult::Invalid{ { lease.toString() } } };
+				return ValidateResult{ ValidateResult::Invalid{ { "Invalid boolean value - Value='" + std::string( value ) + "'" } } };
 			}
 
 			outValue = Value{ Value::Boolean{ b } };
@@ -294,13 +269,7 @@ namespace dnv::vista::sdk::transport
 		{
 			if ( !nfx::string::hasExactLength( value, 1 ) )
 			{
-				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
-				builder.append( "Invalid char value - Value='" );
-				builder.append( value );
-				builder.append( "'" );
-
-				return ValidateResult{ ValidateResult::Invalid{ { lease.toString() } } };
+				return ValidateResult{ ValidateResult::Invalid{ { "Invalid char value - Value='" + std::string( value ) + "'" } } };
 			}
 
 			outValue = Value{ Value::Char{ value[0] } };
@@ -311,13 +280,7 @@ namespace dnv::vista::sdk::transport
 			std::uint32_t ui;
 			if ( !nfx::string::tryParseUInt( value, ui ) )
 			{
-				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
-				builder.append( "Invalid unsigned integer value - Value='" );
-				builder.append( value );
-				builder.append( "'" );
-
-				return ValidateResult{ ValidateResult::Invalid{ { lease.toString() } } };
+				return ValidateResult{ ValidateResult::Invalid{ { "Invalid unsigned integer value - Value='" + std::string( value ) + "'" } } };
 			}
 
 			outValue = Value{ Value::UnsignedInteger{ ui } };
@@ -328,13 +291,7 @@ namespace dnv::vista::sdk::transport
 			std::int64_t l;
 			if ( !nfx::string::tryParseLong( value, l ) )
 			{
-				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
-				builder.append( "Invalid long value - Value='" );
-				builder.append( value );
-				builder.append( "'" );
-
-				return ValidateResult{ ValidateResult::Invalid{ { lease.toString() } } };
+				return ValidateResult{ ValidateResult::Invalid{ { "Invalid long value - Value='" + std::string( value ) + "'" } } };
 			}
 
 			outValue = Value{ Value::Long{ l } };
@@ -349,13 +306,7 @@ namespace dnv::vista::sdk::transport
 			nfx::time::DateTimeOffset dt;
 			if ( !nfx::time::DateTimeOffset::tryParse( value, dt ) )
 			{
-				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
-				builder.append( "Invalid datetime value - Value='" );
-				builder.append( value );
-				builder.append( "'" );
-
-				return ValidateResult{ ValidateResult::Invalid{ { lease.toString() } } };
+				return ValidateResult{ ValidateResult::Invalid{ { "Invalid datetime value - Value='" + std::string( value ) + "'" } } };
 			}
 
 			outValue = Value{ Value::DateTime{ std::move( dt ) } };
@@ -363,13 +314,7 @@ namespace dnv::vista::sdk::transport
 		}
 		else
 		{
-			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
-
-			builder.append( "Invalid format type " );
-			builder.append( m_type );
-
-			throw std::runtime_error{ lease.toString() };
+			throw std::runtime_error{ "Invalid format type " + m_type };
 		}
 	}
 

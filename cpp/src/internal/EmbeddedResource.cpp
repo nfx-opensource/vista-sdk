@@ -1,33 +1,32 @@
 /**
  * @file EmbeddedResource.cpp
- * @brief Implementation of resource loading and caching utilities for Vista SDK
+ * @brief Implementation of resource loading utilities for Vista SDK
  */
 
 #include <cstdio>
 #include <fstream>
-#include <mutex>
 #include <sstream>
 #include <string>
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/Utils.h>
 #include <zlib-ng.h>
 
-#include "dnv/vista/sdk/EmbeddedResource.h"
+#include "EmbeddedResource.h"
+
+#include "constants/DtoKeys.h"
 #include "dnv/vista/sdk/transport/ISO19848Dtos.h"
 #include "dnv/vista/sdk/CodebooksDto.h"
 #include "dnv/vista/sdk/GmodDto.h"
 #include "dnv/vista/sdk/GmodVersioningDto.h"
 #include "dnv/vista/sdk/LocationsDto.h"
 
-namespace dnv::vista::sdk
+namespace dnv::vista::sdk::internal
 {
 	namespace
 	{
 		//=====================================================================
 		// Constants
 		//=====================================================================
-
-		static constexpr std::string_view VIS_RELEASE_KEY = "visRelease";
 
 		// Compression buffer sizes for zlib streaming decompression
 		static constexpr size_t CHUNK_IN_SIZE = 65536;	 // 64KB input buffer for reading compressed data
@@ -55,6 +54,40 @@ namespace dnv::vista::sdk
 			return std::filesystem::current_path() / "resources";
 #endif
 		}
+
+		//=====================================================================
+		// Resource type checking utilities
+		//=====================================================================
+
+		static bool isGmodResource( std::string_view filename ) noexcept
+		{
+			return nfx::string::contains( filename, "gmod" ) && !nfx::string::contains( filename, "versioning" ) && nfx::string::endsWith( filename, ".json.gz" );
+		}
+
+		static bool isGmodVersioningResource( std::string_view filename ) noexcept
+		{
+			return nfx::string::contains( filename, "gmod" ) && nfx::string::contains( filename, "versioning" ) && nfx::string::endsWith( filename, ".json.gz" );
+		}
+
+		static bool isLocationsResource( std::string_view filename ) noexcept
+		{
+			return nfx::string::contains( filename, "locations" ) && nfx::string::endsWith( filename, ".json.gz" );
+		}
+
+		static bool containsVersion( std::string_view filename, std::string_view version ) noexcept
+		{
+			return nfx::string::contains( filename, version );
+		}
+
+		static bool isDataChannelTypeNamesResource( std::string_view filename ) noexcept
+		{
+			return nfx::string::contains( filename, "data-channel-type-names" ) && nfx::string::contains( filename, "iso19848" ) && nfx::string::endsWith( filename, ".json.gz" );
+		}
+
+		static bool isFormatDataTypesResource( std::string_view filename ) noexcept
+		{
+			return nfx::string::contains( filename, "format-data-types" ) && nfx::string::contains( filename, "iso19848" ) && nfx::string::endsWith( filename, ".json.gz" );
+		}
 	}
 
 	//=====================================================================
@@ -80,9 +113,9 @@ namespace dnv::vista::sdk
 					const auto stream = decompressedStream( resourceName );
 					const nlohmann::json gmodJson = nlohmann::json::parse( *stream );
 
-					if ( gmodJson.contains( VIS_RELEASE_KEY ) && gmodJson.at( VIS_RELEASE_KEY ).is_string() )
+					if ( gmodJson.contains( constants::dto::KEY_VIS_RELEASE ) && gmodJson.at( constants::dto::KEY_VIS_RELEASE ).is_string() )
 					{
-						std::string version = gmodJson.at( VIS_RELEASE_KEY ).get<std::string>();
+						std::string version = gmodJson.at( constants::dto::KEY_VIS_RELEASE ).get<std::string>();
 						visVersions.push_back( version );
 					}
 					else
@@ -91,7 +124,7 @@ namespace dnv::vista::sdk
 							stderr,
 							"WARN: GMOD resource %s missing or has invalid '%.*s' field.\n",
 							resourceName.data(),
-							static_cast<int>( VIS_RELEASE_KEY.size() ), VIS_RELEASE_KEY.data() );
+							static_cast<int>( constants::dto::KEY_VIS_RELEASE.size() ), constants::dto::KEY_VIS_RELEASE.data() );
 					}
 				}
 				catch ( [[maybe_unused]] const nlohmann::json::parse_error& ex )
@@ -140,20 +173,8 @@ namespace dnv::vista::sdk
 		return visVersions;
 	}
 
-	const std::optional<nfx::containers::StringMap<GmodVersioningDto>>& EmbeddedResource::gmodVersioning()
+	std::optional<nfx::containers::StringMap<GmodVersioningDto>> EmbeddedResource::gmodVersioning()
 	{
-		static std::mutex gmodVersioningCacheMutex;
-		static std::optional<nfx::containers::StringMap<GmodVersioningDto>> gmodVersioningCache;
-		static bool cacheInitialized = false;
-
-		{
-			std::lock_guard<std::mutex> lock( gmodVersioningCacheMutex );
-			if ( cacheInitialized )
-			{
-				return gmodVersioningCache;
-			}
-		}
-
 		auto names = resourceNames();
 
 		std::vector<std::string> matchingResources;
@@ -168,7 +189,6 @@ namespace dnv::vista::sdk
 		}
 
 		nfx::containers::StringMap<GmodVersioningDto> resultMap;
-		std::mutex resultMutex;
 		bool foundAnyResource = false;
 
 		for ( const auto& resourceName : matchingResources )
@@ -178,17 +198,14 @@ namespace dnv::vista::sdk
 				const auto stream = decompressedStream( resourceName );
 				const nlohmann::json versioningJson = nlohmann::json::parse( *stream );
 
-				if ( versioningJson.contains( VIS_RELEASE_KEY ) && versioningJson.at( VIS_RELEASE_KEY ).is_string() )
+				if ( versioningJson.contains( constants::dto::KEY_VIS_RELEASE ) && versioningJson.at( constants::dto::KEY_VIS_RELEASE ).is_string() )
 				{
-					std::string visVersion = versioningJson.at( VIS_RELEASE_KEY ).get<std::string>();
+					std::string visVersion = versioningJson.at( constants::dto::KEY_VIS_RELEASE ).get<std::string>();
 
 					auto dto = GmodVersioningDto::fromJson( versioningJson );
 
-					{
-						std::lock_guard<std::mutex> lock( resultMutex );
-						resultMap.emplace( visVersion, std::move( dto ) );
-						foundAnyResource = true;
-					}
+					resultMap.emplace( visVersion, std::move( dto ) );
+					foundAnyResource = true;
 				}
 				else
 				{
@@ -196,7 +213,7 @@ namespace dnv::vista::sdk
 						stderr,
 						"WARN: GMOD Versioning resource %s missing or has invalid '%.*s' field.\n",
 						resourceName.data(),
-						static_cast<int>( VIS_RELEASE_KEY.size() ), VIS_RELEASE_KEY.data() );
+						static_cast<int>( constants::dto::KEY_VIS_RELEASE.size() ), constants::dto::KEY_VIS_RELEASE.data() );
 				}
 			}
 			catch ( [[maybe_unused]] const nlohmann::json::parse_error& ex )
@@ -225,34 +242,18 @@ namespace dnv::vista::sdk
 			}
 		}
 
-		std::lock_guard<std::mutex> lock( gmodVersioningCacheMutex );
-		cacheInitialized = true;
 		if ( foundAnyResource )
 		{
-			gmodVersioningCache.emplace( std::move( resultMap ) );
+			return std::make_optional( std::move( resultMap ) );
 		}
 		else
 		{
-			gmodVersioningCache = std::nullopt;
+			return std::nullopt;
 		}
-		return gmodVersioningCache;
 	}
 
 	std::optional<GmodDto> EmbeddedResource::gmod( std::string_view visVersion )
 	{
-		static std::mutex gmodCacheMutex;
-
-		static nfx::containers::StringMap<std::optional<GmodDto>> gmodCache;
-
-		{
-			std::lock_guard<std::mutex> lock( gmodCacheMutex );
-			auto cacheIt = gmodCache.find( visVersion );
-			if ( cacheIt != gmodCache.end() )
-			{
-				return cacheIt->second;
-			}
-		}
-
 		auto names = resourceNames();
 
 		auto it = std::find_if( names.begin(), names.end(), [&visVersion]( const std::string& name ) {
@@ -265,13 +266,8 @@ namespace dnv::vista::sdk
 		{
 			std::fprintf( stderr, "ERROR: GMOD resource not found for version: %.*s\n",
 				static_cast<int>( visVersion.size() ), visVersion.data() );
-			std::lock_guard<std::mutex> lock( gmodCacheMutex );
-			gmodCache.emplace( visVersion, std::nullopt );
-
 			return std::nullopt;
 		}
-
-		std::optional<GmodDto> resultForCache = std::nullopt;
 
 		try
 		{
@@ -280,7 +276,7 @@ namespace dnv::vista::sdk
 
 			GmodDto loadedDto = GmodDto::fromJson( gmodJson );
 
-			resultForCache.emplace( std::move( loadedDto ) );
+			return std::make_optional( std::move( loadedDto ) );
 		}
 		catch ( [[maybe_unused]] const nlohmann::json::parse_error& ex )
 		{
@@ -306,27 +302,11 @@ namespace dnv::vista::sdk
 				it->c_str(), ex.what() );
 		}
 
-		std::lock_guard<std::mutex> lock( gmodCacheMutex );
-		auto [emplaceIt, inserted] = gmodCache.emplace( visVersion, std::move( resultForCache ) );
-
-		return emplaceIt->second;
+		return std::nullopt;
 	}
 
 	std::optional<CodebooksDto> EmbeddedResource::codebooks( std::string_view visVersion )
 	{
-		static std::mutex codebooksCacheMutex;
-
-		static nfx::containers::StringMap<std::optional<CodebooksDto>> codebooksCache;
-
-		{
-			std::lock_guard<std::mutex> lock( codebooksCacheMutex );
-			auto cacheIt = codebooksCache.find( visVersion );
-			if ( cacheIt != codebooksCache.end() )
-			{
-				return cacheIt->second;
-			}
-		}
-
 		auto names = resourceNames();
 
 		auto it = std::find_if( names.begin(), names.end(), [&visVersion]( const std::string& name ) {
@@ -339,13 +319,9 @@ namespace dnv::vista::sdk
 		{
 			std::fprintf( stderr, "ERROR: Codebooks resource not found for version: %.*s\n",
 				static_cast<int>( visVersion.size() ), visVersion.data() );
-			std::lock_guard<std::mutex> lock( codebooksCacheMutex );
-			codebooksCache.emplace( visVersion, std::nullopt );
-
 			return std::nullopt;
 		}
 
-		std::optional<CodebooksDto> resultForCache = std::nullopt;
 		try
 		{
 			auto stream = decompressedStream( *it );
@@ -353,7 +329,7 @@ namespace dnv::vista::sdk
 
 			CodebooksDto loadedDto = CodebooksDto::fromJson( codebooksJson );
 
-			resultForCache.emplace( std::move( loadedDto ) );
+			return std::make_optional( std::move( loadedDto ) );
 		}
 		catch ( [[maybe_unused]] const nlohmann::json::parse_error& ex )
 		{
@@ -380,27 +356,11 @@ namespace dnv::vista::sdk
 				ex.what() );
 		}
 
-		std::lock_guard<std::mutex> lock( codebooksCacheMutex );
-		auto [emplaceIt, inserted] = codebooksCache.emplace( visVersion, std::move( resultForCache ) );
-
-		return emplaceIt->second;
+		return std::nullopt;
 	}
 
 	std::optional<LocationsDto> EmbeddedResource::locations( std::string_view visVersion )
 	{
-		static std::mutex locationsCacheMutex;
-
-		static nfx::containers::StringMap<std::optional<LocationsDto>> locationsCache;
-
-		{
-			std::lock_guard<std::mutex> lock( locationsCacheMutex );
-			auto cacheIt = locationsCache.find( visVersion );
-			if ( cacheIt != locationsCache.end() )
-			{
-				return cacheIt->second;
-			}
-		}
-
 		auto names = resourceNames();
 
 		auto it = std::find_if( names.begin(), names.end(),
@@ -411,13 +371,9 @@ namespace dnv::vista::sdk
 		{
 			std::fprintf( stderr, "ERROR: Locations resource not found for version: %.*s\n",
 				static_cast<int>( visVersion.size() ), visVersion.data() );
-			std::lock_guard<std::mutex> lock( locationsCacheMutex );
-			locationsCache.emplace( visVersion, std::nullopt );
-
 			return std::nullopt;
 		}
 
-		std::optional<LocationsDto> resultForCache = std::nullopt;
 		try
 		{
 			auto stream = decompressedStream( *it );
@@ -425,7 +381,7 @@ namespace dnv::vista::sdk
 
 			LocationsDto loadedDto = LocationsDto::fromJson( locationsJson );
 
-			resultForCache.emplace( std::move( loadedDto ) );
+			return std::make_optional( std::move( loadedDto ) );
 		}
 		catch ( [[maybe_unused]] const nlohmann::json::parse_error& ex )
 		{
@@ -452,27 +408,11 @@ namespace dnv::vista::sdk
 				ex.what() );
 		}
 
-		std::lock_guard<std::mutex> lock( locationsCacheMutex );
-		auto [emplaceIt, inserted] = locationsCache.emplace( visVersion, std::move( resultForCache ) );
-
-		return emplaceIt->second;
+		return std::nullopt;
 	}
 
 	std::optional<transport::DataChannelTypeNamesDto> EmbeddedResource::dataChannelTypeNames( std::string_view version )
 	{
-		static std::mutex dataChannelTypeNamesCacheMutex;
-
-		static nfx::containers::StringMap<std::optional<transport::DataChannelTypeNamesDto>> dataChannelTypeNamesCache;
-
-		{
-			std::lock_guard<std::mutex> lock( dataChannelTypeNamesCacheMutex );
-			auto cacheIt = dataChannelTypeNamesCache.find( version );
-			if ( cacheIt != dataChannelTypeNamesCache.end() )
-			{
-				return cacheIt->second;
-			}
-		}
-
 		auto names = resourceNames();
 
 		auto it = std::find_if( names.begin(), names.end(),
@@ -483,14 +423,9 @@ namespace dnv::vista::sdk
 		{
 			std::fprintf( stderr, "ERROR: DataChannelTypeNames resource not found for version: %.*s\n",
 				static_cast<int>( version.size() ), version.data() );
-
-			std::lock_guard<std::mutex> lock( dataChannelTypeNamesCacheMutex );
-			dataChannelTypeNamesCache.emplace( version, std::nullopt );
-
 			return std::nullopt;
 		}
 
-		std::optional<transport::DataChannelTypeNamesDto> resultForCache = std::nullopt;
 		try
 		{
 			auto stream = decompressedStream( *it );
@@ -498,7 +433,7 @@ namespace dnv::vista::sdk
 
 			auto loadedDto = transport::DataChannelTypeNamesDto::fromJson( dtNamesJson );
 
-			resultForCache.emplace( std::move( loadedDto ) );
+			return std::make_optional( std::move( loadedDto ) );
 		}
 		catch ( [[maybe_unused]] const nlohmann::json::parse_error& ex )
 		{
@@ -525,27 +460,11 @@ namespace dnv::vista::sdk
 				ex.what() );
 		}
 
-		std::lock_guard<std::mutex> lock( dataChannelTypeNamesCacheMutex );
-		auto [emplaceIt, inserted] = dataChannelTypeNamesCache.emplace( version, std::move( resultForCache ) );
-
-		return emplaceIt->second;
+		return std::nullopt;
 	}
 
 	std::optional<transport::FormatDataTypesDto> EmbeddedResource::formatDataTypes( std::string_view version )
 	{
-		static std::mutex fdTypesCacheMutex;
-
-		static nfx::containers::StringMap<std::optional<transport::FormatDataTypesDto>> fdTypesCache;
-
-		{
-			std::lock_guard<std::mutex> lock( fdTypesCacheMutex );
-			auto cacheIt = fdTypesCache.find( version );
-			if ( cacheIt != fdTypesCache.end() )
-			{
-				return cacheIt->second;
-			}
-		}
-
 		auto names = resourceNames();
 
 		auto it = std::find_if( names.begin(), names.end(),
@@ -556,13 +475,9 @@ namespace dnv::vista::sdk
 		{
 			std::fprintf( stderr, "ERROR: FormatDataTypes resource not found for version: %.*s\n",
 				static_cast<int>( version.size() ), version.data() );
-			std::lock_guard<std::mutex> lock( fdTypesCacheMutex );
-			fdTypesCache.emplace( version, std::nullopt );
-
 			return std::nullopt;
 		}
 
-		std::optional<transport::FormatDataTypesDto> resultForCache = std::nullopt;
 		try
 		{
 			auto stream = decompressedStream( *it );
@@ -570,7 +485,7 @@ namespace dnv::vista::sdk
 
 			auto loadedDto = transport::FormatDataTypesDto::fromJson( fdTypesJson );
 
-			resultForCache.emplace( std::move( loadedDto ) );
+			return std::make_optional( std::move( loadedDto ) );
 		}
 		catch ( [[maybe_unused]] const nlohmann::json::parse_error& ex )
 		{
@@ -597,10 +512,7 @@ namespace dnv::vista::sdk
 				ex.what() );
 		}
 
-		std::lock_guard<std::mutex> lock( fdTypesCacheMutex );
-		auto [emplaceIt, inserted] = fdTypesCache.emplace( version, std::move( resultForCache ) );
-
-		return emplaceIt->second;
+		return std::nullopt;
 	}
 
 	//----------------------------------------------
@@ -609,18 +521,6 @@ namespace dnv::vista::sdk
 
 	std::vector<std::string> EmbeddedResource::resourceNames()
 	{
-		static std::mutex cacheMutex;
-		static std::vector<std::string> cachedResourceNames;
-		static bool initialized = false;
-
-		{
-			std::lock_guard<std::mutex> lock( cacheMutex );
-			if ( initialized )
-			{
-				return cachedResourceNames;
-			}
-		}
-
 		const auto resourcesDir = resourceDirectory();
 
 		std::vector<std::string> foundNames;
@@ -630,11 +530,7 @@ namespace dnv::vista::sdk
 		{
 			if ( !std::filesystem::exists( resourcesDir ) || !std::filesystem::is_directory( resourcesDir ) )
 			{
-				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
-				builder.append( "Resources directory not found: " );
-				builder.append( resourcesDir.string() );
-				throw std::runtime_error{ lease.toString() };
+				throw std::runtime_error{ "Resources directory not found: " + resourcesDir.string() };
 			}
 
 			for ( const auto& entry : std::filesystem::directory_iterator( resourcesDir ) )
@@ -655,32 +551,14 @@ namespace dnv::vista::sdk
 		}
 		catch ( [[maybe_unused]] const std::filesystem::filesystem_error& ex )
 		{
-			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
-			builder.append( "Filesystem error scanning resources directory " );
-			builder.append( resourcesDir.string() );
-			builder.append( ": " );
-			builder.append( ex.what() );
-			throw std::runtime_error{ lease.toString() };
+			throw std::runtime_error{ "Filesystem error scanning resources directory " + resourcesDir.string() + ": " + ex.what() };
 		}
 		catch ( [[maybe_unused]] const std::exception& ex )
 		{
-			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
-			builder.append( "Error scanning resources directory " );
-			builder.append( resourcesDir.string() );
-			builder.append( ": " );
-			builder.append( ex.what() );
-			throw std::runtime_error{ lease.toString() };
+			throw std::runtime_error{ "Error scanning resources directory " + resourcesDir.string() + ": " + ex.what() };
 		}
 
-		{
-			std::lock_guard<std::mutex> lock( cacheMutex );
-			cachedResourceNames = std::move( foundNames );
-			initialized = true;
-
-			return cachedResourceNames;
-		}
+		return foundNames;
 	}
 
 	std::shared_ptr<std::istream> EmbeddedResource::decompressedStream( std::string_view resourceName )
@@ -689,22 +567,14 @@ namespace dnv::vista::sdk
 
 		if ( !compressedStream || !compressedStream->good() )
 		{
-			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
-			builder.append( "Failed to open compressed stream for resource: " );
-			builder.append( resourceName );
-			throw std::runtime_error{ lease.toString() };
+			throw std::runtime_error{ "Failed to open compressed stream for resource: " + std::string( resourceName ) };
 		}
 
 		compressedStream->seekg( 0, std::ios::end );
 		auto pos = compressedStream->tellg();
 		if ( pos < 0 )
 		{
-			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
-			builder.append( "Invalid stream position for resource: " );
-			builder.append( resourceName );
-			throw std::runtime_error{ lease.toString() };
+			throw std::runtime_error{ "Invalid stream position for resource: " + std::string( resourceName ) };
 		}
 		size_t compressedSize = static_cast<size_t>( pos );
 		compressedStream->seekg( 0, std::ios::beg );
@@ -721,11 +591,7 @@ namespace dnv::vista::sdk
 
 		if ( ::zng_inflateInit2( &zs, GZIP_MAX_WINDOW_BITS ) != 0 )
 		{
-			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
-			builder.append( "Failed to initialize zlib for resource: " );
-			builder.append( resourceName );
-			throw std::runtime_error{ lease.toString() };
+			throw std::runtime_error{ "Failed to initialize zlib for resource: " + std::string( resourceName ) };
 		}
 
 		std::vector<char> inBuffer( CHUNK_IN_SIZE );
@@ -740,12 +606,7 @@ namespace dnv::vista::sdk
 			if ( zs.avail_in == 0 && !compressedStream->eof() )
 			{
 				::zng_inflateEnd( &zs );
-
-				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
-				builder.append( "Error reading compressed stream for resource: " );
-				builder.append( resourceName );
-				throw std::runtime_error{ lease.toString() };
+				throw std::runtime_error{ "Error reading compressed stream for resource: " + std::string( resourceName ) };
 			}
 
 			zs.next_in = reinterpret_cast<Bytef*>( inBuffer.data() );
@@ -784,34 +645,6 @@ namespace dnv::vista::sdk
 
 	std::shared_ptr<std::istream> EmbeddedResource::stream( std::string_view resourceName )
 	{
-		static std::mutex pathCacheMutex;
-		static PathCache resourcePathCache;
-
-		{
-			std::lock_guard<std::mutex> lock( pathCacheMutex );
-
-			auto it = resourcePathCache.find( resourceName );
-
-			if ( it != resourcePathCache.end() )
-			{
-				if ( std::filesystem::exists( it->second ) && std::filesystem::is_regular_file( it->second ) )
-				{
-					auto fileStream = std::make_shared<std::ifstream>( it->second, std::ios::binary );
-					if ( fileStream->is_open() )
-					{
-						return fileStream;
-					}
-				}
-				std::fprintf(
-					stderr,
-					"WARN: Cached resource path '%s' for '%.*s' is invalid, removing from cache.\n",
-					it->second.string().c_str(),
-					static_cast<int>( resourceName.size() ), resourceName.data() );
-
-				resourcePathCache.erase( it );
-			}
-		}
-
 		const auto resourcePath = resourceDirectory() / resourceName;
 
 		try
@@ -821,49 +654,23 @@ namespace dnv::vista::sdk
 				auto fileStream = std::make_shared<std::ifstream>( resourcePath, std::ios::binary );
 				if ( fileStream->is_open() )
 				{
-					{
-						std::lock_guard<std::mutex> lock( pathCacheMutex );
-						resourcePathCache.emplace( resourceName, resourcePath );
-					}
-
 					return fileStream;
 				}
 				else
 				{
-					auto lease = nfx::string::StringBuilderPool::lease();
-					auto builder = lease.builder();
-					builder.append( "Found resource '" );
-					builder.append( resourcePath.string() );
-					builder.append( "' but failed to open stream" );
-					throw std::runtime_error( lease.toString() );
+					throw std::runtime_error( "Found resource '" + resourcePath.string() + "' but failed to open stream" );
 				}
 			}
 		}
 		catch ( [[maybe_unused]] const std::filesystem::filesystem_error& ex )
 		{
-			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
-			builder.append( "Filesystem error accessing resource '" );
-			builder.append( resourcePath.string() );
-			builder.append( "': " );
-			builder.append( ex.what() );
-			throw std::runtime_error( lease.toString() );
+			throw std::runtime_error( "Filesystem error accessing resource '" + resourcePath.string() + "': " + ex.what() );
 		}
 		catch ( [[maybe_unused]] const std::exception& ex )
 		{
-			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
-			builder.append( "Error accessing resource '" );
-			builder.append( resourcePath.string() );
-			builder.append( "': " );
-			builder.append( ex.what() );
-			throw std::runtime_error( lease.toString() );
+			throw std::runtime_error( "Error accessing resource '" + resourcePath.string() + "': " + ex.what() );
 		}
 
-		auto lease = nfx::string::StringBuilderPool::lease();
-		auto builder = lease.builder();
-		builder.append( "Resource file not found: " );
-		builder.append( resourcePath.string() );
-		throw std::runtime_error( lease.toString() );
+		throw std::runtime_error( "Resource file not found: " + resourcePath.string() );
 	}
 }

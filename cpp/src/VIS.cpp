@@ -3,13 +3,11 @@
  * @brief Implementation of Vessel Information Structure (VIS) interface
  */
 
-#include <nfx/string/StringBuilderPool.h>
-
 #include "dnv/vista/sdk/VIS.h"
 
+#include "internal/EmbeddedResource.h"
 #include "dnv/vista/sdk/Codebooks.h"
 #include "dnv/vista/sdk/CodebooksDto.h"
-#include "dnv/vista/sdk/EmbeddedResource.h"
 #include "dnv/vista/sdk/Gmod.h"
 #include "dnv/vista/sdk/GmodDto.h"
 #include "dnv/vista/sdk/GmodVersioning.h"
@@ -25,18 +23,22 @@ namespace dnv::vista::sdk
 
 		[[noreturn]] void throwInvalidVersionError( VisVersion version )
 		{
-			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
-			builder.append( "Invalid VIS version provided: " );
-			builder.append( VisVersionExtensions::toVersionString( version ) );
-
-			throw std::invalid_argument{ lease.toString() };
+			throw std::invalid_argument{ "Invalid VIS version provided: " + std::string{ VisVersionExtensions::toVersionString( version ) } };
 		}
 	}
 
 	//=====================================================================
 	// VIS singleton
 	//=====================================================================
+
+	//----------------------------------------------
+	// DTO Loading
+	//----------------------------------------------
+
+	std::optional<GmodDto> VIS::loadGmodDto( VisVersion visVersion )
+	{
+		return internal::EmbeddedResource::gmod( VisVersionExtensions::toVersionString( visVersion ) );
+	}
 
 	//----------------------------------------------
 	// Accessors
@@ -100,7 +102,7 @@ namespace dnv::vista::sdk
 		static constexpr VisVersion cacheKey = VisVersion::LATEST;
 
 		return gmodVersioningCache().getOrCreate( cacheKey, []() {
-			auto dto = EmbeddedResource::gmodVersioning();
+			auto dto = internal::EmbeddedResource::gmodVersioning();
 			if ( !dto )
 			{
 				throw std::runtime_error{ "Failed to load GMOD versioning data" };
@@ -167,13 +169,67 @@ namespace dnv::vista::sdk
 	}
 
 	//----------------------------------------------
-	// DTO Loading
+	// Cached DTO
 	//----------------------------------------------
+
+	const GmodDto& VIS::gmodDto( VisVersion visVersion )
+	{
+		if ( !VisVersionExtensions::isValid( visVersion ) )
+		{
+			throw std::invalid_argument{ "Invalid VIS version: " + std::to_string( static_cast<int>( visVersion ) ) };
+		}
+
+		return gmodDtoCache().getOrCreate( visVersion, [visVersion]() {
+			auto dto = loadGmodDto( visVersion );
+			if ( !dto )
+			{
+				throw std::runtime_error{ "Failed to load GMOD DTO for version: " + std::string{ VisVersionExtensions::toVersionString( visVersion ) } };
+			}
+
+			return std::move( *dto );
+		} );
+	}
+
+	const CodebooksDto& VIS::codebooksDto( VisVersion visVersion )
+	{
+		if ( !VisVersionExtensions::isValid( visVersion ) )
+		{
+			throw std::invalid_argument{ "Invalid VIS version: " + std::to_string( static_cast<int>( visVersion ) ) };
+		}
+
+		return codebooksDtoCache().getOrCreate( visVersion, [visVersion]() {
+			auto dto = internal::EmbeddedResource::codebooks( VisVersionExtensions::toVersionString( visVersion ) );
+			if ( !dto )
+			{
+				throw std::runtime_error{ "Failed to load codebooks DTO for version: " + std::string{ VisVersionExtensions::toVersionString( visVersion ) } };
+			}
+
+			return std::move( *dto );
+		} );
+	}
+
+	const LocationsDto& VIS::locationsDto( VisVersion visVersion )
+	{
+		if ( !VisVersionExtensions::isValid( visVersion ) )
+		{
+			throw std::invalid_argument{ "Invalid VIS version: " + std::to_string( static_cast<int>( visVersion ) ) };
+		}
+
+		return locationsDtoCache().getOrCreate( visVersion, [visVersion]() {
+			auto dto = internal::EmbeddedResource::locations( VisVersionExtensions::toVersionString( visVersion ) );
+			if ( !dto )
+			{
+				throw std::runtime_error{ "Failed to load locations DTO for version: " + std::string{ VisVersionExtensions::toVersionString( visVersion ) } };
+			}
+
+			return std::move( *dto );
+		} );
+	}
 
 	const nfx::containers::StringMap<GmodVersioningDto>& VIS::gmodVersioningDto()
 	{
 		static auto versioningDto = []() -> nfx::containers::StringMap<GmodVersioningDto> {
-			auto dto = EmbeddedResource::gmodVersioning();
+			auto dto = internal::EmbeddedResource::gmodVersioning();
 			if ( !dto )
 			{
 				throw std::runtime_error{ "Failed to load GMOD versioning data" };
