@@ -7,12 +7,12 @@
 
 #include <gtest/gtest.h>
 
-#include "dnv/vista/sdk/GmodPathQuery.h"
-#include "dnv/vista/sdk/GmodPath.h"
-#include "dnv/vista/sdk/Gmod.h"
-#include "dnv/vista/sdk/Locations.h"
-#include "dnv/vista/sdk/VIS.h"
-#include "dnv/vista/sdk/VISVersion.h"
+#include <dnv/vista/sdk/GmodPathQuery.h>
+#include <dnv/vista/sdk/GmodPath.h>
+#include <dnv/vista/sdk/Gmod.h>
+#include <dnv/vista/sdk/Locations.h>
+#include <dnv/vista/sdk/VIS.h>
+#include <dnv/vista/sdk/VISVersion.h>
 
 namespace dnv::vista::sdk::tests
 {

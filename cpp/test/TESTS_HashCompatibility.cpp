@@ -11,7 +11,6 @@
 #include <string_view>
 
 #include <nfx/containers/ChdHashMap.h>
-
 #include <nfx/string/Utils.h>
 #include <gtest/gtest.h>
 

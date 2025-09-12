@@ -7,18 +7,17 @@
 
 #include "TestDataLoader.h"
 
-#include "internal/LocalIdParsingErrorBuilder.h"
-
-#include "dnv/vista/sdk/Gmod.h"
-#include "dnv/vista/sdk/GmodPath.h"
-#include "dnv/vista/sdk/ImoNumber.h"
-#include "dnv/vista/sdk/LocalIdBuilder.h"
-#include "dnv/vista/sdk/Locations.h"
-#include "dnv/vista/sdk/ParsingErrors.h"
-#include "dnv/vista/sdk/UniversalId.h"
-#include "dnv/vista/sdk/UniversalIdBuilder.h"
-#include "dnv/vista/sdk/VIS.h"
-#include "dnv/vista/sdk/VISVersion.h"
+#include <internal/LocalIdParsingErrorBuilder.h>
+#include <dnv/vista/sdk/Gmod.h>
+#include <dnv/vista/sdk/GmodPath.h>
+#include <dnv/vista/sdk/ImoNumber.h>
+#include <dnv/vista/sdk/LocalIdBuilder.h>
+#include <dnv/vista/sdk/Locations.h>
+#include <dnv/vista/sdk/ParsingErrors.h>
+#include <dnv/vista/sdk/UniversalId.h>
+#include <dnv/vista/sdk/UniversalIdBuilder.h>
+#include <dnv/vista/sdk/VIS.h>
+#include <dnv/vista/sdk/VISVersion.h>
 
 namespace dnv::vista::sdk::tests::test
 {

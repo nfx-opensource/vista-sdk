@@ -7,8 +7,8 @@
 #include <nfx/string/Utils.h>
 #include <benchmark/benchmark.h>
 
-#include "dnv/vista/sdk/Gmod.h"
-#include "dnv/vista/sdk/VIS.h"
+#include <dnv/vista/sdk/Gmod.h>
+#include <dnv/vista/sdk/VIS.h>
 
 namespace dnv::vista::sdk::benchmarks
 {

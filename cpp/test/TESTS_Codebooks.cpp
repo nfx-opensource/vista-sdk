@@ -5,9 +5,9 @@
 
 #include <gtest/gtest.h>
 
-#include "dnv/vista/sdk/Codebook.h"
-#include "dnv/vista/sdk/Codebooks.h"
-#include "dnv/vista/sdk/VIS.h"
+#include <dnv/vista/sdk/Codebook.h>
+#include <dnv/vista/sdk/Codebooks.h>
+#include <dnv/vista/sdk/VIS.h>
 
 namespace dnv::vista::sdk::test
 {

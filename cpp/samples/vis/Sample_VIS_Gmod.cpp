@@ -1,6 +1,17 @@
 /**
  * @file Sample_VIS_Gmod.cpp
- * @brief Gmod usage examples for Vista SDK C++
+ * @brief GMOD API usage examples demonstrating node access, tree traversal, and search operations
+ *
+ * This sample demonstrates how to:
+ * - Get specific nodes by code (e.g., "411.1")
+ * - Perform basic tree traversal of the entire GMOD structure
+ * - Use stateful traversal with custom context and early termination
+ * - Traverse from a specific starting node instead of root
+ * - Find the first leaf node using search traversal
+ * - Print tree hierarchy with custom sorting and depth control
+ *
+ * Each example shows different traversal patterns and handler functions
+ * that developers can use as templates for their own GMOD operations.
  */
 
 #include <iostream>

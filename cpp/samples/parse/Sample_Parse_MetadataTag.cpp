@@ -1,6 +1,17 @@
 /**
  * @file Sample_Parse_MetadataTag.cpp
- * @brief MetadataTag parsing usage examples for Vista SDK C++
+ * @brief Demonstrates parsing and creating metadata tags from different VIS codebooks
+ *
+ * This sample shows how to:
+ * - Create MetadataTag objects from string values using specific codebooks
+ * - Work with different codebook types (Quantity, Content, Position, etc.)
+ * - Handle both standard tags ("power", "lubricating.oil") and custom tags
+ * - Detect whether a tag is custom or from the official VIS codebook
+ * - Use VIS::codebooks() API to access codebook functionality
+ *
+ * Examples include parsing tags like "power" (quantity), "lubricating.oil" (content),
+ * "inlet" (position), and custom tags, showing how to validate metadata components
+ * of LocalId URIs against VIS codebooks.
  */
 
 #include <iostream>

@@ -1,6 +1,15 @@
 /**
  * @file Sample_Versioning_GmodPath.cpp
- * @brief GmodPath versioning usage examples for Vista SDK C++
+ * @brief Demonstrates converting GMOD paths between different VIS versions
+ *
+ * This sample shows how to:
+ * - Parse a GMOD path string in one VIS version (e.g., "691.811i/H101" in VIS 3.7a)
+ * - Convert the entire path to another VIS version (e.g., "691.83111i/H101" in VIS 3.9a)
+ * - Handle conversion failures when paths don't exist in target versions
+ * - Use VIS::convertPath() API for complete path migration
+ *
+ * Example: Converts path "691.811i/H101" from VIS 3.7a to "691.83111i/H101" in VIS 3.9a
+ * This is essential for migrating hierarchical GMOD references between VIS versions.
  */
 
 #include <iostream>

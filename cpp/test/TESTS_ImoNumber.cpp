@@ -10,7 +10,7 @@
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
-#include "dnv/vista/sdk/ImoNumber.h"
+#include <dnv/vista/sdk/ImoNumber.h>
 
 namespace dnv::vista::sdk::test
 {

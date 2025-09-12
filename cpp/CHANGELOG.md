@@ -31,6 +31,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.36] - 2025-09-12
+
+### Added
+
+-   **Sample application**: New `Sample_LocalId_Validator.cpp` sample for Local ID validation and analysis
+    -   Support command-line and file-based Local ID input
+    -   Include verbose mode for detailed component analysis
+-   **Sample application**: New `Sample_Gmod_Tree.cpp` sample for GMOD tree visualization and analysis
+    -   Print hierarchical GMOD tree structure with configurable depth
+    -   Multiple output formats (simple, detailed, with paths, JSON-like)
+    -   Filter by node types (leaf nodes, function nodes, etc.)
+    -   Statistics and summary information with command-line options
+
+### Changed
+
+-   **Sample documentation**: Enhanced header documentation for all sample applications
+
 ## [0.0.35] - 2025-09-12
 
 ### Added

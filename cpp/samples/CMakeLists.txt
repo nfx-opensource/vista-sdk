@@ -20,8 +20,10 @@ set(SAMPLE_SOURCES
 	basic/Sample_Codebooks.cpp
 	basic/Sample_GMOD.cpp
 	basic/Sample_LocalId.cpp
+	basic/Sample_LocalId_Validator.cpp
 	builders/Sample_Builders_LocalId.cpp
 	builders/Sample_Builders_LocalIdQuery.cpp
+	gmod/Sample_Gmod_Tree.cpp
 	iso19848/Sample_TimeSeriesDataPackage.cpp
 	parse/Sample_Parse_GmodPath.cpp
 	parse/Sample_Parse_LocalId.cpp

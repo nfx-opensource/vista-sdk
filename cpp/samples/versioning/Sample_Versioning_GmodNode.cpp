@@ -1,6 +1,14 @@
 /**
  * @file Sample_Versioning_GmodNode.cpp
- * @brief GmodNode versioning usage examples for Vista SDK C++
+ * @brief Demonstrates converting GMOD nodes between different VIS versions
+ *
+ * This sample shows how to:
+ * - Convert a GMOD node code from one VIS version to another (e.g., VIS 3.7a to 3.9a)
+ * - Handle conversion failures when nodes don't exist in target versions
+ * - Use VIS::convertNode() API for GMOD node version migration
+ *
+ * Example: Converts node "691.81" from VIS 3.7a to "691.8311" in VIS 3.9a
+ * This is useful when migrating data or supporting multiple VIS versions.
  */
 
 #include <iostream>

@@ -6,7 +6,7 @@
 #include <nfx/time/DateTime.h>
 #include <gtest/gtest.h>
 
-#include "dnv/vista/sdk/transport/ISO19848.h"
+#include <dnv/vista/sdk/transport/ISO19848.h>
 
 namespace dnv::vista::sdk::tests
 {

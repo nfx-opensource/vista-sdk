@@ -14,10 +14,10 @@
 
 #include <iostream>
 
-#include "dnv/vista/sdk/transport/ShipId.h"
-#include "dnv/vista/sdk/transport/TimeSeriesData/TimeSeriesData.h"
-#include "dnv/vista/sdk/transport/TimeSeriesData/DataChannelId.h"
-#include "dnv/vista/sdk/ImoNumber.h"
+#include <dnv/vista/sdk/transport/ShipId.h>
+#include <dnv/vista/sdk/transport/TimeSeriesData/TimeSeriesData.h>
+#include <dnv/vista/sdk/transport/TimeSeriesData/DataChannelId.h>
+#include <dnv/vista/sdk/ImoNumber.h>
 
 namespace dnv::vista::sdk::samples
 {

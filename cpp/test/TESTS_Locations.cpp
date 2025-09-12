@@ -7,13 +7,13 @@
 
 #include "TestDataLoader.h"
 
-#include "dnv/vista/sdk/Gmod.h"
-#include "dnv/vista/sdk/Locations.h"
-#include "dnv/vista/sdk/LocationBuilder.h"
-#include "dnv/vista/sdk/ParsingErrors.h"
-#include "dnv/vista/sdk/VIS.h"
-#include "dnv/vista/sdk/VISVersion.h"
-#include "dnv/vista/sdk/Exceptions.h"
+#include <dnv/vista/sdk/Exceptions.h>
+#include <dnv/vista/sdk/Gmod.h>
+#include <dnv/vista/sdk/Locations.h>
+#include <dnv/vista/sdk/LocationBuilder.h>
+#include <dnv/vista/sdk/ParsingErrors.h>
+#include <dnv/vista/sdk/VIS.h>
+#include <dnv/vista/sdk/VISVersion.h>
 
 namespace dnv::vista::sdk::tests
 {

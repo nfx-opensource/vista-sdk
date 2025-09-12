@@ -5,12 +5,12 @@
 
 #include <gtest/gtest.h>
 
-#include "dnv/vista/sdk/transport/TimeSeriesData/DataChannelId.h"
-#include "dnv/vista/sdk/GmodPath.h"
-#include "dnv/vista/sdk/LocalId.h"
-#include "dnv/vista/sdk/LocalIdBuilder.h"
-#include "dnv/vista/sdk/VIS.h"
-#include "dnv/vista/sdk/VISVersion.h"
+#include <dnv/vista/sdk/transport/TimeSeriesData/DataChannelId.h>
+#include <dnv/vista/sdk/GmodPath.h>
+#include <dnv/vista/sdk/LocalId.h>
+#include <dnv/vista/sdk/LocalIdBuilder.h>
+#include <dnv/vista/sdk/VIS.h>
+#include <dnv/vista/sdk/VISVersion.h>
 
 namespace dnv::vista::sdk::tests
 {

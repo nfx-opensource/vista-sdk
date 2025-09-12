@@ -13,11 +13,11 @@ This example demonstrates working with GMOD (Generic Product Model):
 
 #include <iostream>
 
-#include "dnv/vista/sdk/Gmod.h"
-#include "dnv/vista/sdk/GmodPath.h"
-#include "dnv/vista/sdk/GmodNode.h"
-#include "dnv/vista/sdk/VIS.h"
-#include "dnv/vista/sdk/VISVersion.h"
+#include <dnv/vista/sdk/Gmod.h>
+#include <dnv/vista/sdk/GmodPath.h>
+#include <dnv/vista/sdk/GmodNode.h>
+#include <dnv/vista/sdk/VIS.h>
+#include <dnv/vista/sdk/VISVersion.h>
 
 using namespace dnv::vista::sdk;
 

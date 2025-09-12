@@ -1,6 +1,16 @@
 /**
  * @file Sample_Parse_LocalId.cpp
- * @brief LocalId parsing usage examples for Vista SDK C++
+ * @brief Demonstrates parsing complete LocalId URIs using different methods and error handling
+ *
+ * This sample shows how to:
+ * - Parse complete LocalId URIs (e.g., "/dnv-v2/vis-3-9a/691.83111i/H101/meta/qty-power")
+ * - Handle parsing errors with exceptions vs. optional return values
+ * - Use different parsing methods: parse(), tryParse(), tryParseWithError()
+ * - Validate both valid and invalid LocalId formats
+ * - Extract detailed error information for debugging
+ *
+ * Examples include testing various LocalId URI formats from different VIS versions
+ * and demonstrating robust error handling patterns for production ISO19848 applications.
  */
 
 #include <iostream>

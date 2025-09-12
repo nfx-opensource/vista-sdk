@@ -1,6 +1,16 @@
 /**
  * @file Sample_Parse_GmodPath.cpp
- * @brief GmodPath parsing usage examples for Vista SDK C++
+ * @brief Demonstrates parsing GMOD path strings using different methods and error handling
+ *
+ * This sample shows how to:
+ * - Parse short GMOD paths (e.g., "691.83111i/H101") using GmodPath::parse()
+ * - Parse full hierarchical paths (e.g., "VE/600a/690/691/...") using GmodPath::parseFullPath()
+ * - Handle parsing errors with exceptions vs. optional return values
+ * - Use different parsing methods: parse(), parseFullPath(), tryParse(), tryParseWithError()
+ * - Validate both valid and invalid path formats
+ *
+ * Examples include testing various path formats and demonstrating robust error handling
+ * patterns for production code that needs to parse GMOD path strings reliably.
  */
 
 #include <iostream>

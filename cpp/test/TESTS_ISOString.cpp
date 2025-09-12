@@ -8,7 +8,7 @@
 
 #include <gtest/gtest.h>
 
-#include "dnv/vista/sdk/VIS.h"
+#include <dnv/vista/sdk/VIS.h>
 
 namespace dnv::vista::sdk::test
 {

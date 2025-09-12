@@ -1,6 +1,17 @@
 /**
  * @file Sample_Builders_LocalId.cpp
- * @brief LocalId builder usage examples for Vista SDK C++
+ * @brief Demonstrates building and modifying LocalId URIs using the LocalIdBuilder API
+ *
+ * This sample shows how to:
+ * - Create new LocalIds from scratch using LocalIdBuilder::create()
+ * - Build LocalIds from existing URI strings using LocalIdBuilder::parse()
+ * - Modify existing LocalIds by accessing their builder with .builder()
+ * - Use method chaining for fluent LocalId construction
+ * - Enable verbose mode for detailed LocalId output
+ * - Remove properties and handle builder validation
+ * 
+ * Examples include creating URIs like "/dnv-v2/vis-3-9a/691.83111i/H101/meta/qty-power"
+ * and demonstrating all the builder patterns for constructing ISO19848 LocalId URIs.
  */
 
 #include <iostream>

@@ -10,9 +10,9 @@
 #include <queue>
 #include <thread>
 
-#include "dnv/vista/sdk/GmodVersioning.h"
-#include "dnv/vista/sdk/VIS.h"
-#include "dnv/vista/sdk/VISVersion.h"
+#include <dnv/vista/sdk/GmodVersioning.h>
+#include <dnv/vista/sdk/VIS.h>
+#include <dnv/vista/sdk/VISVersion.h>
 
 namespace dnv::vista::sdk::tests
 {
