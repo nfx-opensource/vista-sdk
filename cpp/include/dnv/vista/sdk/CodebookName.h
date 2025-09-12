@@ -119,12 +119,28 @@ namespace dnv::vista::sdk
 		[[nodiscard]] static CodebookName fromPrefix( std::string_view prefix );
 
 		/**
-		 * @brief Convert a CodebookName to its string prefix view
+		 * @brief Convert a CodebookName to its string prefix
 		 * @param name The CodebookName to convert
-		 * @return The corresponding string prefix view (e.g., "pos" for Position)
+		 * @return The corresponding string prefix (e.g., "pos" for Position)
 		 * @throws std::invalid_argument If the name is unknown
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] static std::string_view toPrefix( CodebookName name );
+		[[nodiscard]] static std::string toPrefix( CodebookName name );
+
+		/**
+		 * @brief Convert a string name to a CodebookName
+		 * @param name The string name to convert
+		 * @return The corresponding CodebookName
+		 * @throws std::invalid_argument If the name is unknown
+		 */
+		[[nodiscard]] static CodebookName fromString( std::string_view name );
+
+		/**
+		 * @brief Converts a CodebookName enum to its string representation for error messages.
+		 * @param[in] name The CodebookName enum value to convert.
+		 * @return A string containing the codebook name.
+		 * @throws std::invalid_argument If the codebook name is unknown or invalid.
+		 */
+		[[nodiscard]] static std::string toString( CodebookName name );
 	};
 }

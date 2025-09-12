@@ -753,19 +753,6 @@ namespace dnv::vista::sdk
 		 */
 		[[nodiscard]] static bool tryParse( std::string_view localIdStr, ParsingErrors& errors, std::optional<LocalIdBuilder>& localId );
 
-		//----------------------------------------------
-		// Enum stringification utility
-		//----------------------------------------------
-
-		/**
-		 * @brief Converts a CodebookName enum to its string representation for error messages.
-		 * @param[in] name The CodebookName enum value to convert.
-		 * @return A string containing the codebook name.
-		 * @throws std::invalid_argument If the codebook name is unknown or invalid.
-		 */
-		static std::string codebookNametoString( CodebookName name );
-
-	private:
 	private:
 		//----------------------------------------------
 		// Private member variables

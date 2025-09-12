@@ -149,9 +149,9 @@ namespace dnv::vista::sdk::tests::test
 	// Test_UniversalBuilder_TryWith
 	//----------------------------------------------
 
-	TEST( UniversalIdTests, Test_UniversalBuilder_TryWith )
+	TEST( UniversalIdTests, Test_UniversalBuilder_TryWith_Immutability )
 	{
-		// TODO: Check this !
+		// Test that original builder remains unchanged when return values are ignored
 		auto universalBuilder = UniversalIdBuilder::create( VisVersion::v3_4a ).withoutLocalId().withoutImoNumber();
 
 		(void)universalBuilder.tryWithLocalId( std::nullopt );
@@ -159,5 +159,54 @@ namespace dnv::vista::sdk::tests::test
 
 		EXPECT_FALSE( universalBuilder.localId().has_value() );
 		EXPECT_FALSE( universalBuilder.imoNumber().has_value() );
+	}
+
+	TEST( UniversalIdTests, Test_UniversalBuilder_TryWith_Comprehensive )
+	{
+		auto universalBuilder = UniversalIdBuilder::create( VisVersion::v3_4a ).withoutLocalId().withoutImoNumber();
+
+		auto localIdBuilder = LocalIdBuilder::create( VisVersion::v3_4a )
+								  .withPrimaryItem( GmodPath::parse( "411.1", VisVersion::v3_4a ) );
+		auto imoNumber = ImoNumber( 1234567 );
+
+		auto builder1 = universalBuilder.tryWithLocalId( localIdBuilder );
+		auto builder2 = builder1.tryWithImoNumber( imoNumber );
+
+		EXPECT_TRUE( builder2.localId().has_value() );
+		EXPECT_TRUE( builder2.imoNumber().has_value() );
+
+		// Test with nullopt (no-op behavior)
+		auto builder3 = builder2.tryWithLocalId( std::nullopt );
+		auto builder4 = builder2.tryWithImoNumber( std::nullopt );
+
+		EXPECT_TRUE( builder3.localId().has_value() );
+		EXPECT_TRUE( builder3.imoNumber().has_value() );
+		EXPECT_TRUE( builder4.localId().has_value() );
+		EXPECT_TRUE( builder4.imoNumber().has_value() );
+	}
+
+	TEST( UniversalIdTests, Test_UniversalBuilder_TryWith_NulloptChaining )
+	{
+		auto universalBuilder = UniversalIdBuilder::create( VisVersion::v3_4a ).withoutLocalId().withoutImoNumber();
+
+		auto builder1 = universalBuilder.tryWithLocalId( std::nullopt );
+		auto builder2 = builder1.tryWithImoNumber( std::nullopt );
+
+		EXPECT_FALSE( builder2.localId().has_value() );
+		EXPECT_FALSE( builder2.imoNumber().has_value() );
+	}
+
+	TEST( UniversalIdTests, Test_UniversalBuilder_TryWith_NulloptIndependent )
+	{
+		auto universalBuilder = UniversalIdBuilder::create( VisVersion::v3_4a ).withoutLocalId().withoutImoNumber();
+
+		// Verify that passing nullopt returns the same builder (no-op behavior)
+		auto builder1 = universalBuilder.tryWithLocalId( std::nullopt );
+		auto builder2 = universalBuilder.tryWithImoNumber( std::nullopt );
+
+		EXPECT_FALSE( builder1.localId().has_value() );
+		EXPECT_FALSE( builder1.imoNumber().has_value() );
+		EXPECT_FALSE( builder2.localId().has_value() );
+		EXPECT_FALSE( builder2.imoNumber().has_value() );
 	}
 }

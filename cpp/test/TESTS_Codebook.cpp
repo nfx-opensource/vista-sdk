@@ -394,7 +394,7 @@ namespace dnv::vista::sdk::test
 				const auto expectedPrefix = pair.second;
 
 				SCOPED_TRACE( "Testing CodebookName toPrefix: " + std::string{ expectedPrefix } );
-				std::string_view actualPrefix;
+				std::string actualPrefix;
 				ASSERT_NO_THROW( { actualPrefix = dnv::vista::sdk::CodebookNames::toPrefix( cbName ); } );
 				ASSERT_EQ( expectedPrefix, actualPrefix );
 

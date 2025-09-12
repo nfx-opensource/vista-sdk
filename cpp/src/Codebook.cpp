@@ -18,7 +18,7 @@ namespace dnv::vista::sdk
 	// Magic numbers
 	//=====================================================================
 
-	namespace
+	namespace internal
 	{
 		/** @brief Stack allocation limit for position parsing arrays to avoid heap allocation during position validation. */
 		static constexpr size_t MAX_POSITIONS = 16;
@@ -34,105 +34,6 @@ namespace dnv::vista::sdk
 	}
 
 	//=====================================================================
-	// Enum mapping tables
-	//=====================================================================
-
-	namespace internal
-	{
-		constexpr CodebookName codebookNameFromString( std::string_view name )
-		{
-			switch ( name.size() )
-			{
-				case 5:
-				{
-					if ( name == internal::constants::codebook::NAME_TYPE )
-					{
-						return CodebookName::Type;
-					}
-					break;
-				}
-				case 6:
-				{
-					if ( name == internal::constants::codebook::NAME_STATE )
-					{
-						return CodebookName::State;
-					}
-					if ( name == internal::constants::codebook::NAME_DETAIL )
-					{
-						return CodebookName::Detail;
-					}
-					break;
-				}
-				case 8:
-				{
-					if ( name == internal::constants::codebook::NAME_CONTENT )
-					{
-						return CodebookName::Content;
-					}
-					if ( name == internal::constants::codebook::NAME_COMMAND )
-					{
-						return CodebookName::Command;
-					}
-					break;
-				}
-				case 9:
-				{
-					if ( name == internal::constants::codebook::NAME_POSITION )
-					{
-						return CodebookName::Position;
-					}
-					break;
-				}
-				case 10:
-				{
-					if ( name == internal::constants::codebook::NAME_QUANTITY )
-					{
-						return CodebookName::Quantity;
-					}
-					break;
-				}
-				case 12:
-				{
-					if ( name == internal::constants::codebook::NAME_CALCULATION )
-					{
-						return CodebookName::Calculation;
-					}
-					break;
-				}
-				case 13:
-				{
-					if ( name == internal::constants::codebook::NAME_ACTIVITY_TYPE )
-					{
-						return CodebookName::ActivityType;
-					}
-					break;
-				}
-				case 19:
-				{
-					if ( name == internal::constants::codebook::NAME_FUNCTIONAL_SERVICES )
-					{
-						return CodebookName::FunctionalServices;
-					}
-					break;
-				}
-				case 20:
-				{
-					if ( name == internal::constants::codebook::NAME_MAINTENANCE_CATEGORY )
-					{
-						return CodebookName::MaintenanceCategory;
-					}
-					break;
-				}
-				default:
-				{
-					break;
-				}
-			}
-			throw std::invalid_argument{ "Unknown codebook name: " + std::string{ name } };
-		}
-	}
-
-	//=====================================================================
 	// Character lookup tables
 	//=====================================================================
 
@@ -145,7 +46,7 @@ namespace dnv::vista::sdk
 		 */
 		alignas( 64 ) constexpr std::array<bool, 256> s_whitespaceLookup = []() constexpr {
 			std::array<bool, 256> lookup{};
-			for ( char c : NULL_OR_WHITESPACE )
+			for ( char c : internal::NULL_OR_WHITESPACE )
 			{
 				lookup[static_cast<unsigned char>( c )] = true;
 			}
@@ -241,7 +142,7 @@ namespace dnv::vista::sdk
 	//----------------------------------------------
 
 	Codebook::Codebook( const CodebookDto& dto )
-		: m_name{ internal::codebookNameFromString( dto.name() ) },
+		: m_name{ CodebookNames::fromString( dto.name() ) },
 		  m_groupMap{},
 		  m_standardValues{},
 		  m_groups{},
@@ -400,14 +301,14 @@ namespace dnv::vista::sdk
 			return PositionValidationResult::Custom;
 		}
 
-		std::array<std::string_view, MAX_POSITIONS> positions;
+		std::array<std::string_view, internal::MAX_POSITIONS> positions;
 		size_t positionCount = 0;
 
 		const char* data = position.data();
 		const char* end = data + position.size();
 		const char* start = data;
 
-		while ( start < end && positionCount < MAX_POSITIONS )
+		while ( start < end && positionCount < internal::MAX_POSITIONS )
 		{
 			const char* hyphen = std::find( start, end, '-' );
 			positions[positionCount] = std::string_view( start, static_cast<size_t>( hyphen - start ) );
@@ -421,13 +322,13 @@ namespace dnv::vista::sdk
 			start = hyphen + 1;
 		}
 
-		if ( positionCount >= MAX_POSITIONS )
+		if ( positionCount >= internal::MAX_POSITIONS )
 		{
 			return PositionValidationResult::Invalid;
 		}
 
-		std::array<bool, MAX_POSITIONS> isDigitArray;
-		std::array<std::string_view, MAX_NON_NUMERIC> nonNumericPositions;
+		std::array<bool, internal::MAX_POSITIONS> isDigitArray;
+		std::array<std::string_view, internal::MAX_NON_NUMERIC> nonNumericPositions;
 		size_t nonNumericCount = 0;
 		bool hasNumberNotAtEnd = false;
 		PositionValidationResult worstResult = PositionValidationResult::Valid;
@@ -470,7 +371,7 @@ namespace dnv::vista::sdk
 			}
 			else
 			{
-				if ( nonNumericCount < MAX_NON_NUMERIC )
+				if ( nonNumericCount < internal::MAX_NON_NUMERIC )
 				{
 					if ( nonNumericCount > 0 && positions[i] < nonNumericPositions[nonNumericCount - 1] )
 					{
@@ -490,7 +391,7 @@ namespace dnv::vista::sdk
 		if ( worstResult == PositionValidationResult::Valid )
 		{
 			nfx::containers::StringSet uniqueGroups;
-			uniqueGroups.reserve( MAX_GROUPS );
+			uniqueGroups.reserve( internal::MAX_GROUPS );
 			bool hasDefaultGroup = false;
 
 			for ( size_t i = 0; i < positionCount; ++i )

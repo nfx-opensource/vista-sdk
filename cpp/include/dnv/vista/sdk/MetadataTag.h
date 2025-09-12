@@ -9,6 +9,8 @@
 #include <string>
 #include <string_view>
 
+#include <nfx/string/StringBuilderPool.h>
+
 #include "config/config.h"
 
 namespace dnv::vista::sdk
@@ -166,7 +168,7 @@ namespace dnv::vista::sdk
 		 *     tag.toString(result);  // result becomes "pos-centre/"
 		 * @endcode
 		 */
-		void toString( std::string& builder, char separator = '/' ) const;
+		void toString( nfx::string::StringBuilder& builder, char separator = '/' ) const;
 
 	private:
 		//-------------------------------------------------------------------------

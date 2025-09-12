@@ -28,6 +28,7 @@ namespace dnv::vista::sdk
 
 		/** @brief Character set for null or whitespace detection in string parsing operations. */
 		static constexpr std::string_view NULL_OR_WHITESPACE = " \t\n\r\f\v";
+
 		struct PathNode
 		{
 			std::string_view code;

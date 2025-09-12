@@ -153,7 +153,7 @@ int main()
 
 				for ( const auto& tag : localId.metadataTags() )
 				{
-					std::string tagName = LocalIdBuilder::codebookNametoString( tag.name() );
+					std::string tagName = CodebookNames::toString( tag.name() );
 
 					std::cout << "\t\t\t- " << tagName << ": " << tag.value() << "\n";
 				}

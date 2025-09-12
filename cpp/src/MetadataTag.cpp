@@ -28,13 +28,9 @@ namespace dnv::vista::sdk
 
 	std::string MetadataTag::toString() const noexcept { return m_value; }
 
-	void MetadataTag::toString( std::string& builder, char separator ) const
+	void MetadataTag::toString( nfx::string::StringBuilder& builder, char separator ) const
 	{
 		const auto prefixView = CodebookNames::toPrefix( m_name );
-
-		const auto currentSize = builder.size();
-		const auto requiredSize = prefixView.size() + 1 + m_value.size() + 1;
-		builder.reserve( currentSize + requiredSize );
 
 		builder.append( prefixView );
 		builder.push_back( m_custom

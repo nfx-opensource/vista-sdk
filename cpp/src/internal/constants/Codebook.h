@@ -19,11 +19,11 @@ namespace dnv::vista::sdk::internal::constants::codebook
 	/** @brief Standard position codebook name identifier. */
 	inline constexpr std::string_view NAME_POSITION = "positions";
 
-	/** @brief Standard calculation codebook name identifier. */
-	inline constexpr std::string_view NAME_CALCULATION = "calculations";
-
 	/** @brief Standard quantity codebook name identifier. */
 	inline constexpr std::string_view NAME_QUANTITY = "quantities";
+
+	/** @brief Standard calculation codebook name identifier. */
+	inline constexpr std::string_view NAME_CALCULATION = "calculations";
 
 	/** @brief Standard state codebook name identifier. */
 	inline constexpr std::string_view NAME_STATE = "states";
@@ -48,6 +48,43 @@ namespace dnv::vista::sdk::internal::constants::codebook
 
 	/** @brief Detail codebook name identifier. */
 	inline constexpr std::string_view NAME_DETAIL = "detail";
+
+	//----------------------------------------------
+	// Codebook enum names (for error messages)
+	//----------------------------------------------
+
+	/** @brief Enum name for Position codebook. */
+	inline constexpr std::string_view ENUM_POSITION = "Position";
+
+	/** @brief Enum name for Quantity codebook. */
+	inline constexpr std::string_view ENUM_QUANTITY = "Quantity";
+
+	/** @brief Enum name for Calculation codebook. */
+	inline constexpr std::string_view ENUM_CALCULATION = "Calculation";
+
+	/** @brief Enum name for State codebook. */
+	inline constexpr std::string_view ENUM_STATE = "State";
+
+	/** @brief Enum name for Content codebook. */
+	inline constexpr std::string_view ENUM_CONTENT = "Content";
+
+	/** @brief Enum name for Command codebook. */
+	inline constexpr std::string_view ENUM_COMMAND = "Command";
+
+	/** @brief Enum name for Type codebook. */
+	inline constexpr std::string_view ENUM_TYPE = "Type";
+
+	/** @brief Enum name for FunctionalServices codebook. */
+	inline constexpr std::string_view ENUM_FUNCTIONAL_SERVICES = "FunctionalServices";
+
+	/** @brief Enum name for MaintenanceCategory codebook. */
+	inline constexpr std::string_view ENUM_MAINTENANCE_CATEGORY = "MaintenanceCategory";
+
+	/** @brief Enum name for ActivityType codebook. */
+	inline constexpr std::string_view ENUM_ACTIVITY_TYPE = "ActivityType";
+
+	/** @brief Enum name for Detail codebook. */
+	inline constexpr std::string_view ENUM_DETAIL = "Detail";
 
 	//----------------------------------------------
 	// Codebooks prefix constants

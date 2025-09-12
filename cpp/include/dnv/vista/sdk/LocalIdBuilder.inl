@@ -299,25 +299,21 @@ namespace dnv::vista::sdk
 		builder.append( "meta/" );
 
 		// Metadata tags: {prefix}{separator}{value}
-		auto appendMetadata = [&builder]( const std::optional<MetadataTag>& tag ) {
+		auto appendMeta = [&builder]( const std::optional<MetadataTag>& tag ) {
 			if ( tag.has_value() )
 			{
-				const auto prefix = CodebookNames::toPrefix( tag->name() );
-				builder.append( prefix );
-				builder.push_back( tag->prefix() );
-				builder.append( tag->value() );
-				builder.push_back( '/' );
+				tag.value().toString( builder );
 			}
 		};
 
-		appendMetadata( m_quantity );
-		appendMetadata( m_content );
-		appendMetadata( m_calculation );
-		appendMetadata( m_state );
-		appendMetadata( m_command );
-		appendMetadata( m_type );
-		appendMetadata( m_position );
-		appendMetadata( m_detail );
+		appendMeta( m_quantity );
+		appendMeta( m_content );
+		appendMeta( m_calculation );
+		appendMeta( m_state );
+		appendMeta( m_command );
+		appendMeta( m_type );
+		appendMeta( m_position );
+		appendMeta( m_detail );
 
 		// Cleanup trailing slash
 		if ( builder.length() > 0 && builder[builder.length() - 1] == '/' )

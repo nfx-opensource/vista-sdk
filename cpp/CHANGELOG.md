@@ -31,6 +31,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.35] - 2025-09-12
+
+### Added
+
+-   **CodebookNames API expansion**: New enum conversion methods for improved type safety and consistency
+    -   Add `CodebookNames::fromString()` method for string-to-enum conversion with size-optimized lookup
+    -   Add `CodebookNames::toString()` method for enum-to-string conversion for error messages (returns singular, capitalized names like "Content", "Quantity")
+    -   Add new `ENUM_*` constants in internal namespace for proper error message formatting (e.g., `ENUM_CONTENT = "Content"`)
+
+### Changed
+
+-   **BREAKING CHANGE**: CodebookNames API refactoring for better consistency and performance
+    -   Change `CodebookNames::toPrefix()` return type from `std::string_view` to `std::string` for consistent API patterns
+    -   Move `LocalIdBuilder::codebookNametoString()` functionality to `CodebookNames::toString()` for better separation of concerns
+-   **MetadataTag performance optimization**: Streamline string building operations for better performance
+    -   Change `MetadataTag::toString()` to use `nfx::string::StringBuilder&` instead of `std::string&` for zero-allocation operations
+    -   Simplify `LocalIdBuilder` metadata appending logic with direct `tag.value().toString(builder)` calls
+-   **Internal architecture improvements**: Better separation of public API from implementation details
+    -   Move enum mapping functions from `Codebook.cpp` to `CodebookName.cpp` for better cohesion
+    -   Extract enum-to-string conversion logic to dedicated methods with size-based optimization
+
+### Removed
+
+-   **API cleanup**: Remove redundant and misplaced functionality
+    -   Remove `LocalIdBuilder::codebookNametoString()` method (functionality moved to `CodebookNames::toString()`)
+    -   Remove manual StringBuilderPool usage in simple error message construction
+    -   Remove duplicate enum mapping logic from multiple source files
+
+### Fixed
+
+-   **Error message consistency**: Resolve critical mismatch between expected and actual error message formats
+    -   Fix error messages to use proper enum names ("Content", "Quantity") instead of internal operation names ("contents", "quantities")
+    -   Update all error message construction to use standardized `CodebookNames::toString()` method
+-   **Code organization**: Improve maintainability and reduce duplication
+    -   Consolidate all CodebookName conversion logic in single location
+    -   Eliminate redundant constant definitions across multiple files
+    -   Fix inconsistent naming patterns in internal implementation
+
 ## [0.0.34] - 2025-09-11
 
 ### Changed
