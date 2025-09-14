@@ -9,8 +9,10 @@
 #include <nfx/string/StringViewSplitter.h>
 #include <nfx/string/Utils.h>
 
-#include "internal/LocationSetsVisitor.h"
 #include "dnv/vista/sdk/GmodPath.h"
+
+#include "internal/core/LocationSetsVisitor.h"
+
 #include "dnv/vista/sdk/Locations.h"
 #include "dnv/vista/sdk/VIS.h"
 
@@ -25,9 +27,6 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 		// Path parsing structures
 		//----------------------------------------------
-
-		/** @brief Character set for null or whitespace detection in string parsing operations. */
-		static constexpr std::string_view NULL_OR_WHITESPACE = " \t\n\r\f\v";
 
 		struct PathNode
 		{
@@ -189,7 +188,7 @@ namespace dnv::vista::sdk
 				}
 			}
 
-			context.path = GmodPath( *context.gmod, std::move( endNode ), std::move( pathParents ), true );
+			context.path = GmodPath{ std::move( pathParents ), std::move( endNode ) };
 
 			return TraversalHandlerResult::Stop;
 		}
@@ -213,21 +212,18 @@ namespace dnv::vista::sdk
 				return GmodParsePathResult::Error{ "Got different VIS versions for Gmod and Locations arguments" };
 			}
 
-			if ( item.empty() )
+			if ( nfx::string::isEmpty( item ) )
 			{
 				return GmodParsePathResult::Error{ "Item is empty" };
 			}
 
-			const size_t start = item.find_first_not_of( NULL_OR_WHITESPACE );
-			if ( start == std::string_view::npos )
+			item = nfx::string::trim( item );
+			if ( nfx::string::isEmpty( item ) )
 			{
 				return GmodParsePathResult::Error{ "Item is empty" };
 			}
 
-			const size_t end = item.find_last_not_of( NULL_OR_WHITESPACE ) + 1;
-			item = item.substr( start, end - start );
-
-			if ( !item.empty() && item[0] == '/' )
+			if ( nfx::string::startsWith( item, "/" ) )
 			{
 				item = item.substr( 1 );
 			}
@@ -236,12 +232,12 @@ namespace dnv::vista::sdk
 
 			for ( const auto partStr : nfx::string::splitView( item, '/' ) )
 			{
-				if ( partStr.empty() )
+				if ( nfx::string::isEmpty( partStr ) )
 				{
 					continue;
 				}
 
-				if ( partStr.find( '-' ) != std::string_view::npos )
+				if ( nfx::string::contains( partStr, "-" ) )
 				{
 					const size_t dashPos = partStr.find( '-' );
 					const std::string_view codePart = partStr.substr( 0, dashPos );
@@ -309,7 +305,7 @@ namespace dnv::vista::sdk
 		 */
 		static GmodParsePathResult parseFullPath( std::string_view item, const Gmod& gmod, const Locations& locations )
 		{
-			if ( item.empty() )
+			if ( nfx::string::isEmpty( item ) )
 			{
 				return GmodParsePathResult::Error{ "Item is empty" };
 			}
@@ -325,14 +321,14 @@ namespace dnv::vista::sdk
 
 			for ( const auto segment : nfx::string::splitView( item, '/' ) )
 			{
-				if ( segment.empty() )
+				if ( nfx::string::isEmpty( segment ) )
 				{
 					continue;
 				}
 
 				const auto dashPos = segment.find( '-' );
 
-				if ( dashPos != std::string_view::npos )
+				if ( nfx::string::contains( segment, "-" ) )
 				{
 					const std::string_view codePart = segment.substr( 0, dashPos );
 					const std::string_view locationPart = segment.substr( dashPos + 1 );
@@ -373,7 +369,7 @@ namespace dnv::vista::sdk
 
 			if ( nodes.empty() )
 			{
-				return GmodParsePathResult::Ok{ GmodPath( gmod, std::move( endNode ), std::move( nodes ), true ) };
+				return GmodParsePathResult::Ok{ GmodPath{ std::vector<GmodNode>{}, std::move( endNode ) } };
 			}
 
 			if ( !nodes[0].isRoot() )
@@ -407,7 +403,7 @@ namespace dnv::vista::sdk
 
 			if ( !hasLocations )
 			{
-				return GmodParsePathResult::Ok{ GmodPath( gmod, std::move( endNode ), std::move( nodes ), true ) };
+				return GmodParsePathResult::Ok{ GmodPath{ std::move( nodes ), std::move( endNode ) } };
 			}
 
 			internal::LocationSetsVisitor locationSetsVisitor;
@@ -491,15 +487,15 @@ namespace dnv::vista::sdk
 				}
 			}
 
-			std::pair<size_t, size_t> currentSet = { SIZE_MAX, SIZE_MAX };
+			std::pair<size_t, size_t> currentSet = { std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max() };
 			size_t currentSetIndex = 0;
 
 			for ( size_t i = 0; i < nodes.size() + 1; ++i )
 			{
-				while ( currentSetIndex < setCounter && ( currentSet.second == SIZE_MAX || currentSet.second < i ) )
+				while ( currentSetIndex < setCounter && ( currentSet.second == std::numeric_limits<size_t>::max() || currentSet.second < i ) )
 					currentSet = sets[currentSetIndex++];
 
-				bool insideSet = ( currentSet.first != SIZE_MAX && i >= currentSet.first && i <= currentSet.second );
+				bool insideSet = ( currentSet.first != std::numeric_limits<size_t>::max() && i >= currentSet.first && i <= currentSet.second );
 				const GmodNode& n = ( i < nodes.size() )
 										? nodes[i]
 										: endNode;
@@ -523,7 +519,7 @@ namespace dnv::vista::sdk
 				}
 			}
 
-			return GmodParsePathResult::Ok{ GmodPath( gmod, std::move( endNode ), std::move( nodes ), true ) };
+			return GmodParsePathResult::Ok{ GmodPath{ std::move( nodes ), std::move( endNode ) } };
 		}
 	}
 
@@ -535,17 +531,12 @@ namespace dnv::vista::sdk
 	// Construction
 	//----------------------------------------------
 
-	GmodPath::GmodPath( const Gmod& gmod, GmodNode node, std::vector<GmodNode> parents, bool skipVerify )
+	GmodPath::GmodPath( std::vector<GmodNode> parents, GmodNode node, bool skipVerify )
 		: m_visVersion{ node.visVersion() },
-		  m_gmod{ &gmod },
-		  m_node{ std::move( node ) },
-		  m_parents{ std::move( parents ) }
-	{
-		if ( !m_gmod )
-		{
-			throw std::invalid_argument{ "GmodPath constructor: gmod reference is null" };
-		}
+		  m_parents{ std::move( parents ) },
+		  m_node{ std::move( node ) }
 
+	{
 		if ( !m_node.has_value() )
 		{
 			throw std::invalid_argument{ "GmodPath constructor: node is not valid" };
@@ -555,6 +546,11 @@ namespace dnv::vista::sdk
 		{
 			return;
 		}
+	}
+
+	GmodPath::GmodPath( std::vector<GmodNode> parents, GmodNode node )
+		: GmodPath{ parents, node, false }
+	{
 	}
 
 	//----------------------------------------------
@@ -671,7 +667,7 @@ namespace dnv::vista::sdk
 
 			std::string name;
 			const auto& commonName = node.metadata().commonName();
-			if ( commonName.has_value() && !commonName->empty() )
+			if ( commonName.has_value() && !nfx::string::isEmpty( *commonName ) )
 			{
 				name = *commonName;
 			}
@@ -860,7 +856,7 @@ namespace dnv::vista::sdk
 
 	GmodPath GmodPath::withoutLocations() const
 	{
-		if ( !m_gmod || !m_node.has_value() )
+		if ( !m_node.has_value() )
 		{
 			return GmodPath{};
 		}
@@ -873,7 +869,7 @@ namespace dnv::vista::sdk
 			newParents.push_back( parent.withoutLocation() );
 		}
 
-		return GmodPath{ *m_gmod, m_node->withoutLocation(), std::move( newParents ) };
+		return GmodPath{ std::move( newParents ), m_node->withoutLocation(), false };
 	}
 
 	//----------------------------------------------

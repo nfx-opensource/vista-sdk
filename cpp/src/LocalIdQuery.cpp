@@ -4,10 +4,14 @@
  */
 
 #include "dnv/vista/sdk/LocalIdQuery.h"
+
 #include "dnv/vista/sdk/VIS.h"
 
 namespace dnv::vista::sdk
 {
+	namespace internal
+	{
+	}
 	//=====================================================================
 	// LocalIdQuery class
 	//=====================================================================

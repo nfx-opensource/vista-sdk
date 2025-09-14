@@ -1,7 +1,147 @@
 /**
  * @file UniversalId.h
- * @brief Universal ID implementation.
- * @details Combines IMO number with Local ID for globally unique vessel identification.
+ * @brief VISTA Universal Identification System for Global Maritime Data Identity
+ *
+ * @details
+ * This file implements the **VISTA Universal ID System** for creating globally unique
+ * identifiers that combine vessel IMO numbers with Local IDs to provide unambiguous
+ * maritime data identification across the global fleet. It serves as the top-level
+ * identification mechanism in the VIS standard, ensuring data traceability and
+ * preventing identification conflicts in distributed maritime systems.
+ *
+ * ## System Purpose:
+ *
+ * The **VISTA Universal ID System** serves as the foundation for:
+ * - **Global Identification**: Unique vessel data identification across worldwide maritime operations
+ * - **Conflict Prevention**  : Eliminating Local ID conflicts between different vessels
+ * - **Data Traceability**    : Complete identification chain from vessel to specific data points
+ * - **Standards Compliance** : Full adherence to VIS universal identification specifications
+ * - **Distributed Systems**  : Supporting maritime data exchange across multiple organizations
+ *
+ * ## Core Architecture:
+ *
+ * ### Universal ID Components
+ * - **UniversalId**       : Immutable container combining IMO number and Local ID
+ * - **ImoNumber**         : Validated International Maritime Organization vessel identifier
+ * - **LocalId**           : Vessel-specific data point identifier with GMOD path and metadata
+ * - **UniversalIdBuilder**: Fluent builder for constructing validated Universal IDs
+ *
+ * ### Identification Hierarchy
+ * - **Global Level**   : IMO number uniquely identifies the vessel worldwide
+ * - **Vessel Level**   : Local ID identifies specific data point within vessel systems
+ * - **Component Level**: GMOD path within Local ID specifies exact data source
+ * - **Metadata Level** : Tags within Local ID provide data classification and context
+ *
+ * ## Data Flow Architecture:
+ *
+ * ```
+ * Universal ID Construction
+ *         ↓
+ * Component Validation
+ *         ↓
+ * ┌─────────────────────────────────────┐
+ * │          UniversalId                │
+ * ├─────────────────────────────────────┤
+ * │ ┌─────────────────────────────────┐ │
+ * │ │         ImoNumber               │ │ ← Global vessel identifier
+ * │ │      (IMO1234567)               │ │   (7-digit validated)
+ * │ └─────────────────────────────────┘ │
+ * │              +                      │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │          LocalId                │ │ ← Vessel-specific data ID
+ * │ │  ┌───────────────────────────┐  │ │
+ * │ │  │      LocalIdItems         │  │ │ ← GMOD path components
+ * │ │  │   (Primary + Secondary)   │  │ │
+ * │ │  └───────────────────────────┘  │ │
+ * │ │  ┌───────────────────────────┐  │ │
+ * │ │  │    Metadata Tags          │  │ │ ← Data classification
+ * │ │  │   (Position, Detail, etc) │  │ │
+ * │ │  └───────────────────────────┘  │ │
+ * │ └─────────────────────────────────┘ │
+ * └─────────────────────────────────────┘
+ *         ↓
+ * Global Unique Identification
+ * ```
+ *
+ * ## Usage Patterns:
+ *
+ * ### Universal ID Construction
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Parsing from String Representation
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Component Access and Analysis
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Global Maritime Data Operations
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ## Performance Characteristics:
+ *
+ * - **Immutable Design**      : Thread-safe operations with no post-construction changes
+ * - **Efficient Storage**     : Direct value storage with minimal memory overhead
+ * - **Fast Comparison**       : Optimized equality operations for hash map usage
+ * - **String Optimization**   : Efficient toString() with string builder pooling
+ * - **Validated Construction**: Builder pattern ensures valid state without runtime checks
+ *
+ * ## String Representation Format:
+ *
+ * ### Canonical Format
+ * ```
+ * data.dnv.com/IMO{imo_number}/dnv-v2/vis-{version}/{gmod_path}/{metadata_tags}
+ *
+ * Examples:
+ * - data.dnv.com/IMO1234567/dnv-v2/vis-3-4a/411.1/S90/sec/pos-centre/
+ * - data.dnv.com/IMO9876543/dnv-v2/vis-3-5a/621.2/C101/meta-temperature/det-sensor1/
+ * ```
+ *
+ * ### Format Components
+ * - **Authority**  : `data.dnv.com` - DNV authority prefix
+ * - **Vessel ID**  : `IMO{number}` - International Maritime Organization identifier
+ * - **Naming Rule**: `dnv-v2` - DNV naming convention version
+ * - **VIS Version**: `vis-{version}` - Vessel Information Structure version
+ * - **GMOD Path**  : Hierarchical path to data source component
+ * - **Metadata**   : Classification tags for data type and context
+ *
+ * ## Integration with Maritime Systems:
+ *
+ * ### Fleet Management Integration
+ * - **Vessel Identification**: IMO number links to vessel registry and fleet databases
+ * - **Data Point Resolution**: Local ID resolves to specific sensors and data sources
+ * - **Cross-System Mapping** : Universal ID enables data correlation across systems
+ * - **Compliance Tracking**  : Full traceability for maritime regulatory requirements
+ *
+ * ### Distributed Maritime Networks
+ * - **Data Exchange**    : Universal IDs prevent conflicts in multi-vessel operations
+ * - **Shore Integration**: Enables seamless vessel-to-shore data transmission
+ * - **Third-Party APIs** : Provides standard identification for maritime service providers
+ * - **Analytics Systems**: Supports fleet-wide data aggregation and analysis
+ *
+ * ## Design Philosophy:
+ *
+ * - **Global Uniqueness**   : IMO + Local ID combination ensures worldwide uniqueness
+ * - **Standards Compliance**: Full adherence to VIS and IMO identification standards
+ * - **Immutability**        : Thread-safe design with immutable identification objects
+ * - **Builder Pattern**     : Safe construction with validation before object creation
+ * - **Performance Focus**   : Optimized for high-frequency maritime data operations
+ * - **Maritime Domain**     : Tailored for real-world vessel operations and data flows
  */
 
 #pragma once
@@ -33,7 +173,9 @@ namespace dnv::vista::sdk
 	 */
 	class UniversalId final
 	{
-	public:
+		friend class UniversalIdBuilder;
+
+	private:
 		//----------------------------------------------
 		// Construction
 		//----------------------------------------------
@@ -48,6 +190,7 @@ namespace dnv::vista::sdk
 		/** @brief Default constructor */
 		UniversalId() = delete;
 
+	public:
 		/** @brief Copy constructor */
 		UniversalId( const UniversalId& ) = default;
 

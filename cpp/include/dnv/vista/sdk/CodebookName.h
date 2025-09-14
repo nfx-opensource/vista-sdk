@@ -12,6 +12,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 #include <string_view>
 
 namespace dnv::vista::sdk
@@ -28,38 +29,17 @@ namespace dnv::vista::sdk
 	 */
 	enum class CodebookName : std::uint8_t
 	{
-		/** @brief Represents physical quantities and units (prefix: qty) */
-		Quantity = 1,
-
-		/** @brief Represents content types (prefix: cnt) */
-		Content = 2,
-
-		/** @brief Represents calculation methods (prefix: calc) */
-		Calculation = 3,
-
-		/** @brief Represents states or conditions (prefix: state) */
-		State = 4,
-
-		/** @brief Represents commands or actions (prefix: cmd) */
-		Command = 5,
-
-		/** @brief Represents type classifications (prefix: type) */
-		Type = 6,
-
-		/** @brief Represents functional services (prefix: funct.svc) */
-		FunctionalServices = 7,
-
-		/** @brief Represents maintenance categories (prefix: maint.cat) */
-		MaintenanceCategory = 8,
-
-		/** @brief Represents types of activities (prefix: act.type) */
-		ActivityType = 9,
-
-		/** @brief Represents positions or locations (prefix: pos) */
-		Position = 10,
-
-		/** @brief Represents detailed information (prefix: detail) */
-		Detail = 11
+		Quantity = 1,		 ///< qty
+		Content,			 ///< cnt
+		Calculation,		 ///< calc
+		State,				 ///< state
+		Command,			 ///< cmd
+		Type,				 ///< type
+		FunctionalServices,	 ///< funct.svc
+		MaintenanceCategory, ///< maint.cat
+		ActivityType,		 ///< act.type
+		Position,			 ///< pos
+		Detail				 ///< detail
 	};
 
 	//=====================================================================

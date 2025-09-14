@@ -59,10 +59,4 @@ namespace dnv::vista::sdk
 	{
 		return m_secondaryItem;
 	}
-
-	inline bool LocalIdItems::isEmpty() const noexcept
-	{
-		return !m_primaryItem.has_value() &&
-			   !m_secondaryItem.has_value();
-	}
 }

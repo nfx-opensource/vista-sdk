@@ -35,12 +35,12 @@ namespace dnv::vista::sdk::tests
 
 		/**
 		 * @brief Get the path to test data directory
-		 * @return Path to test data files (LocalIds.txt)
+		 * @return Path to test data files
 		 */
 		std::string localIdQueryTestDataPath()
 		{
 #ifdef VISTA_SDK_TESTDATA_DIR
-			return std::string( VISTA_SDK_TESTDATA_DIR ) + "/LocalIds.txt";
+			return std::string{ VISTA_SDK_TESTDATA_DIR } + "/LocalIds.txt";
 #else
 			return "testdata/LocalIds.txt";
 #endif
@@ -573,7 +573,7 @@ namespace dnv::vista::sdk::tests
 				}
 				catch ( const std::exception& ex )
 				{
-					errored.push_back( std::make_pair( localIdStr, std::string( ex.what() ) ) );
+					errored.push_back( std::make_pair( localIdStr, std::string{ ex.what() } ) );
 				}
 			}
 

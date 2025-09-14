@@ -13,6 +13,11 @@ namespace dnv::vista::sdk::transport
 	// Construction from value types
 	//----------------------------------------------
 
+	inline Value::Value() noexcept
+		: m_value{ String{ std::string_view{ "" } } }
+	{
+	}
+
 	//-----------------------------
 	// Converting constructors
 	//-----------------------------

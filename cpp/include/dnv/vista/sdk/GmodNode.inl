@@ -82,9 +82,9 @@ namespace dnv::vista::sdk
 
 	inline bool GmodNodeMetadata::operator==( const GmodNodeMetadata& other ) const
 	{
-		return m_category == other.m_category &&
-			   m_type == other.m_type &&
-			   m_name == other.m_name &&
+		return nfx::string::equals( m_category, other.m_category ) &&
+			   nfx::string::equals( m_type, other.m_type ) &&
+			   nfx::string::equals( m_name, other.m_name ) &&
 			   m_commonName == other.m_commonName &&
 			   m_definition == other.m_definition &&
 			   m_commonDefinition == other.m_commonDefinition &&
@@ -161,6 +161,17 @@ namespace dnv::vista::sdk
 	{
 	}
 
+	inline GmodNode::GmodNode( GmodNode&& other ) noexcept
+		: m_code{ std::move( other.m_code ) },
+		  m_location{ std::move( other.m_location ) },
+		  m_visVersion{ other.m_visVersion },
+		  m_metadata{ std::move( other.m_metadata ) },
+		  m_children{ std::move( other.m_children ) },
+		  m_parents{ std::move( other.m_parents ) },
+		  m_childrenSet{ std::move( other.m_childrenSet ) }
+	{
+	}
+
 	//----------------------------------------------
 	// Assignment operators
 	//----------------------------------------------
@@ -183,13 +194,31 @@ namespace dnv::vista::sdk
 		return *this;
 	}
 
+	inline GmodNode& GmodNode::operator=( GmodNode&& other ) noexcept
+	{
+		if ( this == &other )
+		{
+			return *this;
+		}
+
+		m_code = std::move( other.m_code );
+		m_location = std::move( other.m_location );
+		m_visVersion = other.m_visVersion;
+		m_metadata = std::move( other.m_metadata );
+		m_children = std::move( other.m_children );
+		m_parents = std::move( other.m_parents );
+		m_childrenSet = std::move( other.m_childrenSet );
+
+		return *this;
+	}
+
 	//----------------------------------------------
 	// Operators
 	//----------------------------------------------
 
 	inline bool GmodNode::operator==( const GmodNode& other ) const
 	{
-		if ( m_code != other.m_code )
+		if ( !nfx::string::equals( m_code, other.m_code ) )
 		{
 			return false;
 		}
@@ -256,7 +285,7 @@ namespace dnv::vista::sdk
 
 	inline bool GmodNode::isRoot() const noexcept
 	{
-		return m_code == "VE";
+		return nfx::string::equals( m_code, "VE" );
 	}
 
 	//----------------------------------------------

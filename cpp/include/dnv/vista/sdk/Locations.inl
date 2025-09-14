@@ -5,7 +5,7 @@
 
 #include <charconv>
 
-#include "config/config.h"
+#include <nfx/string/Utils.h>
 
 namespace dnv::vista::sdk
 {
@@ -19,12 +19,12 @@ namespace dnv::vista::sdk
 
 	inline bool Location::operator==( const Location& other ) const
 	{
-		return m_value == other.m_value;
+		return nfx::string::equals( m_value, other.m_value );
 	}
 
 	inline bool Location::operator!=( const Location& other ) const
 	{
-		return !( m_value == other.m_value );
+		return !nfx::string::equals( m_value, other.m_value );
 	}
 
 	//----------------------------------------------
@@ -48,28 +48,6 @@ namespace dnv::vista::sdk
 	const inline std::string& Location::toString() const noexcept
 	{
 		return m_value;
-	}
-
-	//----------------------------------------------
-	// Public static helper methods
-	//----------------------------------------------
-
-	VISTA_SDK_CPP_INLINE bool Locations::tryParseInt( std::string_view span, int start, int length, int& number )
-	{
-		if ( start < 0 || length <= 0 || static_cast<size_t>( start ) + static_cast<size_t>( length ) > span.length() )
-		{
-			return false;
-		}
-
-		const char* const first = std::next( span.data(), start );
-		const char* const last = std::next( first, length );
-		auto result = std::from_chars( first, last, number );
-		if ( result.ec == std::errc() && result.ptr == last )
-		{
-			return true;
-		}
-
-		return false;
 	}
 
 	//=====================================================================

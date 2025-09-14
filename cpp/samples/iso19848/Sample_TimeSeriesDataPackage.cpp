@@ -14,9 +14,9 @@
 
 #include <iostream>
 
+#include <dnv/vista/sdk/transport/timeseries/TimeSeriesData.h>
+#include <dnv/vista/sdk/transport/timeseries/DataChannelId.h>
 #include <dnv/vista/sdk/transport/ShipId.h>
-#include <dnv/vista/sdk/transport/TimeSeriesData/TimeSeriesData.h>
-#include <dnv/vista/sdk/transport/TimeSeriesData/DataChannelId.h>
 #include <dnv/vista/sdk/ImoNumber.h>
 
 namespace dnv::vista::sdk::samples
@@ -108,11 +108,11 @@ namespace dnv::vista::sdk::samples
 								->stop;
 
 		// Create TabularData
-		std::vector<transport::DataChannelId> dataChannelIdObjects;
+		std::vector<transport::timeseries::DataChannelId> dataChannelIdObjects;
 		dataChannelIdObjects.reserve( dataChannelIds.size() );
 		for ( const auto& id : dataChannelIds )
 		{
-			dataChannelIdObjects.emplace_back( transport::DataChannelId{ id } );
+			dataChannelIdObjects.emplace_back( transport::timeseries::DataChannelId{ id } );
 		}
 
 		auto tabularData = transport::timeseries::TabularData{
@@ -129,8 +129,7 @@ namespace dnv::vista::sdk::samples
 		};
 
 		// Create proper IMO number and timeRange
-		auto imoNumber = ImoNumber{ 1234567 };								   // Create ImoNumber object
-		auto shipId = transport::ShipId{ imoNumber };						   // Create ShipId from ImoNumber
+		auto shipId = transport::ShipId::parse( "1234567" );				   // Create ShipId from ImoNumber
 		auto timeRange = transport::timeseries::TimeRange{ timeFrom, timeTo }; // Create TimeRange
 
 		// Create package header

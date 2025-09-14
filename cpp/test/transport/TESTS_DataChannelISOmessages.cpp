@@ -5,7 +5,7 @@
 
 #include <gtest/gtest.h>
 
-#include <dnv/vista/sdk/transport/DataChannel/DataChannel.h>
+#include <dnv/vista/sdk/transport/datachannel/DataChannel.h>
 #include <dnv/vista/sdk/transport/ShipId.h>
 #include <dnv/vista/sdk/LocalId.h>
 #include <dnv/vista/sdk/LocalIdBuilder.h>
@@ -20,22 +20,22 @@ namespace dnv::vista::sdk::tests
 	/**
 	 * @brief Creates ValidFullyCustomDataChannelList
 	 */
-	transport::datachannel::DataChannelListPackage createValidFullyCustomDataChannelList()
+	transport::DataChannelListPackage createValidFullyCustomDataChannelList()
 	{
 		// Create ConfigurationReference for DataChannelListId
 		auto timeStamp = nfx::time::DateTimeOffset::parse( "2016-01-01T00:00:00Z" );
-		transport::datachannel::ConfigurationReference dataChannelListId{
+		transport::ConfigurationReference dataChannelListId{
 			"DataChannelList.xml",
 			timeStamp,
 			"1.0" };
 
 		// Create Header
-		transport::datachannel::Header header{
+		transport::Header header{
 			transport::ShipId::parse( "IMO1234567" ),
 			dataChannelListId,
 			"Author1" };
 
-		transport::datachannel::VersionInformation versionInfo;
+		transport::VersionInformation versionInfo;
 		versionInfo.setNamingRule( "some_naming_rule" );
 		versionInfo.setNamingSchemeVersion( "2.0" );
 		versionInfo.setReferenceUrl( "http://somewhere.net" );
@@ -49,7 +49,7 @@ namespace dnv::vista::sdk::tests
 		header.setCustomHeaders( customHeaders );
 
 		// Create DataChannelList
-		transport::datachannel::DataChannelList dataChannelList;
+		transport::DataChannelList dataChannelList;
 
 		// First DataChannel - Temperature sensor
 		{
@@ -60,9 +60,9 @@ namespace dnv::vista::sdk::tests
 			EXPECT_TRUE( parsed );
 			auto localId = localIdBuilderOpt->build();
 
-			transport::datachannel::DataChannelId dataChannelId{ localId, "0010" };
+			transport::DataChannelId dataChannelId{ localId, "0010" };
 
-			transport::datachannel::NameObject nameObject;
+			transport::NameObject nameObject;
 			nameObject.setNamingRule( "Naming_Rule" );
 
 			// Add custom name objects
@@ -72,19 +72,19 @@ namespace dnv::vista::sdk::tests
 
 			dataChannelId.setNameObject( nameObject );
 
-			transport::datachannel::DataChannelType dataChannelType{ "Inst" };
+			transport::DataChannelType dataChannelType{ "Inst" };
 			dataChannelType.setUpdateCycle( 1.0 );
 
-			transport::datachannel::Format format{ "Decimal" };
-			transport::datachannel::Restriction restriction;
+			transport::Format format{ "Decimal" };
+			transport::Restriction restriction;
 			restriction.setFractionDigits( 1 );
 			restriction.setMaxInclusive( 200.0 );
 			restriction.setMinInclusive( -150.0 );
 			format.setRestriction( restriction );
 
-			transport::datachannel::Range range{ 0.0, 150.0 };
+			transport::Range range{ 0.0, 150.0 };
 
-			transport::datachannel::Unit unit{ "°C" };
+			transport::Unit unit{ "°C" };
 			unit.setQuantityName( "Temperature" );
 
 			// Add custom elements to unit
@@ -92,7 +92,7 @@ namespace dnv::vista::sdk::tests
 			customElements["nr:CustomUnitElement"] = transport::Value::String{ "Vendor specific unit element" };
 			unit.setCustomElements( customElements );
 
-			transport::datachannel::Property property{ dataChannelType, format, range, unit, std::nullopt };
+			transport::Property property{ dataChannelType, format, range, unit, std::nullopt };
 			property.setQualityCoding( "OPC_QUALITY" );
 			property.setName( "M/E #1 Air Cooler CFW OUT Temp" );
 			property.setRemarks( " Location: ECR, Manufacturer: AAA Company, Type: TYPE-AAA " );
@@ -102,7 +102,7 @@ namespace dnv::vista::sdk::tests
 			customProperties["nr:CustomPropertyElement"] = transport::Value::String{ "Vendor specific property element" };
 			property.setCustomProperties( customProperties );
 
-			transport::datachannel::DataChannel dataChannel{ dataChannelId, property };
+			transport::DataChannel dataChannel{ dataChannelId, property };
 			dataChannelList.add( dataChannel );
 		}
 
@@ -115,44 +115,44 @@ namespace dnv::vista::sdk::tests
 			EXPECT_TRUE( parsed );
 			auto localId = localIdBuilderOpt->build();
 
-			transport::datachannel::DataChannelId dataChannelId{ localId, "0020" };
+			transport::DataChannelId dataChannelId{ localId, "0020" };
 
-			transport::datachannel::DataChannelType dataChannelType{ "Alert" };
+			transport::DataChannelType dataChannelType{ "Alert" };
 
-			transport::datachannel::Format format{ "String" };
-			transport::datachannel::Restriction restriction;
+			transport::Format format{ "String" };
+			transport::Restriction restriction;
 			restriction.setMaxLength( 100 );
 			restriction.setMinLength( 0 );
 			format.setRestriction( restriction );
 
-			transport::datachannel::Property property{ dataChannelType, format, std::nullopt, std::nullopt, "Warning" };
+			transport::Property property{ dataChannelType, format, std::nullopt, std::nullopt, "Warning" };
 
-			transport::datachannel::DataChannel dataChannel{ dataChannelId, property };
+			transport::DataChannel dataChannel{ dataChannelId, property };
 			dataChannelList.add( dataChannel );
 		}
 
-		transport::datachannel::Package package{ header, std::move( dataChannelList ) };
-		return transport::datachannel::DataChannelListPackage{ std::move( package ) };
+		transport::Package package{ header, std::move( dataChannelList ) };
+		return transport::DataChannelListPackage{ std::move( package ) };
 	}
 
 	/**
 	 * @brief Creates ValidDataChannelList
 	 */
-	transport::datachannel::DataChannelListPackage createValidDataChannelList()
+	transport::DataChannelListPackage createValidDataChannelList()
 	{
 		// Create ConfigurationReference for DataChannelListId
-		transport::datachannel::ConfigurationReference dataChannelListId{
+		transport::ConfigurationReference dataChannelListId{
 			"some-id",
 			nfx::time::DateTimeOffset( "2016-01-01T00:00:00Z" ) };
 
 		// Create Header
-		transport::datachannel::Header header{
+		transport::Header header{
 			transport::ShipId::parse( "IMO1234567" ),
 			dataChannelListId,
 			"some-author" };
 
 		// Create DataChannelList
-		transport::datachannel::DataChannelList dataChannelList;
+		transport::DataChannelList dataChannelList;
 
 		// Single DataChannel
 		{
@@ -163,19 +163,19 @@ namespace dnv::vista::sdk::tests
 			EXPECT_TRUE( parsed );
 			auto localId = localIdBuilderOpt->build();
 
-			transport::datachannel::DataChannelId dataChannelId{ localId, "0010" };
+			transport::DataChannelId dataChannelId{ localId, "0010" };
 
-			transport::datachannel::DataChannelType dataChannelType{ "Inst" };
-			transport::datachannel::Format format{ "String" };
+			transport::DataChannelType dataChannelType{ "Inst" };
+			transport::Format format{ "String" };
 
-			transport::datachannel::Property property{ dataChannelType, format, std::nullopt, std::nullopt, std::nullopt };
+			transport::Property property{ dataChannelType, format, std::nullopt, std::nullopt, std::nullopt };
 
-			transport::datachannel::DataChannel dataChannel{ dataChannelId, property };
+			transport::DataChannel dataChannel{ dataChannelId, property };
 			dataChannelList.add( dataChannel );
 		}
 
-		transport::datachannel::Package package{ header, std::move( dataChannelList ) };
-		return transport::datachannel::DataChannelListPackage{ std::move( package ) };
+		transport::Package package{ header, std::move( dataChannelList ) };
+		return transport::DataChannelListPackage{ std::move( package ) };
 	}
 
 	//=====================================================================
@@ -347,22 +347,22 @@ namespace dnv::vista::sdk::tests
 	{
 		// Test valid decimal property
 		{
-			transport::datachannel::DataChannelType dataChannelType{ "Inst" };
-			transport::datachannel::Format format{ "Decimal" };
-			transport::datachannel::Range range{ 0.0, 100.0 };
-			transport::datachannel::Unit unit{ "°C" };
+			transport::DataChannelType dataChannelType{ "Inst" };
+			transport::Format format{ "Decimal" };
+			transport::Range range{ 0.0, 100.0 };
+			transport::Unit unit{ "°C" };
 
-			transport::datachannel::Property property{ dataChannelType, format, range, unit, std::nullopt };
+			transport::Property property{ dataChannelType, format, range, unit, std::nullopt };
 			auto result = property.validate();
 			EXPECT_TRUE( result.isOk() );
 		}
 
 		// Test alert property with priority
 		{
-			transport::datachannel::DataChannelType dataChannelType{ "Alert" };
-			transport::datachannel::Format format{ "String" };
+			transport::DataChannelType dataChannelType{ "Alert" };
+			transport::Format format{ "String" };
 
-			transport::datachannel::Property property{ dataChannelType, format, std::nullopt, std::nullopt, "Critical" };
+			transport::Property property{ dataChannelType, format, std::nullopt, std::nullopt, "Critical" };
 			auto result = property.validate();
 			EXPECT_TRUE( result.isOk() );
 		}
@@ -374,8 +374,8 @@ namespace dnv::vista::sdk::tests
 	 */
 	TEST( DataChannelTests, Test_Restriction_Validation )
 	{
-		transport::datachannel::Restriction restriction;
-		transport::datachannel::Format format{ "String" };
+		transport::Restriction restriction;
+		transport::Format format{ "String" };
 
 		// Test length validation
 		restriction.setLength( 5 );
@@ -389,7 +389,7 @@ namespace dnv::vista::sdk::tests
 		EXPECT_FALSE( result.isOk() );
 
 		// Test min/max length validation
-		restriction = transport::datachannel::Restriction{};
+		restriction = transport::Restriction{};
 		restriction.setMinLength( 2 );
 		restriction.setMaxLength( 10 );
 
@@ -410,12 +410,12 @@ namespace dnv::vista::sdk::tests
 	TEST( RangeTest, RangeCreationAndValidation )
 	{
 		// Test valid range construction
-		transport::datachannel::Range range{ 0.0, 100.0 };
+		transport::Range range{ 0.0, 100.0 };
 		EXPECT_EQ( range.low(), 0.0 );
 		EXPECT_EQ( range.high(), 100.0 );
 
 		// Test invalid range construction should throw
-		EXPECT_THROW( transport::datachannel::Range( 100.0, 0.0 ), std::invalid_argument );
+		EXPECT_THROW( transport::Range( 100.0, 0.0 ), std::invalid_argument );
 
 		// Test setting range values
 		range.setLow( 10.0 );
@@ -436,7 +436,7 @@ namespace dnv::vista::sdk::tests
 	 */
 	TEST( DataChannelTests, Test_DataChannelList_Operations )
 	{
-		transport::datachannel::DataChannelList dataChannelList;
+		transport::DataChannelList dataChannelList;
 		EXPECT_TRUE( dataChannelList.isEmpty() );
 		EXPECT_EQ( dataChannelList.size(), 0U );
 
@@ -445,7 +445,7 @@ namespace dnv::vista::sdk::tests
 		const auto& originalChannel = singleList.package().dataChannelList()[0];
 
 		// Create a copy for adding
-		transport::datachannel::DataChannel channelCopy = originalChannel;
+		transport::DataChannel channelCopy = originalChannel;
 		dataChannelList.add( channelCopy );
 
 		EXPECT_FALSE( dataChannelList.isEmpty() );
@@ -473,22 +473,22 @@ namespace dnv::vista::sdk::tests
 	TEST( DataChannelTests, Test_Error_Handling )
 	{
 		// Test invalid DataChannelType construction
-		EXPECT_THROW( transport::datachannel::DataChannelType{ "InvalidType" }, std::invalid_argument );
+		EXPECT_THROW( transport::DataChannelType{ "InvalidType" }, std::invalid_argument );
 
 		// Test invalid Format type
-		EXPECT_THROW( transport::datachannel::Format{ "InvalidFormat" }, std::invalid_argument );
+		EXPECT_THROW( transport::Format{ "InvalidFormat" }, std::invalid_argument );
 
 		// Test duplicate LocalId addition
-		transport::datachannel::DataChannelList dataChannelList;
+		transport::DataChannelList dataChannelList;
 		auto validList = createValidDataChannelList();
 		const auto& originalChannel = validList.package().dataChannelList()[0];
 
 		// Add first channel
-		transport::datachannel::DataChannel firstChannel = originalChannel;
+		transport::DataChannel firstChannel = originalChannel;
 		dataChannelList.add( firstChannel );
 
 		// Try to add duplicate LocalId - should throw
-		transport::datachannel::DataChannel duplicateChannel = originalChannel;
+		transport::DataChannel duplicateChannel = originalChannel;
 		EXPECT_THROW( dataChannelList.add( duplicateChannel ), std::invalid_argument );
 	}
 
@@ -498,10 +498,10 @@ namespace dnv::vista::sdk::tests
 	TEST( RestrictionTest, StringLengthRestrictionValidation )
 	{
 		// Test exact length validation with StringBuilderPool error messages
-		transport::datachannel::Restriction restriction;
+		transport::Restriction restriction;
 		restriction.setLength( 5 );
 
-		transport::datachannel::Format format{ "String" };
+		transport::Format format{ "String" };
 
 		// Test that error messages are properly constructed using StringBuilderPool
 		auto result = restriction.validateValue( "toolongstring", format );

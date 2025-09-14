@@ -3,20 +3,14 @@
  * @brief Implementation of the ImoNumber class
  */
 
-#include <charconv>
 #include <stdexcept>
-#include <system_error>
+
+#include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/ImoNumber.h"
 
 namespace dnv::vista::sdk
 {
-	namespace internal
-	{
-		/** @brief Character set for null or whitespace detection in string parsing operations. */
-		inline constexpr std::string_view NULL_OR_WHITESPACE = " \t\n\r\f\v";
-	}
-
 	//=====================================================================
 	// ImoNumber class
 	//=====================================================================
@@ -104,7 +98,7 @@ namespace dnv::vista::sdk
 
 	ImoNumber ImoNumber::parse( std::string_view value )
 	{
-		if ( value.empty() )
+		if ( nfx::string::isEmpty( value ) )
 		{
 			throw std::invalid_argument( "Empty IMO number string" );
 		}
@@ -120,31 +114,24 @@ namespace dnv::vista::sdk
 
 	std::optional<ImoNumber> ImoNumber::tryParse( std::string_view value )
 	{
-		if ( value.empty() )
+		if ( nfx::string::isEmpty( value ) )
 		{
 			return std::nullopt;
 		}
 
-		if ( value.find_first_of( internal::NULL_OR_WHITESPACE ) != std::string::npos )
+		if ( nfx::string::isNullOrWhiteSpace( value ) )
 		{
 			return std::nullopt;
 		}
 
 		std::string_view sv = value;
-		bool hasImoPrefix = sv.length() >= 3 &&
-							( std::toupper( static_cast<unsigned char>( sv[0] ) ) == 'I' ) &&
-							( std::toupper( static_cast<unsigned char>( sv[1] ) ) == 'M' ) &&
-							( std::toupper( static_cast<unsigned char>( sv[2] ) ) == 'O' );
-
-		if ( hasImoPrefix )
+		if ( sv.length() >= 3 && nfx::string::iequals( sv.substr( 0, 3 ), "IMO" ) )
 		{
 			sv = sv.substr( 3 );
 		}
 
 		int num = 0;
-		auto [ptr, ec] = std::from_chars( sv.data(), sv.data() + sv.length(), num );
-
-		if ( ec != std::errc() )
+		if ( !nfx::string::tryParseInt( sv, num ) )
 		{
 			return std::nullopt;
 		}

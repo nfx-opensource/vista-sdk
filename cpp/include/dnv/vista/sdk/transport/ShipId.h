@@ -1,12 +1,76 @@
 /**
  * @file ShipId.h
- * @brief Ship identifier implementation using discriminated union pattern
- * @details Represents either an IMO number or other string identifier for vessels
+ * @brief Universal Ship Identifier with Type-Safe Discriminated Union
+ *
+ * @details
+ * This file provides the **ShipId** class, a type-safe ship identifier that can represent
+ * either an **IMO Number** (International Maritime Organization) or other string-based
+ * ship identifiers using a discriminated union pattern.
+ *
+ * ## Purpose:
+ *
+ * **ShipId** serves as a universal ship identifier for:
+ * - **Hybrid Construction**     : Public constructor for validated IMO numbers, private for custom IDs
+ * - **IMO Number Support**      : Type-safe handling of official IMO numbers with validation
+ * - **Alternative Identifiers** : Support for custom or legacy ship identification systems
+ * - **Type Safety**             : Compile-time guarantees about identifier type through pattern matching
+ * - **Memory Efficiency**       : Optimized storage using discriminated union pattern
+ * - **Immutability**            : Value semantics with immutable design for thread safety
+ *
+ * ## Design Pattern:
+ *
+ * **ShipId** implements a **hybrid construction pattern**:
+ * - **Public IMO Constructor**    : Direct construction from validated `ImoNumber` objects (safe)
+ * - **Private String Constructor**: Controlled construction for custom IDs (requires validation)
+ * - **Static Factory Method**     : `parse()` with automatic type detection for string input
+ * - **Discriminated Union**       : Tag-based dispatch with type-safe access to union members
+ * - **Immutable Design**          : Value semantics with thread-safe operations after construction
+ * - **Pattern Matching**          : Functional-style access via `matchOn()` and `switchOn()` methods
+ *
+ * ## Usage Examples:
+ *
+ * ### Direct Construction from IMO Number (Recommended)
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### String Parsing with Type Detection
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Type Checking and Access
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ## Type Safety Features:
+ *
+ * - **Compile-Time Safety**: Pattern matching prevents accessing wrong union member
+ * - **Optional Returns**   : Safe accessors return `std::optional` to handle empty cases
+ * - **[[nodiscard]]**      : All query methods marked to prevent ignoring return values
+ * - **Exception Safety**   : Constructor validation with clear error messages
+ * - **Move Semantics**     : Efficient transfers with noexcept move operations
+ *
+ * ## Performance Characteristics:
+ *
+ * - **Memory Efficient** : Uses discriminated union to minimize storage overhead
+ * - **Copy Optimized**   : Small object with efficient copy/move semantics
+ * - **Inline Operations**: Type checking and accessors are fully inlined
+ * - **String View**      : Non-owning string access where possible for zero-copy operations
  */
 
 #pragma once
 
 #include <functional>
+#include <optional>
+#include <string>
 #include <string_view>
 
 #include "dnv/vista/sdk/ImoNumber.h"
@@ -26,23 +90,27 @@ namespace dnv::vista::sdk::transport
 	 */
 	class ShipId final
 	{
+	private:
+		//----------------------------------------------
+		// Private Construction (requires validation)
+		//----------------------------------------------
+
+		/**
+		 * @brief Constructs ShipId from string_view identifier (private - custom ID only, not IMO)
+		 * @param otherId String-based ship identifier (custom/proprietary ID, NOT IMO number)
+		 */
+		inline explicit ShipId( std::string_view otherId ) noexcept;
+
 	public:
 		//----------------------------------------------
-		// Construction
+		// Public Construction (pre-validated input)
 		//----------------------------------------------
 
 		/**
-		 * @brief Constructs ShipId from IMO number
-		 * @param imoNumber Valid IMO number
+		 * @brief Constructs ShipId from pre-validated IMO number
+		 * @param imoNumber IMO number (already validated by ImoNumber constructor)
 		 */
-		explicit ShipId( ImoNumber imoNumber ) noexcept;
-
-		/**
-		 * @brief Constructs ShipId from string_view identifier
-		 * @param otherId String-based ship identifier
-		 * @throws std::invalid_argument If otherId is empty
-		 */
-		explicit ShipId( std::string_view otherId );
+		inline explicit ShipId( ImoNumber imoNumber ) noexcept;
 
 		/** @brief Default constructor */
 		ShipId() = delete;
@@ -168,11 +236,13 @@ namespace dnv::vista::sdk::transport
 		//----------------------------------------------
 
 		/**
-		 * @brief Parse ShipId from string representation
-		 * @param value String to parse (may include "IMO" prefix for IMO numbers)
-		 * @return Parsed ShipId
+		 * @brief Parse ShipId from string representation with automatic type detection
+		 * @param value String to parse - detects IMO numbers starting with "IMO" prefix, treats others as string identifiers
+		 * @return Parsed ShipId containing either IMO number (if detected) or string identifier
 		 * @throws std::invalid_argument If value is empty
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 * @details Parsing logic: If value starts with "IMO" and is valid IMO number format, creates IMO-type ShipId.
+		 *          Otherwise, creates string identifier type ShipId. Implements ISO-19848 convention.
 		 */
 		[[nodiscard]] static ShipId parse( std::string_view value );
 

@@ -1,13 +1,108 @@
 /**
  * @file Codebooks.h
- * @brief Container for Vessel Information Structure (VIS) codebooks
- * @details Provides access to standardized codebooks as defined in ISO 19848,
- *          with support for retrieving codebook entries, validating values, and
- *          creating metadata tags. This container is immutable after construction.
- * @see ISO 19848 - Ships and marine technology - Standard data for shipboard machinery and equipment
+ * @brief VISTA Codebooks Container for Maritime Data Validation Management
+ *
+ * @details
+ * This file implements the **VISTA Codebooks Container System** for managing
+ * collections of standardized maritime data vocabularies. It provides unified
+ * access to all codebooks within a specific VIS version, with optimized
+ * retrieval, validation, and metadata tag creation capabilities.
+ *
+ * ## System Purpose:
+ *
+ * The **VISTA Codebooks Container** serves as the central hub for:
+ * - **Multi-Codebook Management**: Unified access to all 11 ISO 19848 codebook types
+ * - **Version-Specific Access**  : Codebooks organized by VIS version for compatibility
+ * - **High-Performance Lookup**  : O(1) codebook retrieval with compile-time optimization
+ * - **Metadata Tag Creation**    : Centralized validation and tag generation across codebooks
+ * - **Iterator Support**         : STL-compatible iteration over all codebooks
+ *
+ * ## Core Architecture:
+ *
+ * ### Container Design
+ * - **Codebooks**       : Main container class holding all codebooks for a VIS version
+ * - **Fixed-Size Array**: `std::array` with compile-time size for optimal performance
+ * - **Direct Indexing** : Enum-based indexing for zero-overhead codebook access
+ * - **Immutable Design**: Thread-safe container that cannot be modified after construction
+ *
+ * ### Access Patterns
+ * - **operator[]**      : Ultra-fast unchecked access for performance-critical code
+ * - **codebook()**      : Safe checked access with bounds validation and error handling
+ * - **Iterator Support**: Range-based loops and STL algorithm compatibility
+ * - **Tag Creation**    : Unified validation and metadata tag generation
+ *
+ * ## Memory Layout & Performance:
+ *
+ * ```
+ * Codebooks Container Structure:
+ * ┌─────────────────────────────────────┐
+ * │           Codebooks                 │
+ * ├─────────────────────────────────────┤
+ * │ VisVersion m_visVersion             │ ← 2 bytes (uint16_t)
+ * │ ┌─────────────────────────────────┐ │
+ * │ │   std::array<Codebook, 11>      │ │ ← Stack-allocated, contiguous
+ * │ │ Codebook instances for:         │ │
+ * │ │ - Quantity, Content, Calc, etc. │ │
+ * │ │ - All 11 ISO 19848 types        │ │
+ * │ │ - Direct enum-based indexing    │ │
+ * │ └─────────────────────────────────┘ │
+ * └─────────────────────────────────────┘
+ *
+ * Key Performance Features:
+ * - Stack allocation (no heap overhead)
+ * - Contiguous memory layout (cache-friendly)
+ * - Direct indexing: codebooks[CodebookName::Position]
+ * - Compile-time size determination
+ * ```
+ *
+ * ## Usage Examples:
+ *
+ * ### Basic Codebook Access
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Metadata Tag Creation
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Iteration Over All Codebooks
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ## Performance Characteristics:
+ *
+ * - **O(1) Codebook Access** : Direct array indexing with enum values
+ * - **Zero Indirection**     : Stack-allocated array, no pointer dereferencing
+ * - **Cache-Friendly Layout**: Contiguous memory layout for optimal CPU cache usage
+ * - **Compile-Time Sizing**  : Fixed array size known at compile time
+ * - **Thread-Safe Reads**    : Immutable design allows concurrent read access
+ * - **Memory Efficient**     : No dynamic allocation overhead after construction
+ *
+ * ## Design Philosophy:
+ *
+ * - **Performance First**   : Optimized for high-frequency maritime data processing
+ * - **Type Safety**         : Strong enum typing prevents invalid codebook access
+ * - **Standards Compliance**: Full ISO 19848 codebook specification support
+ * - **Version Management**  : Clear separation of different VIS versions
+ * - **Ease of Use**         : Intuitive API for both performance and safety needs
+ * - **Immutability**        : Thread-safe design with no post-construction changes
  */
 
 #pragma once
+
+#include <array>
+#include <optional>
+#include <string>
+#include <string_view>
 
 #include "Codebook.h"
 #include "CodebookName.h"
@@ -20,18 +115,11 @@ namespace dnv::vista::sdk
 	//=====================================================================
 
 	class CodebooksDto;
-	enum class VisVersion;
+	enum class VisVersion : std::uint16_t;
 
 	//=====================================================================
 	// Constants
 	//=====================================================================
-
-	/**
-	 * @brief Number of codebooks based on the enum values.
-	 * @details Array size matches the highest enum value for direct indexing.
-	 *          All enum values are guaranteed to be valid array indices.
-	 */
-	static constexpr size_t NUM_CODEBOOKS = static_cast<size_t>( CodebookName::Detail );
 
 	//=====================================================================
 	// Codebooks class
@@ -46,7 +134,13 @@ namespace dnv::vista::sdk
 	 */
 	class Codebooks final
 	{
-	public:
+		//----------------------------------------------
+		// Friend class declarations
+		//----------------------------------------------
+
+		friend class VIS;
+
+	private:
 		//----------------------------------------------
 		// Construction
 		//----------------------------------------------
@@ -64,8 +158,9 @@ namespace dnv::vista::sdk
 		Codebooks() = default;
 
 		/** @brief Copy constructor */
-		Codebooks( const Codebooks& ) = default;
+		Codebooks( const Codebooks& );
 
+	public:
 		/** @brief Move constructor */
 		Codebooks( Codebooks&& ) noexcept = default;
 
@@ -183,10 +278,10 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 
 		/** @brief The VIS version these codebooks belong to. */
-		VisVersion m_visVersion{};
+		VisVersion m_visVersion;
 
 		/** @brief Fixed-size array holding all codebooks */
-		std::array<Codebook, NUM_CODEBOOKS> m_codebooks{};
+		std::array<Codebook, static_cast<size_t>( CodebookName::Detail )> m_codebooks{};
 	};
 }
 

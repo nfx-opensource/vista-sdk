@@ -3,7 +3,7 @@
  * @brief Inline implementations for performance-critical ParsingErrors operations
  */
 
-#include "config/config.h"
+#include <nfx/string/Utils.h>
 
 namespace dnv::vista::sdk
 {
@@ -78,7 +78,7 @@ namespace dnv::vista::sdk
 
 		for ( const auto& error : m_errors )
 		{
-			if ( error.type == type )
+			if ( nfx::string::equals( error.type, type ) )
 			{
 				return true;
 			}
@@ -117,7 +117,7 @@ namespace dnv::vista::sdk
 
 	inline bool ParsingErrors::ErrorEntry::operator==( const ErrorEntry& other ) const noexcept
 	{
-		return type == other.type && message == other.message;
+		return nfx::string::equals( type, other.type ) && nfx::string::equals( message, other.message );
 	}
 
 	inline bool ParsingErrors::ErrorEntry::operator!=( const ErrorEntry& other ) const noexcept

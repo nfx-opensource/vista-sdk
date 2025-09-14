@@ -4,12 +4,12 @@
  */
 
 #include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/LocalIdBuilder.h"
 
-#include "dnv/vista/sdk/config/ISO19848.h"
 #include "internal/constants/LocalId.h"
-#include "internal/LocalIdParsingErrorBuilder.h"
+#include "internal/parsing/LocalIdParsingErrorBuilder.h"
 
 #include "dnv/vista/sdk/CodebookName.h"
 #include "dnv/vista/sdk/Codebooks.h"
@@ -50,9 +50,10 @@ namespace dnv::vista::sdk
 		//=====================================================================
 
 		/**
-		 * @brief Advances the parsing index `i` past the current `segment` and the following separator '/'.
-		 * @param[in,out] i The current parsing index within the input string.
-		 * @param[in] segment The string view representing the segment just processed.
+		 * @brief Finds the next parsing state indexes for LocalId parsing
+		 * @param span The string view representing the current parsing span
+		 * @param state The current parsing state
+		 * @return A pair containing the custom index and end of custom index positions
 		 */
 		std::pair<size_t, size_t> nextStateIndexes( std::string_view span, LocalIdParsingState state )
 		{
@@ -311,7 +312,7 @@ namespace dnv::vista::sdk
 			auto nextState = nextParsingState( actualState.value() );
 
 			auto value = segment.substr( prefixIndex + 1 );
-			if ( value.empty() )
+			if ( nfx::string::isEmpty( value ) )
 			{
 				auto codebookStr = CodebookNames::toString( codebookName );
 				errorBuilder.addError( state, "Invalid " + codebookStr + " metadata tag: missing value" );
@@ -390,7 +391,7 @@ namespace dnv::vista::sdk
 		{
 			localIdBuilder = std::nullopt;
 
-			if ( localIdStr.empty() )
+			if ( nfx::string::isEmpty( localIdStr ) )
 			{
 				return false;
 			}
@@ -440,14 +441,14 @@ namespace dnv::vista::sdk
 				{
 					case LocalIdParsingState::NamingRule:
 					{
-						if ( segment.empty() )
+						if ( nfx::string::isEmpty( segment ) )
 						{
 							errorBuilder.addError( LocalIdParsingState::NamingRule, predefinedMessage );
 							state = static_cast<LocalIdParsingState>( static_cast<int>( state ) + 1 );
 							break;
 						}
 
-						if ( segment != iso19848::annex_c::NAMING_RULE )
+						if ( !nfx::string::equals( segment, transport::ISO19848_ANNEX_C_NAMING_RULE ) )
 						{
 							errorBuilder.addError( LocalIdParsingState::NamingRule, predefinedMessage );
 
@@ -459,14 +460,14 @@ namespace dnv::vista::sdk
 					}
 					case LocalIdParsingState::VisVersion:
 					{
-						if ( segment.empty() )
+						if ( nfx::string::isEmpty( segment ) )
 						{
 							errorBuilder.addError( LocalIdParsingState::VisVersion, predefinedMessage );
 							state = static_cast<LocalIdParsingState>( static_cast<int>( state ) + 1 );
 							break;
 						}
 
-						if ( !segment.starts_with( constants::localId::PREFIX_VIS ) )
+						if ( !nfx::string::startsWith( segment, constants::localId::PREFIX_VIS ) )
 						{
 							errorBuilder.addError( LocalIdParsingState::VisVersion, predefinedMessage );
 
@@ -494,7 +495,7 @@ namespace dnv::vista::sdk
 					}
 					case LocalIdParsingState::PrimaryItem:
 					{
-						if ( segment.empty() )
+						if ( nfx::string::isEmpty( segment ) )
 						{
 							if ( primaryItemStart != std::numeric_limits<size_t>::max() )
 							{
@@ -554,15 +555,15 @@ namespace dnv::vista::sdk
 						{
 							LocalIdParsingState nextState = state;
 
-							if ( segment.starts_with( constants::localId::PREFIX_SEC ) )
+							if ( nfx::string::startsWith( segment, constants::localId::PREFIX_SEC ) )
 							{
 								nextState = LocalIdParsingState::SecondaryItem;
 							}
-							else if ( segment.starts_with( constants::localId::PREFIX_META ) )
+							else if ( nfx::string::startsWith( segment, constants::localId::PREFIX_META ) )
 							{
 								nextState = LocalIdParsingState::MetaQuantity;
 							}
-							else if ( !segment.empty() && segment[0] == constants::localId::CHAR_TILDE )
+							else if ( !nfx::string::isEmpty( segment ) && segment[0] == constants::localId::CHAR_TILDE )
 							{
 								nextState = LocalIdParsingState::ItemDescription;
 							}
@@ -593,7 +594,7 @@ namespace dnv::vista::sdk
 									primaryItem = std::move( *parsedPath );
 								}
 
-								if ( !segment.empty() && segment[0] == constants::localId::CHAR_TILDE )
+								if ( !nfx::string::isEmpty( segment ) && segment[0] == constants::localId::CHAR_TILDE )
 								{
 									advanceParser( state, nextState );
 								}
@@ -626,15 +627,15 @@ namespace dnv::vista::sdk
 
 								std::string_view nextSegment = span.substr( nextStateIndex + 1 );
 
-								if ( nextSegment.starts_with( constants::localId::PREFIX_SEC ) )
+								if ( nfx::string::startsWith( nextSegment, constants::localId::PREFIX_SEC ) )
 								{
 									nextState = LocalIdParsingState::SecondaryItem;
 								}
-								else if ( nextSegment.starts_with( constants::localId::PREFIX_META ) )
+								else if ( nfx::string::startsWith( nextSegment, constants::localId::PREFIX_META ) )
 								{
 									nextState = LocalIdParsingState::MetaQuantity;
 								}
-								else if ( !nextSegment.empty() && nextSegment[0] == constants::localId::CHAR_TILDE )
+								else if ( !nfx::string::isEmpty( nextSegment ) && nextSegment[0] == constants::localId::CHAR_TILDE )
 								{
 									nextState = LocalIdParsingState::ItemDescription;
 								}
@@ -657,7 +658,7 @@ namespace dnv::vista::sdk
 					}
 					case LocalIdParsingState::SecondaryItem:
 					{
-						if ( segment.empty() )
+						if ( nfx::string::isEmpty( segment ) )
 						{
 							state = static_cast<LocalIdParsingState>( static_cast<int>( state ) + 1 );
 							break;
@@ -686,11 +687,11 @@ namespace dnv::vista::sdk
 						{
 							LocalIdParsingState nextState = state;
 
-							if ( segment.starts_with( constants::localId::PREFIX_META ) )
+							if ( nfx::string::startsWith( segment, constants::localId::PREFIX_META ) )
 							{
 								nextState = LocalIdParsingState::MetaQuantity;
 							}
-							else if ( !segment.empty() && segment[0] == constants::localId::CHAR_TILDE )
+							else if ( !nfx::string::isEmpty( segment ) && segment[0] == constants::localId::CHAR_TILDE )
 							{
 								nextState = LocalIdParsingState::ItemDescription;
 							}
@@ -722,7 +723,7 @@ namespace dnv::vista::sdk
 									secondaryItem = std::move( *parsedPath );
 								}
 
-								if ( !segment.empty() && segment[0] == constants::localId::CHAR_TILDE )
+								if ( !nfx::string::isEmpty( segment ) && segment[0] == constants::localId::CHAR_TILDE )
 								{
 									advanceParser( state, nextState );
 								}
@@ -754,11 +755,11 @@ namespace dnv::vista::sdk
 
 								std::string_view nextSegment = span.substr( nextStateIndex + 1 );
 
-								if ( nextSegment.starts_with( constants::localId::PREFIX_META ) )
+								if ( nfx::string::startsWith( nextSegment, constants::localId::PREFIX_META ) )
 								{
 									nextState = LocalIdParsingState::MetaQuantity;
 								}
-								else if ( !nextSegment.empty() && nextSegment[0] == constants::localId::CHAR_TILDE )
+								else if ( !nfx::string::isEmpty( nextSegment ) && nextSegment[0] == constants::localId::CHAR_TILDE )
 								{
 									nextState = LocalIdParsingState::ItemDescription;
 								}
@@ -781,7 +782,7 @@ namespace dnv::vista::sdk
 					}
 					case LocalIdParsingState::ItemDescription:
 					{
-						if ( segment.empty() )
+						if ( nfx::string::isEmpty( segment ) )
 						{
 							state = static_cast<LocalIdParsingState>( static_cast<int>( state ) + 1 );
 
@@ -805,7 +806,7 @@ namespace dnv::vista::sdk
 					}
 					case LocalIdParsingState::MetaQuantity:
 					{
-						if ( segment.empty() )
+						if ( nfx::string::isEmpty( segment ) )
 						{
 							state = static_cast<LocalIdParsingState>( static_cast<int>( state ) + 1 );
 
@@ -822,7 +823,7 @@ namespace dnv::vista::sdk
 					}
 					case LocalIdParsingState::MetaContent:
 					{
-						if ( segment.empty() )
+						if ( nfx::string::isEmpty( segment ) )
 						{
 							state = static_cast<LocalIdParsingState>( static_cast<int>( state ) + 1 );
 
@@ -839,7 +840,7 @@ namespace dnv::vista::sdk
 					}
 					case LocalIdParsingState::MetaCalculation:
 					{
-						if ( segment.empty() )
+						if ( nfx::string::isEmpty( segment ) )
 						{
 							state = static_cast<LocalIdParsingState>( static_cast<int>( state ) + 1 );
 
@@ -856,7 +857,7 @@ namespace dnv::vista::sdk
 					}
 					case LocalIdParsingState::MetaState:
 					{
-						if ( segment.empty() )
+						if ( nfx::string::isEmpty( segment ) )
 						{
 							state = static_cast<LocalIdParsingState>( static_cast<int>( state ) + 1 );
 
@@ -873,7 +874,7 @@ namespace dnv::vista::sdk
 					}
 					case LocalIdParsingState::MetaCommand:
 					{
-						if ( segment.empty() )
+						if ( nfx::string::isEmpty( segment ) )
 						{
 							state = static_cast<LocalIdParsingState>( static_cast<int>( state ) + 1 );
 							break;
@@ -889,7 +890,7 @@ namespace dnv::vista::sdk
 					}
 					case LocalIdParsingState::MetaType:
 					{
-						if ( segment.empty() )
+						if ( nfx::string::isEmpty( segment ) )
 						{
 							state = static_cast<LocalIdParsingState>( static_cast<int>( state ) + 1 );
 
@@ -906,7 +907,7 @@ namespace dnv::vista::sdk
 					}
 					case LocalIdParsingState::MetaPosition:
 					{
-						if ( segment.empty() )
+						if ( nfx::string::isEmpty( segment ) )
 						{
 							state = static_cast<LocalIdParsingState>( static_cast<int>( state ) + 1 );
 							break;
@@ -921,7 +922,7 @@ namespace dnv::vista::sdk
 					}
 					case LocalIdParsingState::MetaDetail:
 					{
-						if ( segment.empty() )
+						if ( nfx::string::isEmpty( segment ) )
 						{
 							state = static_cast<LocalIdParsingState>( static_cast<int>( state ) + 1 );
 							break;

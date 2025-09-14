@@ -7,9 +7,11 @@
 
 #include <future>
 #include <fstream>
+#include <iomanip>
 #include <queue>
 #include <thread>
 
+#include <dnv/vista/sdk/GmodPath.h>
 #include <dnv/vista/sdk/GmodVersioning.h>
 #include <dnv/vista/sdk/VIS.h>
 #include <dnv/vista/sdk/VISVersion.h>

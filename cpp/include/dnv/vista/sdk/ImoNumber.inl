@@ -3,8 +3,6 @@
  * @brief Inline implementations for performance-critical ImoNumber operations
  */
 
-#include "config/config.h"
-
 namespace dnv::vista::sdk
 {
 	//=====================================================================

@@ -4,6 +4,7 @@
  */
 
 #include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/LocationBuilder.h"
 
@@ -217,8 +218,10 @@ namespace dnv::vista::sdk
 				}
 				else
 				{
+					// Extract substring from start to current position (i+1)
+					std::string_view numberSubstr = span.substr( 0, i + 1 );
 					int parsedNumber;
-					if ( !Locations::tryParseInt( span, 0, static_cast<int>( i + 1 ), parsedNumber ) )
+					if ( !nfx::string::tryParseInt( numberSubstr, parsedNumber ) )
 					{
 						throw std::invalid_argument{ "Should include a valid number" };
 					}

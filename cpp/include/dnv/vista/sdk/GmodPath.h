@@ -1,8 +1,101 @@
 /**
  * @file GmodPath.h
- * @brief Declarations for GmodPath and related classes for representing paths in the Generic Product Model (GMOD).
- * @details Defines the `GmodPath` class for representing hierarchical paths according to ISO 19848,
- *          along with helper classes for parsing, validation, iteration, and modification of path segments.
+ * @brief VISTA Generic Product Model (GMOD) Path System for Maritime Hierarchical Navigation
+ *
+ * @details
+ * This file implements the **VISTA GmodPath System** for representing, parsing, and navigating
+ * hierarchical paths within maritime vessel structures according to ISO 19848 standards.
+ * It provides comprehensive path representation, parsing capabilities, location management,
+ * and individualization support for maritime component identification.
+ *
+ * ## System Purpose:
+ *
+ * The **VISTA GmodPath System** serves as the foundation for:
+ * - **Hierarchical Path Representation**: Complete vessel component paths from root to target
+ * - **Path Parsing and Validation**     : String-to-path conversion with error handling
+ * - **Location Individualization**      : Component instance identification with physical locations
+ * - **Path Navigation and Enumeration** : Efficient traversal of hierarchical structures
+ * - **String Representation**           : Multiple output formats (short, full, debug)
+ * - **Performance Optimization**        : Efficient path operations and memory management
+ *
+ * ## Core Architecture:
+ *
+ * ### Path Classes
+ * - **GmodPath**               : Main hierarchical path representation with validation
+ * - **GmodIndividualizableSet**: Groups of nodes that can be individualized together
+ * - **GmodParsePathResult**    : Result type for parsing operations with error handling
+ * - **GmodPath::Enumerator**   : Iterator for efficient path traversal
+ *
+ * ### Path Components
+ * - **Parent Nodes** : Vector of hierarchical parent components leading to target
+ * - **Target Node**  : Final component in the path (the node being addressed)
+ * - **Location Data**: Optional individualization information for specific instances
+ * - **VIS Version**  : Version-specific validation and compatibility information
+ *
+ * ## Data Flow Architecture:
+ *
+ * ```
+ * Path String Input
+ *         ↓
+ * Parse Validation (Gmod + Locations)
+ *         ↓
+ * ┌─────────────────────────────────────┐
+ * │            GmodPath                 │
+ * ├─────────────────────────────────────┤
+ * │ ┌─────────────────────────────────┐ │
+ * │ │    std::vector<GmodNode>        │ │ ← Parent nodes
+ * │ │         m_parents               │ │
+ * │ └─────────────────────────────────┘ │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │    std::optional<GmodNode>      │ │ ← Target node
+ * │ │          m_node                 │ │
+ * │ └─────────────────────────────────┘ │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │        VisVersion               │ │ ← Version compatibility
+ * │ │       m_visVersion              │ │
+ * │ └─────────────────────────────────┘ │
+ * └─────────────────────────────────────┘
+ *         ↓
+ * Path Operations (enumeration, validation, string conversion)
+ * ```
+ *
+ * ## Usage Patterns:
+ *
+ * ### Basic Path Operations
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Path Parsing with Locations
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Path Enumeration and Navigation
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ## Performance Characteristics:
+ *
+ * - **Path Construction**: O(n) where n is path depth (typically 3-8 levels)
+ * - **Node Access**      : O(1) random access via operator[] with bounds checking
+ * - **Path Validation**  : O(n) hierarchical relationship verification
+ * - **String Parsing**   : O(m) where m is string length with optimized tokenization
+ * - **Memory Usage**     : Minimal overhead with move semantics and efficient storage
+ *
+ * ## Thread Safety:
+ *
+ * - **Read Operations** : Thread-safe for concurrent access to immutable path data
+ * - **Parse Operations**: Thread-safe with local parsing contexts
+ * - **String Building** : Uses thread-local StringBuilderPool for performance
+ * - **Modification**    : Individual paths are immutable after construction
  */
 
 #pragma once
@@ -30,7 +123,7 @@ namespace dnv::vista::sdk
 	struct GmodParsePathResult;
 
 	enum class TraversalHandlerResult;
-	enum class VisVersion;
+	enum class VisVersion : std::uint16_t;
 
 	//=====================================================================
 	// GmodPath class
@@ -45,7 +138,12 @@ namespace dnv::vista::sdk
 		// Construction
 		//----------------------------------------------
 
-		GmodPath( const Gmod& gmod, GmodNode node, std::vector<GmodNode> parents = {}, bool skipVerify = false );
+		// TODO: Make the ctors move the parents
+	private:
+		GmodPath( std::vector<GmodNode> parents, GmodNode node, bool skipVerify );
+
+	public:
+		GmodPath( std::vector<GmodNode> parents, GmodNode node );
 
 		/** @brief Default constructor. */
 		inline GmodPath();
@@ -125,13 +223,6 @@ namespace dnv::vista::sdk
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline VisVersion visVersion() const noexcept;
-
-		/**
-		 * @brief Gets the GMOD instance associated with this path
-		 * @return Pointer to the GMOD instance, or nullptr if not set
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] inline const Gmod* gmod() const noexcept;
 
 		/**
 		 * @brief Gets the target node of this path
@@ -388,9 +479,8 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 
 		VisVersion m_visVersion;
-		const Gmod* m_gmod;
-		std::optional<GmodNode> m_node;
 		std::vector<GmodNode> m_parents;
+		std::optional<GmodNode> m_node;
 
 	public:
 		//----------------------------------------------

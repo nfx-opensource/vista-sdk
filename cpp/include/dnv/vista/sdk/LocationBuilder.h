@@ -24,7 +24,7 @@ namespace dnv::vista::sdk
 	class Location;
 	class Locations;
 	enum class LocationGroup;
-	enum class VisVersion;
+	enum class VisVersion : std::uint16_t;
 
 	//=====================================================================
 	// LocationBuilder class

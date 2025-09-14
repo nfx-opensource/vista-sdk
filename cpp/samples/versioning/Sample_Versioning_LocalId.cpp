@@ -7,8 +7,8 @@
  * - Convert the entire LocalId (including GMOD path and metadata) to a target VIS version
  * - Handle conversion failures when LocalIds don't exist in target versions
  * - Use VIS::convertLocalId() API for complete URI migration
- * 
- * Example: Converts "/dnv-v2/vis-3-7a/691.811i/H101/meta/qty-power" 
+ *
+ * Example: Converts "/dnv-v2/vis-3-7a/691.811i/H101/meta/qty-power"
  *          to "/dnv-v2/vis-3-9a/691.83111i/H101/meta/qty-power"
  * This is the most common conversion operation for migrating ISO19848 data references.
  */

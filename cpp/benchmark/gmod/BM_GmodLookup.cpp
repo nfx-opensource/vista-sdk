@@ -1,6 +1,6 @@
 /**
- * @file GmodLookup.cpp
- * @brief GMOD node lookup comparison between CHD Dictionary and std::unordered_map
+ * @file BM_GmodLookup.cpp
+ * @brief GMOD node lookup performance comparison between different container types
  */
 
 #include <nfx/containers/HashMap.h>

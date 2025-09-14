@@ -31,7 +31,7 @@ set(SAMPLE_SOURCES
 	versioning/Sample_Versioning_GmodNode.cpp
 	versioning/Sample_Versioning_GmodPath.cpp
 	versioning/Sample_Versioning_LocalId.cpp
-	VIS/Sample_VIS_Gmod.cpp
+	vis/Sample_VIS_Gmod.cpp
 )
 
 #----------------------------------------------

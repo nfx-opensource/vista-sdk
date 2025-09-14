@@ -17,7 +17,7 @@ namespace dnv::vista::sdk::tests
 	TEST( ShipId, ConstructFromImoNumber )
 	{
 		auto imo = ImoNumber::parse( "IMO1234567" );
-		transport::ShipId shipId{ imo };
+		auto shipId = transport::ShipId::parse( imo.toString() );
 
 		EXPECT_TRUE( shipId.isImoNumber() );
 		EXPECT_FALSE( shipId.isOtherId() );
@@ -33,7 +33,7 @@ namespace dnv::vista::sdk::tests
 	TEST( ShipId, ConstructFromStringView )
 	{
 		std::string_view testId = "ABC123";
-		transport::ShipId shipId{ testId };
+		auto shipId = transport::ShipId::parse( testId );
 
 		EXPECT_FALSE( shipId.isImoNumber() );
 		EXPECT_TRUE( shipId.isOtherId() );
@@ -48,21 +48,21 @@ namespace dnv::vista::sdk::tests
 
 	TEST( ShipId, ConstructFromEmptyStringThrows )
 	{
-		EXPECT_THROW( transport::ShipId{ "" }, std::invalid_argument );
-		EXPECT_THROW( transport::ShipId{ std::string_view{} }, std::invalid_argument );
+		EXPECT_THROW( (void)transport::ShipId::parse( "" ), std::invalid_argument );
+		EXPECT_THROW( (void)transport::ShipId::parse( std::string_view{} ), std::invalid_argument );
 	}
 
 	//=====================================================================
 	// ShipId Equality Tests
-	//=====================================================================
+	//=========================================================)============
 
 	TEST( ShipId, EqualityImoNumbers )
 	{
 		auto imo1 = ImoNumber::parse( "IMO1234567" );
 		auto imo2 = ImoNumber::parse( "IMO1234567" );
 
-		transport::ShipId shipId1{ imo1 };
-		transport::ShipId shipId2{ imo2 };
+		auto shipId1 = transport::ShipId::parse( imo1.toString() );
+		auto shipId2 = transport::ShipId::parse( imo2.toString() );
 
 		EXPECT_EQ( shipId1, shipId2 );
 		EXPECT_FALSE( shipId1 != shipId2 );
@@ -70,8 +70,8 @@ namespace dnv::vista::sdk::tests
 
 	TEST( ShipId, EqualityOtherIds )
 	{
-		transport::ShipId shipId1{ "ABC123" };
-		transport::ShipId shipId2{ "ABC123" };
+		auto shipId1 = transport::ShipId::parse( "ABC123" );
+		auto shipId2 = transport::ShipId::parse( "ABC123" );
 
 		EXPECT_EQ( shipId1, shipId2 );
 		EXPECT_FALSE( shipId1 != shipId2 );
@@ -79,9 +79,8 @@ namespace dnv::vista::sdk::tests
 
 	TEST( ShipId, InequalityDifferentTypes )
 	{
-		auto imo = ImoNumber::parse( "IMO1234567" );
-		transport::ShipId imoShipId{ imo };
-		transport::ShipId otherShipId{ "ABC123" };
+		auto imoShipId = transport::ShipId::parse( "IMO1234567" );
+		auto otherShipId = transport::ShipId::parse( "ABC123" );
 
 		EXPECT_NE( imoShipId, otherShipId );
 		EXPECT_TRUE( imoShipId != otherShipId );
@@ -89,8 +88,8 @@ namespace dnv::vista::sdk::tests
 
 	TEST( ShipId, InequalityDifferentValues )
 	{
-		transport::ShipId shipId1{ "ABC123" };
-		transport::ShipId shipId2{ "XYZ789" };
+		auto shipId1 = transport::ShipId::parse( "ABC123" );
+		auto shipId2 = transport::ShipId::parse( "XYZ789" );
 
 		EXPECT_NE( shipId1, shipId2 );
 		EXPECT_TRUE( shipId1 != shipId2 );
@@ -111,7 +110,7 @@ namespace dnv::vista::sdk::tests
 
 	TEST( ShipId, ToStringOtherId )
 	{
-		transport::ShipId shipId{ "ABC123" };
+		auto shipId = transport::ShipId::parse( "ABC123" );
 
 		std::string result = shipId.toString();
 		EXPECT_EQ( result, "ABC123" );
@@ -192,7 +191,7 @@ namespace dnv::vista::sdk::tests
 
 	TEST( ShipId, MatchOnOtherId )
 	{
-		transport::ShipId shipId{ "ABC123" };
+		auto shipId = transport::ShipId::parse( "ABC123" );
 
 		std::string result = shipId.matchOn<std::string>(
 			[]( const ImoNumber& imoNum ) { return "IMO: " + imoNum.toString(); },
@@ -216,7 +215,7 @@ namespace dnv::vista::sdk::tests
 
 	TEST( ShipId, SwitchOnOtherId )
 	{
-		transport::ShipId shipId{ "ABC123" };
+		auto shipId = transport::ShipId::parse( "ABC123" );
 
 		std::string result;
 		shipId.switchOn(
@@ -232,7 +231,7 @@ namespace dnv::vista::sdk::tests
 
 	TEST( ShipId, CopyConstructor )
 	{
-		transport::ShipId original{ "ABC123" };
+		auto original = transport::ShipId::parse( "ABC123" );
 		transport::ShipId copy{ original };
 
 		EXPECT_EQ( original, copy );
@@ -241,7 +240,7 @@ namespace dnv::vista::sdk::tests
 
 	TEST( ShipId, MoveConstructor )
 	{
-		transport::ShipId original{ "ABC123" };
+		auto original = transport::ShipId::parse( "ABC123" );
 		transport::ShipId moved{ std::move( original ) };
 
 		EXPECT_TRUE( moved.isOtherId() );
@@ -252,7 +251,7 @@ namespace dnv::vista::sdk::tests
 
 	TEST( ShipId, CopyAssignment )
 	{
-		transport::ShipId original{ "ABC123" };
+		auto original = transport::ShipId::parse( "ABC123" );
 		auto imo = ImoNumber::parse( "IMO1234567" );
 		transport::ShipId target{ imo };
 
@@ -264,7 +263,7 @@ namespace dnv::vista::sdk::tests
 
 	TEST( ShipId, MoveAssignment )
 	{
-		transport::ShipId original{ "ABC123" };
+		auto original = transport::ShipId::parse( "ABC123" );
 		auto imo = ImoNumber::parse( "IMO1234567" );
 		transport::ShipId target{ imo };
 

@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <functional>
+#include <optional>
 #include <string>
 
 #include "GmodPathQuery.h"
@@ -62,7 +64,9 @@ namespace dnv::vista::sdk
 	 */
 	class LocalIdQuery final
 	{
-	public:
+		friend class LocalIdQueryBuilder;
+
+	private:
 		//----------------------------------------------
 		// Construction
 		//----------------------------------------------
@@ -73,6 +77,7 @@ namespace dnv::vista::sdk
 		/** @brief Internal constructor from builder */
 		explicit LocalIdQuery( const LocalIdQueryBuilder& builder );
 
+	public:
 		/** @brief Copy constructor */
 		LocalIdQuery( const LocalIdQuery& ) = default;
 
@@ -348,6 +353,8 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 		// Internal matching methods
 		//----------------------------------------------
+
+		// TODO: MOve to internal API
 
 		/**
 		 * @brief Test if a LocalId string matches this query's criteria

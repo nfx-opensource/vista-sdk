@@ -1,10 +1,166 @@
 /**
  * @file GmodNode.h
- * @brief Generic Model (GMOD) node and metadata classes.
- * @details This file defines the GmodNode and GmodNodeMetadata classes which represent
- *          the fundamental building blocks of the Generic Product Model as defined in
- *          ISO 19848. These classes provide the node structure, relationships, and
- *          type classification used throughout the VISTA SDK.
+ * @brief VISTA Generic Product Model (GMOD) Node and Metadata System for Maritime Component Management
+ *
+ * @details
+ * This file implements the **VISTA GmodNode System** for representing and managing
+ * individual components within maritime vessel hierarchical structures. It provides
+ * comprehensive node representation, relationship management, location assignment,
+ * and type classification capabilities according to ISO 19848 maritime standards.
+ *
+ * ## System Purpose:
+ *
+ * The **VISTA GmodNode System** serves as the foundation for:
+ * - **Component Representation**: Individual vessel components with metadata and relationships
+ * - **Hierarchical Navigation** : Parent-child relationship management for vessel structures
+ * - **Location Assignment**     : Individualization of components with specific vessel locations
+ * - **Type Classification**     : Product types, selections, assets, and function categorization
+ * - **Metadata Management**     : Rich descriptive information for each component
+ * - **Performance Optimization**: Efficient relationship queries and memory management
+ *
+ * ## Core Architecture:
+ *
+ * ### Node Classes
+ * - **GmodNode**        : Main component representation with relationships and location
+ * - **GmodNodeMetadata**: Descriptive information (category, type, name, definitions)
+ * - **Location**        : Optional individualization data for component instances
+ * - **VisVersion**      : Version-specific validation and compatibility
+ *
+ * ### Relationship Framework
+ * - **Parent-Child Links**     : Hierarchical containment relationships
+ * - **Product Type Assignment**: Equipment type classification relationships
+ * - **Product Selection**      : Specific equipment choice relationships
+ * - **Function Assignment**    : Functional role and composition relationships
+ *
+ * ## Data Flow Architecture:
+ *
+ * ```
+ * GmodNodeDto (External Data)
+ *         ↓
+ * GmodNode Construction (Gmod/VIS Factory)
+ *         ↓
+ * ┌─────────────────────────────────────┐
+ * │            GmodNode                 │
+ * ├─────────────────────────────────────┤
+ * │ ┌─────────────────────────────────┐ │
+ * │ │      GmodNodeMetadata           │ │ ← Descriptive information
+ * │ │   (category, type, name, etc)   │ │
+ * │ └─────────────────────────────────┘ │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │    std::vector<GmodNode*>       │ │ ← Parent relationships
+ * │ │       (m_parents)               │ │
+ * │ └─────────────────────────────────┘ │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │    std::vector<GmodNode*>       │ │ ← Child relationships
+ * │ │       (m_children)              │ │
+ * │ └─────────────────────────────────┘ │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │      StringSet                  │ │ ← O(1) child code lookup
+ * │ │    (m_childrenSet)              │ │
+ * │ └─────────────────────────────────┘ │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │    std::optional<Location>      │ │ ← Individual instance data
+ * │ │      (m_location)               │ │
+ * │ └─────────────────────────────────┘ │
+ * └─────────────────────────────────────┘
+ *         ↓
+ * Relationship Navigation & Location Assignment
+ * ```
+ *
+ * ## Node Classification System:
+ *
+ * ### Component Types
+ * - **Vessel Entry (VE)**    : Root node representing the complete vessel
+ * - **System Components**    : Major ship systems (propulsion, navigation, etc.)
+ * - **Equipment Items**      : Individual machinery and equipment pieces
+ * - **Product Types**        : Standardized equipment classifications
+ * - **Product Selections**   : Specific equipment choices and configurations
+ * - **Function Compositions**: Functional groupings and relationships
+ * - **Asset Components**     : Physical assets with lifecycle management
+ *
+ * ### Metadata Categories
+ * - **Category Classification**: "PRODUCT", "ASSET", "FUNCTION", etc.
+ * - **Type Specification**     : "TYPE", "SELECTION", "COMPOSITION", etc.
+ * - **Naming Information**     : Human-readable names and common aliases
+ * - **Definition Data**        : Detailed and common definitions
+ * - **Assignment Mapping**     : Normal assignment name relationships
+ * - **Installation Flags**     : Substructure installation requirements
+ *
+ * ## Location and Individualization:
+ *
+ * ### Location Assignment Patterns
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Individualization Rules
+ * - **Location-Aware Equality**: Nodes with same code but different locations are distinct
+ * - **Individualization Logic**: Complex rules based on node type and context
+ * - **Function Composition**   : Special handling for function composition nodes
+ * - **Group and Selection**    : Non-individualizable node types
+ *
+ * ## Performance Characteristics:
+ *
+ * - **O(1) Child Lookups**   : StringSet-based child code verification
+ * - **Memory Efficient**     : Optimized relationship storage with pointer vectors
+ * - **Zero-Copy Access**     : string_view interfaces for metadata access
+ * - **Thread Safe Reads**    : Immutable design safe for concurrent navigation
+ * - **Relationship Caching** : Efficient parent-child relationship queries
+ * - **Location Optimization**: Optional location data minimizes memory overhead
+ *
+ * ## Relationship Management:
+ *
+ * ### Parent-Child Navigation
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Type Classification Queries
+ * - **Node Type Checking**  : isProductType(), isAsset(), isFunctionNode()
+ * - **Hierarchy Validation**: isRoot(), isLeafNode(), isChild()
+ * - **Mapping Capabilities**: isMappable(), isIndividualizable()
+ * - **Function Analysis**   : isFunctionComposition(), isAssetFunctionNode()
+ *
+ * ## String Representation:
+ *
+ * ### ToString Patterns
+ * - **Code Only**        :
+ * - **Code-Location**    :
+ * - **StringBuilder**    :
+ * - **Pool Optimization**:
+ *
+ * ## Design Philosophy:
+ *
+ * - **Standards Compliance**  : Full adherence to ISO 19848 maritime equipment standards
+ * - **Performance Focus**     : Optimized for high-frequency navigation and queries
+ * - **Type Safety**           : Strong typing with comprehensive error handling
+ * - **Immutable Core**        : Thread-safe design with controlled mutation patterns
+ * - **Memory Efficiency**     : Minimal overhead with optional data structures
+ * - **Relationship Integrity**: Consistent parent-child relationship management
+ * - **STL Compatibility**     : Public constructors for container compatibility
+ *
+ * ## Memory Management:
+ *
+ * ### Ownership Model
+ * - **Container Ownership**  : Gmod owns all GmodNode instances
+ * - **Pointer Relationships**: Non-owning pointers for parent-child links
+ * - **Value Semantics**      : Copyable nodes for individualization operations
+ * - **Memory Optimization**  : shrink_to_fit() and efficient container usage
+ *
+ * ### Lifecycle Management
+ * - **Construction**         : DTO-based factory construction through Gmod
+ * - **Relationship Building**: Post-construction relationship establishment
+ * - **Trimming**             : Memory optimization after relationship finalization
+ * - **Copy Operations**      : Deep copying for individualization with locations
+ *
+ * @note This system is designed for high-performance maritime vessel component
+ *       management with full ISO 19848 standard compliance. All node operations
+ *       are optimized for frequent use in vessel structure navigation and analysis.
+ *
  * @see ISO 19848 - Ships and marine technology - Standard data for shipboard machinery and equipment
  */
 
@@ -13,12 +169,13 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
+#include <vector>
 
 #include <nfx/containers/StringMap.h>
 #include <nfx/containers/StringSet.h>
 #include <nfx/string/StringBuilderPool.h>
 
-#include "GmodDto.h"
 #include "Locations.h"
 
 namespace dnv::vista::sdk
@@ -27,9 +184,11 @@ namespace dnv::vista::sdk
 	// Forward declarations
 	//=====================================================================
 
-	enum class VisVersion;
+	enum class VisVersion : std::uint16_t;
+
 	class ParsingErrors;
 	class Gmod;
+	class GmodNodeDto;
 
 	//=====================================================================
 	// GmodNodeMetadata class
@@ -226,11 +385,12 @@ namespace dnv::vista::sdk
 	 */
 	class GmodNode final
 	{
-		friend class Gmod;
-
 	public:
+		friend class Gmod; // TODO: Remove later
+
+	private:
 		//----------------------------------------------
-		// Construction
+		//  Construction
 		//----------------------------------------------
 
 		/**
@@ -240,6 +400,7 @@ namespace dnv::vista::sdk
 		 */
 		GmodNode( VisVersion version, const GmodNodeDto& dto ) noexcept;
 
+	public:
 		/** @brief Default constructor. */
 		GmodNode() = default;
 
@@ -247,7 +408,7 @@ namespace dnv::vista::sdk
 		inline GmodNode( const GmodNode& ) noexcept;
 
 		/** @brief Move constructor */
-		GmodNode( GmodNode&& ) noexcept = default;
+		inline GmodNode( GmodNode&& ) noexcept;
 
 		//----------------------------------------------
 		// Destruction
@@ -264,7 +425,7 @@ namespace dnv::vista::sdk
 		inline GmodNode& operator=( const GmodNode& ) noexcept;
 
 		/** @brief Move assignment operator */
-		GmodNode& operator=( GmodNode&& ) noexcept = default;
+		inline GmodNode& operator=( GmodNode&& ) noexcept;
 
 		//----------------------------------------------
 		// Operators
@@ -546,6 +707,10 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 		// Relationship management methods
 		//----------------------------------------------
+
+		/*
+		 * TODO: Move to internal
+		 */
 
 		/**
 		 * @brief Adds a GmodNode instance as a child to this node.

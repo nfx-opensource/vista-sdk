@@ -3,6 +3,8 @@
  * @brief Inline implementations for performance-critical VISVersion operations
  */
 
+#include <stdexcept>
+
 #include <nfx/containers/StringMap.h>
 #include <nfx/string/StringBuilderPool.h>
 
@@ -29,34 +31,22 @@ namespace dnv::vista::sdk
 
 		inline const nfx::containers::StringMap<VisVersion>& versionMapImpl()
 		{
-			static const nfx::containers::StringMap<VisVersion> versionMap{
-				{ "3.4a", VisVersion::v3_4a },
-				{ "3.5a", VisVersion::v3_5a },
-				{ "3.6a", VisVersion::v3_6a },
-				{ "3.7a", VisVersion::v3_7a },
-				{ "3.8a", VisVersion::v3_8a },
-				{ "3.9a", VisVersion::v3_9a },
+			static const nfx::containers::StringMap<VisVersion>
+				versionMap{
+					{ "3-4a", VisVersion::v3_4a },
+					{ "3-5a", VisVersion::v3_5a },
+					{ "3-6a", VisVersion::v3_6a },
+					{ "3-7a", VisVersion::v3_7a },
+					{ "3-8a", VisVersion::v3_8a },
+					{ "3-9a", VisVersion::v3_9a },
 
-				{ "3-4a", VisVersion::v3_4a },
-				{ "3-5a", VisVersion::v3_5a },
-				{ "3-6a", VisVersion::v3_6a },
-				{ "3-7a", VisVersion::v3_7a },
-				{ "3-8a", VisVersion::v3_8a },
-				{ "3-9a", VisVersion::v3_9a },
+					{ "vis-3-4a", VisVersion::v3_4a },
+					{ "vis-3-5a", VisVersion::v3_5a },
+					{ "vis-3-6a", VisVersion::v3_6a },
+					{ "vis-3-7a", VisVersion::v3_7a },
+					{ "vis-3-8a", VisVersion::v3_8a },
+					{ "vis-3-9a", VisVersion::v3_9a } };
 
-				{ "vis-3-4a", VisVersion::v3_4a },
-				{ "vis-3-5a", VisVersion::v3_5a },
-				{ "vis-3-6a", VisVersion::v3_6a },
-				{ "vis-3-7a", VisVersion::v3_7a },
-				{ "vis-3-8a", VisVersion::v3_8a },
-				{ "vis-3-9a", VisVersion::v3_9a },
-
-				{ "vis-3.4a", VisVersion::v3_4a },
-				{ "vis-3.5a", VisVersion::v3_5a },
-				{ "vis-3.6a", VisVersion::v3_6a },
-				{ "vis-3.7a", VisVersion::v3_7a },
-				{ "vis-3.8a", VisVersion::v3_8a },
-				{ "vis-3.9a", VisVersion::v3_9a } };
 			return versionMap;
 		}
 	}
@@ -121,7 +111,7 @@ namespace dnv::vista::sdk
 		return VisVersion::LATEST;
 	}
 
-	inline std::string_view VisVersionExtensions::toVersionString( VisVersion version )
+	inline std::string VisVersionExtensions::toVersionString( VisVersion version )
 	{
 		switch ( version )
 		{

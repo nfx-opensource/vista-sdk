@@ -3,13 +3,11 @@
  * @brief Inline implementations for performance-critical LocalIdBuilder operations
  */
 
-#include <optional>
 #include <vector>
 
 #include <nfx/string/StringBuilderPool.h>
 
-#include "config/config.h"
-#include "dnv/vista/sdk/config/ISO19848.h"
+#include "transport/ISO19848Constants.h"
 
 #include "CodebookName.h"
 
@@ -215,11 +213,6 @@ namespace dnv::vista::sdk
 			   !m_detail.has_value();
 	}
 
-	inline const LocalIdItems& LocalIdBuilder::items() const noexcept
-	{
-		return m_items;
-	}
-
 	inline const std::optional<MetadataTag>& LocalIdBuilder::quantity() const noexcept
 	{
 		return m_quantity;
@@ -275,8 +268,7 @@ namespace dnv::vista::sdk
 		return lease.toString();
 	}
 
-	template <typename StringBuilder>
-	inline void LocalIdBuilder::toString( StringBuilder& builder ) const
+	inline void LocalIdBuilder::toString( nfx::string::StringBuilder& builder ) const
 	{
 		if ( !m_visVersion.has_value() )
 		{
@@ -285,7 +277,7 @@ namespace dnv::vista::sdk
 
 		// Naming rule prefix: "/dnv-v2"
 		builder.append( "/" );
-		builder.append( iso19848::annex_c::NAMING_RULE );
+		builder.append( transport::ISO19848_ANNEX_C_NAMING_RULE );
 		builder.append( "/" );
 
 		// VIS version: "vis-{major}-{minor}{patch}"

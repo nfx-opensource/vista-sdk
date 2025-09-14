@@ -1,12 +1,15 @@
 #pragma once
 
+#include <cstddef>
+
 namespace dnv::vista::sdk
 {
 	/**
 	 * @brief Enumeration of VIS versions
 	 */
-	enum class VisVersion
+	enum class VisVersion : std::uint16_t
 	{
+		// Todo: Compact std::uint8_t or bitfield encoding
 		Unknown = 0,
 
 		v3_4a = 3400,
@@ -16,7 +19,7 @@ namespace dnv::vista::sdk
 		v3_8a = 3800,
 		v3_9a = 3900,
 
-		LATEST = v3_9a,
+		LATEST = v3_9a
 	};
 
 	/**
@@ -55,11 +58,11 @@ namespace dnv::vista::sdk
 		inline static VisVersion latestVersion();
 
 		/**
-		 * @brief Convert a VisVersion to its string representation (zero-copy)
+		 * @brief Convert a VisVersion to its string representation
 		 * @param version The version to convert
-		 * @return String view representation of the version (no allocation)
+		 * @return String representation of the version
 		 */
-		inline static std::string_view toVersionString( VisVersion version );
+		inline static std::string toVersionString( VisVersion version );
 
 		/**
 		 * @brief Try to parse a string_view to a VisVersion (zero-copy version)

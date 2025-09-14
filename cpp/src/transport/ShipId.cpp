@@ -4,6 +4,7 @@
  */
 
 #include <nfx/string/Utils.h>
+
 #include "dnv/vista/sdk/transport/ShipId.h"
 
 namespace dnv::vista::sdk::transport
@@ -11,20 +12,6 @@ namespace dnv::vista::sdk::transport
 	//=====================================================================
 	// ShipId class implementation
 	//=====================================================================
-
-	//----------------------------------------------
-	// Construction
-	//----------------------------------------------
-
-	ShipId::ShipId( std::string_view otherId )
-		: m_tag{ Tag::Other },
-		  m_otherId{ otherId }
-	{
-		if ( m_otherId->empty() )
-		{
-			throw std::invalid_argument{ "ShipId otherId cannot be empty" };
-		}
-	}
 
 	//----------------------------------------------
 	// String conversion
@@ -56,7 +43,7 @@ namespace dnv::vista::sdk::transport
 
 	ShipId ShipId::parse( std::string_view value )
 	{
-		if ( value.empty() )
+		if ( nfx::string::isEmpty( value ) )
 		{
 			throw std::invalid_argument{ "ShipId::parse: value cannot be empty" };
 		}

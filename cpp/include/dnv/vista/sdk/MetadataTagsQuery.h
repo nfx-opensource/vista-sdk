@@ -14,6 +14,8 @@
 #include "LocalId.h"
 #include "MetadataTag.h"
 
+// TODO: Implement MetadataTagsQueryBuilder
+
 namespace dnv::vista::sdk
 {
 	//=====================================================================
@@ -33,18 +35,19 @@ namespace dnv::vista::sdk
 	 */
 	class MetadataTagsQuery final
 	{
-	public:
+	private:
 		//----------------------------------------------
 		// Construction
 		//----------------------------------------------
-
-		/** @brief Default constructor deleted */
-		MetadataTagsQuery() = delete;
 
 		/** @brief Internal constructor from builder state */
 		inline explicit MetadataTagsQuery(
 			std::unordered_map<CodebookName, MetadataTag> tags,
 			bool matchExact ) noexcept;
+
+	public:
+		/** @brief Default constructor deleted */
+		MetadataTagsQuery() = delete;
 
 		/** @brief Copy constructor */
 		MetadataTagsQuery( const MetadataTagsQuery& ) = default;

@@ -15,6 +15,7 @@
  */
 
 #include <iostream>
+#include <limits>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -72,7 +73,9 @@ namespace dnv::vista::sdk::samples
 	public:
 		static GmodNode getNodeByCode( VisVersion visVersion, const std::string& code )
 		{
-			auto gmod = VIS::instance().gmod( visVersion );
+			auto& vis = VIS::instance();
+			const auto& gmod = vis.gmod( visVersion );
+
 			// Assumes it exists
 			const GmodNode* nodePtr = nullptr;
 			if ( gmod.tryGetNode( code, nodePtr ) && nodePtr )
@@ -84,7 +87,9 @@ namespace dnv::vista::sdk::samples
 
 		static bool traverse( VisVersion visVersion )
 		{
-			auto gmod = VIS::instance().gmod( visVersion );
+			auto& vis = VIS::instance();
+			const auto& gmod = vis.gmod( visVersion );
+
 			// Simplest form of traversal
 			auto completed = gmod.traverse( basicHandler );
 			// Result is either true or false, based on whether the traversal completed or was stopped early
@@ -93,7 +98,9 @@ namespace dnv::vista::sdk::samples
 
 		static bool traverseWithState( VisVersion visVersion )
 		{
-			auto gmod = VIS::instance().gmod( visVersion );
+			auto& vis = VIS::instance();
+			const auto& gmod = vis.gmod( visVersion );
+
 			CustomTraversalContext context;
 			// Traversal with state
 			auto completed = gmod.traverse( context, stateHandler );
@@ -103,7 +110,8 @@ namespace dnv::vista::sdk::samples
 
 		static bool traverseFromNode( const GmodNode& startNode )
 		{
-			auto gmod = VIS::instance().gmod( startNode.visVersion() );
+			auto& vis = VIS::instance();
+			const auto& gmod = vis.gmod( startNode.visVersion() );
 
 			// Without context
 			auto completed = gmod.traverse( startNode, basicHandler );
@@ -117,7 +125,9 @@ namespace dnv::vista::sdk::samples
 
 		static const GmodNode* findFirstLeafNode( VisVersion visVersion )
 		{
-			auto gmod = VIS::instance().gmod( visVersion );
+			auto& vis = VIS::instance();
+			const auto& gmod = vis.gmod( visVersion );
+
 			CustomTraversalContext context;
 
 			// Utilize the context, and handle the case inside the traverse
@@ -138,7 +148,7 @@ namespace dnv::vista::sdk::samples
 
 	private:
 		// Helper function for tree printing
-		static void printNode( std::ostringstream& ss, const GmodNode& node, int level = 0, int maxDepth = INT_MAX )
+		static void printNode( std::ostringstream& ss, const GmodNode& node, int level = 0, int maxDepth = std::numeric_limits<int>::max() )
 		{
 			if ( level > maxDepth )
 				return;

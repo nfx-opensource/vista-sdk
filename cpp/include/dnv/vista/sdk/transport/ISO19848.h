@@ -1,17 +1,122 @@
 /**
  * @file ISO19848.h
- * @brief ISO 19848 standard data channel types and format data types
+ * @brief ISO-19848 Standard Implementation for Maritime Data Exchange
+ *
+ * @details
+ * This file implements the complete **ISO-19848 Standard** for maritime data exchange.
+ * It provides type-safe validation, standard-compliant data types, and comprehensive
+ * format validation for maritime data channel systems.
+ *
+ * ## Standard Overview:
+ *
+ * **ISO-19848** defines standardized data channel types and format specifications for:
+ * - **Data Channel Classification**: Standard categories for maritime sensor data
+ * - **Format Data Types**: Type-safe validation for sensor values and measurements
+ * - **Version Management**: Support for multiple standard versions (2018, 2024)
+ * - **Compliance Validation**: Ensures data adheres to maritime industry standards
+ *
+ * ## Core Components:
+ *
+ * ### Value System (Type-Safe Data Storage)
+ * - **Value**              : Discriminated union for all ISO-19848 data types
+ * - **Type Safety**        : Compile-time and runtime type validation
+ * - **Zero-Copy Design**   : Efficient value storage and retrieval
+ * - **Standard Compliance**: Full coverage of ISO format specifications
+ *
+ * ### Data Channel Types
+ * - **DataChannelTypeName** : Individual channel type with validation
+ * - **DataChannelTypeNames**: Complete registry of standard channel types
+ * - **Lookup Operations**   : Fast O(1) validation and type checking
+ * - **Version Support**     : Multiple ISO standard versions
+ *
+ * ### Format Data Types
+ * - **FormatDataType** : Individual format specification with parsing
+ * - **FormatDataTypes**: Complete registry of standard format types
+ * - **Value Parsing**  : String-to-typed-value conversion with validation
+ * - **Error Handling** : Detailed validation error reporting
+ *
+ * ## Supported Data Types:
+ *
+ * - **String**         : Text values with length/pattern validation
+ * - **Char**           : Single character values
+ * - **Boolean**        : True/false values with boolean parsing
+ * - **Integer**        : 32-bit signed integers with range validation
+ * - **UnsignedInteger**: 32-bit unsigned integers with range validation
+ * - **Long**           : 64-bit signed integers with range validation
+ * - **Double**         : Double-precision floating point with range/precision validation
+ * - **Decimal**        : High-precision decimal numbers with precision/scale validation
+ * - **DateTime**       : ISO 8601 timestamps with format validation
+ *
+ * ## Usage Examples:
+ *
+ * ### Data Channel Type Validation
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Format Data Type Validation
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Type-Safe Value Operations
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ## Standard Versions:
+ *
+ * - **ISO-19848:2018**   : Original maritime data exchange standard
+ * - **ISO-19848:2024**   : Latest revision with extended data types and validation
+ * - **Version Selection**: Configurable version support for legacy compatibility
+ * - **Migration Support**: Tools for upgrading between standard versions
+ *
+ * ## Validation Framework:
+ *
+ * The implementation provides comprehensive validation at multiple levels:
+ * - **Syntax Validation**  : Ensures values match expected format patterns
+ * - **Type Validation**    : Verifies values can be parsed to target types
+ * - **Range Validation**   : Checks numeric bounds and constraints
+ * - **Standard Compliance**: Validates against official ISO specifications
+ * - **Error Reporting**    : Detailed error messages for debugging and logging
+ *
+ * ## Performance Characteristics:
+ *
+ * - **O(1) Lookups**    : Hash-based type and format lookups
+ * - **Zero-Copy Design**: Efficient value storage without unnecessary copying
+ * - **Lazy Loading**    : Standard definitions loaded on demand
+ * - **Memory Efficient**: Optimized data structures for large-scale usage
+ * - **Thread Safe**     : Immutable standard definitions safe for concurrent access
+ *
+ * ## Design Philosophy:
+ *
+ * - **Standards Compliance**: Full adherence to ISO-19848 specifications
+ * - **Type Safety**         : Compile-time and runtime type safety guarantees
+ * - **Performance**         : Optimized for high-throughput maritime data processing
+ * - **Extensibility**       : Support for custom extensions while maintaining compliance
+ * - **Error Prevention**    : Design patterns that prevent common validation errors
+ *
+ * @note This implementation is the foundation for all data validation in the Vista SDK.
+ *       It ensures that maritime data exchange follows international standards and
+ *       provides reliable, type-safe data processing capabilities.
  */
 
 #pragma once
 
 #include <cstdint>
+#include <string>
+#include <string_view>
+#include <vector>
 
 #include <nfx/datatypes/Decimal.h>
-#include <nfx/memory/MemoryCache.h>
 #include <nfx/time/DateTime.h>
 
-#include "dnv/vista/sdk/transport/ISO19848Dtos.h"
 #include "dnv/vista/sdk/Exceptions.h"
 #include "dnv/vista/sdk/Results.h"
 
@@ -22,10 +127,12 @@ namespace dnv::vista::sdk::transport
 	//=====================================================================
 
 	/** @brief ISO 19848 standard versions */
-	enum class ISO19848Version
+	enum class ISO19848Version : std::uint8_t
 	{
 		v2018,
-		v2024
+		v2024,
+
+		LATEST = v2024
 	};
 
 	//=====================================================================
@@ -337,7 +444,7 @@ namespace dnv::vista::sdk::transport
 		// Construction from value types
 		//----------------------------------------------
 
-		Value() = default;
+		inline Value() noexcept;
 
 		//-----------------------------
 		// Converting constructors
@@ -1144,12 +1251,6 @@ namespace dnv::vista::sdk::transport
 	{
 	public:
 		//----------------------------------------------
-		// Static constants
-		//----------------------------------------------
-
-		static constexpr ISO19848Version LatestVersion = ISO19848Version::v2024;
-
-		//----------------------------------------------
 		// Singleton access
 		//----------------------------------------------
 
@@ -1169,7 +1270,7 @@ namespace dnv::vista::sdk::transport
 		 * @return Data channel type names collection
 		 *@note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] DataChannelTypeNames dataChannelTypeNames( ISO19848Version version );
+		[[nodiscard]] const DataChannelTypeNames& dataChannelTypeNames( ISO19848Version version );
 
 		/**
 		 * @brief Get format data types for specified version
@@ -1177,7 +1278,7 @@ namespace dnv::vista::sdk::transport
 		 * @return Format data types collection
 		 *@note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] FormatDataTypes formatDataTypes( ISO19848Version version );
+		[[nodiscard]] const FormatDataTypes& formatDataTypes( ISO19848Version version );
 
 	private:
 		//----------------------------------------------
@@ -1209,55 +1310,6 @@ namespace dnv::vista::sdk::transport
 
 		/** @brief Move assignment operator */
 		ISO19848& operator=( ISO19848&& ) = delete;
-
-		//----------------------------------------------
-		// Cache instances
-		//----------------------------------------------
-
-		nfx::memory::MemoryCache<ISO19848Version, DataChannelTypeNamesDto> m_dataChannelTypeNamesDtoCache;
-		nfx::memory::MemoryCache<ISO19848Version, DataChannelTypeNames> m_dataChannelTypeNamesCache;
-		nfx::memory::MemoryCache<ISO19848Version, FormatDataTypesDto> m_formatDataTypesDtoCache;
-		nfx::memory::MemoryCache<ISO19848Version, FormatDataTypes> m_formatDataTypesCache;
-
-		//----------------------------------------------
-		// DTO access
-		//----------------------------------------------
-
-		/**
-		 * @brief Get data channel type names DTO (internal implementation)
-		 * @param version ISO 19848 version
-		 * @return Data channel type names DTO
-		 *@note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] DataChannelTypeNamesDto dataChannelTypeNamesDto( ISO19848Version version );
-
-		/**
-		 * @brief Get format data types DTO (internal implementation)
-		 * @param version ISO 19848 version
-		 * @return Format data types DTO
-		 *@note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] FormatDataTypesDto formatDataTypesDto( ISO19848Version version );
-
-		//----------------------------------------------
-		// Loading
-		//----------------------------------------------
-
-		/**
-		 * @brief Load data channel type names DTO from resources
-		 * @param version ISO 19848 version
-		 * @return Data channel type names DTO if found
-		 *@note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] static std::optional<DataChannelTypeNamesDto> loadDataChannelTypeNamesDto( ISO19848Version version );
-
-		/**
-		 * @brief Load format data types DTO from resources
-		 * @param version ISO 19848 version
-		 * @return Format data types DTO if found
-		 *@note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] static std::optional<FormatDataTypesDto> loadFormatDataTypesDto( ISO19848Version version );
 	};
 }
 

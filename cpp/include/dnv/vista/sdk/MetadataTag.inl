@@ -4,8 +4,7 @@
  */
 
 #include <stdexcept>
-
-#include "config/config.h"
+#include <nfx/string/Utils.h>
 
 namespace dnv::vista::sdk
 {
@@ -19,7 +18,7 @@ namespace dnv::vista::sdk
 
 	inline bool MetadataTag::operator==( const MetadataTag& other ) const
 	{
-		if ( m_value != other.m_value )
+		if ( !nfx::string::equals( m_value, other.m_value ) )
 		{
 			return false;
 		}

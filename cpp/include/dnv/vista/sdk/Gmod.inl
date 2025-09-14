@@ -5,8 +5,6 @@
 
 #include <stdexcept>
 
-#include "GmodNode.h"
-
 namespace dnv::vista::sdk
 {
 	//=====================================================================
@@ -63,7 +61,7 @@ namespace dnv::vista::sdk
 
 	inline Gmod::Enumerator Gmod::enumerator() const
 	{
-		return Enumerator( &m_nodeMap );
+		return Enumerator{ &m_nodeMap };
 	}
 
 	//----------------------------------------------

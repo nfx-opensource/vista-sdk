@@ -1,11 +1,146 @@
 /**
  * @file UniversalIdBuilder.h
- * @brief Fuent builder for UniversalId objects.
- * @details Concrete implementation using immutable fluent pattern with direct value storage.
+ * @brief VISTA Universal ID Builder System for Fluent Global Maritime ID Construction
+ *
+ * @details
+ * This file implements the **VISTA Universal ID Builder System** for constructing and validating
+ * Universal ID instances through an immutable fluent interface pattern. It provides comprehensive
+ * builder capabilities combining IMO numbers with Local IDs to create globally unique maritime
+ * data identifiers that prevent conflicts across worldwide vessel operations.
+ *
+ * ## System Purpose:
+ *
+ * The **VISTA Universal ID Builder System** serves as the foundation for:
+ * - **Global ID Construction**: Step-by-step Universal ID building with method chaining
+ * - **Conflict Prevention**   : Ensuring unique identification across worldwide maritime fleet
+ * - **Validation Integration**: Built-in validation at each construction step
+ * - **Immutable Pattern**     : Each builder operation returns a new instance
+ * - **Parsing Support**       : Complete Universal ID string-to-builder conversion
+ * - **Standards Compliance**  : Full adherence to VIS Universal ID specifications
+ *
+ * ## Core Architecture:
+ *
+ * ### Builder Pattern Implementation
+ * - **UniversalIdBuilder**: Main fluent interface for constructing Universal IDs
+ * - **Immutable Design**  : Each method returns new builder instance (no mutation)
+ * - **Validation Gates**  : State validation at construction boundaries
+ * - **Factory Pattern**   : Private constructors enforce controlled creation
+ *
+ * ### Construction Flow
+ * - **Static Factory**    : `create(VisVersion)` initializes builder with Local ID foundation
+ * - **Fluent Interface**  : Method chaining for readable construction
+ * - **Component Assembly**: Combining IMO number with Local ID builder
+ * - **Build Validation**  : Final validation before Universal ID creation
+ *
+ * ## Memory Layout & Performance:
+ *
+ * ```
+ * UniversalIdBuilder Structure:
+ * ┌─────────────────────────────────────┐
+ * │        UniversalIdBuilder           │
+ * ├─────────────────────────────────────┤
+ * │ std::optional<ImoNumber>            │ ← 8 bytes (7-digit + validity flag)
+ * │ ┌─────────────────────────────────┐ │
+ * │ │   std::optional<LocalIdBuilder> │ │ ← Local ID construction state
+ * │ │  ┌───────────────────────────┐  │ │
+ * │ │  │    LocalIdItems           │  │ │ ← GMOD path components
+ * │ │  │    Metadata Tags          │  │ │
+ * │ │  │    VIS Version            │  │ │
+ * │ │  │    Verbose Mode           │  │ │
+ * │ │  └───────────────────────────┘  │ │
+ * │ └─────────────────────────────────┘ │
+ * └─────────────────────────────────────┘
+ *
+ * Key Performance Features:
+ * - Immutable copy-on-write semantics
+ * - Optional wrapping minimizes memory overhead
+ * - Move semantics for expensive Local ID operations
+ * - Stack allocation for builder instances
+ * ```
+ *
+ * ## Usage Patterns:
+ *
+ * ### Basic Universal ID Construction
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Advanced Construction with Validation
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Parsing and Error Handling
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Component Access and Analysis
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ## Performance Characteristics:
+ *
+ * - **Builder Creation** : O(1) static factory method with LocalIdBuilder initialization
+ * - **Method Chaining**  : O(1) per operation with immutable copy semantics
+ * - **Component Setting**: O(1) for IMO number, O(n) for Local ID operations
+ * - **Validation**       : O(1) state checks with early failure detection
+ * - **Build Operation**  : O(1) construction of final Universal ID
+ * - **String Parsing**   : O(n) where n is input string length
+ * - **Memory Efficiency**: Optional wrapping minimizes overhead for unset components
+ *
+ * ## Validation and State Management:
+ *
+ * ### Builder State Validation
+ * - **IMO Number Required**  : Valid 7-digit IMO number must be set
+ * - **Local ID Required**    : Valid LocalIdBuilder with primary item must be present
+ * - **Component Consistency**: VIS version compatibility between Universal and Local components
+ * - **Early Validation**     : State checks prevent invalid Universal ID construction
+ *
+ * ### Error Handling Patterns
+ * - **Exception Methods**: `withImoNumber()`, `withLocalId()` throw on invalid input
+ * - **Try Methods**      : `tryWithImoNumber()`, `tryWithLocalId()` return success status
+ * - **Parsing Errors**   : Detailed parsing error reporting through ParsingErrors
+ * - **State Validation** : `isValid()` checks completeness before build()
+ *
+ * ## Integration with Maritime Systems:
+ *
+ * ### Global Fleet Management
+ * - **Vessel Identification**: IMO number provides globally unique vessel identity
+ * - **Data Point Resolution**: Local ID resolves to specific vessel systems and sensors
+ * - **Cross-System Mapping** : Universal IDs enable seamless multi-vessel data correlation
+ * - **Regulatory Compliance**: Full traceability for maritime regulatory requirements
+ *
+ * ### Builder Pattern Benefits
+ * - **Incremental Construction**: Step-by-step building with validation at each stage
+ * - **Immutable Safety**        : Thread-safe operations with no shared mutable state
+ * - **Parsing Integration**     : Direct conversion from string representations
+ * - **Fluent Interface**        : Readable, self-documenting construction code
+ *
+ * ## Design Philosophy:
+ *
+ * - **Global Uniqueness**   : IMO + Local ID combination ensures worldwide uniqueness
+ * - **Immutability First**  : No builder mutation, always return new instances
+ * - **Controlled Creation** : Private constructors enforce factory pattern usage
+ * - **Standards Compliance**: Full adherence to VIS Universal ID specifications
+ * - **Type Safety**         : Strong typing prevents invalid Universal ID construction
+ * - **Maritime Domain**     : Tailored for real-world vessel operations and data flows
+ * - **Performance Focus**   : Optimized for high-frequency maritime data processing
  */
 
 #pragma once
 
+#include <optional>
+#include <string>
 #include <string_view>
 
 #include "ImoNumber.h"
@@ -19,7 +154,7 @@ namespace dnv::vista::sdk
 
 	class ParsingErrors;
 	class UniversalId;
-	enum class VISVersion;
+	enum class VisVersion : std::uint16_t;
 
 	namespace internal
 	{
@@ -41,24 +176,11 @@ namespace dnv::vista::sdk
 	{
 	public:
 		//----------------------------------------------
-		// Constants
-		//----------------------------------------------
-
-		/**
-		 * @brief Standard naming entity for Universal IDs.
-		 * @details Always "data.dnv.com" for DNV Universal ID format.
-		 */
-		static const std::string namingEntity;
-
-		//----------------------------------------------
 		// Construction
 		//----------------------------------------------
 
-	protected:
-		/**
-		 * @brief Protected default constructor.
-		 * @details Use static factory methods for construction.
-		 */
+	private:
+		/** @brief Default constructor */
 		UniversalIdBuilder() = default;
 
 	public:

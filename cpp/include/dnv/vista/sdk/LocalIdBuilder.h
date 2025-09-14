@@ -1,10 +1,102 @@
 /**
  * @file LocalIdBuilder.h
- * @brief Fluent builder for LocalId objects.
- * @details This file contains the definition of the LocalIdBuilder class,
- *          which provides a concrete implementation using direct value storage
- *          and move semantics for creating LocalId objects with an immutable
- *          fluent builder pattern.
+ * @brief VISTA Local ID Builder System for Fluent VIS Local ID Construction
+ *
+ * @details
+ * This file implements the **VISTA Local ID Builder System** for constructing and validating
+ * Local ID instances through an immutable fluent interface pattern. It provides comprehensive
+ * builder capabilities with move semantics, validation guarantees, and parsing support for
+ * creating standards-compliant VIS Local IDs according to ISO 19848 specifications.
+ *
+ * ## System Purpose:
+ *
+ * The **VISTA Local ID Builder System** serves as the foundation for:
+ * - **Fluent Construction**        : Step-by-step Local ID building with method chaining
+ * - **Validation Integration**     : Built-in validation at each construction step
+ * - **Immutable Pattern**          : Each builder operation returns a new instance
+ * - **Move Semantics Optimization**: Efficient ownership transfer for GMOD paths
+ * - **String Parsing Support**     : Complete Local ID string-to-builder conversion
+ * - **Error Handling**             : Comprehensive validation with detailed error reporting
+ *
+ * ## Core Architecture:
+ *
+ * ### Builder Pattern Implementation
+ * - **LocalIdBuilder**   : Main fluent interface for constructing Local IDs
+ * - **Immutable Design** : Each method returns new builder instance (no mutation)
+ * - **Validation Gates** : State validation at construction boundaries
+ * - **Move Optimization**: Efficient transfer of expensive GMOD path objects
+ *
+ * ### Construction Flow
+ * - **Factory Methods**  : Static creation methods with initial state
+ * - **Fluent Interface** : Method chaining for readable construction
+ * - **Build Validation** : Final validation before LocalId creation
+ * - **Error Propagation**: Clear error messages for invalid configurations
+ *
+ * ## Memory Layout & Performance:
+ *
+ * ```
+ * LocalIdBuilder Structure:
+ * ┌─────────────────────────────────────┐
+ * │           LocalIdBuilder            │
+ * ├─────────────────────────────────────┤
+ * │ std::optional<VisVersion>           │ ← 3 bytes (2 + padding)
+ * │ bool m_verboseMode                  │ ← 1 byte
+ * │ ┌─────────────────────────────────┐ │
+ * │ │        LocalIdItems             │ │ ← GMOD path container
+ * │ │   - Primary GmodPath            │ │
+ * │ │   - Secondary GmodPath (opt)    │ │
+ * │ └─────────────────────────────────┘ │
+ * │ std::optional<MetadataTag> x8       │ ← Metadata tags array
+ * │   - quantity, content, calc, etc.   │
+ * └─────────────────────────────────────┘
+ *
+ * Key Performance Features:
+ * - Copy-on-write semantics for immutability
+ * - Move optimization for GMOD path transfers
+ * - Inline validation for early error detection
+ * - Stack allocation for small builders
+ * ```
+ *
+ * ## Usage Examples:
+ *
+ * ### Basic Builder Construction
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Advanced Builder with Metadata
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Error Handling and Validation
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ## Performance Characteristics:
+ *
+ * - **Builder Creation** : O(1) static factory method with minimal allocation
+ * - **Method Chaining**  : O(1) per operation with copy-on-write optimization
+ * - **Validation**       : O(1) state checks with early failure detection
+ * - **Build Operation**  : O(1) move construction to LocalId
+ * - **String Parsing**   : O(n) where n is input string length
+ * - **Memory Efficiency**: Minimal overhead with move semantics for large objects
+ *
+ * ## Design Philosophy:
+ *
+ * - **Immutability First**  : No builder mutation, always return new instances
+ * - **Fail Fast Validation**: Early error detection during construction
+ * - **Move Semantics**      : Efficient handling of expensive GMOD path objects
+ * - **Type Safety**         : Strong typing prevents invalid metadata combinations
+ * - **Fluent Interface**    : Readable, chainable method calls for construction
+ * - **Standards Compliance**: Full adherence to VIS Local ID specification (ISO 19848)
  */
 
 #pragma once
@@ -12,6 +104,8 @@
 #include <optional>
 #include <string>
 #include <string_view>
+
+#include <nfx/string/StringBuilderPool.h>
 
 #include "LocalIdItems.h"
 #include "MetadataTag.h"
@@ -27,7 +121,7 @@ namespace dnv::vista::sdk
 	class ParsingErrors;
 
 	enum class CodebookName : std::uint8_t;
-	enum class VisVersion;
+	enum class VisVersion : std::uint16_t;
 
 	//=====================================================================
 	// LocalIdBuilder class
@@ -193,13 +287,7 @@ namespace dnv::vista::sdk
 		 */
 		[[nodiscard]] inline bool isEmptyMetadata() const noexcept;
 
-		/**
-		 * @brief Gets the internal `LocalIdItems` object containing primary and secondary items.
-		 * @return A const reference to the `LocalIdItems` member.
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] inline const LocalIdItems& items() const noexcept;
-
+	public:
 		/**
 		 * @brief Gets the quantity metadata tag, if present.
 		 * @return A const reference to an `std::optional<MetadataTag>` for quantity.
@@ -272,11 +360,12 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Appends the string representation of the Local ID to a StringBuilder.
-		 * @tparam StringBuilder The type of the string builder (e.g., StringBuilder).
-		 * @param builder The StringBuilder to append to.
+		 * @details Efficiently builds the Local ID string representation directly into the provided
+		 *          StringBuilder, avoiding intermediate string allocations. The format follows the
+		 *          standard Local ID string conventions and is affected by the `isVerboseMode()` setting.
+		 * @param builder The StringBuilder to append the Local ID representation to.
 		 */
-		template <typename StringBuilder>
-		inline void toString( StringBuilder& builder ) const;
+		inline void toString( nfx::string::StringBuilder& builder ) const;
 
 		//----------------------------------------------
 		// Static factory methods

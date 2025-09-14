@@ -3,6 +3,8 @@
  * @brief ISO 19848 standard tests
  */
 
+#include <algorithm>
+
 #include <nfx/time/DateTime.h>
 #include <gtest/gtest.h>
 

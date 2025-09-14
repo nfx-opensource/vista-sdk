@@ -6,31 +6,32 @@
 #include <benchmark/benchmark.h>
 
 #include <dnv/vista/sdk/Gmod.h>
-#include <dnv/vista/sdk/GmodDto.h>
 #include <dnv/vista/sdk/VIS.h>
 
-namespace dnv::vista::sdk::benchmarks
-{
-	static void BM_gmodLoad( benchmark::State& state )
-	{
-		for ( auto _ : state )
-		{
-			auto dto = VIS::loadGmodDto( VisVersion::v3_7a );
+// TODO: TEmporary disabled - loadGmodDto() is part of the private API
 
-			if ( !dto.has_value() )
-			{
-				state.SkipWithError( "Failed to load GMOD DTO" );
-				return;
-			}
+// namespace dnv::vista::sdk::benchmarks
+// {
+// 	static void BM_gmodLoad( benchmark::State& state )
+// 	{
+// 		for ( auto _ : state )
+// 		{
+// 			auto dto = loadGmodDto( VisVersion::v3_7a );
 
-			auto gmod = std::make_unique<Gmod>( VisVersion::v3_7a, *dto );
+// 			if ( !dto.has_value() )
+// 			{
+// 				state.SkipWithError( "Failed to load GMOD DTO" );
+// 				return;
+// 			}
 
-			benchmark::DoNotOptimize( dto );
-			benchmark::DoNotOptimize( gmod );
-		}
-	}
+// 			auto gmod = std::make_unique<Gmod>( VisVersion::v3_7a, *dto );
 
-	BENCHMARK( BM_gmodLoad )->MinTime( 10.0 )->Unit( benchmark::kMillisecond );
-}
+// 			benchmark::DoNotOptimize( dto );
+// 			benchmark::DoNotOptimize( gmod );
+// 		}
+// 	}
 
-BENCHMARK_MAIN();
+// 	BENCHMARK( BM_gmodLoad )->MinTime( 10.0 )->Unit( benchmark::kMillisecond );
+// }
+
+// BENCHMARK_MAIN();

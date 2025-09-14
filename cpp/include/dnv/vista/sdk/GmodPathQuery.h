@@ -8,10 +8,16 @@
 
 #pragma once
 
+#include <functional>
+#include <optional>
+#include <vector>
+
 #include <nfx/containers/StringMap.h>
 
 #include "GmodPath.h"
 #include "Locations.h"
+
+// TODO: Implement GmodPathQueryBuilder
 
 namespace dnv::vista::sdk
 {
@@ -120,10 +126,10 @@ namespace dnv::vista::sdk
 		/** @brief Default constructor */
 		GmodPathQuery() = default;
 
-	public:
 		/** @brief Construct query from existing GMOD path with automatic version conversion */
 		explicit GmodPathQuery( const GmodPath& path );
 
+	public:
 		/** @brief Copy constructor */
 		GmodPathQuery( const GmodPathQuery& ) = default;
 
@@ -260,26 +266,6 @@ namespace dnv::vista::sdk
 		nfx::containers::StringMap<NodeItem> m_filter;
 		std::optional<GmodPath> m_sourcePath;
 		nfx::containers::StringMap<GmodNode> m_setNodes;
-
-		//----------------------------------------------
-		// Helper methods
-		//----------------------------------------------
-
-		/**
-		 * @brief Ensures the path uses the correct VIS version for query operations
-		 * @param path The path to validate and potentially convert
-		 * @return Path with proper VIS version for querying
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] static GmodPath ensurePathVersion( const GmodPath& path );
-
-		/**
-		 * @brief Ensures the node uses the correct VIS version for query operations
-		 * @param node The node to validate and potentially convert
-		 * @return Node with proper VIS version for querying
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] static GmodNode ensureNodeVersion( const GmodNode& node );
 	};
 }
 

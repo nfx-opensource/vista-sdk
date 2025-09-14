@@ -18,13 +18,10 @@ if(NOT VISTA_SDK_CPP_BUILD_STATIC AND NOT VISTA_SDK_CPP_BUILD_SHARED)
 	set(VISTA_SDK_CPP_BUILD_SHARED ON CACHE BOOL "Build shared library (fallback)" FORCE)
 endif()
 
-
-
 # --- Validate CMake version ---
 if(CMAKE_VERSION VERSION_LESS "3.20")
 	message(FATAL_ERROR "CMake 3.20 or higher is required for reliable C++20 support")
 endif()
-
 
 #----------------------------------------------
 # Multi-config generator setup
@@ -32,7 +29,7 @@ endif()
 
 # --- For multi-config generators (Visual Studio, Xcode), set available configurations ---
 if(CMAKE_CONFIGURATION_TYPES)
-	set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo;MinSizeRel" CACHE STRING "Available build configurations" FORCE)
+	set(CMAKE_CONFIGURATION_TYPES "Release;Debug;RelWithDebInfo;MinSizeRel" CACHE STRING "Available build configurations" FORCE)
 	message(STATUS "Multi-config generator detected. Available configurations: ${CMAKE_CONFIGURATION_TYPES}")
 else()
 	# --- For multi-config generators (Visual Studio, Xcode), set available configurations ---
@@ -85,7 +82,7 @@ set(VISTA_SDK_CPP_INSTALL_DIR        "${CMAKE_INSTALL_PREFIX}"              CACH
 set(VISTA_SDK_CPP_TEST_DIR           "${VISTA_SDK_CPP_ROOT_DIR}/test"       CACHE PATH  "Vista SDK C++ SDK test directory"     )
 set(VISTA_SDK_CPP_BENCHMARK_DIR      "${VISTA_SDK_CPP_ROOT_DIR}/benchmark"  CACHE PATH  "Vista SDK C++ SDK benchmark directory")
 set(VISTA_SDK_CPP_SAMPLES_DIR        "${VISTA_SDK_CPP_ROOT_DIR}/samples"    CACHE PATH  "Vista SDK C++ SDK samples directory"  )
-set(VISTA_SDK_CPP_DOCUMENTATION_DIR  "${VISTA_SDK_CPP_ROOT_DIR}/samples"    CACHE PATH  "Vista SDK C++ SDK documentation"      )
+set(VISTA_SDK_CPP_DOCUMENTATION_DIR  "${VISTA_SDK_CPP_ROOT_DIR}/doc"        CACHE PATH  "Vista SDK C++ SDK documentation"      )
 
 #----------------------------------------------
 # Compiler detection

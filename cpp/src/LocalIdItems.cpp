@@ -5,10 +5,11 @@
 
 #include <cctype>
 #include <optional>
-#include <string_view>
 #include <string>
+#include <string_view>
 
 #include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/LocalIdItems.h"
 
@@ -22,7 +23,7 @@ namespace dnv::vista::sdk
 		// Internal helper functions
 		//=====================================================================
 
-		void appendCommonName(
+		static void appendCommonName(
 			nfx::string::StringBuilder& builder,
 			std::string_view commonName,
 			const std::optional<std::string>& location )
@@ -40,23 +41,25 @@ namespace dnv::vista::sdk
 				{
 					current = '.';
 				}
-				else if ( !VIS::isISOString( ch ) )
+				else if ( !nfx::string::isURIUnreserved( ch ) )
 				{
 					current = '.';
 				}
 				else
 				{
-					current = static_cast<char>( std::tolower( static_cast<unsigned char>( ch ) ) );
+					current = nfx::string::toLower( ch );
 				}
 
 				if ( current == '.' && prev == '.' )
+				{
 					continue;
+				}
 
 				builder.push_back( current );
 				prev = current;
 			}
 
-			if ( location.has_value() && !location->empty() )
+			if ( location.has_value() && !nfx::string::isEmpty( *location ) )
 			{
 				builder.push_back( '.' );
 				builder.append( *location );

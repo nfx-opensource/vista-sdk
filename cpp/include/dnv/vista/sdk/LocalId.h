@@ -1,11 +1,113 @@
 /**
  * @file LocalId.h
- * @brief High-performance, immutable Local ID implementation.
- * @details Concrete implementation of a VIS Local ID with direct value storage
- *          for optimal performance and zero-overhead property access.
+ * @brief VISTA Local ID System for VIS Standard Maritime Data Identification
+ *
+ * @details
+ * This file implements the **VISTA Local ID System** for representing and managing
+ * immutable Local ID instances according to VIS standard (ISO 19848). It provides
+ * validated Local ID representation with efficient property access, thread-safe
+ * operations, and comprehensive parsing capabilities for maritime data identification.
+ *
+ * ## System Purpose:
+ *
+ * The **VISTA Local ID System** serves as the foundation for:
+ * - **VIS Standard Compliance**  : Full ISO 19848 Local ID specification support
+ * - **Immutable Value Semantics**: Thread-safe Local ID instances with value ownership
+ * - **High-Performance Access**   Zero-overhead property accessors via direct storage
+ * - **Comprehensive Validation**  Builder-based construction with validation guarantees
+ * - **Parsing and Serialization** String-to-LocalId conversion with error handling
+ * - **Metadata Management**       Complete support for all VIS metadata tag types
+ *
+ * ## Core Architecture:
+ *
+ * ### Local ID Classes
+ * - **LocalId**       : Immutable validated Local ID with value storage semantics
+ * - **LocalIdBuilder**: Fluent builder for constructing valid Local ID instances
+ * - **LocalIdItems**  : Container for primary and secondary GMOD path items
+ * - **MetadataTag**   : Individual metadata components (quantity, content, etc.)
+ *
+ * ### Construction Pattern
+ * - **Builder Pattern** : Fluent interface for step-by-step Local ID construction
+ * - **Move Semantics**  : Efficient ownership transfer from builder to LocalId
+ * - **Validation Gates**: Builder validation before LocalId construction
+ * - **Immutable Result**: LocalId instances cannot be modified after creation
+ *
+ * ## Memory Layout & Performance:
+ *
+ * ```
+ * LocalId Structure:
+ * ┌─────────────────────────────────────┐
+ * │              LocalId                │
+ * ├─────────────────────────────────────┤
+ * │ ┌─────────────────────────────────┐ │
+ * │ │        LocalIdBuilder           │ │ ← Direct value storage
+ * │ │         m_builder               │ │
+ * │ │ ┌─────────────────────────────┐ │ │
+ * │ │ │    VisVersion               │ │ │ ← 2 bytes
+ * │ │ │    LocalIdItems             │ │ │ ← Primary/Secondary paths
+ * │ │ │    MetadataTag (quantity)   │ │ │ ← Optional metadata
+ * │ │ │    MetadataTag (content)    │ │ │
+ * │ │ │    MetadataTag (...)        │ │ │ ← Up to 8 metadata types
+ * │ │ │    bool verboseMode         │ │ │ ← 1 byte
+ * │ │ └─────────────────────────────┘ │ │
+ * │ └─────────────────────────────────┘ │
+ * └─────────────────────────────────────┘
+ *
+ * Key Performance Features:
+ * - Value storage (no heap indirection)
+ * - Inline property access (zero overhead)
+ * - Move semantics for construction
+ * - Thread-safe read operations
+ * ```
+ *
+ * ## Usage Examples:
+ *
+ * ### Basic Local ID Construction
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Local ID Parsing and Validation
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Metadata Access and Properties
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ## Performance Characteristics:
+ *
+ * - **Property Access**    : O(1) inline accessors with no indirection overhead
+ * - **Construction**       : O(1) move from validated builder to LocalId
+ * - **String Conversion**  : O(n) where n is total string length of all components
+ * - **Equality Comparison**: O(1) builder equality delegation
+ * - **Memory Footprint**   : Minimal overhead with direct value storage
+ * - **Thread Safety**      : Lock-free concurrent read access to immutable data
+ *
+ * ## Design Philosophy:
+ *
+ * - **Standards Compliance**: Full adherence to VIS Local ID specification (ISO 19848)
+ * - **Immutability First**  : Value semantics with no post-construction modification
+ * - **Performance Critical**: Zero-overhead abstractions for high-frequency operations
+ * - **Type Safety**         : Strong typing prevents invalid Local ID construction
+ * - **Error Handling**      : Comprehensive validation with detailed error reporting
+ * - **Builder Pattern**     : Fluent interface separating construction from usage
  */
 
 #pragma once
+
+#include <optional>
+#include <string>
+#include <string_view>
+#include <vector>
 
 #include "LocalIdBuilder.h"
 
@@ -18,7 +120,7 @@ namespace dnv::vista::sdk
 	class GmodPath;
 	class MetadataTag;
 	class ParsingErrors;
-	enum class VisVersion;
+	enum class VisVersion : std::uint16_t;
 
 	//=====================================================================
 	// LocalId class
@@ -37,7 +139,9 @@ namespace dnv::vista::sdk
 	 */
 	class LocalId final
 	{
-	public:
+		friend class LocalIdBuilder;
+
+	private:
 		//----------------------------------------------
 		// Construction
 		//----------------------------------------------
@@ -49,6 +153,7 @@ namespace dnv::vista::sdk
 		 */
 		explicit LocalId( LocalIdBuilder builder );
 
+	public:
 		/** @brief Copy constructor */
 		LocalId( const LocalId& other ) = default;
 

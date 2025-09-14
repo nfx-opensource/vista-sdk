@@ -4,11 +4,15 @@
  */
 
 #include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/Locations.h"
 
 #include "internal/constants/Locations.h"
-#include "internal/LocationParsingErrorBuilder.h"
+#include "internal/dto/LocationsDto.h"
+#include "internal/parsing/LocationCharDict.h"
+#include "internal/parsing/LocationParsingErrorBuilder.h"
+
 #include "dnv/vista/sdk/ParsingErrors.h"
 #include "dnv/vista/sdk/VISVersion.h"
 
@@ -62,14 +66,14 @@ namespace dnv::vista::sdk
 		 * @param reversedGroups The map from character codes to their location groups
 		 * @param span The string_view representing the current segment of the location string to parse
 		 * @param originalStr The original, full location string (optional, used for context in errors)
-		 * @param location Output parameter: if parsing succeeds, this is set to the parsed `Location`
+		 * @param locationStringToParse Output parameter: if parsing succeeds, this is set to the parsed location string
 		 * @param errorBuilder The `LocationParsingErrorBuilder` to accumulate errors
 		 * @return True if parsing was successful to the point of forming a valid `Location`, false otherwise.
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		static bool tryParse(
 			const std::unordered_set<char>& locationCodes, const std::map<char, LocationGroup>& reversedGroups,
-			std::string_view span, const std::optional<std::string>& originalStr, Location& location,
+			std::string_view span, const std::optional<std::string>& originalStr, std::string& locationStringToParse,
 			LocationParsingErrorBuilder& errorBuilder )
 		{
 			auto displayString =
@@ -77,18 +81,7 @@ namespace dnv::vista::sdk
 																	? *originalStr
 																	: std::string{ span }; };
 
-			if ( span.empty() )
-			{
-				errorBuilder.addError(
-					LocationValidationResult::NullOrWhiteSpace,
-					"Invalid location: contains only whitespace" );
-
-				return false;
-			}
-
-			bool isOnlyWhitespace = std::all_of( span.begin(), span.end(), []( unsigned char c_uc ) { return std::isspace( c_uc ); } );
-
-			if ( isOnlyWhitespace )
+			if ( nfx::string::isNullOrWhiteSpace( span ) )
 			{
 				errorBuilder.addError(
 					LocationValidationResult::NullOrWhiteSpace,
@@ -98,7 +91,7 @@ namespace dnv::vista::sdk
 			}
 
 			std::string result;
-			LocationCharDict charDict{};
+			internal::LocationCharDict charDict{};
 
 			int digitStartIndex = -1;
 			int prevDigitIndex = -1;
@@ -108,7 +101,7 @@ namespace dnv::vista::sdk
 			{
 				char ch = span[i];
 
-				if ( std::isdigit( ch ) )
+				if ( nfx::string::isDigit( ch ) )
 				{
 					if ( prevDigitIndex != -1 && prevDigitIndex != static_cast<int>( i ) - 1 )
 					{
@@ -164,7 +157,7 @@ namespace dnv::vista::sdk
 
 					for ( char c : source )
 					{
-						if ( !std::isdigit( c ) &&
+						if ( !nfx::string::isDigit( c ) &&
 							 ( c == constants::locations::CHAR_NUMBER || locationCodes.find( c ) == locationCodes.end() ) )
 						{
 							if ( !first )
@@ -219,7 +212,7 @@ namespace dnv::vista::sdk
 				if ( i > 0 && charsStartIndex != static_cast<int>( i ) )
 				{
 					char prevCh = span[i - 1];
-					if ( !std::isdigit( prevCh ) && ch < prevCh )
+					if ( !nfx::string::isDigit( prevCh ) && ch < prevCh )
 					{
 						auto lease = nfx::string::StringBuilderPool::lease();
 						auto builder = lease.builder();
@@ -236,9 +229,9 @@ namespace dnv::vista::sdk
 				result.push_back( ch );
 			}
 
-			location = Location( originalStr.has_value()
-									 ? *originalStr
-									 : result );
+			locationStringToParse = originalStr.has_value()
+										? *originalStr
+										: result;
 
 			return true;
 		}
@@ -269,60 +262,6 @@ namespace dnv::vista::sdk
 	}
 
 	//=====================================================================
-	// LocationCharDict Class
-	//=====================================================================
-
-	//----------------------------------------------
-	// Lookup operators
-	//----------------------------------------------
-
-	std::optional<char>& LocationCharDict::operator[]( LocationGroup key )
-	{
-		if ( static_cast<int>( key ) <= 0 )
-		{
-			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
-			builder.append( "Unsupported code: " );
-			builder.append( std::to_string( static_cast<int>( key ) ) );
-
-			throw std::runtime_error{ lease.toString() };
-		}
-
-		auto index{ static_cast<size_t>( key ) - 1 };
-		if ( index >= m_table.size() )
-		{
-			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
-			builder.append( "Unsupported code: " );
-			builder.append( std::to_string( static_cast<int>( key ) ) );
-
-			throw std::runtime_error{ lease.toString() };
-		}
-
-		return m_table[index];
-	}
-
-	//----------------------------------------------
-	// Public methods
-	//----------------------------------------------
-
-	bool LocationCharDict::tryAdd( LocationGroup key, char value, std::optional<char>& existingValue )
-	{
-		auto& v = ( *this )[key];
-		if ( v.has_value() )
-		{
-			existingValue = v;
-
-			return false;
-		}
-
-		existingValue = std::nullopt;
-		v = value;
-
-		return true;
-	}
-
-	//=====================================================================
 	// Locations Class
 	//=====================================================================
 
@@ -341,7 +280,7 @@ namespace dnv::vista::sdk
 			auto code = relLocDto.code();
 			Location loc{ std::string{ 1, code } };
 
-			m_relativeLocations.emplace_back( code, relLocDto.name(), loc, relLocDto.definition() );
+			m_relativeLocations.push_back( RelativeLocation{ code, relLocDto.name(), loc, relLocDto.definition() } );
 
 			if ( code == internal::constants::locations::CHAR_HORIZONTAL ||
 				 code == internal::constants::locations::CHAR_VERTICAL )
@@ -397,7 +336,7 @@ namespace dnv::vista::sdk
 			}
 
 			m_reversedGroups[code] = key;
-			m_groups[key].emplace_back( code, relLocDto.name(), loc, relLocDto.definition() );
+			m_groups[key].push_back( RelativeLocation{ code, relLocDto.name(), loc, relLocDto.definition() } );
 		}
 	}
 
@@ -457,8 +396,16 @@ namespace dnv::vista::sdk
 		}
 
 		internal::LocationParsingErrorBuilder errorBuilder;
+		std::string parsedLocationString;
 
-		return internal::tryParse( m_locationCodes, m_reversedGroups, value.value(), value, location, errorBuilder );
+		if ( !internal::tryParse( m_locationCodes, m_reversedGroups, value.value(), value, parsedLocationString, errorBuilder ) )
+		{
+			return false;
+		}
+
+		location = Location{ parsedLocationString };
+
+		return true;
 	}
 
 	bool Locations::tryParse( const std::optional<std::string>& value, Location& location, ParsingErrors& errors ) const
@@ -477,9 +424,15 @@ namespace dnv::vista::sdk
 		}
 
 		internal::LocationParsingErrorBuilder errorBuilder = internal::LocationParsingErrorBuilder::create();
+		std::string parsedLocationString;
 
-		bool result = internal::tryParse( m_locationCodes, m_reversedGroups, value.value(), value, location, errorBuilder );
+		bool result = internal::tryParse( m_locationCodes, m_reversedGroups, value.value(), value, parsedLocationString, errorBuilder );
 		errors = errorBuilder.build();
+
+		if ( result )
+		{
+			location = Location{ parsedLocationString };
+		}
 
 		return result;
 	}
@@ -487,18 +440,30 @@ namespace dnv::vista::sdk
 	bool Locations::tryParse( std::string_view value, Location& location ) const
 	{
 		internal::LocationParsingErrorBuilder errorBuilder;
+		std::string parsedLocationString;
 
-		return internal::tryParse( m_locationCodes, m_reversedGroups, value, std::nullopt, location, errorBuilder );
+		if ( internal::tryParse( m_locationCodes, m_reversedGroups, value, std::nullopt, parsedLocationString, errorBuilder ) )
+		{
+			location = Location{ parsedLocationString };
+			return true;
+		}
+
+		return false;
 	}
 
 	bool Locations::tryParse( std::string_view value, Location& location, ParsingErrors& errors ) const
 	{
 		internal::LocationParsingErrorBuilder errorBuilder;
+		std::string parsedLocationString;
 
-		bool result = internal::tryParse( m_locationCodes, m_reversedGroups, value, std::nullopt, location, errorBuilder );
+		bool result = internal::tryParse( m_locationCodes, m_reversedGroups, value, std::nullopt, parsedLocationString, errorBuilder );
 		if ( !result )
 		{
 			errors = errorBuilder.build();
+		}
+		else
+		{
+			location = Location{ parsedLocationString };
 		}
 
 		return result;

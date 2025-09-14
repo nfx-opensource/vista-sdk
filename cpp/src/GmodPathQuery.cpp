@@ -3,12 +3,68 @@
  * @brief Implementation of GmodPathQuery class
  */
 
-#include "dnv/vista/sdk/GmodNode.h"
 #include "dnv/vista/sdk/GmodPathQuery.h"
+
+#include "dnv/vista/sdk/GmodNode.h"
 #include "dnv/vista/sdk/VIS.h"
 
 namespace dnv::vista::sdk
 {
+	namespace internal
+	{
+		//=====================================================================
+		// VIS Version Conversion Utilities
+		//=====================================================================
+
+		/**
+		 * @brief Ensures the path uses the correct VIS version for query operations
+		 * @param path The path to validate and potentially convert
+		 * @return Path with proper VIS version for querying
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		[[nodiscard]] static GmodPath ensurePathVersion( const GmodPath& path )
+		{
+			const auto targetVersion = VIS::instance().latestVisVersion();
+
+			if ( path.visVersion() == targetVersion )
+			{
+				return path;
+			}
+
+			auto convertedPath = VIS::instance().convertPath( path, targetVersion );
+			if ( convertedPath.has_value() )
+			{
+				return std::move( convertedPath.value() );
+			}
+
+			return path;
+		}
+
+		/**
+		 * @brief Ensures the node uses the correct VIS version for query operations
+		 * @param node The node to validate and potentially convert
+		 * @return Node with proper VIS version for querying
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		[[nodiscard]] static GmodNode ensureNodeVersion( const GmodNode& node )
+		{
+			const auto targetVersion = VIS::instance().latestVisVersion();
+
+			if ( node.visVersion() == targetVersion )
+			{
+				return node;
+			}
+
+			auto convertedNode = VIS::instance().convertNode( node, targetVersion );
+			if ( convertedNode.has_value() )
+			{
+				return std::move( convertedNode.value() );
+			}
+
+			return node;
+		}
+	}
+
 	//=====================================================================
 	// GmodPathQuery class
 	//=====================================================================
@@ -149,7 +205,7 @@ namespace dnv::vista::sdk
 			return false;
 		}
 
-		const auto target = ensurePathVersion( *other );
+		const auto target = internal::ensurePathVersion( *other );
 
 		// Build map of target nodes and their locations
 		nfx::containers::StringMap<std::vector<Location>> targetNodes;
@@ -171,7 +227,7 @@ namespace dnv::vista::sdk
 		// Check each filter criterion
 		for ( const auto& [code, item] : m_filter )
 		{
-			const auto& node = ensureNodeVersion( item.node() );
+			const auto& node = internal::ensureNodeVersion( item.node() );
 			auto targetIt = targetNodes.find( node.code() );
 			if ( targetIt == targetNodes.end() )
 			{
@@ -216,45 +272,5 @@ namespace dnv::vista::sdk
 		}
 
 		return true;
-	}
-
-	//----------------------------------------------
-	// Helper methods
-	//----------------------------------------------
-
-	GmodPath GmodPathQuery::ensurePathVersion( const GmodPath& path )
-	{
-		const auto targetVersion = VIS::instance().latestVisVersion();
-
-		if ( path.visVersion() == targetVersion )
-		{
-			return path;
-		}
-
-		auto convertedPath = VIS::instance().convertPath( path, targetVersion );
-		if ( convertedPath.has_value() )
-		{
-			return std::move( convertedPath.value() );
-		}
-
-		return path;
-	}
-
-	GmodNode GmodPathQuery::ensureNodeVersion( const GmodNode& node )
-	{
-		const auto targetVersion = VIS::instance().latestVisVersion();
-
-		if ( node.visVersion() == targetVersion )
-		{
-			return node;
-		}
-
-		auto convertedNode = VIS::instance().convertNode( node, targetVersion );
-		if ( convertedNode.has_value() )
-		{
-			return std::move( convertedNode.value() );
-		}
-
-		return node;
 	}
 }

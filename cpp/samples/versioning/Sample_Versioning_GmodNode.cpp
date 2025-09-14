@@ -31,7 +31,7 @@ namespace dnv::vista::sdk::samples
 		static std::optional<GmodNode> convert( const std::string& gmodNode, VisVersion sourceVersion, VisVersion targetVersion )
 		{
 			// Get Gmod for source version to get source GmodNode
-			auto gmod = VIS::instance().gmod( sourceVersion );
+			const auto& gmod = VIS::instance().gmod( sourceVersion );
 
 			// Get source GmodNode
 			const GmodNode* sourceNodePtr = nullptr;

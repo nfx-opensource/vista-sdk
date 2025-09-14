@@ -9,7 +9,7 @@
  * - Use method chaining for fluent LocalId construction
  * - Enable verbose mode for detailed LocalId output
  * - Remove properties and handle builder validation
- * 
+ *
  * Examples include creating URIs like "/dnv-v2/vis-3-9a/691.83111i/H101/meta/qty-power"
  * and demonstrating all the builder patterns for constructing ISO19848 LocalId URIs.
  */
@@ -47,7 +47,8 @@ namespace dnv::vista::sdk::samples
 			const std::string& quantity )
 		{
 			// Get codebooks for metadata creation
-			auto codebooks = VIS::instance().codebooks( visVersion );
+			auto& vis = VIS::instance();
+			const auto& codebooks = vis.codebooks( visVersion );
 
 			// Init from scratch
 			auto builder = LocalIdBuilder::create( visVersion )

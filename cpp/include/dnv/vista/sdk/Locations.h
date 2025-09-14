@@ -1,19 +1,121 @@
 /**
  * @file Locations.h
- * @brief Container for Vessel Information Structure (VIS) location definitions and parsing
- * @details Provides access to standardized location definitions, parsing capabilities,
- *          and validation for location strings according to the VIS standard.
- *          Supports building location objects with component-wise validation.
+ * @brief VISTA Location Management System for Maritime Spatial Data Validation
+ *
+ * @details
+ * This file implements the **VISTA Location System** for managing and validating
+ * standardized maritime spatial positioning data. It provides comprehensive parsing,
+ * validation, and construction capabilities for location strings according to VIS standards,
+ * supporting hierarchical location definitions and component-wise validation.
+ *
+ * ## System Purpose:
+ *
+ * The **VISTA Location System** serves as the foundation for:
+ * - **Spatial Validation**  : Ensuring maritime location data conforms to VIS spatial standards
+ * - **Location Parsing**    : Converting string representations to validated Location objects
+ * - **Component Analysis**  : Breaking down complex locations into constituent parts
+ * - **Group Classification**: Organizing location components by type (Side, Vertical, etc.)
+ * - **Relative Positioning**: Managing relationships between location components
+ *
+ * ## Core Architecture:
+ *
+ * ### Location Classes
+ * - **Location**        : Immutable validated location string representation
+ * - **RelativeLocation**: Component linking character codes to human-readable names
+ * - **Locations**       : Main manager providing parsing and validation capabilities
+ * - **LocationGroup**   : Enumeration classifying location component types
+ *
+ * ### Validation Framework
+ * - **String Parsing**       : Convert location strings to validated objects
+ * - **Component Validation** : Verify individual location components
+ * - **Group Classification** : Determine component types (Side, Vertical, etc.)
+ * - **Hierarchical Checking**: Validate component combinations and sequences
+ *
+ * ## Data Flow Architecture:
+ *
+ * ```
+ * LocationsDto (External Data)
+ *         ↓
+ * Locations Construction
+ *         ↓
+ * ┌─────────────────────────────────────┐
+ * │            Locations                │
+ * ├─────────────────────────────────────┤
+ * │ ┌─────────────────────────────────┐ │
+ * │ │     RelativeLocation List       │ │ ← Component definitions
+ * │ │  (vector<RelativeLocation>)     │ │
+ * │ └─────────────────────────────────┘ │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │     Location Code Set           │ │ ← O(1) validation lookup
+ * │ │   (unordered_set<char>)         │ │
+ * │ └─────────────────────────────────┘ │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │     Group Classification        │ │ ← Component → Group mapping
+ * │ │   (map<char, LocationGroup>)    │ │
+ * │ └─────────────────────────────────┘ │
+ * └─────────────────────────────────────┘
+ *         ↓
+ * Location Parsing & Validation
+ * ```
+ *
+ * ## Usage Patterns:
+ *
+ * ### Basic Location Parsing
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Component Analysis
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ## Performance Characteristics:
+ *
+ * - **O(1) Validation**  : Hash-based sets for constant-time character validation
+ * - **Zero-Copy Access** : `string_view` interfaces minimize memory allocation
+ * - **Immutable Design** : Thread-safe operations with immutable location objects
+ * - **Fast Parsing**     : Optimized string parsing with minimal allocations
+ * - **Efficient Storage**: Compact representation with minimal memory overhead
+ *
+ * ## Location Component Types:
+ *
+ * ### LocationGroup Classifications
+ * - **Number**      : Numeric identifiers (e.g., )
+ * - **Side**        : Port/Starboard positioning (e.g., )
+ * - **Vertical**    : Upper/Middle/Lower positioning (e.g., )
+ * - **Transverse**  : Cross-ship positioning (e.g., )
+ * - **Longitudinal**: Fore/Aft positioning (e.g., )
+ *
+ * ### Validation Levels
+ * - **Character Validation**: Verify individual characters are valid location codes
+ * - **Sequence Validation** : Check component ordering follows VIS standards
+ * - **Group Validation**    : Ensure component combinations are valid
+ * - **Semantic Validation** : Verify location makes sense in maritime context
+ *
+ * ## Design Philosophy:
+ *
+ * - **Standards Compliance**: Full adherence to VIS location specifications
+ * - **Type Safety**         : Strong typing prevents invalid location construction
+ * - **Performance Focus**   : Optimized for high-frequency maritime data processing
+ * - **Immutability**        : Thread-safe design with immutable location objects
+ * - **Usability**           : Clear, intuitive API for common location operations
+ * - **Error Handling**      : Comprehensive error reporting with detailed diagnostics
  */
 
 #pragma once
 
-#include <unordered_set>
-#include <string_view>
+#include <map>
+#include <optional>
 #include <string>
-
-#include "config/config.h"
-#include "LocationsDto.h"
+#include <string_view>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 namespace dnv::vista::sdk
 {
@@ -21,7 +123,8 @@ namespace dnv::vista::sdk
 	// Forward declarations
 	//=====================================================================
 
-	enum class VisVersion;
+	enum class VisVersion : std::uint16_t;
+	class LocationsDto;
 	class ParsingErrors;
 
 	namespace internal
@@ -61,20 +164,25 @@ namespace dnv::vista::sdk
 	 */
 	class Location final
 	{
+		friend class Locations;
+		friend class LocationBuilder;
+
 	public:
 		//----------------------------------------------
 		// Construction
 		//----------------------------------------------
 
+		/** @brief Default constructor - creates an empty location */
+		Location() = default;
+
+	private:
 		/**
 		 * @brief Constructs a Location object with a specific value.
 		 * @param value The location string value.
 		 */
 		explicit Location( std::string_view value );
 
-		/** @brief Default constructor */
-		Location() = default;
-
+	public:
 		/** @brief Copy constructor */
 		Location( const Location& ) = default;
 
@@ -179,7 +287,9 @@ namespace dnv::vista::sdk
 	 */
 	class RelativeLocation final
 	{
-	public:
+		friend class Locations;
+
+	private:
 		//----------------------------------------------
 		// Construction
 		//----------------------------------------------
@@ -199,6 +309,7 @@ namespace dnv::vista::sdk
 		/** @brief Default constructor */
 		RelativeLocation() = default;
 
+	public:
 		/** @brief Copy constructor */
 		RelativeLocation( const RelativeLocation& ) = default;
 
@@ -293,88 +404,6 @@ namespace dnv::vista::sdk
 	};
 
 	//=====================================================================
-	// LocationCharDict
-	//=====================================================================
-
-	/**
-	 * @brief A dictionary-like structure for managing location characters within parsing logic.
-	 *
-	 * This class is an internal helper used by the `Locations` class to ensure
-	 * that location strings adhere to rules about character uniqueness within groups.
-	 * It is not intended for general public use.
-	 * This class is non-copyable but movable.
-	 */
-	class LocationCharDict final
-	{
-	public:
-		//----------------------------------------------
-		// Construction
-		//----------------------------------------------
-
-		/** @brief Default constructor. */
-		LocationCharDict() = default;
-
-		/** @brief Copy constructor */
-		LocationCharDict( const LocationCharDict& ) = delete;
-
-		/** @brief Move constructor */
-		LocationCharDict( LocationCharDict&& ) noexcept = default;
-
-		//----------------------------------------------
-		// Destruction
-		//----------------------------------------------
-
-		/** @brief Destructor */
-		~LocationCharDict() = default;
-
-		//----------------------------------------------
-		// Assignment operators
-		//----------------------------------------------
-
-		/** @brief Copy assignment operator */
-		LocationCharDict& operator=( const LocationCharDict& ) = delete;
-
-		/** @brief Move assignment operator */
-		LocationCharDict& operator=( LocationCharDict&& ) noexcept = default;
-
-		//----------------------------------------------
-		// Lookup operators
-		//----------------------------------------------
-
-		/**
-		 * @brief Access a location character by key
-		 * @param key The location group key
-		 * @return A reference to the optional character
-		 */
-		std::optional<char>& operator[]( LocationGroup key );
-
-		//----------------------------------------------
-		// Public methods
-		//----------------------------------------------
-
-		/**
-		 * @brief Try to add a value to the dictionary
-		 * @param key The location group key
-		 * @param value The character value to add
-		 * @param existingValue Output parameter for the existing value, if any
-		 * @return True if the value was added, false otherwise
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] bool tryAdd( LocationGroup key, char value, std::optional<char>& existingValue );
-
-	private:
-		//----------------------------------------------
-		// Private member variables
-		//----------------------------------------------
-
-		/** @brief The internal table storing optional characters for each relevant `LocationGroup`.
-		 * The array size is 4, corresponding to Side, Vertical, Transverse, and Longitudinal groups.
-		 * `LocationGroup::Number` is handled separately in parsing logic.
-		 */
-		std::array<std::optional<char>, 4> m_table;
-	};
-
-	//=====================================================================
 	// Locations
 	//=====================================================================
 
@@ -388,7 +417,9 @@ namespace dnv::vista::sdk
 	 */
 	class Locations final
 	{
-	public:
+		friend class VIS;
+
+	private:
 		//----------------------------------------------
 		// Construction
 		//----------------------------------------------
@@ -403,6 +434,7 @@ namespace dnv::vista::sdk
 		/** @brief Default constructor. */
 		Locations() = default;
 
+	public:
 		/** @brief Copy constructor */
 		Locations( const Locations& ) = default;
 
@@ -527,22 +559,6 @@ namespace dnv::vista::sdk
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] bool tryParse( std::string_view value, Location& location, ParsingErrors& errors ) const;
-
-	public:
-		//----------------------------------------------
-		// Public static helper methods
-		//----------------------------------------------
-
-		/**
-		 * @brief Tries to parse an integer from a segment of a string_view.
-		 * @param span The string_view containing the integer.
-		 * @param start The starting index of the integer substring within `span`.
-		 * @param length The length of the integer substring.
-		 * @param number Output parameter: if parsing succeeds, this is set to the parsed integer.
-		 * @return True if parsing succeeded, false otherwise.
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] static VISTA_SDK_CPP_INLINE bool tryParseInt( std::string_view span, int start, int length, int& number );
 
 	private:
 		//----------------------------------------------

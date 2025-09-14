@@ -3,12 +3,15 @@
  * @brief Implementation of the Generic Product Model (GMOD) class.
  */
 
+#include <limits>
+
 #include <nfx/string/Utils.h>
 
-#include "internal/constants/GmodNode.h"
-
 #include "dnv/vista/sdk/Gmod.h"
+
 #include "dnv/vista/sdk/GmodPath.h"
+#include "internal/constants/GmodNode.h"
+#include "internal/dto/GmodDto.h"
 
 namespace dnv::vista::sdk
 {
@@ -39,6 +42,13 @@ namespace dnv::vista::sdk
 		{
 			if ( relation.size() >= 2 )
 			{
+				/*
+				 * Each relation defines a parent-child relationship and must contain at least 2 elements:
+				 * relation[0] = parent node code (e.g., "VE", "400", "410")
+				 * relation[1] = child node code (e.g., "400", "410", "411")
+				 * We need both parent and child codes to establish the bidirectional relationship.
+				 * Relations with < 2 elements are malformed and would cause array access errors.
+				 */
 				auto& parentNode = const_cast<GmodNode&>( m_nodeMap[relation[0]] );
 				auto& childNode = const_cast<GmodNode&>( m_nodeMap[relation[1]] );
 
@@ -79,6 +89,21 @@ namespace dnv::vista::sdk
 		  m_nodeMap{ other.m_nodeMap }
 	{
 		m_rootNode = const_cast<GmodNode*>( &m_nodeMap["VE"] );
+	}
+
+	Gmod::Gmod( Gmod&& other ) noexcept
+		: m_visVersion{ other.m_visVersion },
+		  m_nodeMap{ std::move( other.m_nodeMap ) }
+	{
+		if ( other.m_rootNode != nullptr )
+		{
+			m_rootNode = &m_nodeMap["VE"];
+			other.m_rootNode = nullptr;
+		}
+		else
+		{
+			m_rootNode = nullptr;
+		}
 	}
 
 	//----------------------------------------------
@@ -236,7 +261,7 @@ namespace dnv::vista::sdk
 		remainingParents.clear();
 
 		const GmodNode* lastAssetFunction = nullptr;
-		size_t assetFunctionIndex = SIZE_MAX;
+		size_t assetFunctionIndex = std::numeric_limits<size_t>::max();
 		for ( size_t i = fromPath.size(); i > 0; --i )
 		{
 			size_t idx = i - 1;
@@ -279,7 +304,7 @@ namespace dnv::vista::sdk
 
 		auto handler = +[]( PathExistsState& s, const std::vector<const GmodNode*>& parents,
 							const GmodNode& node ) -> TraversalHandlerResult {
-			if ( node.code() != s.targetNode.code() )
+			if ( !nfx::string::equals( node.code(), s.targetNode.code() ) )
 			{
 				return TraversalHandlerResult::Continue;
 			}
@@ -297,7 +322,7 @@ namespace dnv::vista::sdk
 
 			size_t startIndex = 0;
 
-			if ( s.assetFunctionIndex != SIZE_MAX )
+			if ( s.assetFunctionIndex != std::numeric_limits<size_t>::max() )
 			{
 				startIndex = s.assetFunctionIndex;
 			}
@@ -317,7 +342,7 @@ namespace dnv::vista::sdk
 					match = false;
 					break;
 				}
-				if ( completePath[i]->code() != s.fromPath[fromPathIdx]->code() )
+				if ( !nfx::string::equals( completePath[i]->code(), s.fromPath[fromPathIdx]->code() ) )
 				{
 					match = false;
 					break;

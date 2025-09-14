@@ -4,9 +4,12 @@
  */
 
 #include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/UniversalIdBuilder.h"
-#include "internal/LocalIdParsingErrorBuilder.h"
+
+#include "internal/parsing/LocalIdParsingErrorBuilder.h"
+
 #include "dnv/vista/sdk/ImoNumber.h"
 #include "dnv/vista/sdk/LocalIdBuilder.h"
 #include "dnv/vista/sdk/ParsingErrors.h"
@@ -53,7 +56,7 @@ namespace dnv::vista::sdk
 		auto lease = nfx::string::StringBuilderPool::lease();
 		auto builder = lease.builder();
 
-		builder.append( iso19848::annex_c::NAMING_ENTITY );
+		builder.append( transport::ISO19848_ANNEX_C_NAMING_ENTITY );
 		builder.push_back( '/' );
 		builder.append( m_imoNumber->toString() );
 		builder.append( m_localIdBuilder->toString() );
@@ -201,7 +204,7 @@ namespace dnv::vista::sdk
 		universalIdBuilder = std::nullopt;
 		auto errorBuilder = internal::LocalIdParsingErrorBuilder::create();
 
-		if ( universalId.empty() )
+		if ( nfx::string::isEmpty( universalId ) )
 		{
 			errorBuilder.addError( internal::LocalIdParsingState::NamingRule, std::string{ "Failed to find localId start segment" } );
 			errors = errorBuilder.build();
@@ -268,7 +271,7 @@ namespace dnv::vista::sdk
 				}
 				case internal::LocalIdParsingState::NamingEntity:
 				{
-					if ( segment != iso19848::annex_c::NAMING_ENTITY )
+					if ( !nfx::string::equals( segment, transport::ISO19848_ANNEX_C_NAMING_ENTITY ) )
 					{
 						errorBuilder.addError(
 							state,

@@ -1,6 +1,121 @@
 /**
  * @file MetadataTag.h
- * @brief Defines the MetadataTag class for representing metadata in the VIS system.
+ * @brief VISTA Metadata Tag System for Maritime Data Classification and Validation
+ *
+ * @details
+ * This file implements the **VISTA Metadata Tag System** for creating, managing, and
+ * validating standardized metadata tags used in maritime data classification. It provides
+ * comprehensive tag creation, validation, and serialization capabilities according to
+ * VIS standards, supporting both standard and custom tag definitions.
+ *
+ * ## System Purpose:
+ *
+ * The **VISTA Metadata Tag System** serves as the foundation for:
+ * - **Data Classification**: Standardized tagging for maritime data categorization
+ * - **Metadata Validation**: Ensuring tags conform to VIS codebook specifications
+ * - **Tag Serialization**  : Converting tags to string representations for storage/transmission
+ * - **Custom Extensions**  : Supporting custom tags while maintaining standard compliance
+ * - **Query Integration**  : Enabling efficient metadata-based data queries and filtering
+ *
+ * ## Core Architecture:
+ *
+ * ### Metadata Components
+ * - **MetadataTag**      : Immutable tag with name, value, and custom flag
+ * - **CodebookName**     : Enumeration of standardized tag names
+ * - **Tag Validation**   : Codebook-based validation for tag creation
+ * - **String Conversion**: Flexible serialization with prefix and separator support
+ *
+ * ### Tag Structure
+ * - **Name Component** : Codebook-based standardized name (e.g., Position, Detail)
+ * - **Value Component**: String value conforming to codebook vocabulary
+ * - **Custom Flag**    : Indicates standard vs. custom tag classification
+ * - **Prefix System**  : Visual differentiation between standard (-) and custom (~) tags
+ *
+ * ## Data Flow Architecture:
+ *
+ * ```
+ * Codebook Validation
+ *         ↓
+ * MetadataTag Creation
+ *         ↓
+ * ┌─────────────────────────────────────┐
+ * │           MetadataTag               │
+ * ├─────────────────────────────────────┤
+ * │ ┌─────────────────────────────────┐ │
+ * │ │      CodebookName               │ │ ← Standardized name enum
+ * │ │     (m_name)                    │ │
+ * │ └─────────────────────────────────┘ │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │      String Value               │ │ ← Validated tag value
+ * │ │     (m_value)                   │ │
+ * │ └─────────────────────────────────┘ │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │      Custom Flag                │ │ ← Standard vs. custom
+ * │ │     (m_custom)                  │ │
+ * │ └─────────────────────────────────┘ │
+ * └─────────────────────────────────────┘
+ *         ↓
+ * String Serialization & Usage
+ * ```
+ *
+ * ## Usage Patterns:
+ *
+ * ### Standard Tag Creation
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Tag Serialization and Formatting
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ## Performance Characteristics:
+ *
+ * - **Immutable Design**  : Thread-safe operations with no post-construction changes
+ * - **Zero-Copy Access**  : `string_view` interfaces minimize memory allocation
+ * - **Efficient Storage** : Compact representation with enum-based names
+ * - **Fast Comparison**   : Optimized equality operations for tag matching
+ * - **Lazy Serialization**: String conversion only when explicitly requested
+ *
+ * ## Tag Classification System:
+ *
+ * ### Standard Tags
+ * - **Validation Required**: Must conform to codebook vocabulary standards
+ * - **Prefix Character**   : '-' (hyphen) for visual identification
+ * - **Name Validation**    : CodebookName must exist in VIS standards
+ * - **Value Validation**   : Value must be valid according to codebook rules
+ *
+ * ### Custom Tags
+ * - **Extended Vocabulary**: Support for domain-specific or custom values
+ * - **Prefix Character**   : '~' (tilde) for visual identification
+ * - **Relaxed Validation** : Value validation may be less strict
+ * - **Compatibility**      : Maintains interoperability with standard systems
+ *
+ * ## String Representation Format:
+ *
+ * ### Serialization Pattern
+ * ```
+ * [prefix][name_abbreviation][separator][value][terminator]
+ *
+ * Examples:
+ * - Standard tag: "pos-centre/"
+ * - Custom tag:   "pos~custom_value/"
+ * - Query format: "det-temperature"
+ * ```
+ *
+ * ## Design Philosophy:
+ *
+ * - **Standards Compliance**: Full adherence to VIS metadata specifications
+ * - **Type Safety**         : Strong typing prevents invalid tag construction
+ * - **Performance Focus**   : Optimized for high-frequency maritime data operations
+ * - **Immutability**        : Thread-safe design with immutable tag objects
+ * - **Extensibility**       : Support for custom tags while maintaining compatibility
+ * - **Usability**           : Clear, intuitive API for common metadata operations
  */
 
 #pragma once
@@ -35,7 +150,10 @@ namespace dnv::vista::sdk
 	 */
 	class MetadataTag final
 	{
-	public:
+		friend class Codebook;
+		friend class MetadataTagsQuery;
+
+	private:
 		//-------------------------------------------------------------------------
 		// Construction
 		//-------------------------------------------------------------------------
@@ -48,6 +166,7 @@ namespace dnv::vista::sdk
 		 */
 		MetadataTag( CodebookName name, const std::string& value, bool isCustom = false );
 
+	public:
 		/** @brief Default constructor. */
 		MetadataTag() = delete;
 

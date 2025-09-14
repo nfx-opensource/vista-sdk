@@ -34,7 +34,8 @@ namespace dnv::vista::sdk::samples
 		try
 		{
 			// Need to create a metadata tag in scope of a codebook
-			auto codebooks = VIS::instance().codebooks( visVersion );
+			auto& vis = VIS::instance();
+			const auto& codebooks = vis.codebooks( visVersion );
 
 			auto metadataTag = codebooks.tryCreateTag( codebook, tag );
 			if ( !metadataTag.has_value() )

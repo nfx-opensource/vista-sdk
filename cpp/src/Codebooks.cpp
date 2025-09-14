@@ -3,11 +3,11 @@
  * @brief Implementation of Vessel Information Structure (VIS) codebooks
  */
 
-#include "internal/constants/Codebook.h"
-
 #include "dnv/vista/sdk/Codebooks.h"
-#include "dnv/vista/sdk/CodebooksDto.h"
+
 #include "dnv/vista/sdk/VISVersion.h"
+#include "internal/constants/Codebook.h"
+#include "internal/dto/CodebooksDto.h"
 
 namespace dnv::vista::sdk
 {
@@ -35,5 +35,14 @@ namespace dnv::vista::sdk
 		CodebookDto detailDto( std::string{ internal::constants::codebook::NAME_DETAIL }, CodebookDto::ValuesMap{} );
 		constexpr auto detailIndex = static_cast<size_t>( CodebookName::Detail ) - 1;
 		m_codebooks[detailIndex] = Codebook( std::move( detailDto ) );
+	}
+
+	Codebooks::Codebooks( const Codebooks& other )
+		: m_visVersion{ other.m_visVersion }
+	{
+		for ( size_t i = 0; i < m_codebooks.size(); ++i )
+		{
+			m_codebooks[i] = other.m_codebooks[i];
+		}
 	}
 }

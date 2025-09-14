@@ -22,6 +22,7 @@
 #include <fstream>
 #include <iostream>
 #include <iomanip>
+#include <memory>
 #include <string>
 #include <vector>
 #include <map>
@@ -30,7 +31,7 @@
 #include <dnv/vista/sdk/Gmod.h>
 #include <dnv/vista/sdk/GmodNode.h>
 #include <dnv/vista/sdk/VIS.h>
-#include <dnv/vista/sdk/VisVersion.h>
+#include <dnv/vista/sdk/VISVersion.h>
 
 using namespace dnv::vista::sdk;
 
@@ -69,9 +70,16 @@ private:
 
 public:
 	GmodTreePrinter( const Gmod& gmod, const PrintOptions& options, std::ostream* output = &std::cout )
-		: m_gmod( gmod ), m_options( options ), m_output( output )
+		: m_gmod{ gmod },
+		  m_options{ options },
+		  m_output{ output }
 	{
 	}
+
+	GmodTreePrinter( const GmodTreePrinter& ) = delete;
+	GmodTreePrinter& operator=( const GmodTreePrinter& ) = delete;
+	GmodTreePrinter( GmodTreePrinter&& ) = delete;
+	GmodTreePrinter& operator=( GmodTreePrinter&& ) = delete;
 
 	void printTree()
 	{
@@ -315,8 +323,8 @@ private:
 		const auto& metadata = node.metadata();
 		if ( !metadata.category().empty() )
 		{
-			m_stats.categories.insert( std::string( metadata.category() ) );
-			m_stats.nodeTypes[std::string( metadata.category() )]++;
+			m_stats.categories.insert( std::string{ metadata.category() } );
+			m_stats.nodeTypes[std::string{ metadata.category() }]++;
 		}
 	}
 
@@ -471,7 +479,7 @@ int main( int argc, char* argv[] )
 				  << VisVersionExtensions::toVersionString( options.visVersion ) << "..." << std::endl;
 
 		auto& vis = VIS::instance();
-		auto gmod = vis.gmod( options.visVersion );
+		const auto& gmod = vis.gmod( options.visVersion );
 
 		std::unique_ptr<std::ofstream> fileOutput;
 		std::ostream* output = &std::cout;

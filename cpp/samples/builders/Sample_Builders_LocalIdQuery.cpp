@@ -9,7 +9,7 @@
  * - Match LocalIds by specific metadata tags (quantity, content, etc.)
  * - Query GMOD paths ignoring location variations
  * - Match specific GMOD nodes with location flexibility
- * 
+ *
  * Examples include matching "/dnv-v2/vis-3-7a/691.811i-A/H101.11-1/meta/qty-power"
  * against various patterns and demonstrating flexible LocalId filtering for
  * data discovery and validation in ISO19848 applications.

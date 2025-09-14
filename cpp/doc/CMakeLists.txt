@@ -3,7 +3,7 @@
 #==============================================================================
 
 # --- Documentation condition check ---
-if(NOT VISTA_SDK_CPP_BUILD_SAMPLES)
+if(NOT VISTA_SDK_CPP_BUILD_DOCUMENTATION)
 	message(STATUS "Documentation disabled, skipping...")
 	return()
 endif()
@@ -18,9 +18,9 @@ if(Doxygen_FOUND)
 	message(STATUS "Configuring Doxygen documentation...")
 
 	# --- Project ---
-	set (	DOXYGEN_PROJECT_NAME			"DNV Vista C++ SDK"			)
-	set (	DOXYGEN_PROJECT_NUMBER			"0.1"						)
-	set (	DOXYGEN_PROJECT_BRIEF			"Work in progress"			)
+	set (	DOXYGEN_PROJECT_NAME			${PROJECT_NAME}		    	)
+	set (	DOXYGEN_PROJECT_NUMBER			${PROJECT_VERSION}	    	)
+	set (	DOXYGEN_PROJECT_BRIEF			${PROJECT_DESCRITPION}		)
 
 	set (	DOXYFILE_ENCODING				"UTF-8"						)
 	set (	DOXYGEN_CREATE_SUBDIRS			"YES"						)
@@ -47,6 +47,9 @@ if(Doxygen_FOUND)
 	set (	DOXYGEN_TOC_INCLUDE_HEADINGS	5							)
 	set (	DOXYGEN_AUTOLINK_SUPPORT		"YES"						)
 	set (	DOXYGEN_SUBGROUPING				"YES"						)
+	set (	DOXYGEN_JAVADOC_AUTOBRIEF		"YES"						)
+	set (	DOXYGEN_QT_AUTOBRIEF			"NO"						)
+	set (	DOXYGEN_MULTILINE_CPP_IS_BRIEF	"NO"						)
 
 	# --- Project ---
 	set (	DOXYGEN_RESOLVE_UNNAMED_PARAMS	"YES"						)
@@ -56,6 +59,10 @@ if(Doxygen_FOUND)
 	set (	DOXYGEN_SHOW_USED_FILES			"YES"						)
 	set (	DOXYGEN_SHOW_FILES				"YES"						)
 	set (	DOXYGEN_SHOW_NAMESPACES			"YES"						)
+	set (	DOXYGEN_FILE_PATTERNS			"*.h" "*.hpp" "*.inl" "*.cpp")
+	set (	DOXYGEN_EXAMPLE_PATH			""							)
+	set (	DOXYGEN_EXAMPLE_PATTERNS		""							)
+	set (	DOXYGEN_EXAMPLE_RECURSIVE		"NO"						)
 
 	# --- Warnings ---
 	set (	DOXYGEN_QUIET					"YES"						)
@@ -147,13 +154,18 @@ if(Doxygen_FOUND)
 	set (	DOXYGEN_EXTRA_SEARCH_MAPPINGS	""							)
 
 	# --- Preprocessor ---
-	set (	DOXYGEN_ENABLE_PREPROCESSING	"NO"						)
+	set (	DOXYGEN_ENABLE_PREPROCESSING	"YES"						)
 	set (	DOXYGEN_SEARCH_INCLUDE			"YES"						)
 	set (	DOXYGEN_SKIP_FUNCTION_MACROS	"YES"						)
 	set (	DOXYGEN_MACRO_EXPANSION			"YES"						)
 	set (	DOXYGEN_EXPAND_ONLY_PREDEF		"YES"						)
-	set (	DOXYGEN_PREDEFINED				"protected=private"			)
+	set (	DOXYGEN_PREDEFINED				"protected=private"
+											"VISTA_SDK_CPP_INLINE=inline"	)
 	set (	DOXYGEN_EXTRACT_PRIVATE			"NO"						)
+	set (	DOXYGEN_EXTRACT_STATIC			"YES"						)
+	set (	DOXYGEN_EXTRACT_LOCAL_CLASSES	"YES"						)
+	set (	DOXYGEN_EXTRACT_LOCAL_METHODS	"NO"						)
+	set (	DOXYGEN_EXTRACT_ANON_NSPACES	"NO"						)
 	set (	DOXYGEN_EXTRACT_ALL				"YES"						)
 
 	# --- Dot ---
@@ -207,10 +219,10 @@ if(Doxygen_FOUND)
 			add_custom_command(
 				TARGET documentation
 					POST_BUILD
-					COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/doc"
-					COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/${DOXYGEN_HTML_OUTPUT}/" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/doc/html/"
-					COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/index.html" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/doc/index.html"
-					COMMENT "Copying Doxygen documentation to ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/doc"
+					COMMAND ${CMAKE_COMMAND} -E make_directory "${VISTA_SDK_CPP_BUILD_DIR}/doc"
+					COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/${DOXYGEN_HTML_OUTPUT}/" "${VISTA_SDK_CPP_BUILD_DIR}/doc/html/"
+					COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/index.html" "${VISTA_SDK_CPP_BUILD_DIR}/doc/index.html"
+					COMMENT "Copying Doxygen documentation to ${VISTA_SDK_CPP_BUILD_DIR}/doc"
 					VERBATIM
 			)
 	endif()

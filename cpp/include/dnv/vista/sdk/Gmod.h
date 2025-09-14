@@ -1,10 +1,134 @@
 /**
  * @file Gmod.h
- * @brief Generic Product Model (GMOD) interface for the DNV Vessel Information Structure (VIS).
- * @details This file defines the Gmod class, a core component of the VISTA SDK that represents
- *          the hierarchical structure of vessel components and systems according to the
- *          DNV Vessel Information Structure standard. It provides functionalities for
- *          accessing, navigating, and interpreting GMOD data.
+ * @brief VISTA Generic Product Model (GMOD) System for Maritime Vessel Structure Management
+ *
+ * @details
+ * This file implements the **VISTA Generic Product Model (GMOD) System** for managing
+ * and navigating hierarchical vessel component structures. It provides comprehensive
+ * tree traversal, path parsing, node lookup, and relationship management capabilities
+ * for maritime vessel information structures according to ISO 19848 standards.
+ *
+ * ## System Purpose:
+ *
+ * The **VISTA GMOD System** serves as the foundation for:
+ * - **Vessel Structure Navigation** : Hierarchical traversal of ship components and systems
+ * - **Path Resolution**             : Parsing and validating GMOD path strings for component identification
+ * - **Node Relationship Management**: Managing parent-child relationships in vessel hierarchies
+ * - **Component Lookup**            : High-performance O(1) node access by component codes
+ * - **Standards Compliance**        : Full adherence to ISO 19848 maritime equipment standards
+ * - **Tree Traversal Operations**   : Flexible iteration patterns with occurrence tracking
+ *
+ * ## Core Architecture:
+ *
+ * ### GMOD Classes
+ * - **Gmod**            : Main container managing the complete vessel structure tree
+ * - **GmodNode**        : Individual vessel component with metadata and relationships
+ * - **GmodNodeMetadata**: Descriptive information (category, type, name) for components
+ * - **GmodPath**        : Parsed representation of hierarchical component paths
+ *
+ * ### Traversal Framework
+ * - **TraverseHandler**         : Stateless function pointer for tree traversal operations
+ * - **TraverseHandlerWithState**: Stateful traversal with user-defined context
+ * - **TraversalOptions**        : Configuration for occurrence limits and cycle prevention
+ * - **TraversalHandlerResult**  : Flow control for traversal continuation decisions
+ *
+ * ## Data Flow Architecture:
+ *
+ * ```
+ * GmodDto (External Data)
+ *         ↓
+ * Gmod Construction (VIS Factory)
+ *         ↓
+ * ┌─────────────────────────────────────┐
+ * │              Gmod                   │
+ * ├─────────────────────────────────────┤
+ * │ ┌─────────────────────────────────┐ │
+ * │ │      ChdHashMap<GmodNode>       │ │ ← O(1) node lookup by code
+ * │ │    (Perfect hash for nodes)     │ │
+ * │ └─────────────────────────────────┘ │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │        GmodNode* rootNode       │ │ ← Tree root ("VE" vessel entry)
+ * │ │      (Vessel Entry Point)       │ │
+ * │ └─────────────────────────────────┘ │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │      VisVersion metadata        │ │ ← Version-specific validation
+ * │ │    (Standards compliance)       │ │
+ * │ └─────────────────────────────────┘ │
+ * └─────────────────────────────────────┘
+ *         ↓
+ * Path Parsing & Tree Navigation
+ * ```
+ *
+ * ## Traversal Patterns:
+ *
+ * ### Basic Tree Traversal
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Path-Based Navigation
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ## Performance Characteristics:
+ *
+ * - **O(1) Node Lookup** : Perfect hash-based node access by component codes
+ * - **Memory Efficient** : Optimized tree structure with minimal pointer overhead
+ * - **Zero-Copy Access** : `string_view` interfaces for path and metadata access
+ * - **Thread Safe Reads**: Immutable design safe for concurrent navigation
+ * - **Cycle Prevention** : Occurrence tracking prevents infinite loops in traversal
+ * - **Path Caching**     : Efficient path parsing with validation caching
+ *
+ * ## Node Classification System:
+ *
+ * ### Component Types
+ * - **Vessel Entry (VE)** : Root node representing the complete vessel
+ * - **System (SYS)**      : Major ship systems (propulsion, navigation, etc.)
+ * - **Equipment (E)**     : Individual equipment items and machinery
+ * - **Product Types**     : Standardized equipment classifications
+ * - **Product Selections**: Specific equipment choices and configurations
+ * - **Function Nodes**    : Functional categorization of components
+ * - **Asset Nodes**       : Physical assets with lifecycle management
+ *
+ * ### Relationship Patterns
+ * - **Parent-Child Links**     : Hierarchical containment relationships
+ * - **Product Type Assignment**: Equipment type classification relationships
+ * - **Product Selection**      : Specific equipment selection relationships
+ * - **Function Assignment**    : Functional role assignments
+ *
+ * ## Path Resolution System:
+ *
+ * ### Path Format Support
+ * - **Relative Paths**  :
+ * - **Absolute Paths**  :
+ * - **Bracket Notation**:
+ * - **Code-Only Paths** :
+ *
+ * ### Validation Levels
+ * - **Syntax Validation**      : Correct path format and bracket matching
+ * - **Component Existence**    : Verify all path components exist in GMOD
+ * - **Relationship Validation**: Confirm parent-child relationships are valid
+ * - **Standards Compliance**   : Adherence to ISO 19848 naming conventions
+ *
+ * ## Design Philosophy:
+ *
+ * - **Standards Compliance**: Full adherence to ISO 19848 maritime equipment standards
+ * - **Performance Focus**   : Optimized for high-frequency navigation operations
+ * - **Type Safety**         : Strong typing with comprehensive error handling
+ * - **Extensibility**       : Support for custom traversal patterns and node types
+ * - **Usability**           : Intuitive API for common vessel structure operations
+ * - **Immutability**        : Thread-safe design with controlled mutation patterns
+ * - **Factory Pattern**     : Controlled construction through VIS factory class
+ *
+ * @note This system is designed for high-performance maritime vessel structure
+ *       navigation with full ISO 19848 standard compliance. All traversal and
+ *       lookup operations are optimized for frequent use in vessel data processing.
+ *
  * @see ISO 19848 - Ships and marine technology - Standard data for shipboard machinery and equipment
  */
 
@@ -18,6 +142,8 @@
 #include <nfx/containers/ChdHashMap.h>
 #include <nfx/containers/HashMap.h>
 
+#include "GmodNode.h"
+
 #include "config/config.h"
 
 namespace dnv::vista::sdk
@@ -26,11 +152,17 @@ namespace dnv::vista::sdk
 	// Forward declarations
 	//=====================================================================
 
-	enum class VisVersion;
+	enum class VisVersion : std::uint16_t;
+
 	class GmodDto;
-	class GmodNode;
 	class GmodNodeMetadata;
 	class GmodPath;
+	class VIS;
+
+	namespace internal
+	{
+		class EmbeddedResource;
+	}
 
 	//=====================================================================
 	// Traversal
@@ -42,31 +174,53 @@ namespace dnv::vista::sdk
 
 	/**
 	 * @enum TraversalHandlerResult
-	 * @brief Controls traversal flow
+	 * @brief Controls GMOD tree traversal flow and continuation behavior
+	 * @details Return values from traversal handler functions that determine
+	 *          how the traversal algorithm should proceed with the current node
+	 *          and its subtree.
 	 */
 	enum class TraversalHandlerResult
 	{
+		/** @brief Stop traversal entirely and return immediately */
 		Stop = 0,
+
+		/** @brief Skip traversing the current node's children, but continue with siblings */
 		SkipSubtree,
+
+		/** @brief Continue normal traversal of children and siblings */
 		Continue,
 	};
 
 	/**
 	 * @typedef TraverseHandler
-	 * @brief Function pointer for stateless traversal
+	 * @brief Function pointer type for stateless GMOD tree traversal
+	 * @details Handler function called for each node during traversal. Receives
+	 *          the parent chain and current node, returns continuation instruction.
+	 * @param parents Vector of parent nodes from root to immediate parent
+	 * @param node Current node being visited
+	 * @return TraversalHandlerResult indicating how to continue traversal
 	 */
 	using TraverseHandler = TraversalHandlerResult ( * )( const std::vector<const GmodNode*>& parents, const GmodNode& node );
 
 	/**
 	 * @typedef TraverseHandlerWithState
-	 * @brief Function pointer for stateful traversal
+	 * @brief Function pointer type for stateful GMOD tree traversal
+	 * @details Handler function with user-defined state for complex traversal scenarios.
+	 *          Allows maintaining custom data across traversal operations.
+	 * @tparam TState User-defined state type passed to handler
+	 * @param state Reference to user-defined state object
+	 * @param parents Vector of parent nodes from root to immediate parent
+	 * @param node Current node being visited
+	 * @return TraversalHandlerResult indicating how to continue traversal
 	 */
 	template <typename TState>
 	using TraverseHandlerWithState = TraversalHandlerResult ( * )( TState& state, const std::vector<const GmodNode*>& parents, const GmodNode& node );
 
 	/**
 	 * @struct TraversalOptions
-	 * @brief Traversal configuration
+	 * @brief Traversal configuration options for GMOD tree traversal
+	 * @details Configures behavior during tree traversal operations, including
+	 *          occurrence limits to prevent infinite loops in cyclic structures.
 	 */
 	struct TraversalOptions
 	{
@@ -85,10 +239,11 @@ namespace dnv::vista::sdk
 	 *          vessel components and systems. It allows for node lookup, path parsing,
 	 *          and iteration over its constituent nodes. The GMOD is typically initialized
 	 *          from a GmodDto object or a pre-populated map of nodes.
-	 *          Instances of this class are non-copyable and non-movable.
 	 */
 	class Gmod final
 	{
+		friend class VIS;
+
 	public:
 		//----------------------------------------------
 		// Forward declarations
@@ -96,13 +251,15 @@ namespace dnv::vista::sdk
 
 		class Enumerator;
 
-	public:
+	private:
 		//----------------------------------------------
 		// Construction
 		//----------------------------------------------
 
 		/**
 		 * @brief Constructs a Gmod instance from a GmodDto.
+		 * @details Private constructor accessible only through friend classes (VIS, EmbeddedResource).
+		 *          This ensures controlled creation of GMOD instances with proper validation.
 		 * @param version The VIS version this GMOD corresponds to.
 		 * @param dto The data transfer object containing the GMOD structure and nodes.
 		 * @throws std::invalid_argument If the provided DTO is invalid or essential data is missing.
@@ -113,25 +270,25 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Constructs a Gmod instance from an initial map of nodes.
-		 * @details This constructor is typically used for testing or specialized GMOD setup.
-		 *          The GMOD copies these nodes. It's the caller's responsibility to ensure
-		 *          the provided nodes form a consistent, linkable structure if relations
-		 *          are implied or need to be established post-construction by other means.
-		 *          This constructor does not perform relation linking or trimming by default.
+		 * @details Private constructor typically used for testing or specialized GMOD setup.
+		 *          Only accessible through friend classes. The GMOD copies these nodes.
+		 *          It's the caller's responsibility to ensure the provided nodes form a
+		 *          consistent, linkable structure.
 		 * @param version The VIS version this GMOD corresponds to.
 		 * @param initialNodeMap An unordered map where keys are node codes and values are GmodNode objects.
 		 * @throws std::out_of_range If the root node 'VE' is not found in `initialNodeMap`.
 		 */
 		Gmod( VisVersion version, const std::unordered_map<std::string, GmodNode>& initialNodeMap );
 
-		/** @brief Default constructor. */
+		/** @brief Default constructor */
 		Gmod() = delete;
 
 		/** @brief Copy constructor */
 		Gmod( const Gmod& );
 
+	public:
 		/** @brief Move constructor */
-		Gmod( Gmod&& ) noexcept = default;
+		Gmod( Gmod&& ) noexcept;
 
 		//----------------------------------------------
 		// Destruction
@@ -506,11 +663,25 @@ namespace dnv::vista::sdk
 		template <typename TState>
 		struct TraversalContext
 		{
+			/** @brief Reference to the parent stack for tracking traversal hierarchy */
 			Parents& parents;
+
+			/** @brief The handler function to call for each traversed node */
 			TraverseHandlerWithState<TState> handler;
+
+			/** @brief Reference to user-defined state passed to the handler */
 			TState& state;
+
+			/** @brief Maximum number of times a node can be traversed */
 			size_t maxTraversalOccurrence;
 
+			/**
+			 * @brief Constructor for traversal context
+			 * @param p Reference to parent stack
+			 * @param h Handler function for processing nodes
+			 * @param s Reference to user state
+			 * @param maxOcc Maximum traversal occurrence count
+			 */
 			TraversalContext( Parents& p, TraverseHandlerWithState<TState> h, TState& s, size_t maxOcc )
 				: parents{ p },
 				  handler{ h },
@@ -519,14 +690,28 @@ namespace dnv::vista::sdk
 			{
 			}
 
+			/** @brief Copy constructor */
 			TraversalContext( const TraversalContext& ) = delete;
+
+			/** @brief Move constructor */
 			TraversalContext( TraversalContext&& ) = delete;
+
+			/** @brief Copy assignment operator */
 			TraversalContext& operator=( const TraversalContext& ) = delete;
+
+			/** @brief Move assignment operator */
 			TraversalContext& operator=( TraversalContext&& ) = delete;
 		};
 
 		/**
 		 * @brief Core traversal implementation
+		 * @details Recursively traverses the GMOD tree starting from the specified node,
+		 *          calling the handler function for each visited node while managing
+		 *          occurrence tracking and parent stack state.
+		 * @tparam TState User-defined state type passed to the handler
+		 * @param context Traversal context containing handler, state, and configuration
+		 * @param node The current node being traversed
+		 * @return TraversalHandlerResult indicating how to continue traversal
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		template <typename TState>
@@ -537,7 +722,7 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 
 		/** @brief The VIS version this GMOD instance conforms to. */
-		VisVersion m_visVersion{};
+		VisVersion m_visVersion;
 
 		/**
 		 * @brief Pointer to the root node ("VE") of the GMOD hierarchy.

@@ -1,8 +1,78 @@
 /**
  * @file LocalIdItems.h
- * @brief Defines the LocalIdItems class for representing primary and secondary items in LocalIds.
+ * @brief VISTA Local ID Items Container for Primary and Secondary GMOD Path Storage
+ *
+ * @details
+ * This file implements the **VISTA LocalIdItems System** for internal storage and management
+ * of primary and secondary GMOD paths within LocalId instances. It provides a private container
+ * design ensuring controlled access through the LocalIdBuilder fluent interface.
+ *
+ * ## System Purpose:
+ *
+ * The **VISTA LocalIdItems Container** serves as the internal foundation for:
+ * - **Dual Path Storage**    : Primary and optional secondary GMOD path management
+ * - **Immutable Design**     : Thread-safe storage that cannot be modified after construction
+ * - **Builder Integration**  : Exclusive access through LocalIdBuilder friend class
+ * - **Move Semantics**       : Efficient path ownership transfer with zero-copy construction
+ * - **String Representation**: Unified path serialization with verbose mode support
+ *
+ * ## Core Architecture:
+ *
+ * ### Storage Model
+ * - **Primary Path**   : Required GMOD path representing the main component or data point
+ * - **Secondary Path** : Optional GMOD path for additional context or related components
+ * - **Move-Only**      : GmodPath non-copyable nature enforces move semantics throughout
+ * - **Immutable**      : No modification allowed after construction for thread safety
+ *
+ * ## Memory Layout & Performance:
+ *
+ * ```
+ * LocalIdItems Container Structure:
+ * ┌─────────────────────────────────────┐
+ * │          LocalIdItems               │
+ * ├─────────────────────────────────────┤
+ * │ ┌─────────────────────────────────┐ │
+ * │ │  std::optional<GmodPath>        │ │ ← Primary path storage
+ * │ │      m_primaryItem              │ │   (required component)
+ * │ └─────────────────────────────────┘ │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │  std::optional<GmodPath>        │ │ ← Secondary path storage
+ * │ │     m_secondaryItem             │ │   (optional context)
+ * │ └─────────────────────────────────┘ │
+ * └─────────────────────────────────────┘
+ * ```
+ *
+ * ## Usage Patterns:
+ *
+ * ### Builder-Mediated Construction
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ## Design Philosophy:
+ *
+ * - **Type Safety**         : Private constructors prevent invalid state creation
+ * - **Performance Focus**   : Move semantics for efficient path ownership transfer
+ * - **Immutability**        : Thread-safe design with no post-construction changes
+ * - **Builder Integration** : Seamless integration with fluent builder interface
+ * - **Standards Compliance**: Consistent with VIS maritime data identification standards
+ *
+ * ## Performance Characteristics:
+ *
+ * - **Construction**: O(1) move operations for path ownership transfer
+ * - **Access**      : O(1) direct member access through friend interface
+ * - **Memory**      : Minimal overhead with optional<GmodPath> storage
+ * - **Thread Safety**: Read-only operations safe for concurrent access
+ * - **Move Semantics**: Zero-copy construction and manipulation
  */
+
 #pragma once
+
+#include <optional>
+
+#include <nfx/string/StringBuilderPool.h>
 
 #include "GmodPath.h"
 
@@ -21,7 +91,9 @@ namespace dnv::vista::sdk
 	 */
 	class LocalIdItems final
 	{
-	public:
+		friend class LocalIdBuilder;
+
+	private:
 		//----------------------------------------------
 		// Construction
 		//----------------------------------------------
@@ -104,6 +176,9 @@ namespace dnv::vista::sdk
 		 */
 		[[nodiscard]] inline bool operator!=( const LocalIdItems& other ) const noexcept;
 
+		void append( nfx::string::StringBuilder& builder, bool verboseMode ) const;
+
+	public:
 		//----------------------------------------------
 		// Accessors
 		//----------------------------------------------
@@ -121,19 +196,6 @@ namespace dnv::vista::sdk
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline const std::optional<GmodPath>& secondaryItem() const noexcept;
-
-		/**
-		 * @brief Checks if both primary and secondary items are uninitialized (nullopt).
-		 * @return True if both `m_primaryItem` and `m_secondaryItem` are `std::nullopt`, false otherwise.
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] inline bool isEmpty() const noexcept;
-
-		//----------------------------------------------
-		// Public methods
-		//----------------------------------------------
-
-		void append( nfx::string::StringBuilder& builder, bool verboseMode ) const;
 
 	private:
 		//----------------------------------------------

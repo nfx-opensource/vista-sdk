@@ -31,6 +31,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.37] - 2025-09-17
+
+### Added
+
+-   **Comprehensive architectural documentation** across all major SDK public API headers
+    -   Detailed system purpose sections with ASCII diagrams for core components
+    -   Performance characteristics documentation for critical operations
+    -   Memory layout documentation with structure diagrams and data flow architecture
+    -   Design philosophy sections explaining architectural decisions
+    -   Complete API usage examples with TODO placeholders for future implementation
+-   **New transport layer organization** with `timeseries/` namespace for time series data handling
+-   **ISO19848Constants.h** for centralized transport layer constants
+
+### Changed
+
+-   **NFX Core dependency update** from v0.0.2 to v0.0.3
+-   **Major API encapsulation improvements** with friend class pattern implementation across core classes
+    -   Made `Codebook` constructor private, accessible only through friend classes (`Codebooks`, `VIS`)
+    -   Made `Gmod` constructor private, accessible only through friend class (`VIS`)
+    -   Added comprehensive friend class declarations for controlled object construction
+-   **Constructor implementation changes**
+    -   Changed `Codebook` copy constructor from `= default` to custom implementation
+    -   Enhanced move semantics patterns across data structures
+-   **Public API cleanup and reorganization**
+    -   Moved all DTO classes from public API to internal implementation (`*Dto.h` files moved to `src/internal/dto/`)
+    -   Relocated transport layer DTOs to internal namespace
+    -   Reorganized time series data under `transport/timeseries/` namespace
+-   **DataChannel transport layer major refactoring**
+
+### Fixed
+
+-   **Constructor visibility and access control** issues in core data structures
+-   **Documentation consistency** across all public API header files with standardized format
+
+### Removed
+
+-   **12 public API files** moved to internal implementation or deleted entirely:
+    -   `CodebooksDto.h/inl` (moved to internal)
+    -   `GmodDto.h/inl` (moved to internal)
+    -   `GmodVersioning.h` (moved to internal core)
+    -   `GmodVersioningDto.h/inl` (moved to internal)
+    -   `LocationsDto.h/inl` (moved to internal)
+    -   `config/ISO19848.h` (consolidated)
+    -   `transport/ISO19848Dtos.h/inl` (moved to internal)
+    -   `transport/TimeSeriesData/TimeSeriesData.h` (moved and reorganized)
+-   **Public exposure of DTO classes** - now properly encapsulated in internal namespace
+
+### Security
+
+-   **Enhanced encapsulation patterns** to prevent unauthorized object construction
+    -   Friend class pattern restricts direct instantiation of core classes
+    -   Private constructors ensure controlled object creation through factory patterns
+-   **Reduced public API surface** by moving implementation details to internal namespace
+-   **Better access control** through strategic friend class declarations and private constructors
+    -   Friend class pattern restricts direct instantiation of core classes
+    -   Private constructors ensure controlled object creation through factory patterns
+-   **Improved memory safety** in move constructors and destructors
+
 ## [0.0.36] - 2025-09-12
 
 ### Added

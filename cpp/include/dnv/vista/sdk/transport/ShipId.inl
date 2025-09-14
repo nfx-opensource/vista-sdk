@@ -15,6 +15,12 @@ namespace dnv::vista::sdk::transport
 	// Construction
 	//----------------------------------------------
 
+	inline ShipId::ShipId( std::string_view otherId ) noexcept
+		: m_tag{ Tag::Other },
+		  m_otherId{ otherId }
+	{
+	}
+
 	inline ShipId::ShipId( ImoNumber imoNumber ) noexcept
 		: m_tag{ Tag::IMO },
 		  m_imoNumber{ std::move( imoNumber ) }

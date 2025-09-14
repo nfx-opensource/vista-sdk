@@ -4,11 +4,11 @@
  */
 
 #include <stdexcept>
-#include <string>
 
-#include "internal/constants/Codebook.h"
+#include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/CodebookName.h"
+#include "internal/constants/Codebook.h"
 
 namespace dnv::vista::sdk
 {
@@ -22,51 +22,51 @@ namespace dnv::vista::sdk
 
 	CodebookName CodebookNames::fromPrefix( std::string_view prefix )
 	{
-		if ( prefix.empty() )
+		if ( nfx::string::isEmpty( prefix ) )
 		{
 			throw std::invalid_argument{ "Prefix cannot be empty." };
 		}
-		if ( prefix == internal::constants::codebook::PREFIX_POSITION )
+		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_POSITION ) )
 		{
 			return CodebookName::Position;
 		}
-		if ( prefix == internal::constants::codebook::PREFIX_QUANTITY )
+		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_QUANTITY ) )
 		{
 			return CodebookName::Quantity;
 		}
-		if ( prefix == internal::constants::codebook::PREFIX_STATE )
+		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_STATE ) )
 		{
 			return CodebookName::State;
 		}
-		if ( prefix == internal::constants::codebook::PREFIX_CONTENT )
+		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_CONTENT ) )
 		{
 			return CodebookName::Content;
 		}
-		if ( prefix == internal::constants::codebook::PREFIX_COMMAND )
+		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_COMMAND ) )
 		{
 			return CodebookName::Command;
 		}
-		if ( prefix == internal::constants::codebook::PREFIX_TYPE )
+		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_TYPE ) )
 		{
 			return CodebookName::Type;
 		}
-		if ( prefix == internal::constants::codebook::PREFIX_CALCULATION )
+		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_CALCULATION ) )
 		{
 			return CodebookName::Calculation;
 		}
-		if ( prefix == internal::constants::codebook::PREFIX_DETAIL )
+		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_DETAIL ) )
 		{
 			return CodebookName::Detail;
 		}
-		if ( prefix == internal::constants::codebook::PREFIX_FUNCTIONAL_SERVICES )
+		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_FUNCTIONAL_SERVICES ) )
 		{
 			return CodebookName::FunctionalServices;
 		}
-		if ( prefix == internal::constants::codebook::PREFIX_MAINTENANCE_CATEGORY )
+		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_MAINTENANCE_CATEGORY ) )
 		{
 			return CodebookName::MaintenanceCategory;
 		}
-		if ( prefix == internal::constants::codebook::PREFIX_ACTIVITY_TYPE )
+		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_ACTIVITY_TYPE ) )
 		{
 			return CodebookName::ActivityType;
 		}
@@ -151,7 +151,7 @@ namespace dnv::vista::sdk
 		{
 			case 5:
 			{
-				if ( name == internal::constants::codebook::NAME_TYPE )
+				if ( nfx::string::equals( name, internal::constants::codebook::NAME_TYPE ) )
 				{
 					return CodebookName::Type;
 				}
@@ -159,11 +159,11 @@ namespace dnv::vista::sdk
 			}
 			case 6:
 			{
-				if ( name == internal::constants::codebook::NAME_STATE )
+				if ( nfx::string::equals( name, internal::constants::codebook::NAME_STATE ) )
 				{
 					return CodebookName::State;
 				}
-				if ( name == internal::constants::codebook::NAME_DETAIL )
+				if ( nfx::string::equals( name, internal::constants::codebook::NAME_DETAIL ) )
 				{
 					return CodebookName::Detail;
 				}
@@ -171,11 +171,11 @@ namespace dnv::vista::sdk
 			}
 			case 8:
 			{
-				if ( name == internal::constants::codebook::NAME_CONTENT )
+				if ( nfx::string::equals( name, internal::constants::codebook::NAME_CONTENT ) )
 				{
 					return CodebookName::Content;
 				}
-				if ( name == internal::constants::codebook::NAME_COMMAND )
+				if ( nfx::string::equals( name, internal::constants::codebook::NAME_COMMAND ) )
 				{
 					return CodebookName::Command;
 				}
@@ -183,7 +183,7 @@ namespace dnv::vista::sdk
 			}
 			case 9:
 			{
-				if ( name == internal::constants::codebook::NAME_POSITION )
+				if ( nfx::string::equals( name, internal::constants::codebook::NAME_POSITION ) )
 				{
 					return CodebookName::Position;
 				}
@@ -191,7 +191,7 @@ namespace dnv::vista::sdk
 			}
 			case 10:
 			{
-				if ( name == internal::constants::codebook::NAME_QUANTITY )
+				if ( nfx::string::equals( name, internal::constants::codebook::NAME_QUANTITY ) )
 				{
 					return CodebookName::Quantity;
 				}
@@ -199,7 +199,7 @@ namespace dnv::vista::sdk
 			}
 			case 12:
 			{
-				if ( name == internal::constants::codebook::NAME_CALCULATION )
+				if ( nfx::string::equals( name, internal::constants::codebook::NAME_CALCULATION ) )
 				{
 					return CodebookName::Calculation;
 				}
@@ -207,7 +207,7 @@ namespace dnv::vista::sdk
 			}
 			case 13:
 			{
-				if ( name == internal::constants::codebook::NAME_ACTIVITY_TYPE )
+				if ( nfx::string::equals( name, internal::constants::codebook::NAME_ACTIVITY_TYPE ) )
 				{
 					return CodebookName::ActivityType;
 				}
@@ -215,7 +215,7 @@ namespace dnv::vista::sdk
 			}
 			case 19:
 			{
-				if ( name == internal::constants::codebook::NAME_FUNCTIONAL_SERVICES )
+				if ( nfx::string::equals( name, internal::constants::codebook::NAME_FUNCTIONAL_SERVICES ) )
 				{
 					return CodebookName::FunctionalServices;
 				}
@@ -223,7 +223,7 @@ namespace dnv::vista::sdk
 			}
 			case 20:
 			{
-				if ( name == internal::constants::codebook::NAME_MAINTENANCE_CATEGORY )
+				if ( nfx::string::equals( name, internal::constants::codebook::NAME_MAINTENANCE_CATEGORY ) )
 				{
 					return CodebookName::MaintenanceCategory;
 				}

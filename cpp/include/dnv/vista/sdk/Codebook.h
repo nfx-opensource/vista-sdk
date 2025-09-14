@@ -1,19 +1,116 @@
 /**
  * @file Codebook.h
- * @brief Defines classes for managing and validating data against VISTA codebooks.
+ * @brief VISTA Codebook Management System for Maritime Data Validation
  *
- * @details This file provides the core components for interacting with VISTA codebooks,
- * including enumerations for validation results, containers for standard values and groups,
- * and the main `Codebook` class for accessing and validating maritime data according
- * to standardized vocabularies.
+ * @details
+ * This file implements the **VISTA Codebook System** for validating and managing
+ * standardized maritime data vocabularies. It provides comprehensive validation,
+ * lookup capabilities, and metadata management for VISTA standard codebooks.
+ *
+ * ## System Purpose:
+ *
+ * The **VISTA Codebook System** serves as the foundation for:
+ * - **Data Validation**    : Ensuring maritime data conforms to standardized vocabularies
+ * - **Standard Compliance**: Enforcing VISTA naming conventions and value standards
+ * - **Metadata Management**: Creating and validating metadata tags for data classification
+ * - **Position Validation**: Specialized validation for maritime position and location data
+ * - **Group Organization** : Managing hierarchical groupings of related codebook values
+ *
+ * ## Core Architecture:
+ *
+ * ### Codebook Classes
+ * - **Codebook**                 : Main class containing complete codebook with validation logic
+ * - **CodebookStandardValues**   : Container for standardized vocabulary values
+ * - **CodebookGroups**           : Container for hierarchical groupings of related values
+ * - **PositionValidationResults**: Specialized validation results for position data
+ *
+ * ### Validation Framework
+ * - **Value Validation**     : Check if values exist in standard vocabularies
+ * - **Group Validation**     : Verify group membership and hierarchical relationships
+ * - **Position Validation**  : Specialized ISO string format validation for positions
+ * - **Metadata Tag Creation**: Generate validated metadata tags from codebook values
+ *
+ * ## Data Flow Architecture:
+ *
+ * ```
+ * CodebookDto (External Data)
+ *         ↓
+ * Codebook Construction
+ *         ↓
+ * ┌─────────────────────────────────────┐
+ * │            Codebook                 │
+ * ├─────────────────────────────────────┤
+ * │ ┌─────────────────────────────────┐ │
+ * │ │    CodebookStandardValues       │ │ ← Standard vocabulary lookup
+ * │ │  (StringSet for O(1) lookup)    │ │
+ * │ └─────────────────────────────────┘ │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │        CodebookGroups           │ │ ← Hierarchical organization
+ * │ │  (StringSet for O(1) lookup)    │ │
+ * │ └─────────────────────────────────┘ │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │       Raw Data Mapping          │ │ ← Group → Values mapping
+ * │ │   (StringMap<vector<string>>)   │ │
+ * │ └─────────────────────────────────┘ │
+ * └─────────────────────────────────────┘
+ *         ↓
+ * Validation & Metadata Creation
+ * ```
+ *
+ * ## Usage Examples:
+ *
+ * TODO
+ *
+ * ## Performance Characteristics:
+ *
+ * - **O(1) Lookups**    : Hash-based containers for constant-time value and group checks
+ * - **Zero-Copy Access**: `string_view` interfaces minimize memory allocation
+ * - **Memory Efficient**: Optimized containers with minimal overhead
+ * - **Thread Safe**     : Immutable design safe for concurrent read access
+ * - **Iterator Support**: STL-compatible iterators for standard algorithms
+ *
+ * ## Validation Levels:
+ *
+ * ### Standard Value Validation
+ * - **Exact Match**      : Direct lookup in standardized vocabulary
+ * - **Case Sensitivity** : Enforces exact case matching for consistency
+ * - **Numeric Positions**: Special handling for numeric position identifiers
+ *
+ * ### Position Validation
+ * - **Format Validation**  : ISO string format compliance (hyphen-separated)
+ * - **Order Validation**   : Correct sequence of position components
+ * - **Grouping Validation**: Valid component combinations and relationships
+ * - **Custom Extensions**  : Support for custom position extensions
+ *
+ * ### Group Validation
+ * - **Membership Testing**   : Verify values belong to specific groups
+ * - **Hierarchical Checking**: Navigate parent-child group relationships
+ * - **Group Discovery**      : Find all groups containing specific values
+ *
+ * ## Design Philosophy:
+ *
+ * - **Standards Compliance** : Full adherence to VISTA codebook specifications
+ * - **Performance Focus**    : Optimized for high-frequency validation operations
+ * - **Type Safety**          : Strong typing with comprehensive error handling
+ * - **Extensibility**        : Support for custom codebooks and validation rules
+ * - **Usability**            : Clear, intuitive API for common validation scenarios
+ * - **Immutability**         : Thread-safe design with immutable data structures
+ *
+ * @note This system is designed for high-performance maritime data validation
+ *       with full VISTA standard compliance. All validation operations are
+ *       optimized for frequent use in data processing pipelines.
  */
 
 #pragma once
 
+#include <optional>
+#include <string>
+#include <string_view>
+#include <vector>
+
 #include <nfx/containers/StringMap.h>
 #include <nfx/containers/StringSet.h>
 
-#include "CodebooksDto.h"
 #include "CodebookName.h"
 
 namespace dnv::vista::sdk
@@ -22,6 +119,7 @@ namespace dnv::vista::sdk
 	// Forward declarations
 	//=====================================================================
 
+	class CodebookDto;
 	class MetadataTag;
 
 	//=====================================================================
@@ -321,7 +419,14 @@ namespace dnv::vista::sdk
 	 */
 	class Codebook final
 	{
-	public:
+		//----------------------------------------------
+		// Friend class declarations
+		//----------------------------------------------
+
+		friend class Codebooks;
+		friend class VIS;
+
+	private:
 		//----------------------------------------------
 		// Construction
 		//----------------------------------------------
@@ -336,8 +441,9 @@ namespace dnv::vista::sdk
 		/** @brief Default constructor. */
 		Codebook() = default;
 
+	public:
 		/** @brief Copy constructor */
-		Codebook( const Codebook& ) = default;
+		Codebook( const Codebook& );
 
 		/** @brief Move constructor */
 		Codebook( Codebook&& ) noexcept = default;

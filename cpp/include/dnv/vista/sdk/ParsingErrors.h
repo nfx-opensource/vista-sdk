@@ -1,6 +1,137 @@
 /**
  * @file ParsingErrors.h
- * @brief Defines the ParsingErrors class for managing parsing error collections.
+ * @brief VISTA Parsing Error Management System for Comprehensive Diagnostic Reporting
+ *
+ * @details
+ * This file implements the **VISTA Parsing Error System** for collecting, managing, and
+ * reporting parsing errors encountered during maritime data validation and processing operations.
+ * It provides comprehensive error collection, classification, and diagnostic reporting
+ * capabilities with specialized builder patterns for domain-specific parsing scenarios.
+ *
+ * ## System Purpose:
+ *
+ * The **VISTA Parsing Error System** serves as the foundation for:
+ * - **Error Collection**    : Gathering parsing errors during data validation operations
+ * - **Error Classification**: Categorizing errors by type and parsing stage for targeted handling
+ * - **Diagnostic Reporting**: Providing detailed error messages for debugging and analysis
+ * - **Validation Feedback** : Supporting comprehensive validation result reporting
+ * - **Builder Integration** : Specialized error builders for LocalId and Location parsing
+ *
+ * ## Core Architecture:
+ *
+ * ### Error Management Components
+ * - **ParsingErrors**              : Main immutable container managing error collections
+ * - **ErrorEntry**                 : Individual error with type and message information
+ * - **Enumerator**                 : Safe iterator for traversing error collections
+ * - **LocalIdParsingErrorBuilder** : Specialized builder for LocalId parsing errors
+ * - **LocationParsingErrorBuilder**: Specialized builder for Location parsing errors
+ *
+ * ### Builder Pattern Integration
+ * - **State-Based Classification**: Enum-driven error categorization for precise diagnostics
+ * - **Fluent Interface**          : Chainable error accumulation with method chaining
+ * - **Domain Specialization**     : Tailored builders for specific parsing scenarios
+ * - **Controlled Construction**   : Friend class pattern prevents invalid error creation
+ *
+ * ## Data Flow Architecture:
+ *
+ * ```
+ * Specialized Parsing Operation
+ *         ↓
+ * Domain-Specific Error Builder
+ *         ↓
+ * ┌─────────────────────────────────────┐
+ * │    LocalId/LocationErrorBuilder     │
+ * ├─────────────────────────────────────┤
+ * │ ┌─────────────────────────────────┐ │
+ * │ │   ParsingState/ValidationResult │ │ ← Enum-based classification
+ * │ │        + Error Messages         │ │
+ * │ └─────────────────────────────────┘ │
+ * └─────────────────────────────────────┘
+ *         ↓ build()
+ * ┌─────────────────────────────────────┐
+ * │          ParsingErrors              │
+ * ├─────────────────────────────────────┤
+ * │ ┌─────────────────────────────────┐ │
+ * │ │    vector<ErrorEntry>           │ │ ← Immutable error storage
+ * │ │      m_errors                   │ │   (move semantics)
+ * │ └─────────────────────────────────┘ │
+ * │               ↓                     │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │      ErrorEntry                 │ │ ← Type-safe error pairs
+ * │ │  ┌───────────────────────────┐  │ │
+ * │ │  │  string type              │  │ │ ← Error category
+ * │ │  │  string message           │  │ │ ← Error description
+ * │ │  └───────────────────────────┘  │ │
+ * │ └─────────────────────────────────┘ │
+ * └─────────────────────────────────────┘
+ *         ↓
+ * Error Analysis & Reporting
+ * ```
+ *
+ * ## Usage Patterns:
+ *
+ * ### LocalId Parsing with State-Based Errors
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Location Parsing with Validation Results
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Error Analysis and Reporting
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ## Performance Characteristics:
+ *
+ * - **Move Semantics**    : Zero-copy construction with `std::vector<ErrorEntry>&&`
+ * - **Memory Efficiency** : Optimized storage with move constructors and string optimization
+ * - **Fast Enumeration**  : Exception-safe iterator with `noexcept` traversal
+ * - **Static Empty**      : Shared empty instance for zero-error scenarios
+ * - **String View Access**: `string_view` interfaces minimize allocation overhead
+ *
+ * ## Error Classification Systems:
+ *
+ * ### LocalId Parsing States (Hierarchical)
+ * - **Sequential Stages (0-99)**   : `NamingRule`, `VisVersion`, `PrimaryItem`, `SecondaryItem`
+ * - **Structural Errors (100-199)**: `EmptyState`, `Formatting`, `Completeness`
+ * - **Validation Errors (200+)**   : `NamingEntity`, `IMONumber`
+ *
+ * ### Location Validation Results
+ * - **`Invalid`**         : General validation failure
+ * - **`InvalidCode`**     : Unrecognized location code
+ * - **`InvalidOrder`**    : Incorrect component sequence
+ * - **`NullOrWhiteSpace`**:  Empty or whitespace-only input
+ * - **`Valid`**           : Successful validation
+ *
+ * ## String Representation Format:
+ *
+ * ### Formatted Output Examples
+ * ```
+ * Success                           (when no errors)
+ *
+ * Parsing errors:                   (when errors exist)
+ * 	ValidationError - Invalid location code 'X' at position 2
+ * 	FormatError - Missing separator in location string
+ * 	SemanticError - Inconsistent component combination
+ * ```
+ *
+ * ## Design Philosophy:
+ *
+ * - **Comprehensive Diagnostics**: Detailed error information for effective debugging and analysis
+ * - **Type Safety**              : Strong typing with enum-based classification prevents error loss
+ * - **Performance Focus**        : Move semantics and zero-copy patterns for parsing-intensive operations
+ * - **Immutability**             : Thread-safe design with immutable error collections after construction
+ * - **Builder Pattern**          : Specialized builders provide domain-specific error accumulation
  */
 
 #pragma once
@@ -9,10 +140,14 @@
 #include <string_view>
 #include <vector>
 
-#include "config/config.h"
-
 namespace dnv::vista::sdk
 {
+	namespace internal
+	{
+		class LocalIdParsingErrorBuilder;
+		class LocationParsingErrorBuilder;
+	}
+
 	//=====================================================================
 	// ParsingErrors class
 	//=====================================================================
@@ -24,6 +159,9 @@ namespace dnv::vista::sdk
 	 */
 	class ParsingErrors final
 	{
+		friend class internal::LocalIdParsingErrorBuilder;
+		friend class internal::LocationParsingErrorBuilder;
+
 	public:
 		//----------------------------------------------
 		// Forward declarations
@@ -33,16 +171,9 @@ namespace dnv::vista::sdk
 		struct ErrorEntry;
 
 		//----------------------------------------------
-		// Friends access
-		//----------------------------------------------
-
-		friend class LocalIdParsingErrorBuilder;
-		friend class LocationParsingErrorBuilder;
-
-		//----------------------------------------------
 		// Construction
 		//----------------------------------------------
-
+	private:
 		/**
 		 * @brief Internal constructor for creating ParsingErrors with error entries (copy).
 		 * @param errors A vector of error entries to copy.
@@ -261,7 +392,6 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 		// ParsingErrors::ErrorEntry struct
 		//----------------------------------------------
-
 		struct ErrorEntry
 		{
 			std::string type;

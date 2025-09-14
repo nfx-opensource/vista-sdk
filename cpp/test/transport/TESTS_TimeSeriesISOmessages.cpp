@@ -5,9 +5,9 @@
 
 #include <gtest/gtest.h>
 
-#include <dnv/vista/sdk/transport/TimeSeriesData/TimeSeriesData.h>
-#include <dnv/vista/sdk/transport/TimeSeriesData/DataChannelId.h>
-#include <dnv/vista/sdk/transport/DataChannel/DataChannel.h>
+#include <dnv/vista/sdk/transport/timeseries/TimeSeriesData.h>
+#include <dnv/vista/sdk/transport/timeseries/DataChannelId.h>
+#include <dnv/vista/sdk/transport/datachannel/DataChannel.h>
 #include <dnv/vista/sdk/transport/ShipId.h>
 #include <dnv/vista/sdk/LocalId.h>
 #include <dnv/vista/sdk/LocalIdBuilder.h>
@@ -22,22 +22,22 @@ namespace dnv::vista::sdk::tests
 	/**
 	 * @brief Creates ValidFullyCustomDataChannelList
 	 */
-	transport::datachannel::DataChannelListPackage createValidFullyCustomDataChannelList()
+	transport::DataChannelListPackage createValidFullyCustomDataChannelList()
 	{
 		// Create ConfigurationReference for DataChannelListId
 		auto timeStamp = nfx::time::DateTimeOffset::parse( "2016-01-01T00:00:00Z" );
-		transport::datachannel::ConfigurationReference dataChannelListId{
+		transport::ConfigurationReference dataChannelListId{
 			"DataChannelList.xml",
 			timeStamp,
 			"1.0" };
 
 		// Create Header
-		transport::datachannel::Header header{
+		transport::Header header{
 			transport::ShipId::parse( "IMO1234567" ),
 			dataChannelListId,
 			"Author1" };
 
-		transport::datachannel::VersionInformation versionInfo;
+		transport::VersionInformation versionInfo;
 		versionInfo.setNamingRule( "some_naming_rule" );
 		versionInfo.setNamingSchemeVersion( "2.0" );
 		versionInfo.setReferenceUrl( "http://somewhere.net" );
@@ -46,7 +46,7 @@ namespace dnv::vista::sdk::tests
 		header.setDateCreated( nfx::time::DateTimeOffset::parse( "2015-12-01T00:00:00Z" ) );
 
 		// Create DataChannelList
-		transport::datachannel::DataChannelList dataChannelList;
+		transport::DataChannelList dataChannelList;
 
 		// First DataChannel - Temperature sensor
 		{
@@ -57,33 +57,33 @@ namespace dnv::vista::sdk::tests
 			EXPECT_TRUE( parsed );
 			auto localId = localIdBuilderOpt->build();
 
-			transport::datachannel::DataChannelId dataChannelId{ localId, "0010" };
+			transport::DataChannelId dataChannelId{ localId, "0010" };
 
-			transport::datachannel::NameObject nameObject;
+			transport::NameObject nameObject;
 			nameObject.setNamingRule( "Naming_Rule" );
 			dataChannelId.setNameObject( nameObject );
 
-			transport::datachannel::DataChannelType dataChannelType{ "Inst" };
+			transport::DataChannelType dataChannelType{ "Inst" };
 			dataChannelType.setUpdateCycle( 1.0 );
 
-			transport::datachannel::Format format{ "Decimal" };
-			transport::datachannel::Restriction restriction;
+			transport::Format format{ "Decimal" };
+			transport::Restriction restriction;
 			restriction.setFractionDigits( 1 );
 			restriction.setMaxInclusive( 200.0 );
 			restriction.setMinInclusive( -150.0 );
 			format.setRestriction( restriction );
 
-			transport::datachannel::Range range{ 0.0, 150.0 };
+			transport::Range range{ 0.0, 150.0 };
 
-			transport::datachannel::Unit unit{ "°C" };
+			transport::Unit unit{ "°C" };
 			unit.setQuantityName( "Temperature" );
 
-			transport::datachannel::Property property{ dataChannelType, format, range, unit, std::nullopt };
+			transport::Property property{ dataChannelType, format, range, unit, std::nullopt };
 			property.setQualityCoding( "OPC_QUALITY" );
 			property.setName( "M/E #1 Air Cooler CFW OUT Temp" );
 			property.setRemarks( " Location: ECR, Manufacturer: AAA Company, Type: TYPE-AAA " );
 
-			transport::datachannel::DataChannel dataChannel{ dataChannelId, property };
+			transport::DataChannel dataChannel{ dataChannelId, property };
 			dataChannelList.add( dataChannel );
 		}
 
@@ -96,24 +96,24 @@ namespace dnv::vista::sdk::tests
 			EXPECT_TRUE( parsed );
 			auto localId = localIdBuilderOpt->build();
 
-			transport::datachannel::DataChannelId dataChannelId{ localId, "0020" };
+			transport::DataChannelId dataChannelId{ localId, "0020" };
 
-			transport::datachannel::DataChannelType dataChannelType{ "Alert" };
+			transport::DataChannelType dataChannelType{ "Alert" };
 
-			transport::datachannel::Format format{ "String" };
-			transport::datachannel::Restriction restriction;
+			transport::Format format{ "String" };
+			transport::Restriction restriction;
 			restriction.setMaxLength( 100 );
 			restriction.setMinLength( 0 );
 			format.setRestriction( restriction );
 
-			transport::datachannel::Property property{ dataChannelType, format, std::nullopt, std::nullopt, "Warning" };
+			transport::Property property{ dataChannelType, format, std::nullopt, std::nullopt, "Warning" };
 
-			transport::datachannel::DataChannel dataChannel{ dataChannelId, property };
+			transport::DataChannel dataChannel{ dataChannelId, property };
 			dataChannelList.add( dataChannel );
 		}
 
-		transport::datachannel::Package package{ header, std::move( dataChannelList ) };
-		return transport::datachannel::DataChannelListPackage{ std::move( package ) };
+		transport::Package package{ header, std::move( dataChannelList ) };
+		return transport::DataChannelListPackage{ std::move( package ) };
 	}
 
 	/**
@@ -124,14 +124,14 @@ namespace dnv::vista::sdk::tests
 		auto testDataChannelListPackage = createValidFullyCustomDataChannelList();
 
 		// Create data channel IDs from test package
-		std::vector<transport::DataChannelId> allDataChannelIds;
+		std::vector<transport::timeseries::DataChannelId> allDataChannelIds;
 		for ( const auto& dc : testDataChannelListPackage.dataChannelList().dataChannels() )
 		{
-			auto dataChannelId = transport::DataChannelId::parse(
+			auto dataChannelId = transport::timeseries::DataChannelId::parse(
 				dc.dataChannelId().shortId().has_value() ? *dc.dataChannelId().shortId() : dc.dataChannelId().localId().toString() );
 			allDataChannelIds.push_back( dataChannelId );
 		}
-		std::vector<transport::DataChannelId> firstDataChannelId;
+		std::vector<transport::timeseries::DataChannelId> firstDataChannelId;
 		firstDataChannelId.push_back( allDataChannelIds[0] );
 
 		// Create timestamps
@@ -228,21 +228,21 @@ namespace dnv::vista::sdk::tests
 			std::nullopt );
 
 		// Create header
-		transport::timeseries::Header header(
+		transport::timeseries::Header header{
 			transport::ShipId::parse( "IMO1234567" ),
 			timeRange,
 			createdModified,
 			createdModified,
 			std::string{ "Shipboard data server" },
 			systemConfigs,
-			std::nullopt );
+			std::nullopt };
 
 		// Create package
-		transport::timeseries::Package package(
+		transport::timeseries::Package package{
 			header,
-			std::vector<transport::timeseries::TimeSeriesData>{ timeSeriesData1, timeSeriesData2 } );
+			std::vector<transport::timeseries::TimeSeriesData>{ timeSeriesData1, timeSeriesData2 } };
 
-		return transport::timeseries::TimeSeriesDataPackage( package );
+		return transport::timeseries::TimeSeriesDataPackage{ package };
 	}
 
 	//=====================================================================
@@ -338,9 +338,9 @@ namespace dnv::vista::sdk::tests
 	TEST( TimeSeriesTests, Test_TabularData_Validation )
 	{
 		// Create valid DataChannelIds
-		std::vector<transport::DataChannelId> dataChannelIds;
-		dataChannelIds.push_back( transport::DataChannelId::parse( "0010" ) );
-		dataChannelIds.push_back( transport::DataChannelId::parse( "0020" ) );
+		std::vector<transport::timeseries::DataChannelId> dataChannelIds;
+		dataChannelIds.push_back( transport::timeseries::DataChannelId::parse( "0010" ) );
+		dataChannelIds.push_back( transport::timeseries::DataChannelId::parse( "0020" ) );
 
 		// Create valid TabularDataSets
 		auto timestamp = nfx::time::DateTimeOffset::parse( "2016-01-01T12:00:00Z" );
@@ -373,7 +373,7 @@ namespace dnv::vista::sdk::tests
 
 		// Add event data sets
 		auto timestamp = nfx::time::DateTimeOffset::parse( "2016-01-01T12:00:01Z" );
-		auto dataChannelId = transport::DataChannelId::parse( "0010" );
+		auto dataChannelId = transport::timeseries::DataChannelId::parse( "0010" );
 
 		transport::timeseries::EventDataSet eventDataSet1(
 			timestamp,
@@ -459,7 +459,7 @@ namespace dnv::vista::sdk::tests
 	TEST( ValidationTests, Test_EventDataSet_Validation )
 	{
 		auto timestamp = nfx::time::DateTimeOffset::parse( "2016-01-01T12:00:01Z" );
-		auto dataChannelId = transport::DataChannelId::parse( "0010" );
+		auto dataChannelId = transport::timeseries::DataChannelId::parse( "0010" );
 
 		transport::timeseries::EventDataSet eventDataSet(
 			timestamp,
@@ -517,9 +517,9 @@ namespace dnv::vista::sdk::tests
 	TEST( ErrorHandlingTests, Test_TabularData_Dimension_Mismatch )
 	{
 		// Create 2 DataChannelIds but data with 3 columns - should fail validation
-		std::vector<transport::DataChannelId> dataChannelIds;
-		dataChannelIds.push_back( transport::DataChannelId::parse( "0010" ) );
-		dataChannelIds.push_back( transport::DataChannelId::parse( "0020" ) );
+		std::vector<transport::timeseries::DataChannelId> dataChannelIds;
+		dataChannelIds.push_back( transport::timeseries::DataChannelId::parse( "0010" ) );
+		dataChannelIds.push_back( transport::timeseries::DataChannelId::parse( "0020" ) );
 
 		// 3 values but only 2 channels
 		auto timestamp = nfx::time::DateTimeOffset::parse( "2016-01-01T12:00:00Z" );

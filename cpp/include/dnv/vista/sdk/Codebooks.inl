@@ -3,7 +3,7 @@
  * @brief Inline implementation of Codebooks class methods
  */
 
-#include <iterator>
+#include <cstddef>
 
 namespace dnv::vista::sdk
 {
@@ -33,7 +33,7 @@ namespace dnv::vista::sdk
 	{
 		const auto rawValue = static_cast<size_t>( name );
 
-		if ( rawValue >= 1 && rawValue <= NUM_CODEBOOKS )
+		if ( rawValue >= 1 && rawValue <= m_codebooks.size() )
 		{
 			return m_codebooks[rawValue - 1];
 		}

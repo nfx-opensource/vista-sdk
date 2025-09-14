@@ -8,7 +8,6 @@
 
 #include "TestDataLoader.h"
 
-#include <dnv/vista/sdk/GmodVersioning.h>
 #include <dnv/vista/sdk/LocalIdBuilder.h>
 #include <dnv/vista/sdk/ParsingErrors.h>
 #include <dnv/vista/sdk/VIS.h>
@@ -16,58 +15,14 @@
 namespace dnv::vista::sdk::tests
 {
 	//=====================================================================
-	// TEST_F
+	// GmodVersioning testq
 	//=====================================================================
 
 	//----------------------------------------------
 	// ConvertLocalId
 	//----------------------------------------------
 
-	class GmodVersioningTest : public ::testing::Test
-	{
-	protected:
-		virtual void SetUp() override
-		{
-			try
-			{
-				m_vis = &VIS::instance();
-
-				try
-				{
-					auto versioningData = m_vis->gmodVersioningDto();
-					m_gmodVersioning = std::make_unique<GmodVersioning>( versioningData );
-				}
-				catch ( [[maybe_unused]] const std::exception& ex )
-				{
-					nfx::containers::StringMap<GmodVersioningDto> emptyDto;
-					m_gmodVersioning = std::make_unique<GmodVersioning>( emptyDto );
-				}
-
-				m_gmod_v3_4a = &m_vis->gmod( VisVersion::v3_4a );
-				m_gmod_v3_6a = &m_vis->gmod( VisVersion::v3_6a );
-
-				ASSERT_NE( m_gmod_v3_4a, nullptr );
-				ASSERT_NE( m_gmod_v3_6a, nullptr );
-
-				m_setupSuccess = true;
-			}
-			catch ( [[maybe_unused]] const std::exception& ex )
-			{
-				std::cerr << "ERROR: Test setup failed: " << ex.what() << "\n";
-				m_setupSuccess = false;
-			}
-		}
-
-		virtual void TearDown() override {}
-
-		VIS* m_vis = nullptr;
-		std::unique_ptr<GmodVersioning> m_gmodVersioning;
-		const Gmod* m_gmod_v3_4a = nullptr;
-		const Gmod* m_gmod_v3_6a = nullptr;
-		bool m_setupSuccess = false;
-	};
-
-	TEST_F( GmodVersioningTest, ConvertLocalId )
+	TEST( GmodVersioningTest, ConvertLocalId )
 	{
 		// Test case 1: Basic conversion
 		std::string sourceLocalIdStr = "/dnv-v2/vis-3-4a/411.1/C101/sec/411.1/C101.64i/S201/meta/cnt-condensate";
@@ -80,7 +35,7 @@ namespace dnv::vista::sdk::tests
 		ASSERT_TRUE( LocalIdBuilder::tryParse( sourceLocalIdStr, errors, sourceLocalId ) );
 		ASSERT_TRUE( LocalIdBuilder::tryParse( targetLocalIdStr, errors, targetLocalId ) );
 
-		auto convertedLocalId = m_vis->convertLocalId( *sourceLocalId, VisVersion::v3_5a );
+		auto convertedLocalId = VIS::instance().convertLocalId( *sourceLocalId, VisVersion::v3_5a );
 		ASSERT_TRUE( convertedLocalId.has_value() );
 		EXPECT_EQ( *targetLocalId, *convertedLocalId );
 		EXPECT_EQ( targetLocalIdStr, convertedLocalId->toString() );
@@ -95,7 +50,7 @@ namespace dnv::vista::sdk::tests
 		ASSERT_TRUE( LocalIdBuilder::tryParse( sourceLocalIdStr2, errors, sourceLocalId2 ) );
 		ASSERT_TRUE( LocalIdBuilder::tryParse( targetLocalIdStr2, errors, targetLocalId2 ) );
 
-		auto convertedLocalId2 = m_vis->convertLocalId( *sourceLocalId2, VisVersion::v3_9a );
+		auto convertedLocalId2 = VIS::instance().convertLocalId( *sourceLocalId2, VisVersion::v3_9a );
 		ASSERT_TRUE( convertedLocalId2.has_value() );
 		EXPECT_EQ( *targetLocalId2, *convertedLocalId2 );
 		EXPECT_EQ( targetLocalIdStr2, convertedLocalId2->toString() );
@@ -105,11 +60,9 @@ namespace dnv::vista::sdk::tests
 	// Test_Finds_Path
 	//----------------------------------------------
 
-	TEST_F( GmodVersioningTest, Test_Finds_Path )
+	TEST( GmodVersioningTest, Test_Finds_Path )
 	{
-		ASSERT_TRUE( m_setupSuccess ) << "Test setup failed";
-
-		const auto& gmod = m_vis->gmod( VisVersion::v3_4a );
+		const auto& gmod = VIS::instance().gmod( VisVersion::v3_4a );
 
 		struct PathState
 		{
@@ -138,7 +91,7 @@ namespace dnv::vista::sdk::tests
 				}
 			}
 
-			GmodPath path( pathState.gmod, node, std::move( parentValues ) );
+			GmodPath path( std::move( parentValues ), node );
 
 			if ( path.toString() == pathState.targetPath )
 			{
@@ -174,16 +127,14 @@ namespace dnv::vista::sdk::tests
 		}
 	}
 
-	TEST_F( GmodVersioningTest, Test_One_Path_To_Root_For_Asset_Functions )
+	TEST( GmodVersioningTest, Test_One_Path_To_Root_For_Asset_Functions )
 	{
-		ASSERT_TRUE( m_setupSuccess ) << "Test setup failed";
-
 		for ( const auto& version : dnv::vista::sdk::VisVersionExtensions::allVersions() )
 		{
 			if ( version == dnv::vista::sdk::VisVersion::Unknown )
 				continue;
 
-			const auto& gmod = m_vis->gmod( version );
+			const auto& gmod = VIS::instance().gmod( version );
 
 			auto enumerator = gmod.enumerator();
 			while ( enumerator.next() )
@@ -204,10 +155,8 @@ namespace dnv::vista::sdk::tests
 	// Test_Valid_GmodPath_To_Latest
 	//----------------------------------------------
 
-	TEST_F( GmodVersioningTest, Test_Valid_GmodPath_To_Latest )
+	TEST( GmodVersioningTest, Test_Valid_GmodPath_To_Latest )
 	{
-		ASSERT_TRUE( m_setupSuccess ) << "Test setup failed";
-
 		const auto& testData = test::loadTestData( "GmodPaths.json" );
 		const auto& validPaths = testData["Valid"];
 
@@ -216,14 +165,15 @@ namespace dnv::vista::sdk::tests
 			std::string path = item["path"];
 			std::string visVersionStr = item["visVersion"];
 
-			auto& vis = *m_vis;
+			auto& vis = VIS::instance();
 
 			VisVersion sourceVersion;
 			bool parseSuccess = VisVersionExtensions::tryParse( visVersionStr, sourceVersion );
 			ASSERT_TRUE( parseSuccess );
 
 			std::optional<GmodPath> sourcePath;
-			auto sourceGmod = vis.gmod( sourceVersion );
+			const auto& sourceGmod = vis.gmod( sourceVersion );
+
 			bool pathParseSuccess = sourceGmod.tryParsePath( path, sourcePath );
 			ASSERT_TRUE( pathParseSuccess );
 
@@ -238,11 +188,9 @@ namespace dnv::vista::sdk::tests
 	// ConvertEveryNodeToLatest
 	//----------------------------------------------
 
-	TEST_F( GmodVersioningTest, ConvertEveryNodeToLatest )
+	TEST( GmodVersioningTest, ConvertEveryNodeToLatest )
 	{
 		GTEST_SKIP() << "3-8 S204 is not in 3-8a";
-
-		ASSERT_TRUE( m_setupSuccess ) << "Test setup failed";
 
 		std::vector<VisVersion> visVersionsToTest = { VisVersion::v3_7a };
 		const VisVersion latestVisVersion = VisVersion::v3_8a;
@@ -251,7 +199,7 @@ namespace dnv::vista::sdk::tests
 
 		for ( const auto& sourceVersion : visVersionsToTest )
 		{
-			const auto& gmod = m_vis->gmod( sourceVersion );
+			const auto& gmod = VIS::instance().gmod( sourceVersion );
 
 			std::vector<std::string>& currentVersionErrors = errored[sourceVersion];
 
@@ -259,7 +207,7 @@ namespace dnv::vista::sdk::tests
 			while ( enumerator.next() )
 			{
 				const auto& node = enumerator.current();
-				auto targetNodeOpt = m_vis->convertNode( sourceVersion, node, latestVisVersion );
+				auto targetNodeOpt = VIS::instance().convertNode( sourceVersion, node, latestVisVersion );
 				if ( !targetNodeOpt.has_value() )
 				{
 					currentVersionErrors.emplace_back( node.code() );
@@ -460,7 +408,7 @@ namespace dnv::vista::sdk::tests
 	// Test_Conversion_Exceptions
 	//----------------------------------------------
 
-	TEST_F( GmodVersioningTest, Test_Conversion_Exceptions )
+	TEST( GmodVersioningTest, Test_Conversion_Exceptions )
 	{
 		// UNCOVERED MES CASE due to missing conversion codes, e.g. merge + normal assignment change
 		std::string sourcePath = "244.1i/H101.111/H401";
@@ -487,7 +435,7 @@ namespace dnv::vista::sdk::tests
 	// ConvertGmodPathWithLocation
 	//----------------------------------------------
 
-	TEST_F( GmodVersioningTest, ConvertGmodPathWithLocation )
+	TEST( GmodVersioningTest, ConvertGmodPathWithLocation )
 	{
 		std::string sourcePath = "691.811i-A/H101.11-1";
 		std::string expectedPath = "691.83111i-A/H101.11-1";
@@ -556,7 +504,8 @@ namespace dnv::vista::sdk::tests
 
 		if ( testData.location.has_value() )
 		{
-			Location location( testData.location.value() );
+			const auto& locations = vis.locations( VisVersion::v3_4a );
+			Location location = locations.parse( testData.location.value() );
 			sourceNode = sourceNode.withLocation( location.toString() );
 		}
 
@@ -569,7 +518,8 @@ namespace dnv::vista::sdk::tests
 
 		if ( testData.location.has_value() )
 		{
-			Location location( testData.location.value() );
+			const auto& locations = vis.locations( VisVersion::v3_6a );
+			Location location = locations.parse( testData.location.value() );
 			expectedNode = expectedNode.withLocation( location.toString() );
 		}
 

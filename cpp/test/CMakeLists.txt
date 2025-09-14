@@ -35,7 +35,6 @@ set(TEST_SOURCES
 	TESTS_GmodVersioning.cpp
 	TESTS_HashCompatibility.cpp
 	TESTS_ImoNumber.cpp
-	TESTS_ISOString.cpp
 	TESTS_LocalId.cpp
 	TESTS_LocalIdQuery.cpp
 	TESTS_Locations.cpp
