@@ -131,9 +131,9 @@ namespace dnv::vista::sdk::tests
 	class LocationsLoadsTests : public ::testing::TestWithParam<VisVersionParam>
 	{
 	protected:
-		void SetUp() override { vis = &VIS::instance(); }
+		void SetUp() override { m_vis = &VIS::instance(); }
 
-		VIS* vis{ nullptr };
+		const VIS* m_vis{ nullptr };
 	};
 
 	TEST_P( LocationsLoadsTests, Test_Locations_Loads )
@@ -141,7 +141,7 @@ namespace dnv::vista::sdk::tests
 		auto param = GetParam();
 		VisVersion visVersion = param.visVersion;
 
-		const auto& locations = vis->locations( visVersion );
+		const auto& locations = m_vis->locations( visVersion );
 
 		ASSERT_NE( nullptr, &locations );
 
@@ -370,7 +370,6 @@ namespace dnv::vista::sdk::tests
 		const auto& gmod = vis.gmod( VisVersion::v3_4a );
 
 		auto node1 = gmod["C101.663"].withLocation( "FIPU" );
-
 		auto node2 = gmod["C101.663"].withLocation( "FIPU" );
 
 		ASSERT_EQ( node1, node2 );

@@ -495,7 +495,7 @@ namespace dnv::vista::sdk::tests
 		const auto& gmod = vis.gmod( VisVersion::v3_4a );
 		const auto& targetGmod = vis.gmod( VisVersion::v3_6a );
 
-		const GmodNode* sourceNodePtr = nullptr;
+		GmodNode* sourceNodePtr = nullptr;
 		bool foundSource = gmod.tryGetNode( testData.inputCode, sourceNodePtr );
 		ASSERT_TRUE( foundSource );
 		ASSERT_NE( sourceNodePtr, nullptr );
@@ -509,7 +509,7 @@ namespace dnv::vista::sdk::tests
 			sourceNode = sourceNode.withLocation( location.toString() );
 		}
 
-		const GmodNode* expectedNodePtr = nullptr;
+		GmodNode* expectedNodePtr = nullptr;
 		bool foundExpected = targetGmod.tryGetNode( testData.expectedCode, expectedNodePtr );
 		ASSERT_TRUE( foundExpected );
 		ASSERT_NE( expectedNodePtr, nullptr );

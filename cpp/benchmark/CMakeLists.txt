@@ -17,7 +17,7 @@ endif()
 
 set(BENCHMARK_SOURCES
 	codebooks/BM_CodebooksLookup.cpp
-#	gmod/BM_GmodLoad.cpp
+#	gmod/BM_GmodLoad.cpp  // TODO: Temporary disabled
 	gmod/BM_GmodLookup.cpp
 	gmod/BM_GmodPathParse.cpp
 	gmod/BM_GmodTraversal.cpp

@@ -19,7 +19,7 @@ namespace dnv::vista::sdk::test
 
 		TEST( CodebooksTests, Test_Codebooks_Loads )
 		{
-			VIS& vis = VIS::instance();
+			const auto& vis = VIS::instance();
 			const auto allVersions = VisVersionExtensions::allVersions();
 
 			for ( const auto& version : allVersions )
@@ -45,7 +45,7 @@ namespace dnv::vista::sdk::test
 
 		TEST( CodebooksTests, Test_Codebooks_Equality )
 		{
-			VIS& vis = VIS::instance();
+			const auto& vis = VIS::instance();
 
 			const auto& codebooks = vis.codebooks( VisVersion::v3_4a );
 

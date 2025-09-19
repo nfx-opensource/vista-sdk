@@ -37,10 +37,11 @@ namespace dnv::vista::sdk::tests
 		class GmodPathQueryTest : public ::testing::Test
 		{
 		protected:
-			static std::pair<VIS&, const Gmod&> visAndGmod( VisVersion visVersion )
+			static std::pair<const VIS&, const Gmod&> visAndGmod( VisVersion visVersion )
 			{
-				VIS& vis = VIS::instance();
-				const auto& gmod = vis.gmod( visVersion );
+				const auto& vis = VIS::instance();
+				auto& gmod = vis.gmod( visVersion );
+
 				return { vis, gmod };
 			}
 		};
@@ -92,10 +93,11 @@ namespace dnv::vista::sdk::tests
 		class PathBuilderTest : public ::testing::TestWithParam<InputData>
 		{
 		protected:
-			static std::pair<VIS&, const Gmod&> visAndGmod( VisVersion visVersion )
+			static std::pair<const VIS&, const Gmod&> visAndGmod( VisVersion visVersion )
 			{
-				VIS& vis = VIS::instance();
+				const auto& vis = VIS::instance();
 				const auto& gmod = vis.gmod( visVersion );
+
 				return { vis, gmod };
 			}
 		};
@@ -103,10 +105,11 @@ namespace dnv::vista::sdk::tests
 		class NodesBuilderTest : public ::testing::TestWithParam<InputData>
 		{
 		protected:
-			static std::pair<VIS&, const Gmod&> visAndGmod( VisVersion visVersion )
+			static std::pair<const VIS&, const Gmod&> visAndGmod( VisVersion visVersion )
 			{
-				VIS& vis = VIS::instance();
-				const auto& gmod = vis.gmod( visVersion );
+				const auto& vis = VIS::instance();
+				auto& gmod = vis.gmod( visVersion );
+
 				return { vis, gmod };
 			}
 		};

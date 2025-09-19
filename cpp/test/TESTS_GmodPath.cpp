@@ -163,7 +163,7 @@ namespace dnv::vista::sdk::tests
 		protected:
 			GmodPathParseValidTest() : m_vis( VIS::instance() ) {}
 
-			VIS& m_vis;
+			const VIS& m_vis;
 		};
 
 		TEST_P( GmodPathParseValidTest, Test_GmodPath_Parse )
@@ -189,9 +189,12 @@ namespace dnv::vista::sdk::tests
 		class GmodPathParseInvalidTest : public ::testing::TestWithParam<GmodPathParseInvalidParam>
 		{
 		protected:
-			GmodPathParseInvalidTest() : m_vis( VIS::instance() ) {}
+			GmodPathParseInvalidTest()
+				: m_vis{ VIS::instance() }
+			{
+			}
 
-			VIS& m_vis;
+			const VIS& m_vis;
 		};
 
 		TEST_P( GmodPathParseInvalidTest, Test_GmodPath_Parse_Invalid )
@@ -267,9 +270,12 @@ namespace dnv::vista::sdk::tests
 		class GmodPathIndividualizableSetsTest : public ::testing::TestWithParam<IndividualizableSetsTestData>
 		{
 		protected:
-			GmodPathIndividualizableSetsTest() : m_vis( VIS::instance() ) {}
+			GmodPathIndividualizableSetsTest()
+				: m_vis{ VIS::instance() }
+			{
+			}
 
-			VIS& m_vis;
+			const VIS& m_vis;
 		};
 
 		TEST_P( GmodPathIndividualizableSetsTest, Test_IndividualizableSets )
@@ -331,9 +337,12 @@ namespace dnv::vista::sdk::tests
 		class GmodPathIndividualizableSetsFullPathTest : public ::testing::TestWithParam<IndividualizableSetsTestData>
 		{
 		protected:
-			GmodPathIndividualizableSetsFullPathTest() : m_vis{ VIS::instance() } {}
+			GmodPathIndividualizableSetsFullPathTest()
+				: m_vis{ VIS::instance() }
+			{
+			}
 
-			VIS& m_vis;
+			const VIS& m_vis;
 		};
 
 		TEST_P( GmodPathIndividualizableSetsFullPathTest, Test_IndividualizableSets_FullPath )
@@ -387,9 +396,12 @@ namespace dnv::vista::sdk::tests
 		class GmodPathValidIndividualizableSetsTest : public ::testing::TestWithParam<GmodPathParseValidParam>
 		{
 		protected:
-			GmodPathValidIndividualizableSetsTest() : m_vis( VIS::instance() ) {}
+			GmodPathValidIndividualizableSetsTest()
+				: m_vis{ VIS::instance() }
+			{
+			}
 
-			VIS& m_vis;
+			const VIS& m_vis;
 		};
 
 		TEST_P( GmodPathValidIndividualizableSetsTest, Test_Valid_GmodPath_IndividualizableSets )

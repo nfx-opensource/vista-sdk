@@ -142,7 +142,7 @@ namespace dnv::vista::sdk::tests
 	{
 		const auto& [input, expectedOutput] = GetParam();
 
-		VIS& vis = VIS::instance();
+		const auto& vis = VIS::instance();
 
 		auto visVersion = input.visVersion;
 		const auto& gmod = vis.gmod( visVersion );
@@ -177,7 +177,7 @@ namespace dnv::vista::sdk::tests
 
 	TEST( LocalIdValidTest, Test_LocalId_Build_AllWithout )
 	{
-		VIS& vis = VIS::instance();
+		const auto& vis = VIS::instance();
 
 		auto visVersion = VisVersion::v3_4a;
 		const auto& gmod = vis.gmod( visVersion );
@@ -213,7 +213,7 @@ namespace dnv::vista::sdk::tests
 	{
 		const auto& [input, _] = GetParam();
 
-		VIS& vis = VIS::instance();
+		const auto& vis = VIS::instance();
 		auto visVersion = VisVersion::v3_4a;
 		const auto& gmod = vis.gmod( visVersion );
 		const auto& codebooks = vis.codebooks( visVersion );

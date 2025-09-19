@@ -64,9 +64,9 @@ namespace dnv::vista::sdk::tests
 		class LocalIdQueryTest : public ::testing::Test
 		{
 		protected:
-			static std::pair<VIS&, const Gmod&> visAndGmod( VisVersion visVersion )
+			static std::pair<const VIS&, const Gmod&> visAndGmod( VisVersion visVersion )
 			{
-				VIS& vis = VIS::instance();
+				const auto& vis = VIS::instance();
 				const auto& gmod = vis.gmod( visVersion );
 				return { vis, gmod };
 			}
@@ -148,8 +148,8 @@ namespace dnv::vista::sdk::tests
 				[]() {
 					auto localId = LocalIdBuilder::parse( "/dnv-v2/vis-3-7a/433.1-S/C322.91/S205/meta/qty-conductivity" ).build();
 					auto& vis = VIS::instance();
-					auto& gmod = vis.gmod( VisVersion::v3_7a );
-					const GmodNode* node433 = nullptr;
+					const auto& gmod = vis.gmod( VisVersion::v3_7a );
+					GmodNode* node433 = nullptr;
 					if ( !gmod.tryGetNode( "433.1", node433 ) || !node433 )
 						throw std::runtime_error( "Node 433.1 not found" );
 					auto primaryPath = localId.primaryItem();
@@ -170,9 +170,9 @@ namespace dnv::vista::sdk::tests
 		class LocalIdQueryParameterizedTest : public ::testing::TestWithParam<InputData>
 		{
 		protected:
-			static std::pair<VIS&, const Gmod&> visAndGmod( VisVersion visVersion )
+			static std::pair<const VIS&, const Gmod&> visAndGmod( VisVersion visVersion )
 			{
-				VIS& vis = VIS::instance();
+				const auto& vis = VIS::instance();
 				const auto& gmod = vis.gmod( visVersion );
 				return { vis, gmod };
 			}
@@ -394,8 +394,8 @@ namespace dnv::vista::sdk::tests
 			auto localId = builderOpt->build();
 
 			// Match both 433.1-P and 433.1-S
-			auto& gmod = vis.gmod( VisVersion::v3_7a );
-			const GmodNode* node433 = nullptr;
+			const auto& gmod = vis.gmod( VisVersion::v3_7a );
+			GmodNode* node433 = nullptr;
 			ASSERT_TRUE( gmod.tryGetNode( "433.1", node433 ) );
 			ASSERT_NE( node433, nullptr );
 
@@ -428,10 +428,10 @@ namespace dnv::vista::sdk::tests
 
 			auto localId = builderOpt->build();
 			auto& vis = VIS::instance();
-			auto& gmod = vis.gmod( localId.visVersion() );
+			const auto& gmod = vis.gmod( localId.visVersion() );
 
 			// Match all Wind turbine arrangements (511.3)
-			const GmodNode* node5113 = nullptr;
+			GmodNode* node5113 = nullptr;
 			ASSERT_TRUE( gmod.tryGetNode( "511.3", node5113 ) );
 			ASSERT_NE( node5113, nullptr );
 
@@ -442,7 +442,7 @@ namespace dnv::vista::sdk::tests
 			EXPECT_TRUE( query.match( localId ) );
 
 			// Should not match Solar panel arrangements (511.4)
-			const GmodNode* node5114 = nullptr;
+			GmodNode* node5114 = nullptr;
 			ASSERT_TRUE( gmod.tryGetNode( "511.4", node5114 ) );
 			ASSERT_NE( node5114, nullptr );
 

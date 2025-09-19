@@ -40,7 +40,7 @@ set(NFX_CORE_BUILD_SAMPLES    OFF  CACHE BOOL  "Build samples"                  
 FetchContent_Declare(
 	nfx-core
 	GIT_REPOSITORY https://github.com/ronan-fdev/nfx-core.git
-	GIT_TAG        0.0.3
+	GIT_TAG        0.0.4
 	GIT_SHALLOW    TRUE
 )
 

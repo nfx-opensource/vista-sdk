@@ -130,7 +130,7 @@ namespace dnv::vista::sdk::benchmarks
 
 		for ( auto _ : state )
 		{
-			const GmodNode* node;
+			GmodNode* node;
 			bool result = g_gmod->tryGetNode( "VE", node ) &&
 						  g_gmod->tryGetNode( "400a", node ) &&
 						  g_gmod->tryGetNode( "400", node ) &&

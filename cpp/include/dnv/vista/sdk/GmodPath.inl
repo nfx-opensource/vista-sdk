@@ -435,9 +435,9 @@ namespace dnv::vista::sdk
 	{
 		outPath.reset();
 
-		VIS& vis = VIS::instance();
-		const Gmod& gmod = vis.gmod( visVersion );
-		const Locations& locations = vis.locations( visVersion );
+		const auto& vis = VIS::instance();
+		const auto& gmod = vis.gmod( visVersion );
+		const auto& locations = vis.locations( visVersion );
 
 		return tryParse( item, gmod, locations, outPath );
 	}
@@ -448,9 +448,9 @@ namespace dnv::vista::sdk
 	{
 		outPath.reset();
 
-		VIS& vis = VIS::instance();
-		const Gmod& gmod = vis.gmod( visVersion );
-		const Locations& locations = vis.locations( visVersion );
+		const auto& vis = VIS::instance();
+		const auto& gmod = vis.gmod( visVersion );
+		const auto& locations = vis.locations( visVersion );
 
 		return tryParseFullPath( item, gmod, locations, outPath );
 	}

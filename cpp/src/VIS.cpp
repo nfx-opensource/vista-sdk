@@ -214,7 +214,7 @@ namespace dnv::vista::sdk
 	// Public interface
 	//----------------------------------------------
 
-	const Gmod& VIS::gmod( VisVersion version )
+	const Gmod& VIS::gmod( VisVersion version ) const
 	{
 		if ( !VisVersionExtensions::isValid( version ) )
 		{
@@ -233,7 +233,7 @@ namespace dnv::vista::sdk
 			} );
 	}
 
-	const Codebooks& VIS::codebooks( VisVersion version )
+	const Codebooks& VIS::codebooks( VisVersion version ) const
 	{
 		if ( !VisVersionExtensions::isValid( version ) )
 		{
@@ -252,7 +252,7 @@ namespace dnv::vista::sdk
 			} );
 	}
 
-	const Locations& VIS::locations( VisVersion version )
+	const Locations& VIS::locations( VisVersion version ) const
 	{
 		if ( !VisVersionExtensions::isValid( version ) )
 		{
@@ -290,8 +290,9 @@ namespace dnv::vista::sdk
 				internal::throwInvalidVersionError( version );
 			}
 
-			// Need to copy the GMOD from cache since try_emplace requires construction
-			// VIS has friend access, so we can copy it here, then the map will move it
+			/* Need to copy the GMOD from cache since try_emplace requires construction
+			 * VIS has friend access, so we can copy it here, then the map will move it
+			 */
 			auto gmodCopy = gmod( version );
 			result.try_emplace( version, std::move( gmodCopy ) );
 		}
@@ -311,8 +312,9 @@ namespace dnv::vista::sdk
 				internal::throwInvalidVersionError( version );
 			}
 
-			// Need to copy the Codebooks from cache since try_emplace requires construction
-			// VIS has friend access, so we can copy it here, then the map will move it
+			/* Need to copy the Codebooks from cache since try_emplace requires construction
+			 * VIS has friend access, so we can copy it here, then the map will move it
+			 */
 			auto codebooksCopy = codebooks( version );
 			result.try_emplace( version, std::move( codebooksCopy ) );
 		}
@@ -332,8 +334,9 @@ namespace dnv::vista::sdk
 				internal::throwInvalidVersionError( version );
 			}
 
-			// Need to copy the Locations from cache since try_emplace requires construction
-			// VIS has friend access, so we can copy it here, then the map will move it
+			/* Need to copy the Locations from cache since try_emplace requires construction
+			 * VIS has friend access, so we can copy it here, then the map will move it
+			 */
 			auto locationsCopy = locations( version );
 			result.try_emplace( version, std::move( locationsCopy ) );
 		}
@@ -349,12 +352,12 @@ namespace dnv::vista::sdk
 	// GmodNode
 	//-----------------------------
 
-	std::optional<GmodNode> VIS::convertNode( VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion )
+	std::optional<GmodNode> VIS::convertNode( VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion ) const
 	{
 		return internal::gmodVersioning().convertNode( sourceVersion, sourceNode, targetVersion );
 	}
 
-	std::optional<GmodNode> VIS::convertNode( const GmodNode& sourceNode, VisVersion targetVersion, [[maybe_unused]] const GmodNode* sourceParent )
+	std::optional<GmodNode> VIS::convertNode( const GmodNode& sourceNode, VisVersion targetVersion, [[maybe_unused]] const GmodNode* sourceParent ) const
 	{
 		return convertNode( sourceNode.visVersion(), sourceNode, targetVersion );
 	}
@@ -363,12 +366,12 @@ namespace dnv::vista::sdk
 	// GmodPath
 	//-----------------------------
 
-	std::optional<GmodPath> VIS::convertPath( VisVersion sourceVersion, const GmodPath& sourcePath, VisVersion targetVersion )
+	std::optional<GmodPath> VIS::convertPath( VisVersion sourceVersion, const GmodPath& sourcePath, VisVersion targetVersion ) const
 	{
 		return internal::gmodVersioning().convertPath( sourceVersion, sourcePath, targetVersion );
 	}
 
-	std::optional<GmodPath> VIS::convertPath( const GmodPath& sourcePath, VisVersion targetVersion )
+	std::optional<GmodPath> VIS::convertPath( const GmodPath& sourcePath, VisVersion targetVersion ) const
 	{
 		return convertPath( sourcePath.visVersion(), sourcePath, targetVersion );
 	}
@@ -377,12 +380,12 @@ namespace dnv::vista::sdk
 	// LocalId
 	//-----------------------------
 
-	std::optional<LocalIdBuilder> VIS::convertLocalId( const LocalIdBuilder& sourceLocalId, VisVersion targetVersion )
+	std::optional<LocalIdBuilder> VIS::convertLocalId( const LocalIdBuilder& sourceLocalId, VisVersion targetVersion ) const
 	{
 		return internal::gmodVersioning().convertLocalId( sourceLocalId, targetVersion );
 	}
 
-	std::optional<LocalId> VIS::convertLocalId( const LocalId& sourceLocalId, VisVersion targetVersion )
+	std::optional<LocalId> VIS::convertLocalId( const LocalId& sourceLocalId, VisVersion targetVersion ) const
 	{
 		return internal::gmodVersioning().convertLocalId( sourceLocalId, targetVersion );
 	}

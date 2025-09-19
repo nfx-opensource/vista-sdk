@@ -77,7 +77,7 @@ namespace dnv::vista::sdk::samples
 			const auto& gmod = vis.gmod( visVersion );
 
 			// Assumes it exists
-			const GmodNode* nodePtr = nullptr;
+			GmodNode* nodePtr = nullptr;
 			if ( gmod.tryGetNode( code, nodePtr ) && nodePtr )
 			{
 				return *nodePtr;

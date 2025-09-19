@@ -12,9 +12,9 @@
 #include <thread>
 
 #include <dnv/vista/sdk/GmodPath.h>
-#include <dnv/vista/sdk/GmodVersioning.h>
 #include <dnv/vista/sdk/VIS.h>
 #include <dnv/vista/sdk/VISVersion.h>
+#include <internal/core/GmodVersioning.h>
 
 namespace dnv::vista::sdk::tests
 {
@@ -37,7 +37,7 @@ namespace dnv::vista::sdk::tests
 
 		void TearDown() override { m_vis = nullptr; }
 
-		VIS* m_vis = nullptr;
+		const VIS* m_vis = nullptr;
 		bool m_setupSuccess = false;
 	};
 
@@ -155,7 +155,7 @@ namespace dnv::vista::sdk::tests
 					}
 				}
 
-				GmodPath path( state.sourceGmod, node, std::move( parentValues ) );
+				GmodPath path{ std::move( parentValues ), node };
 				state.context.channel.writer().tryWrite( path );
 				return TraversalHandlerResult::Continue;
 			};

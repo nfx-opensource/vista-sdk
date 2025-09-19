@@ -31,6 +31,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.38] - 2025-09-19
+
+### Changed
+
+-   **BREAKING CHANGE: VIS singleton const correctness implementation**
+    -   VIS::instance() now returns `const VIS&` instead of `VIS&` for thread-safe access
+    -   All VIS public methods (gmod, codebooks, locations, conversion methods) now const-qualified
+    -   Enhanced thread-safety guarantees with const interface design
+-   **BREAKING CHANGE: Gmod::tryGetNode signature modification**
+    -   Changed from `tryGetNode(code, const GmodNode*& node)` to `tryGetNode(code, GmodNode*& node)`
+    -   Maintains const-correctness while enabling internal implementation flexibility
+    -   Uses const_cast internally for performance optimizations without breaking logical const-correctness
+-   **Internal API const-correctness improvements**
+    -   GmodPath parsing methods use const_cast for internal API access while preserving const public interface
+    -   Enhanced documentation explaining const_cast usage patterns for performance optimization
+    -   All test files updated to use const VIS references following new const-correct patterns
+-   **NFX Core dependency update** from v0.0.3 to v0.0.4
+
 ## [0.0.37] - 2025-09-17
 
 ### Added

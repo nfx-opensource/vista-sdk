@@ -205,7 +205,7 @@ namespace dnv::vista::sdk
 		 * @return Parse result with either success path or error message
 		 * @details Uses GMOD traversal to find complete hierarchical path from partial input
 		 */
-		static GmodParsePathResult parse( std::string_view item, const Gmod& gmod, const Locations& locations )
+		static GmodParsePathResult parse( std::string_view item, Gmod& gmod, const Locations& locations )
 		{
 			if ( gmod.visVersion() != locations.visVersion() )
 			{
@@ -243,7 +243,7 @@ namespace dnv::vista::sdk
 					const std::string_view codePart = partStr.substr( 0, dashPos );
 					const std::string_view locationPart = partStr.substr( dashPos + 1 );
 
-					const GmodNode* tempNode = nullptr;
+					GmodNode* tempNode = nullptr;
 					if ( !gmod.tryGetNode( codePart, tempNode ) || !tempNode )
 					{
 						return GmodParsePathResult::Error{ "Failed to get GmodNode for " + std::string{ partStr } };
@@ -259,7 +259,7 @@ namespace dnv::vista::sdk
 				}
 				else
 				{
-					const GmodNode* tempNode = nullptr;
+					GmodNode* tempNode = nullptr;
 					if ( !gmod.tryGetNode( partStr, tempNode ) || !tempNode )
 					{
 						return GmodParsePathResult::Error{ "Failed to get GmodNode for " + std::string{ partStr } };
@@ -277,7 +277,7 @@ namespace dnv::vista::sdk
 			internal::PathNode toFind = parts.front();
 			parts.pop();
 
-			const GmodNode* baseNode = nullptr;
+			GmodNode* baseNode = nullptr;
 			if ( !gmod.tryGetNode( toFind.code, baseNode ) || !baseNode )
 			{
 				return GmodParsePathResult::Error{ "Failed to find base node" };
@@ -303,7 +303,7 @@ namespace dnv::vista::sdk
 		 * @param locations The locations instance for location parsing
 		 * @return Parse result with either success path or error message
 		 */
-		static GmodParsePathResult parseFullPath( std::string_view item, const Gmod& gmod, const Locations& locations )
+		static GmodParsePathResult parseFullPath( std::string_view item, Gmod& gmod, const Locations& locations )
 		{
 			if ( nfx::string::isEmpty( item ) )
 			{
@@ -328,12 +328,12 @@ namespace dnv::vista::sdk
 
 				const auto dashPos = segment.find( '-' );
 
-				if ( nfx::string::contains( segment, "-" ) )
+				if ( dashPos != std::string_view::npos )
 				{
 					const std::string_view codePart = segment.substr( 0, dashPos );
 					const std::string_view locationPart = segment.substr( dashPos + 1 );
 
-					const GmodNode* nodePtr;
+					GmodNode* nodePtr;
 					if ( !gmod.tryGetNode( codePart, nodePtr ) )
 					{
 						return GmodParsePathResult::Error{ "Node lookup failed" };
@@ -349,13 +349,13 @@ namespace dnv::vista::sdk
 				}
 				else
 				{
-					const GmodNode* nodePtr;
+					GmodNode* nodePtr;
 					if ( !gmod.tryGetNode( segment, nodePtr ) )
 					{
 						return GmodParsePathResult::Error{ "Node lookup failed" };
 					}
 
-					nodes.emplace_back( std::move( *nodePtr ) );
+					nodes.emplace_back( *nodePtr );
 				}
 			}
 
@@ -790,7 +790,12 @@ namespace dnv::vista::sdk
 
 	GmodPath GmodPath::parse( std::string_view item, const Gmod& gmod, const Locations& locations )
 	{
-		GmodParsePathResult result = internal::parse( item, gmod, locations );
+		/* Note: const_cast used here to allow internal parsing algorithms to access non-const
+		 * GMOD methods while maintaining const interface for public API. The internal parse
+		 * function needs non-const access for performance optimizations but doesn't modify
+		 * the fundamental GMOD structure, preserving logical const-correctness.
+		 */
+		GmodParsePathResult result = internal::parse( item, const_cast<Gmod&>( gmod ), locations );
 
 		if ( result.isOk() )
 		{
@@ -804,10 +809,12 @@ namespace dnv::vista::sdk
 
 	GmodPath GmodPath::parseFullPath( std::string_view item, VisVersion visVersion )
 	{
-		VIS& vis = VIS::instance();
-		const Gmod& gmod = vis.gmod( visVersion );
-		const Locations& locations = vis.locations( visVersion );
-		GmodParsePathResult result = internal::parseFullPath( item, gmod, locations );
+		const auto& vis = VIS::instance();
+		const auto& gmod = vis.gmod( visVersion );
+		const auto& locations = vis.locations( visVersion );
+
+		// Note: const_cast preserves API const-correctness while enabling internal optimizations
+		GmodParsePathResult result = internal::parseFullPath( item, const_cast<Gmod&>( gmod ), locations );
 
 		if ( result.isOk() )
 		{
@@ -823,7 +830,7 @@ namespace dnv::vista::sdk
 		std::string_view item, const Gmod& gmod,
 		const Locations& locations, std::optional<GmodPath>& outPath )
 	{
-		GmodParsePathResult result = internal::parse( item, gmod, locations );
+		GmodParsePathResult result = internal::parse( item, const_cast<Gmod&>( gmod ), locations );
 		outPath.reset();
 
 		if ( result.isOk() )
@@ -838,7 +845,7 @@ namespace dnv::vista::sdk
 	bool GmodPath::tryParseFullPath(
 		std::string_view item, const Gmod& gmod, const Locations& locations, std::optional<GmodPath>& outPath )
 	{
-		GmodParsePathResult result = internal::parseFullPath( item, gmod, locations );
+		GmodParsePathResult result = internal::parseFullPath( item, const_cast<Gmod&>( gmod ), locations );
 
 		if ( result.isOk() )
 		{

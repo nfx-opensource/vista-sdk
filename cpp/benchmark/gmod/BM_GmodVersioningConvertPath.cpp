@@ -40,7 +40,7 @@ namespace dnv::vista::sdk::benchmarks
 	protected:
 		const Gmod* m_gmod = nullptr;
 		GmodPath m_gmodPath;
-		VIS* m_vis = nullptr;
+		const VIS* m_vis = nullptr;
 	};
 
 	BENCHMARK_F( GmodVersioningFixture, ConvertPath )( benchmark::State& state )

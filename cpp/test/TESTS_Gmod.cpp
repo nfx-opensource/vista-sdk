@@ -17,9 +17,9 @@ namespace dnv::vista::sdk::tests
 		class GmodTests : public ::testing::Test
 		{
 		public:
-			static std::pair<VIS&, const Gmod&> visAndGmod( VisVersion visVersion )
+			static std::pair<const VIS&, const Gmod&> visAndGmod( VisVersion visVersion )
 			{
-				VIS& vis = VIS::instance();
+				const auto& vis = VIS::instance();
 				const auto& gmod = vis.gmod( visVersion );
 
 				return { vis, gmod };
@@ -323,10 +323,10 @@ namespace dnv::vista::sdk::tests
 		class GmodTests : public ::testing::TestWithParam<VisVersion>
 		{
 		public:
-			static std::pair<VIS&, const Gmod&> visAndGmod( VisVersion visVersion )
+			static std::pair<const VIS&, const Gmod&> visAndGmod( VisVersion visVersion )
 			{
-				VIS& vis = VIS::instance();
-				const auto& gmod = vis.gmod( visVersion );
+				const auto& vis = VIS::instance();
+				auto& gmod = vis.gmod( visVersion );
 
 				return { vis, gmod };
 			}
@@ -345,7 +345,7 @@ namespace dnv::vista::sdk::tests
 			auto visVersion = GetParam();
 			auto [vis, gmod] = visAndGmod( visVersion );
 
-			const GmodNode* tempNodePtr = nullptr;
+			GmodNode* tempNodePtr = nullptr;
 			ASSERT_TRUE( gmod.tryGetNode( std::string{ "400a" }, tempNodePtr ) )
 				<< "Node '400a' not found in GMOD for version " << VisVersionExtensions::toVersionString( visVersion );
 			ASSERT_NE( tempNodePtr, nullptr ) << "tryGetNode succeeded but pointer is null for '400a' in GMOD version "

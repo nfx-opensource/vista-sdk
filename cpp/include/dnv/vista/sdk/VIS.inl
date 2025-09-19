@@ -23,7 +23,7 @@ namespace dnv::vista::sdk
 	// Singleton access
 	//----------------------------------------------
 
-	inline VIS& VIS::instance()
+	inline const VIS& VIS::instance()
 	{
 		static VIS instance;
 

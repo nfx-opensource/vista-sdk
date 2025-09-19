@@ -34,7 +34,7 @@ namespace dnv::vista::sdk::samples
 			const auto& gmod = VIS::instance().gmod( sourceVersion );
 
 			// Get source GmodNode
-			const GmodNode* sourceNodePtr = nullptr;
+			GmodNode* sourceNodePtr = nullptr;
 			if ( !gmod.tryGetNode( gmodNode, sourceNodePtr ) || !sourceNodePtr )
 			{
 				return std::nullopt;

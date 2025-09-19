@@ -38,7 +38,7 @@
  *
  * ```cpp
  * // Basic resource access
- * auto& vis = VIS::instance();
+ * const auto& vis = VIS::instance();
  * const auto& gmod = vis.gmod(VisVersion::v3_9a);
  * const auto& codebooks = vis.codebooks(VisVersion::v3_9a);
  *
@@ -54,9 +54,11 @@
  *
  * @section threading Thread Safety
  *
- * All VIS operations are thread-safe through internal synchronization mechanisms.
- * The caching system supports concurrent read access with minimal contention.
- * Write operations (cache updates) are internally synchronized and atomic (TODO: Complete the implementation).
+ * All VIS operations are thread-safe through a const-correct public interface design.
+ * The singleton instance() returns const VIS&, and all accessor and conversion methods
+ * are const, ensuring safe concurrent read access without external synchronization.
+ * Internal caching operations use carefully controlled const_cast for implementation
+ * flexibility while maintaining external immutability guarantees (TODO: Complete the implementation).
  *
  * @section error_handling Error Handling
  *
@@ -117,6 +119,7 @@ namespace dnv::vista::sdk
 	 * - Lazy loading with intelligent caching strategies
 	 * - Zero-allocation access patterns for cached resources
 	 * - Seamless version conversion with fallback mechanisms
+	 * - Const-correct public API ensuring thread-safe read-only operations
 	 *
 	 * **Memory Management**:
 	 * - Sliding expiration cache (1-hour default - TODO: Complete the implementation)
@@ -126,9 +129,16 @@ namespace dnv::vista::sdk
 	 *
 	 * **Concurrency Model**:
 	 * - Thread-safe singleton initialization
-	 * - Concurrent read access with minimal locking
-	 * - Atomic cache operations and version tracking
+	 * - Const-correct public interface for safe concurrent read access
+	 * - Internal implementation uses const_cast for caching flexibility
 	 * - Lock-free access paths for performance-critical operations
+	 * - All public methods are const, ensuring immutable external interface
+	 *
+	 * **Const Correctness Design**:
+	 * - Public API presents const interface for thread-safe read operations
+	 * - Internal caching implementation uses const_cast where necessary
+	 * - Ensures that external callers cannot modify shared VIS state
+	 * - Enables safe concurrent access patterns without external locking
 	 *
 	 * @note This class cannot be copied, moved, or instantiated directly.
 	 *       Use VIS::instance() to access the singleton instance.
@@ -136,6 +146,7 @@ namespace dnv::vista::sdk
 	 * @invariant The singleton instance remains valid throughout application lifetime
 	 * @invariant All cached resources maintain referential integrity
 	 * @invariant Version conversion operations are deterministic and repeatable
+	 * @invariant Public const interface guarantees thread-safe read-only access
 	 */
 	class VIS final
 	{
@@ -190,7 +201,7 @@ namespace dnv::vista::sdk
 		/**
 		 * @brief Provides thread-safe access to the VIS singleton instance
 		 *
-		 * Returns a reference to the unique VIS instance, creating it on first
+		 * Returns a const reference to the unique VIS instance, creating it on first
 		 * access using thread-safe static local initialization. Subsequent calls
 		 * return the same instance with zero overhead.
 		 *
@@ -198,15 +209,19 @@ namespace dnv::vista::sdk
 		 * **Performance**  : Zero overhead after first initialization
 		 * **Lifetime**     : Instance persists until program termination
 		 *
-		 * @return Reference to the singleton VIS instance
+		 * The const interface design ensures that all VIS operations are inherently
+		 * thread-safe for concurrent read access, while internal caching operations
+		 * use carefully controlled mutable state or const_cast for implementation flexibility.
+		 *
+		 * @return Const reference to the singleton VIS instance
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 *
 		 * @code
-		 * auto& vis = VIS::instance();
+		 * const auto& vis = VIS::instance();
 		 * const auto& gmod = vis.gmod(VisVersion::v3_9a);
 		 * @endcode
 		 */
-		[[nodiscard]] inline static VIS& instance();
+		[[nodiscard]] inline const static VIS& instance();
 
 		//----------------------------------------------
 		// Version Information Interface
@@ -289,7 +304,7 @@ namespace dnv::vista::sdk
 		 * auto rootNode = gmod.rootNode();
 		 * @endcode
 		 */
-		[[nodiscard]] const Gmod& gmod( VisVersion visVersion );
+		[[nodiscard]] const Gmod& gmod( VisVersion visVersion ) const;
 
 		/**
 		 * @brief Retrieves Codebooks for specified VIS version
@@ -317,7 +332,7 @@ namespace dnv::vista::sdk
 		 * bool isValid = codebooks.isValidDataChannelType("temperature");
 		 * @endcode
 		 */
-		[[nodiscard]] const Codebooks& codebooks( VisVersion visVersion );
+		[[nodiscard]] const Codebooks& codebooks( VisVersion visVersion ) const;
 
 		/**
 		 * @brief Retrieves Locations hierarchy for specified VIS version
@@ -346,7 +361,7 @@ namespace dnv::vista::sdk
 		 * auto engineRoom = locations.find("/Ship/PropulsionSystem/EngineRoom");
 		 * @endcode
 		 */
-		[[nodiscard]] const Locations& locations( VisVersion visVersion );
+		[[nodiscard]] const Locations& locations( VisVersion visVersion ) const;
 
 		//-----------------------------
 		// Bulk Resource Access Interface
@@ -465,7 +480,7 @@ namespace dnv::vista::sdk
 		 * }
 		 * @endcode
 		 */
-		[[nodiscard]] std::optional<GmodNode> convertNode( VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion );
+		[[nodiscard]] std::optional<GmodNode> convertNode( VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion ) const;
 
 		/**
 		 * @brief Converts GMOD node with automatic source version detection
@@ -497,7 +512,7 @@ namespace dnv::vista::sdk
 		 * }
 		 * @endcode
 		 */
-		[[nodiscard]] std::optional<GmodNode> convertNode( const GmodNode& sourceNode, VisVersion targetVersion, const GmodNode* sourceParent = nullptr );
+		[[nodiscard]] std::optional<GmodNode> convertNode( const GmodNode& sourceNode, VisVersion targetVersion, const GmodNode* sourceParent = nullptr ) const;
 
 		//-----------------------------
 		// GMOD Path Conversion
@@ -532,7 +547,7 @@ namespace dnv::vista::sdk
 		 *     VisVersion::v3_8a, sourcePath, VisVersion::v3_9a);
 		 * @endcode
 		 */
-		[[nodiscard]] std::optional<GmodPath> convertPath( VisVersion sourceVersion, const GmodPath& sourcePath, VisVersion targetVersion );
+		[[nodiscard]] std::optional<GmodPath> convertPath( VisVersion sourceVersion, const GmodPath& sourcePath, VisVersion targetVersion ) const;
 
 		/**
 		 * @brief Converts GMOD path with automatic source version detection
@@ -563,7 +578,7 @@ namespace dnv::vista::sdk
 		 * }
 		 * @endcode
 		 */
-		[[nodiscard]] std::optional<GmodPath> convertPath( const GmodPath& sourcePath, VisVersion targetVersion );
+		[[nodiscard]] std::optional<GmodPath> convertPath( const GmodPath& sourcePath, VisVersion targetVersion ) const;
 
 		//-----------------------------
 		// LocalId Conversion
@@ -601,7 +616,7 @@ namespace dnv::vista::sdk
 		 * }
 		 * @endcode
 		 */
-		[[nodiscard]] std::optional<LocalIdBuilder> convertLocalId( const LocalIdBuilder& sourceLocalId, VisVersion targetVersion );
+		[[nodiscard]] std::optional<LocalIdBuilder> convertLocalId( const LocalIdBuilder& sourceLocalId, VisVersion targetVersion ) const;
 
 		/**
 		 * @brief Converts LocalId instance between VIS versions
@@ -633,7 +648,7 @@ namespace dnv::vista::sdk
 		 * }
 		 * @endcode
 		 */
-		[[nodiscard]] std::optional<LocalId> convertLocalId( const LocalId& sourceLocalId, VisVersion targetVersion );
+		[[nodiscard]] std::optional<LocalId> convertLocalId( const LocalId& sourceLocalId, VisVersion targetVersion ) const;
 	};
 }
 

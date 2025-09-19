@@ -425,7 +425,7 @@ namespace dnv::vista::sdk
 			auto state = LocalIdParsingState::NamingRule;
 			size_t i = 1;
 
-			VIS& vis = VIS::instance();
+			const auto& vis = VIS::instance();
 			auto visVersion = VisVersion::Unknown;
 			const Gmod* gmod = nullptr;
 			const Codebooks* codebooks = nullptr;
@@ -538,7 +538,7 @@ namespace dnv::vista::sdk
 
 						if ( primaryItemStart == std::numeric_limits<size_t>::max() )
 						{
-							const GmodNode* nodePtr = nullptr;
+							GmodNode* nodePtr = nullptr;
 							if ( !gmod->tryGetNode( code, nodePtr ) )
 							{
 								auto lease = nfx::string::StringBuilderPool::lease();
@@ -605,7 +605,7 @@ namespace dnv::vista::sdk
 								break;
 							}
 
-							const GmodNode* nodePtr = nullptr;
+							GmodNode* nodePtr = nullptr;
 							if ( !gmod->tryGetNode( code, nodePtr ) )
 							{
 								auto lease = nfx::string::StringBuilderPool::lease();
@@ -670,7 +670,7 @@ namespace dnv::vista::sdk
 
 						if ( secondaryItemStart == std::numeric_limits<size_t>::max() )
 						{
-							const GmodNode* nodePtr = nullptr;
+							GmodNode* nodePtr = nullptr;
 							if ( !gmod->tryGetNode( code, nodePtr ) )
 							{
 								auto lease = nfx::string::StringBuilderPool::lease();
@@ -735,7 +735,7 @@ namespace dnv::vista::sdk
 								break;
 							}
 
-							const GmodNode* nodePtr = nullptr;
+							GmodNode* nodePtr = nullptr;
 							if ( !gmod->tryGetNode( code, nodePtr ) )
 							{
 								invalidSecondaryItem = true;

@@ -328,7 +328,7 @@ namespace dnv::vista::sdk
 		 * @return The VisVersion enum value.
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] inline VisVersion visVersion() const;
+		[[nodiscard]] VISTA_SDK_CPP_INLINE VisVersion visVersion() const;
 
 		/**
 		 * @brief Gets the root node of the GMOD hierarchy.
@@ -338,7 +338,7 @@ namespace dnv::vista::sdk
 		 * @throws std::runtime_error If the GMOD is not properly initialized or has no root node.
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] inline const GmodNode& rootNode() const;
+		[[nodiscard]] VISTA_SDK_CPP_INLINE const GmodNode& rootNode() const;
 
 		//----------------------------------------------
 		// Node query methods
@@ -350,7 +350,7 @@ namespace dnv::vista::sdk
 		 * @param[out] node Output parameter; set to a pointer to the GmodNode if found, otherwise nullptr.
 		 * @return True if the node was found, false otherwise.
 		 */
-		inline bool tryGetNode( std::string_view code, const GmodNode*& node ) const noexcept;
+		VISTA_SDK_CPP_INLINE bool tryGetNode( std::string_view code, GmodNode*& node ) const noexcept;
 
 		//----------------------------------------------
 		// Path parsing & navigation

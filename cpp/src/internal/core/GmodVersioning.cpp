@@ -208,7 +208,7 @@ namespace dnv::vista::sdk::internal
 
 			const auto& targetGmod = VIS::instance().gmod( targetVersion );
 
-			const GmodNode* targetNodePtr = nullptr;
+			GmodNode* targetNodePtr = nullptr;
 			if ( !targetGmod.tryGetNode( nextCodeView, targetNodePtr ) )
 			{
 				return std::nullopt;
@@ -245,7 +245,7 @@ namespace dnv::vista::sdk::internal
 				}
 			}
 
-			const GmodNode* targetNodePtr = nullptr;
+			GmodNode* targetNodePtr = nullptr;
 			if ( !targetGmod.tryGetNode( nextCodeView, targetNodePtr ) )
 			{
 				return std::nullopt;
@@ -378,7 +378,7 @@ namespace dnv::vista::sdk::internal
 
 		if ( targetEndNode->isRoot() )
 		{
-			const GmodNode* rootNodeInGmodPtr = nullptr;
+			GmodNode* rootNodeInGmodPtr = nullptr;
 			if ( !targetGmod.tryGetNode( targetEndNode->code(), rootNodeInGmodPtr ) || !rootNodeInGmodPtr )
 			{
 				throw std::runtime_error( "Failed to get root node from targetGmod during root path conversion" );

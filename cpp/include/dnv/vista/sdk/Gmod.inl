@@ -17,8 +17,8 @@ namespace dnv::vista::sdk
 
 	inline const GmodNode& Gmod::operator[]( std::string_view key ) const
 	{
-		const GmodNode* nodePtr = nullptr;
-		bool found = m_nodeMap.tryGetValue( key, nodePtr );
+		GmodNode* nodePtr = nullptr;
+		bool found = const_cast<nfx::containers::ChdHashMap<GmodNode>&>( m_nodeMap ).tryGetValue( key, nodePtr );
 		if ( found && nodePtr != nullptr )
 		{
 			return *nodePtr;
@@ -31,12 +31,12 @@ namespace dnv::vista::sdk
 	// Accessors
 	//----------------------------------------------
 
-	inline VisVersion Gmod::visVersion() const
+	VISTA_SDK_CPP_INLINE VisVersion Gmod::visVersion() const
 	{
 		return m_visVersion;
 	}
 
-	inline const GmodNode& Gmod::rootNode() const
+	VISTA_SDK_CPP_INLINE const GmodNode& Gmod::rootNode() const
 	{
 		if ( !m_rootNode )
 		{
@@ -50,9 +50,9 @@ namespace dnv::vista::sdk
 	// Node query methods
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_INLINE bool Gmod::tryGetNode( std::string_view code, const GmodNode*& node ) const noexcept
+	VISTA_SDK_CPP_INLINE bool Gmod::tryGetNode( std::string_view code, GmodNode*& node ) const noexcept
 	{
-		return m_nodeMap.tryGetValue( code, node );
+		return const_cast<nfx::containers::ChdHashMap<GmodNode>&>( m_nodeMap ).tryGetValue( code, node );
 	}
 
 	//----------------------------------------------
@@ -73,7 +73,8 @@ namespace dnv::vista::sdk
 	//-----------------------------
 
 	VISTA_SDK_CPP_INLINE Gmod::Enumerator::Enumerator( const nfx::containers::ChdHashMap<GmodNode>* map ) noexcept
-		: m_sourceMapPtr{ map }, m_isInitialState{ true }
+		: m_sourceMapPtr{ map },
+		  m_isInitialState{ true }
 	{
 		if ( m_sourceMapPtr )
 		{

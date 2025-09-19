@@ -27,7 +27,7 @@ namespace dnv::vista::sdk::test
 
 			const Codebooks& getCodebooks()
 			{
-				VIS& vis = VIS::instance();
+				const auto& vis = VIS::instance();
 				return vis.codebooks( VisVersion::v3_4a );
 			}
 
@@ -99,7 +99,7 @@ namespace dnv::vista::sdk::test
 		protected:
 			const Codebooks& getCodebooks()
 			{
-				VIS& vis = VIS::instance();
+				const auto& vis = VIS::instance();
 				return vis.codebooks( VisVersion::v3_4a );
 			}
 		};

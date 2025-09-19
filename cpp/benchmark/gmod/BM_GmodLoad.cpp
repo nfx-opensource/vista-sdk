@@ -8,7 +8,7 @@
 #include <dnv/vista/sdk/Gmod.h>
 #include <dnv/vista/sdk/VIS.h>
 
-// TODO: TEmporary disabled - loadGmodDto() is part of the private API
+// TODO: Temporary disabled - loadGmodDto() is part of the private API
 
 // namespace dnv::vista::sdk::benchmarks
 // {
