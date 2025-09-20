@@ -24,31 +24,21 @@ namespace dnv::vista::sdk::internal
 	namespace
 	{
 		//=====================================================================
-		// Static helper functions and thread-local utilities
+		// Path reconstruction and validation utilities
 		//=====================================================================
 
 		/**
-		 * @brief Get thread-local buffer for current parents processing
-		 * @return Reference to thread-local vector for reuse across calls
+		 * @brief Add a node to the path, ensuring valid parent-child relationships
+		 * @param gmod The GMOD containing the node hierarchy
+		 * @param path The current path being constructed
+		 * @param node The node to add to the path
 		 */
-		static std::vector<const GmodNode*>& currentParentsBuffer()
-		{
-			thread_local std::vector<const GmodNode*> buffer;
-			return buffer;
-		}
-
-		/**
-		 * @brief Get thread-local buffer for remaining nodes processing
-		 * @return Reference to thread-local vector for reuse across calls
-		 */
-		static std::vector<const GmodNode*>& remainingBuffer()
-		{
-			thread_local std::vector<const GmodNode*> buffer;
-			return buffer;
-		}
-
 		static void addToPath( const Gmod& gmod, std::vector<GmodNode>& path, const GmodNode& node )
 		{
+			// Thread-local buffers for performance optimization
+			static thread_local std::vector<const GmodNode*> currentParentsBuf;
+			static thread_local std::vector<const GmodNode*> remainingBuf;
+
 			if ( !path.empty() )
 			{
 				const GmodNode& prev = path.back();
@@ -58,7 +48,6 @@ namespace dnv::vista::sdk::internal
 					{
 						const GmodNode& parent = path[static_cast<size_t>( j )];
 
-						auto& currentParentsBuf = currentParentsBuffer();
 						currentParentsBuf.clear();
 						const size_t currentParentsCount = static_cast<size_t>( j + 1 );
 						currentParentsBuf.reserve( currentParentsCount );
@@ -68,7 +57,6 @@ namespace dnv::vista::sdk::internal
 							currentParentsBuf.push_back( &path[k] );
 						}
 
-						auto& remainingBuf = remainingBuffer();
 						remainingBuf.clear();
 						remainingBuf.reserve( 16 );
 
@@ -127,10 +115,6 @@ namespace dnv::vista::sdk::internal
 			path.emplace_back( node );
 		}
 
-		//----------------------------------------------
-		// Internal validation methods
-		//----------------------------------------------
-
 		/**
 		 * @brief Validate source and target versions
 		 */
@@ -150,111 +134,6 @@ namespace dnv::vista::sdk::internal
 			{
 				throw std::invalid_argument{ "Source version must be earlier than target version" };
 			}
-		}
-
-		/**
-		 * @brief Validate source and target version pair
-		 */
-		static void validateSourceAndTargetVersionPair( VisVersion sourceVersion, VisVersion targetVersion )
-		{
-			if ( sourceVersion >= targetVersion )
-			{
-				throw std::invalid_argument{ "Source version must be less than target version" };
-			}
-
-			if ( static_cast<int>( targetVersion ) - static_cast<int>( sourceVersion ) != 100 )
-			{
-				throw std::invalid_argument{ "Target version must be exactly one version higher than source version" };
-			}
-		}
-
-		//----------------------------------------------
-		// Internal versioning node utilities
-		//----------------------------------------------
-
-		/**
-		 * @brief Try to get a versioning node for a specific VIS version
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		static bool tryGetVersioningNode( nfx::containers::HashMap<VisVersion, GmodVersioningNode>& versioningsMap,
-			VisVersion visVersion, GmodVersioningNode*& versioningNode )
-		{
-			return versioningsMap.tryGetValue( visVersion, versioningNode );
-		}
-
-		/**
-		 * @brief Internal implementation for converting a node between adjacent versions
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		static std::optional<GmodNode> convertNode(
-			nfx::containers::HashMap<VisVersion, GmodVersioningNode>& versioningsMap,
-			VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion )
-		{
-			validateSourceAndTargetVersionPair( sourceVersion, targetVersion );
-
-			std::string_view nextCodeView = sourceNode.code();
-
-			GmodVersioningNode* versioningNodePtr = nullptr;
-			if ( tryGetVersioningNode( versioningsMap, targetVersion, versioningNodePtr ) )
-			{
-				const GmodNodeConversion* change = nullptr;
-				if ( versioningNodePtr->tryGetCodeChanges( nextCodeView, change ) && change && change->target.has_value() )
-				{
-					nextCodeView = change->target.value();
-				}
-			}
-
-			const auto& targetGmod = VIS::instance().gmod( targetVersion );
-
-			GmodNode* targetNodePtr = nullptr;
-			if ( !targetGmod.tryGetNode( nextCodeView, targetNodePtr ) )
-			{
-				return std::nullopt;
-			}
-
-			if ( sourceNode.location().has_value() )
-			{
-				return targetNodePtr->tryWithLocation( sourceNode.location().value() );
-			}
-
-			return *targetNodePtr;
-		}
-
-		/**
-		 * @brief Internal implementation for converting a node with cached GMOD
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		static std::optional<GmodNode> convertNode(
-			nfx::containers::HashMap<VisVersion, GmodVersioningNode>& versioningsMap,
-			VisVersion sourceVersion, const GmodNode& sourceNode,
-			VisVersion targetVersion, const Gmod& targetGmod )
-		{
-			validateSourceAndTargetVersionPair( sourceVersion, targetVersion );
-
-			std::string_view nextCodeView = sourceNode.code();
-
-			GmodVersioningNode* versioningNodePtr = nullptr;
-			if ( tryGetVersioningNode( versioningsMap, targetVersion, versioningNodePtr ) )
-			{
-				const GmodNodeConversion* change = nullptr;
-				if ( versioningNodePtr->tryGetCodeChanges( nextCodeView, change ) && change && change->target.has_value() )
-				{
-					nextCodeView = change->target.value();
-				}
-			}
-
-			GmodNode* targetNodePtr = nullptr;
-			if ( !targetGmod.tryGetNode( nextCodeView, targetNodePtr ) )
-			{
-				return std::nullopt;
-			}
-
-			if ( sourceNode.location().has_value() )
-			{
-				return targetNodePtr->tryWithLocation( sourceNode.location().value() );
-			}
-
-			return *targetNodePtr;
 		}
 	}
 
@@ -301,24 +180,9 @@ namespace dnv::vista::sdk::internal
 
 		validateSourceAndTargetVersions( sourceVersion, targetVersion );
 
-		std::optional<GmodNode> node = sourceNode;
-		VisVersion source = sourceVersion;
+		const auto& targetGmod = VIS::instance().gmod( targetVersion );
 
-		while ( source <= targetVersion - 1 )
-		{
-			if ( !node.has_value() )
-			{
-				break;
-			}
-
-			const VisVersion target = source + 1;
-
-			node = internal::convertNode( const_cast<nfx::containers::HashMap<VisVersion, GmodVersioningNode>&>( m_versioningsMap ), source, *node, target );
-
-			++source;
-		}
-
-		return node;
+		return convertNode( sourceVersion, sourceNode, targetVersion, targetGmod );
 	}
 
 	std::optional<GmodNode> GmodVersioning::convertNode(
@@ -343,13 +207,34 @@ namespace dnv::vista::sdk::internal
 
 			const VisVersion target = source + 1;
 
-			if ( target == targetVersion )
+			std::string_view nextCodeView = node->code();
+
+			GmodVersioningNode* versioningNodePtr = nullptr;
+			if ( const_cast<nfx::containers::HashMap<VisVersion, GmodVersioningNode>&>( m_versioningsMap ).tryGetValue( target, versioningNodePtr ) )
 			{
-				node = internal::convertNode( const_cast<nfx::containers::HashMap<VisVersion, GmodVersioningNode>&>( m_versioningsMap ), source, *node, target, targetGmod );
+				const GmodNodeConversion* change = nullptr;
+				if ( versioningNodePtr->tryGetCodeChanges( nextCodeView, change ) && change && change->target.has_value() )
+				{
+					nextCodeView = change->target.value();
+				}
+			}
+
+			const Gmod& currentTargetGmod = ( target == targetVersion ) ? targetGmod : VIS::instance().gmod( target );
+
+			GmodNode* targetNodePtr = nullptr;
+			if ( !currentTargetGmod.tryGetNode( nextCodeView, targetNodePtr ) )
+			{
+				node = std::nullopt;
+				break;
+			}
+
+			if ( node->location().has_value() )
+			{
+				node = targetNodePtr->tryWithLocation( node->location().value() );
 			}
 			else
 			{
-				node = internal::convertNode( const_cast<nfx::containers::HashMap<VisVersion, GmodVersioningNode>&>( m_versioningsMap ), source, *node, target );
+				node = *targetNodePtr;
 			}
 
 			++source;
@@ -645,6 +530,7 @@ namespace dnv::vista::sdk::internal
 
 		return GmodPath{ std::move( potentialParentsFromPath ), targetEndNodeFromPath };
 	}
+
 	//----------------------------
 	// Local Id
 	//----------------------------

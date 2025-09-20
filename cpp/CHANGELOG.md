@@ -31,6 +31,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.42] - 2025-09-20
+
+### Changed
+
+-   **GmodVersioning architecture consolidation**: Major refactoring eliminating redundant internal functions and optimizing performance
+    -   **Removed duplicate internal functions**: Eliminated redundant `internal::convertNode()` overloaded functions and `tryGetVersioningNode()` wrapper
+    -   **Inlined conversion logic**: All node conversion logic now directly embedded in public methods
+    -   **Optimized thread-local buffers**: Replaced separate helper functions with embedded `static thread_local` variables within `addToPath()`
+    -   **Streamlined validation**: Removed redundant `validateSourceAndTargetVersionPair()` function
+    -   **Direct API usage**: HashMap calls now made directly without wrapper functions for better performance
+
+### Removed
+
+-   **Internal helper functions**: `internal::convertNode()` (2 variants), `tryGetVersioningNode()`, `validateSourceAndTargetVersionPair()`, `currentParentsBuffer()`, `remainingBuffer()`
+
+### Fixed
+
+-   **Code organization**: Eliminated duplicate logic and simplified architecture for better maintainability
+
 ## [0.0.41] - 2025-09-20
 
 ### Changed
