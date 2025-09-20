@@ -31,6 +31,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.40] - 2025-09-20
+
+### Added
+
+-   **Comprehensive GMOD lookup benchmark suite**: Complete performance comparison framework for container types
+
+### Changed
+
+-   **NFX Core dependency update** from v0.0.4 to v0.0.5
+-   **BREAKING CHANGE: HashMap API migration for nfx-core v0.0.5 compatibility**
+    -   Updated SDK from `tryGetValue(key)` returning pointer to `tryGetValue(key, outParam)` returning bool
+
 ## [0.0.39] - 2025-09-20
 
 ### Added

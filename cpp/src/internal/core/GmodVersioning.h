@@ -87,7 +87,7 @@ namespace dnv::vista::sdk
 			 * @throws std::invalid_argument If targetVersion is not higher than sourceVersion
 			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] std::optional<GmodNode> convertNode( VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion ) const;
+			[[nodiscard]] std::optional<GmodNode> convertNode( VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion );
 
 			/**
 			 * @brief Convert a GmodNode with cached target GMOD
@@ -95,7 +95,7 @@ namespace dnv::vista::sdk
 			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
 			[[nodiscard]] std::optional<GmodNode> convertNode(
-				VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion, const Gmod& targetGmod ) const;
+				VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion, const Gmod& targetGmod );
 
 			/**
 			 * @brief Converts a GmodPath from a source VIS version to a target VIS version.
@@ -106,17 +106,17 @@ namespace dnv::vista::sdk
 			 * @throws std::invalid_argument if source or target versions are invalid or source >= target.
 			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] std::optional<GmodPath> convertPath( VisVersion sourceVersion, const GmodPath& sourcePath, VisVersion targetVersion ) const;
+			[[nodiscard]] std::optional<GmodPath> convertPath( VisVersion sourceVersion, const GmodPath& sourcePath, VisVersion targetVersion );
 
 			/**
 			 * @brief Convert a LocalIdBuilder from one version to a higher version
 			 */
-			std::optional<LocalIdBuilder> convertLocalId( const LocalIdBuilder& sourceLocalId, VisVersion targetVersion ) const;
+			std::optional<LocalIdBuilder> convertLocalId( const LocalIdBuilder& sourceLocalId, VisVersion targetVersion );
 
 			/**
 			 * @brief Convert a LocalId from one version to a higher version
 			 */
-			std::optional<LocalId> convertLocalId( const LocalId& sourceLocalId, VisVersion targetVersion ) const;
+			std::optional<LocalId> convertLocalId( const LocalId& sourceLocalId, VisVersion targetVersion );
 
 		private:
 			/** @brief Hash map storing versioning nodes indexed by VIS version */

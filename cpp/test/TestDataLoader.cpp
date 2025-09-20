@@ -35,6 +35,7 @@ namespace dnv::vista::sdk::test
 		//=====================================================================
 		// Test data cache
 		//=====================================================================
+
 		static nfx::containers::HashMap<std::string, nlohmann::json> g_testDataCache;
 	}
 
@@ -43,12 +44,14 @@ namespace dnv::vista::sdk::test
 		const auto fullPath = testdataDirectory() / testDataPath;
 		const std::string fullPathStr = fullPath.string();
 
-		const nlohmann::json* cachedData = g_testDataCache.tryGetValue( fullPathStr );
-		if ( cachedData )
+		// Check if already cached
+		nlohmann::json* cachedDataPtr = nullptr;
+		if ( g_testDataCache.tryGetValue( fullPathStr, cachedDataPtr ) )
 		{
-			return *cachedData;
+			return *cachedDataPtr;
 		}
 
+		// Load the data
 		std::ifstream jsonFile( fullPath );
 		if ( !jsonFile.is_open() )
 		{
@@ -60,10 +63,12 @@ namespace dnv::vista::sdk::test
 			nlohmann::json data;
 			jsonFile >> data;
 
+			// Cache the data
 			g_testDataCache.insertOrAssign( fullPathStr, std::move( data ) );
 
-			const nlohmann::json* result = g_testDataCache.tryGetValue( fullPathStr );
-			if ( result )
+			// Get fresh pointer after insertion (safer than storing old pointer)
+			nlohmann::json* result = nullptr;
+			if ( g_testDataCache.tryGetValue( fullPathStr, result ) )
 			{
 				return *result;
 			}

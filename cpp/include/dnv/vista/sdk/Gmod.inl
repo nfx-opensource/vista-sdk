@@ -149,8 +149,8 @@ namespace dnv::vista::sdk
 	VISTA_SDK_CPP_INLINE void Gmod::Parents::push( const GmodNode* parent )
 	{
 		m_parents.push_back( parent );
-		const auto* countPtr = m_occurrences.tryGetValue( parent->code() );
-		if ( countPtr )
+		size_t* countPtr = nullptr;
+		if ( m_occurrences.tryGetValue( parent->code(), countPtr ) )
 		{
 			m_occurrences.insertOrAssign( std::string{ parent->code() }, *countPtr + 1 );
 		}
@@ -170,8 +170,8 @@ namespace dnv::vista::sdk
 		const GmodNode* parent = m_parents.back();
 		m_parents.pop_back();
 
-		const auto* countPtr = m_occurrences.tryGetValue( parent->code() );
-		if ( countPtr )
+		size_t* countPtr = nullptr;
+		if ( m_occurrences.tryGetValue( parent->code(), countPtr ) )
 		{
 			if ( *countPtr == 1 )
 			{
@@ -186,8 +186,8 @@ namespace dnv::vista::sdk
 
 	inline size_t Gmod::Parents::occurrences( const GmodNode& node ) const noexcept
 	{
-		const auto* countPtr = m_occurrences.tryGetValue( node.code() );
-		if ( countPtr )
+		size_t* countPtr = nullptr;
+		if ( const_cast<nfx::containers::HashMap<std::string, size_t>&>( m_occurrences ).tryGetValue( node.code(), countPtr ) )
 		{
 			return *countPtr;
 		}

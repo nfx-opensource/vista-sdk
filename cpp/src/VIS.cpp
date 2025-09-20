@@ -181,7 +181,7 @@ namespace dnv::vista::sdk
 		// GMOD versioning
 		//----------------------------------------------
 
-		static const GmodVersioning& gmodVersioning()
+		static GmodVersioning& gmodVersioning()
 		{
 			static constexpr VisVersion cacheKey = VisVersion::LATEST;
 

@@ -176,12 +176,10 @@ namespace dnv::vista::sdk::internal
 		 * @brief Try to get a versioning node for a specific VIS version
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		static bool tryGetVersioningNode( const nfx::containers::HashMap<VisVersion, GmodVersioningNode>& versioningsMap,
-			VisVersion visVersion, const GmodVersioningNode*& versioningNode )
+		static bool tryGetVersioningNode( nfx::containers::HashMap<VisVersion, GmodVersioningNode>& versioningsMap,
+			VisVersion visVersion, GmodVersioningNode*& versioningNode )
 		{
-			versioningNode = versioningsMap.tryGetValue( visVersion );
-
-			return versioningNode != nullptr;
+			return versioningsMap.tryGetValue( visVersion, versioningNode );
 		}
 
 		/**
@@ -189,18 +187,18 @@ namespace dnv::vista::sdk::internal
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		static std::optional<GmodNode> convertNode(
-			const nfx::containers::HashMap<VisVersion, GmodVersioningNode>& versioningsMap,
+			nfx::containers::HashMap<VisVersion, GmodVersioningNode>& versioningsMap,
 			VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion )
 		{
 			validateSourceAndTargetVersionPair( sourceVersion, targetVersion );
 
 			std::string_view nextCodeView = sourceNode.code();
 
-			const GmodVersioningNode* versioningNode = nullptr;
-			if ( tryGetVersioningNode( versioningsMap, targetVersion, versioningNode ) )
+			GmodVersioningNode* versioningNodePtr = nullptr;
+			if ( tryGetVersioningNode( versioningsMap, targetVersion, versioningNodePtr ) )
 			{
 				const GmodNodeConversion* change = nullptr;
-				if ( versioningNode->tryGetCodeChanges( nextCodeView, change ) && change && change->target.has_value() )
+				if ( versioningNodePtr->tryGetCodeChanges( nextCodeView, change ) && change && change->target.has_value() )
 				{
 					nextCodeView = change->target.value();
 				}
@@ -227,7 +225,7 @@ namespace dnv::vista::sdk::internal
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		static std::optional<GmodNode> convertNode(
-			const nfx::containers::HashMap<VisVersion, GmodVersioningNode>& versioningsMap,
+			nfx::containers::HashMap<VisVersion, GmodVersioningNode>& versioningsMap,
 			VisVersion sourceVersion, const GmodNode& sourceNode,
 			VisVersion targetVersion, const Gmod& targetGmod )
 		{
@@ -235,11 +233,11 @@ namespace dnv::vista::sdk::internal
 
 			std::string_view nextCodeView = sourceNode.code();
 
-			const GmodVersioningNode* versioningNode = nullptr;
-			if ( tryGetVersioningNode( versioningsMap, targetVersion, versioningNode ) )
+			GmodVersioningNode* versioningNodePtr = nullptr;
+			if ( tryGetVersioningNode( versioningsMap, targetVersion, versioningNodePtr ) )
 			{
 				const GmodNodeConversion* change = nullptr;
-				if ( versioningNode->tryGetCodeChanges( nextCodeView, change ) && change && change->target.has_value() )
+				if ( versioningNodePtr->tryGetCodeChanges( nextCodeView, change ) && change && change->target.has_value() )
 				{
 					nextCodeView = change->target.value();
 				}
@@ -294,7 +292,7 @@ namespace dnv::vista::sdk::internal
 	//----------------------------
 
 	std::optional<GmodNode> GmodVersioning::convertNode( VisVersion sourceVersion, const GmodNode& sourceNode,
-		VisVersion targetVersion ) const
+		VisVersion targetVersion )
 	{
 		if ( nfx::string::isEmpty( sourceNode.code() ) )
 		{
@@ -315,7 +313,7 @@ namespace dnv::vista::sdk::internal
 
 			const VisVersion target = source + 1;
 
-			node = internal::convertNode( m_versioningsMap, source, *node, target );
+			node = internal::convertNode( const_cast<nfx::containers::HashMap<VisVersion, GmodVersioningNode>&>( m_versioningsMap ), source, *node, target );
 
 			++source;
 		}
@@ -324,7 +322,7 @@ namespace dnv::vista::sdk::internal
 	}
 
 	std::optional<GmodNode> GmodVersioning::convertNode(
-		VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion, const Gmod& targetGmod ) const
+		VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion, const Gmod& targetGmod )
 	{
 		if ( nfx::string::isEmpty( sourceNode.code() ) )
 		{
@@ -347,11 +345,11 @@ namespace dnv::vista::sdk::internal
 
 			if ( target == targetVersion )
 			{
-				node = internal::convertNode( m_versioningsMap, source, *node, target, targetGmod );
+				node = internal::convertNode( const_cast<nfx::containers::HashMap<VisVersion, GmodVersioningNode>&>( m_versioningsMap ), source, *node, target, targetGmod );
 			}
 			else
 			{
-				node = internal::convertNode( m_versioningsMap, source, *node, target );
+				node = internal::convertNode( const_cast<nfx::containers::HashMap<VisVersion, GmodVersioningNode>&>( m_versioningsMap ), source, *node, target );
 			}
 
 			++source;
@@ -365,7 +363,7 @@ namespace dnv::vista::sdk::internal
 	//----------------------------
 
 	std::optional<GmodPath> GmodVersioning::convertPath(
-		VisVersion sourceVersion, const GmodPath& sourcePath, VisVersion targetVersion ) const
+		VisVersion sourceVersion, const GmodPath& sourcePath, VisVersion targetVersion )
 	{
 		std::optional<GmodNode> targetEndNode = convertNode( sourceVersion, sourcePath.node(), targetVersion );
 		if ( !targetEndNode.has_value() )
@@ -652,7 +650,7 @@ namespace dnv::vista::sdk::internal
 	//----------------------------
 
 	std::optional<LocalIdBuilder> GmodVersioning::convertLocalId(
-		const LocalIdBuilder& sourceLocalId, VisVersion targetVersion ) const
+		const LocalIdBuilder& sourceLocalId, VisVersion targetVersion )
 	{
 		if ( !sourceLocalId.visVersion().has_value() )
 		{
@@ -698,7 +696,7 @@ namespace dnv::vista::sdk::internal
 			.tryWithMetadataTag( sourceLocalId.detail() );
 	}
 
-	std::optional<LocalId> GmodVersioning::convertLocalId( const LocalId& sourceLocalId, VisVersion targetVersion ) const
+	std::optional<LocalId> GmodVersioning::convertLocalId( const LocalId& sourceLocalId, VisVersion targetVersion )
 	{
 		auto builder = convertLocalId( sourceLocalId.builder(), targetVersion );
 
