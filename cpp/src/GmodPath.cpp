@@ -4,9 +4,11 @@
  */
 
 #include <queue>
+#include <unordered_map>
 
+#include <nfx/containers/StringMap.h>
+#include <nfx/string/Splitter.h>
 #include <nfx/string/StringBuilderPool.h>
-#include <nfx/string/StringViewSplitter.h>
 #include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/GmodPath.h"
@@ -33,11 +35,15 @@ namespace dnv::vista::sdk
 			std::string_view code;
 			std::optional<Location> location;
 
-			PathNode( std::string_view c ) : code{ c }, location{ std::nullopt }
+			PathNode( std::string_view c )
+				: code{ c },
+				  location{ std::nullopt }
 			{
 			}
 
-			PathNode( std::string_view c, const Location& loc ) : code{ c }, location{ loc }
+			PathNode( std::string_view c, const Location& loc )
+				: code{ c },
+				  location{ loc }
 			{
 			}
 		};
@@ -144,8 +150,6 @@ namespace dnv::vista::sdk
 			pathParents.insert( pathParents.begin(), context.gmod->rootNode() );
 
 			internal::LocationSetsVisitor visitor;
-			std::vector<GmodNode*> tempParentsView;
-			tempParentsView.reserve( pathParents.size() + 1 );
 
 			for ( size_t i = 0; i < pathParents.size() + 1; ++i )
 			{
@@ -153,13 +157,7 @@ namespace dnv::vista::sdk
 								  ? pathParents[i]
 								  : endNode;
 
-				tempParentsView.clear();
-				for ( auto& p : pathParents )
-				{
-					tempParentsView.push_back( &p );
-				}
-
-				auto set = visitor.visit( n, i, tempParentsView, endNode );
+				auto set = visitor.visit( n, i, pathParents, endNode );
 				if ( !set.has_value() )
 				{
 					if ( n.location().has_value() )
@@ -246,13 +244,21 @@ namespace dnv::vista::sdk
 					GmodNode* tempNode = nullptr;
 					if ( !gmod.tryGetNode( codePart, tempNode ) || !tempNode )
 					{
-						return GmodParsePathResult::Error{ "Failed to get GmodNode for " + std::string{ partStr } };
+						auto lease = nfx::string::StringBuilderPool::lease();
+						auto builder = lease.builder();
+						builder.append( "Failed to get GmodNode for " );
+						builder.append( partStr );
+						return GmodParsePathResult::Error{ lease.toString() };
 					}
 
 					Location parsedLocation;
 					if ( !locations.tryParse( locationPart, parsedLocation ) )
 					{
-						return GmodParsePathResult::Error{ "Failed to parse location " + std::string{ locationPart } };
+						auto lease = nfx::string::StringBuilderPool::lease();
+						auto builder = lease.builder();
+						builder.append( "Failed to parse location " );
+						builder.append( locationPart );
+						return GmodParsePathResult::Error{ lease.toString() };
 					}
 
 					parts.emplace( codePart, parsedLocation );
@@ -262,7 +268,11 @@ namespace dnv::vista::sdk
 					GmodNode* tempNode = nullptr;
 					if ( !gmod.tryGetNode( partStr, tempNode ) || !tempNode )
 					{
-						return GmodParsePathResult::Error{ "Failed to get GmodNode for " + std::string{ partStr } };
+						auto lease = nfx::string::StringBuilderPool::lease();
+						auto builder = lease.builder();
+						builder.append( "Failed to get GmodNode for " );
+						builder.append( partStr );
+						return GmodParsePathResult::Error{ lease.toString() };
 					}
 
 					parts.emplace( partStr );
@@ -297,6 +307,46 @@ namespace dnv::vista::sdk
 		}
 
 		/**
+		 * @brief Validates path and identifies where the hierarchy breaks
+		 * @param parents Vector of parent nodes in hierarchical order
+		 * @param node The target node to validate
+		 * @param missingLinkAt [out] Index where validation failed (-1 if valid)
+		 * @return True if the path is valid, false otherwise
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		[[nodiscard]] static bool isValid( const std::vector<GmodNode>& parents, const GmodNode& node, int& missingLinkAt )
+		{
+			missingLinkAt = -1;
+
+			if ( parents.empty() )
+			{
+				return false;
+			}
+
+			if ( !parents.empty() && !parents[0].isRoot() )
+			{
+				return false;
+			}
+
+			for ( size_t i = 0; i < parents.size(); ++i )
+			{
+				const GmodNode& parent = parents[i];
+				const GmodNode& child = ( i + 1 < parents.size() )
+											? parents[i + 1]
+											: node;
+
+				if ( !parent.isChild( child ) )
+				{
+					missingLinkAt = static_cast<int>( i );
+
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		/**
 		 * @brief Internal helper for parsing full path strings
 		 * @param item The path string to parse
 		 * @param gmod The GMOD instance for node lookup
@@ -312,12 +362,19 @@ namespace dnv::vista::sdk
 
 			if ( !nfx::string::startsWith( item, gmod.rootNode().code() ) )
 			{
-				return GmodParsePathResult::Error{ "Path must start with \'" + gmod.rootNode().code() + "\'" };
+				auto lease = nfx::string::StringBuilderPool::lease();
+				auto builder = lease.builder();
+				builder.append( "Path must start with '" );
+				builder.append( gmod.rootNode().code() );
+				builder.append( "'" );
+				return GmodParsePathResult::Error{ lease.toString() };
 			}
 
 			const size_t estimatedSegments = item.length() / 3;
 			std::vector<GmodNode> nodes;
-			nodes.reserve( estimatedSegments );
+			nodes.reserve( estimatedSegments > 4
+							   ? estimatedSegments
+							   : 4 );
 
 			for ( const auto segment : nfx::string::splitView( item, '/' ) )
 			{
@@ -378,14 +435,8 @@ namespace dnv::vista::sdk
 			}
 
 			int missingLinkAt = -1;
-			std::vector<GmodNode*> nodePointers;
-			nodePointers.reserve( nodes.size() );
-			for ( auto& node : nodes )
-			{
-				nodePointers.push_back( &node );
-			}
 
-			if ( !GmodPath::isValid( nodePointers, endNode, missingLinkAt ) )
+			if ( !isValid( nodes, endNode, missingLinkAt ) )
 			{
 				return GmodParsePathResult::Error{ "Sequence of nodes are invalid" };
 			}
@@ -413,30 +464,13 @@ namespace dnv::vista::sdk
 			std::pair<size_t, size_t> sets[MAX_SETS];
 			size_t setCounter = 0;
 
-			constexpr size_t MAX_PARENTS = 16;
-			GmodNode* tempParents[MAX_PARENTS];
-			size_t tempParentsSize = 0;
-
-			thread_local std::vector<GmodNode*> tempParentsView;
-
 			for ( size_t i = 0; i < nodes.size() + 1; ++i )
 			{
 				const GmodNode& n = ( i < nodes.size() )
 										? nodes[i]
 										: endNode;
 
-				tempParentsSize = 0;
-				for ( auto& node : nodes )
-				{
-					if ( tempParentsSize < MAX_PARENTS )
-					{
-						tempParents[tempParentsSize++] = &node;
-					}
-				}
-
-				tempParentsView.clear();
-				tempParentsView.assign( tempParents, tempParents + tempParentsSize );
-				auto set = locationSetsVisitor.visit( n, i, tempParentsView, endNode );
+				auto set = locationSetsVisitor.visit( n, i, nodes, endNode );
 				if ( !set.has_value() )
 				{
 					if ( !prevNonNullLocation.has_value() && n.location().has_value() )
@@ -563,13 +597,6 @@ namespace dnv::vista::sdk
 		result.reserve( 8 );
 
 		internal::LocationSetsVisitor locationSetsVisitor;
-		std::vector<GmodNode*> tempParents;
-		tempParents.reserve( m_parents.size() );
-
-		for ( const auto& parent : m_parents )
-		{
-			tempParents.push_back( const_cast<GmodNode*>( &parent ) );
-		}
 
 		for ( size_t i = 0; i < length(); ++i )
 		{
@@ -577,7 +604,7 @@ namespace dnv::vista::sdk
 									   ? m_parents[i]
 									   : *m_node;
 
-			auto set = locationSetsVisitor.visit( node, i, tempParents, *m_node );
+			auto set = locationSetsVisitor.visit( node, i, m_parents, *m_node );
 			if ( !set.has_value() )
 			{
 				continue;
@@ -720,36 +747,11 @@ namespace dnv::vista::sdk
 	// State inspection methods
 	//----------------------------------------------
 
-	bool GmodPath::isValid( const std::vector<GmodNode*>& parents, const GmodNode& node, int& missingLinkAt )
+	bool GmodPath::isValid( const std::vector<GmodNode>& parents, const GmodNode& node )
 	{
-		missingLinkAt = -1;
+		int missingLinkAt;
 
-		if ( parents.empty() )
-		{
-			return false;
-		}
-
-		if ( !parents.empty() && !parents[0]->isRoot() )
-		{
-			return false;
-		}
-
-		for ( size_t i = 0; i < parents.size(); ++i )
-		{
-			const GmodNode* parent = parents[i];
-			const GmodNode* child = ( i + 1 < parents.size() )
-										? parents[i + 1]
-										: &node;
-
-			if ( !parent->isChild( *child ) )
-			{
-				missingLinkAt = static_cast<int>( i );
-
-				return false;
-			}
-		}
-
-		return true;
+		return internal::isValid( parents, node, missingLinkAt );
 	}
 
 	bool GmodPath::isIndividualizable() const
@@ -760,13 +762,6 @@ namespace dnv::vista::sdk
 		}
 
 		internal::LocationSetsVisitor locationSetsVisitor;
-		std::vector<GmodNode*> tempParents;
-		tempParents.reserve( m_parents.size() );
-
-		for ( const auto& parent : m_parents )
-		{
-			tempParents.push_back( const_cast<GmodNode*>( &parent ) );
-		}
 
 		for ( size_t i = 0; i < length(); ++i )
 		{
@@ -774,7 +769,7 @@ namespace dnv::vista::sdk
 									   ? m_parents[i]
 									   : *m_node;
 
-			auto set = locationSetsVisitor.visit( node, i, tempParents, *m_node );
+			auto set = locationSetsVisitor.visit( node, i, m_parents, *m_node );
 			if ( set.has_value() )
 			{
 				return true;

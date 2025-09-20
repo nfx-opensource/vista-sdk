@@ -56,7 +56,6 @@ namespace dnv::vista::sdk::benchmarks
 			}
 
 			{ // Clear and reserve space for containers (GMOD v3.7a has ~16K nodes)
-
 				constexpr size_t NUM_NODES = 32768;
 
 				m_unordered_map.clear();

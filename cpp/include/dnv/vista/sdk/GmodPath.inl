@@ -193,13 +193,6 @@ namespace dnv::vista::sdk
 	// State inspection methods
 	//----------------------------------------------
 
-	inline bool GmodPath::isValid( const std::vector<GmodNode*>& parents, const GmodNode& node )
-	{
-		int missingLinkAt;
-
-		return isValid( parents, node, missingLinkAt );
-	}
-
 	inline bool GmodPath::isMappable() const
 	{
 		if ( !m_node.has_value() )

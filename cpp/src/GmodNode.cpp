@@ -79,16 +79,16 @@ namespace dnv::vista::sdk
 			  dto.installSubstructure(),
 			  dto.normalAssignmentNames().has_value() ? *dto.normalAssignmentNames()
 													  : nfx::containers::StringMap<std::string>() },
-		  m_children{},
-		  m_parents{},
-		  m_childrenSet{}
+		  m_children{ std::make_shared<std::vector<GmodNode*>>() },
+		  m_parents{ std::make_shared<std::vector<GmodNode*>>() },
+		  m_childrenSet{ std::make_shared<nfx::containers::StringSet>() }
 	{
 		size_t expectedChildren = internal::gmodnode::estimateChildrenCount( dto.category(), dto.type() );
 		size_t expectedParents = internal::gmodnode::estimateParentsCount( dto.category(), dto.type() );
 
-		m_children.reserve( expectedChildren );
-		m_parents.reserve( expectedParents );
-		m_childrenSet.reserve( expectedChildren );
+		m_children->reserve( expectedChildren );
+		m_parents->reserve( expectedParents );
+		m_childrenSet->reserve( expectedChildren );
 	}
 
 	//----------------------------------------------
@@ -164,7 +164,7 @@ namespace dnv::vista::sdk
 
 	std::optional<GmodNode> GmodNode::productType() const noexcept
 	{
-		if ( m_children.size() != 1 )
+		if ( m_children->size() != 1 )
 		{
 			return std::nullopt;
 		}
@@ -174,7 +174,7 @@ namespace dnv::vista::sdk
 			return std::nullopt;
 		}
 
-		const GmodNode* child = m_children[0];
+		const GmodNode* child = ( *m_children )[0];
 		if ( !child )
 		{
 			return std::nullopt;
@@ -195,7 +195,7 @@ namespace dnv::vista::sdk
 
 	std::optional<GmodNode> GmodNode::productSelection() const noexcept
 	{
-		if ( m_children.size() != 1 )
+		if ( m_children->size() != 1 )
 		{
 			return std::nullopt;
 		}
@@ -205,7 +205,7 @@ namespace dnv::vista::sdk
 			return std::nullopt;
 		}
 
-		const GmodNode* child = m_children[0];
+		const GmodNode* child = ( *m_children )[0];
 		if ( !child )
 		{
 			return std::nullopt;

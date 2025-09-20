@@ -279,17 +279,7 @@ namespace dnv::vista::sdk
 		 * @return True if the path is valid, false otherwise
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] inline static bool isValid( const std::vector<GmodNode*>& parents, const GmodNode& node );
-
-		/**
-		 * @brief Validates path and identifies where the hierarchy breaks
-		 * @param parents Vector of parent nodes in hierarchical order
-		 * @param node The target node to validate
-		 * @param missingLinkAt [out] Index where validation failed (-1 if valid)
-		 * @return True if the path is valid, false otherwise
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] static bool isValid( const std::vector<GmodNode*>& parents, const GmodNode& node, int& missingLinkAt );
+		[[nodiscard]] static bool isValid( const std::vector<GmodNode>& parents, const GmodNode& node );
 
 		/**
 		 * @brief Checks if this path can be mapped to physical locations

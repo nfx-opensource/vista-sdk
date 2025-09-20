@@ -166,6 +166,7 @@
 
 #pragma once
 
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -750,14 +751,14 @@ namespace dnv::vista::sdk
 		/** @brief Metadata object containing descriptive information about this node. */
 		GmodNodeMetadata m_metadata;
 
-		/** @brief Vector of non-owning pointers to direct child nodes. Managed by Gmod. */
-		std::vector<GmodNode*> m_children;
+		/** @brief Shared vector of non-owning pointers to direct child nodes. */
+		std::shared_ptr<std::vector<GmodNode*>> m_children;
 
-		/** @brief Vector of non-owning pointers to direct parent nodes. Managed by Gmod. */
-		std::vector<GmodNode*> m_parents;
+		/** @brief Shared vector of non-owning pointers to direct parent nodes. */
+		std::shared_ptr<std::vector<GmodNode*>> m_parents;
 
-		/** @brief Set of child codes for efficient `isChild(std::string_view)` lookups. Maintained by addChild/trim. */
-		nfx::containers::StringSet m_childrenSet;
+		/** @brief Shared set of child codes for efficient `isChild(std::string_view)` lookups. */
+		std::shared_ptr<nfx::containers::StringSet> m_childrenSet;
 	};
 }
 

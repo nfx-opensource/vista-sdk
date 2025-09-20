@@ -271,12 +271,12 @@ namespace dnv::vista::sdk
 
 	inline const std::vector<GmodNode*>& GmodNode::children() const noexcept
 	{
-		return m_children;
+		return *m_children;
 	}
 
 	inline const std::vector<GmodNode*>& GmodNode::parents() const noexcept
 	{
-		return m_parents;
+		return *m_parents;
 	}
 
 	//----------------------------------------------
@@ -299,7 +299,7 @@ namespace dnv::vista::sdk
 
 	inline bool GmodNode::isChild( std::string_view code ) const noexcept
 	{
-		return m_childrenSet.contains( code );
+		return m_childrenSet->contains( code );
 	}
 
 	//----------------------------------------------
@@ -341,13 +341,13 @@ namespace dnv::vista::sdk
 		}
 
 		auto childCode = child->code();
-		if ( m_childrenSet.contains( childCode ) )
+		if ( m_childrenSet->contains( childCode ) )
 		{
 			return;
 		}
 
-		m_children.push_back( child );
-		m_childrenSet.emplace( childCode );
+		m_children->push_back( child );
+		m_childrenSet->emplace( childCode );
 	}
 
 	inline void GmodNode::addParent( GmodNode* parent ) noexcept
@@ -357,22 +357,22 @@ namespace dnv::vista::sdk
 			return;
 		}
 
-		m_parents.push_back( parent );
+		m_parents->push_back( parent );
 	}
 
 	inline void GmodNode::trim() noexcept
 	{
-		m_children.shrink_to_fit();
-		m_parents.shrink_to_fit();
+		m_children->shrink_to_fit();
+		m_parents->shrink_to_fit();
 
-		if ( m_childrenSet.size() != m_children.size() )
+		if ( m_childrenSet->size() != m_children->size() )
 		{
-			m_childrenSet.clear();
-			m_childrenSet.reserve( m_children.size() );
+			m_childrenSet->clear();
+			m_childrenSet->reserve( m_children->size() );
 
-			for ( const auto* child : m_children )
+			for ( const auto* child : *m_children )
 			{
-				m_childrenSet.emplace( child->code() );
+				m_childrenSet->emplace( child->code() );
 			}
 		}
 	}

@@ -31,6 +31,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.43] - 2025-09-20
+
+### Added
+
+-   **Shared reference semantics**: GmodNode collections (`m_children`, `m_parents`, `m_childrenSet`) now use `std::shared_ptr` for efficient copying
+
+### Changed
+
+-   **NFX Core dependency update** from v0.0.5 to v0.0.6 with improved string manipulation capabilities
+-   **GmodPath validation API simplification**
+    -   **Simplified `isValid()` signature**: Changed from `isValid(const std::vector<GmodNode*>&, const GmodNode&, int&)` to `isValid(const std::vector<GmodNode>&, const GmodNode&)`
+    -   **Direct value semantics**: GmodPath validation now works directly with node values instead of pointer vectors
+-   **LocationSetsVisitor interface**
+    -   **Direct vector access**: `visit()` method now accepts `const std::vector<GmodNode>&` instead of `const std::vector<GmodNode*>&`
+    -   **Elimination of pointer conversions**: Removed all temporary pointer vector creation throughout GMOD path processing
+-   **GmodNode architecture optimization**: Complete transition to shared reference semantics
+    -   **Shared collections**: All relationship collections now use `std::shared_ptr` for optimal copy performance
+    -   **Access pattern update**: All collection access now dereferences shared_ptr (e.g., `*m_children` instead of `m_children`)
+-   **Path parsing optimizations**: Performance improvements in GmodPath processing
+    -   **Vector reservation**: Improved capacity estimation for node vectors based on path length
+    -   **Pointer elimination**: Removed temporary pointer vector conversions in parsing algorithms
+    -   **Direct value semantics**: Path validation and processing now work directly with node values
+
+### Removed
+
+-   **Temporary vector allocations**: Removed temporary pointer vector creation in path processing
+    -   **GmodPath processing**: Removed `tempParents`, `tempParentsView`, `nodePointers` temporary vectors
+    -   **LocationSetsVisitor**: Reduced pointer conversion overhead in visit operations
+    -   **Memory optimization**: Reduced temporary allocations throughout GMOD path processing pipeline
+-   **Legacy validation methods**: Removed duplicate and complex validation overloads
+    -   **Inline wrapper removal**: Eliminated redundant `GmodPath::isValid()` inline wrapper method
+    -   **Simplified interface**: Single validation method with internal error tracking implementation
+
 ## [0.0.42] - 2025-09-20
 
 ### Changed

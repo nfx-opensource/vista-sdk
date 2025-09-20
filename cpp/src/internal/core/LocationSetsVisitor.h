@@ -20,12 +20,13 @@ namespace dnv::vista::sdk::internal
 	{
 		size_t currentParentStart;
 
-		LocationSetsVisitor() : currentParentStart{ std::numeric_limits<size_t>().max() }
+		LocationSetsVisitor()
+			: currentParentStart{ std::numeric_limits<size_t>().max() }
 		{
 		}
 
 		std::optional<std::tuple<size_t, size_t, std::optional<Location>>> visit(
-			const GmodNode& node, size_t i, const std::vector<GmodNode*>& pathParents, const GmodNode& pathTargetNode )
+			const GmodNode& node, size_t i, const std::vector<GmodNode>& pathParents, const GmodNode& pathTargetNode )
 		{
 			bool isParent = Gmod::isPotentialParent( node.metadata().type() );
 			bool isTargetNode = ( static_cast<size_t>( i ) == pathParents.size() );
@@ -59,11 +60,11 @@ namespace dnv::vista::sdk::internal
 
 						for ( size_t j = currentParentStart + 1; j <= i; ++j )
 						{
-							const GmodNode* setNode = ( j < pathParents.size() )
+							const GmodNode& setNode = ( j < pathParents.size() )
 														  ? pathParents[j]
-														  : &pathTargetNode;
+														  : pathTargetNode;
 
-							if ( !setNode->isIndividualizable( j == pathParents.size(), true ) )
+							if ( !setNode.isIndividualizable( j == pathParents.size(), true ) )
 							{
 								if ( nodes.has_value() )
 								{
@@ -73,8 +74,10 @@ namespace dnv::vista::sdk::internal
 								continue;
 							}
 
-							if ( nodes.has_value() && std::get<2>( nodes.value() ).has_value() && setNode->location().has_value() &&
-								 std::get<2>( nodes.value() ) != setNode->location() )
+							if ( nodes.has_value() &&
+								 std::get<2>( nodes.value() ).has_value() &&
+								 setNode.location().has_value() &&
+								 std::get<2>( nodes.value() ) != setNode.location() )
 							{
 								throw std::runtime_error{ "Mapping error: different locations in the same nodeset" };
 							}
@@ -84,14 +87,14 @@ namespace dnv::vista::sdk::internal
 								throw std::runtime_error{ "Can't skip in the middle of individualizable set" };
 							}
 
-							if ( setNode->isFunctionComposition() )
+							if ( setNode.isFunctionComposition() )
 							{
 								hasComposition = true;
 							}
 
 							auto location =
 								nodes.has_value() && std::get<2>( nodes.value() ).has_value() ? std::get<2>( nodes.value() )
-																							  : setNode->location();
+																							  : setNode.location();
 							size_t start = nodes.has_value() ? std::get<0>( nodes.value() )
 															 : j;
 							size_t end = j;
@@ -113,10 +116,11 @@ namespace dnv::vista::sdk::internal
 
 						for ( size_t j = startIdx; j <= endIdx; ++j )
 						{
-							const GmodNode* setNode = ( j < pathParents.size() )
+							const GmodNode& setNode = ( j < pathParents.size() )
 														  ? pathParents[j]
-														  : &pathTargetNode;
-							if ( setNode->isLeafNode() || j == pathParents.size() )
+														  : pathTargetNode;
+
+							if ( setNode.isLeafNode() || j == pathParents.size() )
 							{
 								hasLeafNode = true;
 

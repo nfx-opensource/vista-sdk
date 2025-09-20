@@ -125,10 +125,10 @@ namespace dnv::vista::sdk::benchmarks
 	// Benchmark registrations
 	//=====================================================================
 
-	BENCHMARK_REGISTER_F( GmodPathParseFixture, TryParse )->MinTime( 10.0 )->Unit( benchmark::kMillisecond );
-	BENCHMARK_REGISTER_F( GmodPathParseFixture, TryParseFullPath )->MinTime( 10.0 )->Unit( benchmark::kMillisecond );
-	BENCHMARK_REGISTER_F( GmodPathParseFixture, TryParseIndividualized )->MinTime( 10.0 )->Unit( benchmark::kMillisecond );
-	BENCHMARK_REGISTER_F( GmodPathParseFixture, TryParseFullPathIndividualized )->MinTime( 10.0 )->Unit( benchmark::kMillisecond );
+	BENCHMARK_REGISTER_F( GmodPathParseFixture, TryParse )->MinTime( 10.0 )->Unit( benchmark::kMicrosecond );
+	BENCHMARK_REGISTER_F( GmodPathParseFixture, TryParseFullPath )->MinTime( 10.0 )->Unit( benchmark::kMicrosecond );
+	BENCHMARK_REGISTER_F( GmodPathParseFixture, TryParseIndividualized )->MinTime( 10.0 )->Unit( benchmark::kMicrosecond );
+	BENCHMARK_REGISTER_F( GmodPathParseFixture, TryParseFullPathIndividualized )->MinTime( 10.0 )->Unit( benchmark::kMicrosecond );
 }
 
 BENCHMARK_MAIN();

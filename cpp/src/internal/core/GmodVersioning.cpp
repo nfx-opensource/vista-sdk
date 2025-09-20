@@ -302,14 +302,7 @@ namespace dnv::vista::sdk::internal
 			potentialParents.emplace_back( qualifyingNodes[i].second );
 		}
 
-		std::vector<GmodNode*> potentialParentPtrs;
-		potentialParentPtrs.reserve( potentialParents.size() );
-		for ( auto& parent : potentialParents )
-		{
-			potentialParentPtrs.push_back( &parent );
-		}
-
-		if ( GmodPath::isValid( potentialParentPtrs, *targetEndNode ) )
+		if ( GmodPath::isValid( potentialParents, *targetEndNode ) )
 		{
 			return GmodPath{ std::move( potentialParents ), *targetEndNode };
 		}
@@ -481,14 +474,7 @@ namespace dnv::vista::sdk::internal
 									? potentialParentsFromPath[i]
 									: targetEndNodeFromPath;
 
-			std::vector<GmodNode*> tempParentsView;
-			tempParentsView.reserve( potentialParentsFromPath.size() );
-			for ( auto& parent : potentialParentsFromPath )
-			{
-				tempParentsView.push_back( &parent );
-			}
-
-			auto set = visitor.visit( n, i, tempParentsView, targetEndNodeFromPath );
+			auto set = visitor.visit( n, i, potentialParentsFromPath, targetEndNodeFromPath );
 			if ( !set.has_value() )
 			{
 				if ( n.location().has_value() )
@@ -515,15 +501,7 @@ namespace dnv::vista::sdk::internal
 			}
 		}
 
-		std::vector<GmodNode*> potentialParentPtrsFromPath;
-		potentialParentPtrsFromPath.reserve( potentialParentsFromPath.size() );
-		for ( auto& parent : potentialParentsFromPath )
-		{
-			potentialParentPtrsFromPath.push_back( &parent );
-		}
-
-		int missingLinkAt;
-		if ( !GmodPath::isValid( potentialParentPtrsFromPath, targetEndNodeFromPath, missingLinkAt ) )
+		if ( !GmodPath::isValid( potentialParentsFromPath, targetEndNodeFromPath ) )
 		{
 			throw std::runtime_error( "Did not end up with a valid path" );
 		}
