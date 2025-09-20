@@ -1,5 +1,5 @@
 /**
- * @file GmodLoad.cpp
+ * @file BM_GmodLoad.cpp
  * @brief GMOD caching and access performance analysis for VIS system
  */
 
@@ -15,7 +15,6 @@ namespace dnv::vista::sdk::benchmarks
 {
 	static void BM_gmodCacheAccess( benchmark::State& state )
 	{
-		// Prime the cache with a single version
 		const auto& vis = VIS::instance();
 
 		for ( auto _ : state )

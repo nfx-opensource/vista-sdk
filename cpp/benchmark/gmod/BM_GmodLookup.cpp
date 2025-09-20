@@ -325,16 +325,16 @@ namespace dnv::vista::sdk::benchmarks
 	// Benchmark registrations
 	//=====================================================================
 
-	BENCHMARK_REGISTER_F( GmodLookupFixture, std_unordered_map )->MinTime( 10.0 );
-	BENCHMARK_REGISTER_F( GmodLookupFixture, std_map )->MinTime( 10.0 );
-	BENCHMARK_REGISTER_F( GmodLookupFixture, std_unordered_set )->MinTime( 10.0 );
-	BENCHMARK_REGISTER_F( GmodLookupFixture, std_set )->MinTime( 10.0 );
-	BENCHMARK_REGISTER_F( GmodLookupFixture, std_vector )->MinTime( 10.0 );
-	BENCHMARK_REGISTER_F( GmodLookupFixture, nfx_hashmap )->MinTime( 10.0 );
-	BENCHMARK_REGISTER_F( GmodLookupFixture, nfx_stringmap )->MinTime( 10.0 );
-	BENCHMARK_REGISTER_F( GmodLookupFixture, nfx_stringset )->MinTime( 10.0 );
-	BENCHMARK_REGISTER_F( GmodLookupFixture, nfx_chd_hashmap )->MinTime( 10.0 );
-	BENCHMARK_REGISTER_F( GmodLookupFixture, sdk_gmod )->MinTime( 10.0 );
+	BENCHMARK_REGISTER_F( GmodLookupFixture, std_unordered_map )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
+	BENCHMARK_REGISTER_F( GmodLookupFixture, std_map )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
+	BENCHMARK_REGISTER_F( GmodLookupFixture, std_unordered_set )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
+	BENCHMARK_REGISTER_F( GmodLookupFixture, std_set )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
+	BENCHMARK_REGISTER_F( GmodLookupFixture, std_vector )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
+	BENCHMARK_REGISTER_F( GmodLookupFixture, nfx_hashmap )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
+	BENCHMARK_REGISTER_F( GmodLookupFixture, nfx_stringmap )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
+	BENCHMARK_REGISTER_F( GmodLookupFixture, nfx_stringset )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
+	BENCHMARK_REGISTER_F( GmodLookupFixture, nfx_chd_hashmap )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
+	BENCHMARK_REGISTER_F( GmodLookupFixture, sdk_gmod )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
 }
 
 BENCHMARK_MAIN();

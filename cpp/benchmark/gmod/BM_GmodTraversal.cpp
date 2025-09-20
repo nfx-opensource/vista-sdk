@@ -1,5 +1,5 @@
 /**
- * @file GmodTraversal.cpp
+ * @file BM_GmodTraversal.cpp
  * @brief GMOD tree traversal performance benchmark testing full tree iteration
  */
 
@@ -13,48 +13,73 @@
 
 namespace dnv::vista::sdk::benchmarks
 {
-	static const Gmod* g_gmod = nullptr;
-	static bool g_initialized = false;
-
-	static void initializeData()
+	class GmodTraversal
 	{
-		if ( !g_initialized )
+	private:
+		const Gmod* m_gmod;
+
+	public:
+		GmodTraversal() = default;
+		GmodTraversal( const GmodTraversal& ) = delete;
+		GmodTraversal& operator=( const GmodTraversal& ) = delete;
+		GmodTraversal( GmodTraversal&& ) = delete;
+		GmodTraversal& operator=( GmodTraversal&& ) = delete;
+
+		void Setup()
 		{
-			auto& vis = VIS::instance();
-			g_gmod = &vis.gmod( VisVersion::v3_4a );
-			g_initialized = true;
+			const auto& vis = VIS::instance();
+			m_gmod = &vis.gmod( VisVersion::v3_4a );
 		}
-	}
 
-	static void BM_fullTraversal( benchmark::State& state )
-	{
-		initializeData();
-
-		struct BenchmarkState
+		bool FullTraversal()
 		{
-			int nodeCount = 0;
-		};
-
-		for ( auto _ : state )
-		{
-			BenchmarkState benchState;
-
-			TraverseHandlerWithState<BenchmarkState> handler =
-				[]( BenchmarkState& bmState, const std::vector<const GmodNode*>&, const GmodNode& )
-				-> TraversalHandlerResult {
-				++bmState.nodeCount;
-
+			// Simple traversal handler that continues through all nodes
+			TraverseHandler handler = []( const std::vector<const GmodNode*>&, const GmodNode& ) -> TraversalHandlerResult {
 				return TraversalHandlerResult::Continue;
 			};
 
-			bool result = g_gmod->traverse( benchState, handler );
+			return m_gmod->traverse( handler );
+		}
+	};
 
+	//=====================================================================
+	// Benchmark fixture for proper setup/teardown
+	//=====================================================================
+
+	static GmodTraversal g_benchmarkInstance;
+
+	class GmodTraversalFixture : public benchmark::Fixture
+	{
+	public:
+		void SetUp( [[maybe_unused]] const benchmark::State& state ) override
+		{
+			g_benchmarkInstance.Setup();
+		}
+
+		void TearDown( [[maybe_unused]] const benchmark::State& state ) override
+		{
+		}
+	};
+
+	//=====================================================================
+	// Benchmark implementations
+	//=====================================================================
+
+	/** @brief Full GMOD tree traversal benchmark */
+	BENCHMARK_F( GmodTraversalFixture, FullTraversal )( benchmark::State& state )
+	{
+		for ( auto _ : state )
+		{
+			bool result = g_benchmarkInstance.FullTraversal();
 			benchmark::DoNotOptimize( result );
-			benchmark::DoNotOptimize( benchState.nodeCount );
 		}
 	}
 
-	BENCHMARK( BM_fullTraversal )->MinTime( 10.0 )->Unit( benchmark::kMillisecond );
+	//=====================================================================
+	// Benchmark registrations
+	//=====================================================================
+
+	BENCHMARK_REGISTER_F( GmodTraversalFixture, FullTraversal )->MinTime( 10.0 )->Unit( benchmark::kMillisecond );
 }
 
 BENCHMARK_MAIN();

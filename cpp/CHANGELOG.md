@@ -31,6 +31,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.41] - 2025-09-20
+
+### Changed
+
+-   **Benchmark architecture unification**: Complete rewriting of existing benchmark suite with unified patterns
+
 ## [0.0.40] - 2025-09-20
 
 ### Added
