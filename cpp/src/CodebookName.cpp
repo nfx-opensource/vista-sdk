@@ -26,47 +26,47 @@ namespace dnv::vista::sdk
 		{
 			throw std::invalid_argument{ "Prefix cannot be empty." };
 		}
-		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_POSITION ) )
+		if ( nfx::string::equals( prefix, internal::codebook::PREFIX_POSITION ) )
 		{
 			return CodebookName::Position;
 		}
-		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_QUANTITY ) )
+		if ( nfx::string::equals( prefix, internal::codebook::PREFIX_QUANTITY ) )
 		{
 			return CodebookName::Quantity;
 		}
-		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_STATE ) )
+		if ( nfx::string::equals( prefix, internal::codebook::PREFIX_STATE ) )
 		{
 			return CodebookName::State;
 		}
-		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_CONTENT ) )
+		if ( nfx::string::equals( prefix, internal::codebook::PREFIX_CONTENT ) )
 		{
 			return CodebookName::Content;
 		}
-		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_COMMAND ) )
+		if ( nfx::string::equals( prefix, internal::codebook::PREFIX_COMMAND ) )
 		{
 			return CodebookName::Command;
 		}
-		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_TYPE ) )
+		if ( nfx::string::equals( prefix, internal::codebook::PREFIX_TYPE ) )
 		{
 			return CodebookName::Type;
 		}
-		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_CALCULATION ) )
+		if ( nfx::string::equals( prefix, internal::codebook::PREFIX_CALCULATION ) )
 		{
 			return CodebookName::Calculation;
 		}
-		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_DETAIL ) )
+		if ( nfx::string::equals( prefix, internal::codebook::PREFIX_DETAIL ) )
 		{
 			return CodebookName::Detail;
 		}
-		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_FUNCTIONAL_SERVICES ) )
+		if ( nfx::string::equals( prefix, internal::codebook::PREFIX_FUNCTIONAL_SERVICES ) )
 		{
 			return CodebookName::FunctionalServices;
 		}
-		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_MAINTENANCE_CATEGORY ) )
+		if ( nfx::string::equals( prefix, internal::codebook::PREFIX_MAINTENANCE_CATEGORY ) )
 		{
 			return CodebookName::MaintenanceCategory;
 		}
-		if ( nfx::string::equals( prefix, internal::constants::codebook::PREFIX_ACTIVITY_TYPE ) )
+		if ( nfx::string::equals( prefix, internal::codebook::PREFIX_ACTIVITY_TYPE ) )
 		{
 			return CodebookName::ActivityType;
 		}
@@ -82,57 +82,57 @@ namespace dnv::vista::sdk
 		{
 			case CodebookName::Position:
 			{
-				result = internal::constants::codebook::PREFIX_POSITION;
+				result = internal::codebook::PREFIX_POSITION;
 				break;
 			}
 			case CodebookName::Quantity:
 			{
-				result = internal::constants::codebook::PREFIX_QUANTITY;
+				result = internal::codebook::PREFIX_QUANTITY;
 				break;
 			}
 			case CodebookName::Calculation:
 			{
-				result = internal::constants::codebook::PREFIX_CALCULATION;
+				result = internal::codebook::PREFIX_CALCULATION;
 				break;
 			}
 			case CodebookName::State:
 			{
-				result = internal::constants::codebook::PREFIX_STATE;
+				result = internal::codebook::PREFIX_STATE;
 				break;
 			}
 			case CodebookName::Content:
 			{
-				result = internal::constants::codebook::PREFIX_CONTENT;
+				result = internal::codebook::PREFIX_CONTENT;
 				break;
 			}
 			case CodebookName::Command:
 			{
-				result = internal::constants::codebook::PREFIX_COMMAND;
+				result = internal::codebook::PREFIX_COMMAND;
 				break;
 			}
 			case CodebookName::Type:
 			{
-				result = internal::constants::codebook::PREFIX_TYPE;
+				result = internal::codebook::PREFIX_TYPE;
 				break;
 			}
 			case CodebookName::FunctionalServices:
 			{
-				result = internal::constants::codebook::PREFIX_FUNCTIONAL_SERVICES;
+				result = internal::codebook::PREFIX_FUNCTIONAL_SERVICES;
 				break;
 			}
 			case CodebookName::MaintenanceCategory:
 			{
-				result = internal::constants::codebook::PREFIX_MAINTENANCE_CATEGORY;
+				result = internal::codebook::PREFIX_MAINTENANCE_CATEGORY;
 				break;
 			}
 			case CodebookName::ActivityType:
 			{
-				result = internal::constants::codebook::PREFIX_ACTIVITY_TYPE;
+				result = internal::codebook::PREFIX_ACTIVITY_TYPE;
 				break;
 			}
 			case CodebookName::Detail:
 			{
-				result = internal::constants::codebook::PREFIX_DETAIL;
+				result = internal::codebook::PREFIX_DETAIL;
 				break;
 			}
 			default:
@@ -151,7 +151,7 @@ namespace dnv::vista::sdk
 		{
 			case 5:
 			{
-				if ( nfx::string::equals( name, internal::constants::codebook::NAME_TYPE ) )
+				if ( nfx::string::equals( name, internal::codebook::NAME_TYPE ) )
 				{
 					return CodebookName::Type;
 				}
@@ -159,11 +159,11 @@ namespace dnv::vista::sdk
 			}
 			case 6:
 			{
-				if ( nfx::string::equals( name, internal::constants::codebook::NAME_STATE ) )
+				if ( nfx::string::equals( name, internal::codebook::NAME_STATE ) )
 				{
 					return CodebookName::State;
 				}
-				if ( nfx::string::equals( name, internal::constants::codebook::NAME_DETAIL ) )
+				if ( nfx::string::equals( name, internal::codebook::NAME_DETAIL ) )
 				{
 					return CodebookName::Detail;
 				}
@@ -171,11 +171,11 @@ namespace dnv::vista::sdk
 			}
 			case 8:
 			{
-				if ( nfx::string::equals( name, internal::constants::codebook::NAME_CONTENT ) )
+				if ( nfx::string::equals( name, internal::codebook::NAME_CONTENT ) )
 				{
 					return CodebookName::Content;
 				}
-				if ( nfx::string::equals( name, internal::constants::codebook::NAME_COMMAND ) )
+				if ( nfx::string::equals( name, internal::codebook::NAME_COMMAND ) )
 				{
 					return CodebookName::Command;
 				}
@@ -183,7 +183,7 @@ namespace dnv::vista::sdk
 			}
 			case 9:
 			{
-				if ( nfx::string::equals( name, internal::constants::codebook::NAME_POSITION ) )
+				if ( nfx::string::equals( name, internal::codebook::NAME_POSITION ) )
 				{
 					return CodebookName::Position;
 				}
@@ -191,7 +191,7 @@ namespace dnv::vista::sdk
 			}
 			case 10:
 			{
-				if ( nfx::string::equals( name, internal::constants::codebook::NAME_QUANTITY ) )
+				if ( nfx::string::equals( name, internal::codebook::NAME_QUANTITY ) )
 				{
 					return CodebookName::Quantity;
 				}
@@ -199,7 +199,7 @@ namespace dnv::vista::sdk
 			}
 			case 12:
 			{
-				if ( nfx::string::equals( name, internal::constants::codebook::NAME_CALCULATION ) )
+				if ( nfx::string::equals( name, internal::codebook::NAME_CALCULATION ) )
 				{
 					return CodebookName::Calculation;
 				}
@@ -207,7 +207,7 @@ namespace dnv::vista::sdk
 			}
 			case 13:
 			{
-				if ( nfx::string::equals( name, internal::constants::codebook::NAME_ACTIVITY_TYPE ) )
+				if ( nfx::string::equals( name, internal::codebook::NAME_ACTIVITY_TYPE ) )
 				{
 					return CodebookName::ActivityType;
 				}
@@ -215,7 +215,7 @@ namespace dnv::vista::sdk
 			}
 			case 19:
 			{
-				if ( nfx::string::equals( name, internal::constants::codebook::NAME_FUNCTIONAL_SERVICES ) )
+				if ( nfx::string::equals( name, internal::codebook::NAME_FUNCTIONAL_SERVICES ) )
 				{
 					return CodebookName::FunctionalServices;
 				}
@@ -223,7 +223,7 @@ namespace dnv::vista::sdk
 			}
 			case 20:
 			{
-				if ( nfx::string::equals( name, internal::constants::codebook::NAME_MAINTENANCE_CATEGORY ) )
+				if ( nfx::string::equals( name, internal::codebook::NAME_MAINTENANCE_CATEGORY ) )
 				{
 					return CodebookName::MaintenanceCategory;
 				}
@@ -244,57 +244,57 @@ namespace dnv::vista::sdk
 		{
 			case CodebookName::Position:
 			{
-				result = internal::constants::codebook::NAME_POSITION;
+				result = internal::codebook::NAME_POSITION;
 				break;
 			}
 			case CodebookName::Quantity:
 			{
-				result = internal::constants::codebook::ENUM_QUANTITY;
+				result = internal::codebook::ENUM_QUANTITY;
 				break;
 			}
 			case CodebookName::Calculation:
 			{
-				result = internal::constants::codebook::ENUM_CALCULATION;
+				result = internal::codebook::ENUM_CALCULATION;
 				break;
 			}
 			case CodebookName::State:
 			{
-				result = internal::constants::codebook::ENUM_STATE;
+				result = internal::codebook::ENUM_STATE;
 				break;
 			}
 			case CodebookName::Content:
 			{
-				result = internal::constants::codebook::ENUM_CONTENT;
+				result = internal::codebook::ENUM_CONTENT;
 				break;
 			}
 			case CodebookName::Command:
 			{
-				result = internal::constants::codebook::ENUM_COMMAND;
+				result = internal::codebook::ENUM_COMMAND;
 				break;
 			}
 			case CodebookName::Type:
 			{
-				result = internal::constants::codebook::ENUM_TYPE;
+				result = internal::codebook::ENUM_TYPE;
 				break;
 			}
 			case CodebookName::FunctionalServices:
 			{
-				result = internal::constants::codebook::ENUM_FUNCTIONAL_SERVICES;
+				result = internal::codebook::ENUM_FUNCTIONAL_SERVICES;
 				break;
 			}
 			case CodebookName::MaintenanceCategory:
 			{
-				result = internal::constants::codebook::ENUM_MAINTENANCE_CATEGORY;
+				result = internal::codebook::ENUM_MAINTENANCE_CATEGORY;
 				break;
 			}
 			case CodebookName::ActivityType:
 			{
-				result = internal::constants::codebook::ENUM_ACTIVITY_TYPE;
+				result = internal::codebook::ENUM_ACTIVITY_TYPE;
 				break;
 			}
 			case CodebookName::Detail:
 			{
-				result = internal::constants::codebook::ENUM_DETAIL;
+				result = internal::codebook::ENUM_DETAIL;
 				break;
 			}
 			default:

@@ -3,6 +3,7 @@
  * @brief Implementation of Vessel Information Structure (VIS) interface
  */
 
+#include <nfx/containers/StringMap.h>
 #include <nfx/memory/MemoryCache.h>
 
 #include "dnv/vista/sdk/VIS.h"
@@ -11,16 +12,16 @@
 #include "internal/core/GmodVersioning.h"
 #include "internal/dto/CodebooksDto.h"
 #include "internal/dto/GmodDto.h"
+#include "internal/dto/GmodVersioningDto.h"
 #include "internal/dto/LocationsDto.h"
-
 #include "dnv/vista/sdk/Codebooks.h"
 #include "dnv/vista/sdk/Gmod.h"
-#include "dnv/vista/sdk/LocalIdBuilder.h"
 #include "dnv/vista/sdk/Locations.h"
+#include "dnv/vista/sdk/VISVersion.h"
 
 namespace dnv::vista::sdk
 {
-	namespace internal
+	namespace internal::vis
 	{
 		//=====================================================================
 		// Internal Cache Infrastructure
@@ -60,7 +61,7 @@ namespace dnv::vista::sdk
 			nfx::memory::MemoryCache<VisVersion, Locations>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 
 		static auto gmodVersioningCache{
-			nfx::memory::MemoryCache<VisVersion, internal::GmodVersioning>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::memory::MemoryCache<VisVersion, GmodVersioning>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 
 		//----------------------------------------------
 		// Resource loading
@@ -68,22 +69,22 @@ namespace dnv::vista::sdk
 
 		static std::optional<nfx::containers::StringMap<GmodVersioningDto>> loadGmodVersioningDto()
 		{
-			return internal::EmbeddedResource::gmodVersioning();
+			return EmbeddedResource::gmodVersioning();
 		}
 
 		static std::optional<GmodDto> loadGmodDto( VisVersion version )
 		{
-			return internal::EmbeddedResource::gmod( VisVersionExtensions::toVersionString( version ) );
+			return EmbeddedResource::gmod( VisVersionExtensions::toVersionString( version ) );
 		}
 
 		static std::optional<CodebooksDto> loadGmodcodebooksDto( VisVersion version )
 		{
-			return internal::EmbeddedResource::codebooks( VisVersionExtensions::toVersionString( version ) );
+			return EmbeddedResource::codebooks( VisVersionExtensions::toVersionString( version ) );
 		}
 
 		static std::optional<LocationsDto> loadGmodLocationsDto( VisVersion version )
 		{
-			return internal::EmbeddedResource::locations( VisVersionExtensions::toVersionString( version ) );
+			return EmbeddedResource::locations( VisVersionExtensions::toVersionString( version ) );
 		}
 
 		//----------------------------------------------
@@ -176,19 +177,19 @@ namespace dnv::vista::sdk
 				} );
 		}
 
-		//=====================================================================
-		// GMOD Versioning Manager
-		//=====================================================================
+		//----------------------------------------------
+		// GMOD versioning
+		//----------------------------------------------
 
-		static const internal::GmodVersioning& gmodVersioning()
+		static const GmodVersioning& gmodVersioning()
 		{
 			static constexpr VisVersion cacheKey = VisVersion::LATEST;
 
-			return internal::gmodVersioningCache.getOrCreate(
+			return gmodVersioningCache.getOrCreate(
 				cacheKey,
 				[]() -> internal::GmodVersioning {
-					const auto& dto = internal::gmodVersioningDto( internal::gmodVersioningDtoCache, cacheKey );
-					return internal::GmodVersioning{ dto };
+					const auto& dto = gmodVersioningDto( gmodVersioningDtoCache, cacheKey );
+					return GmodVersioning{ dto };
 				},
 				[]( nfx::memory::CacheEntry& entry ) {
 					entry.size = 1;
@@ -221,10 +222,10 @@ namespace dnv::vista::sdk
 			throw std::invalid_argument{ "Invalid VIS version: " + VisVersionExtensions::toVersionString( version ) };
 		}
 
-		return internal::gmodCache.getOrCreate(
+		return internal::vis::gmodCache.getOrCreate(
 			version,
 			[version]() -> Gmod {
-				const auto& dto = internal::gmodDto( internal::gmodDtoCache, version );
+				const auto& dto = internal::vis::gmodDto( internal::vis::gmodDtoCache, version );
 				return Gmod{ version, dto };
 			},
 			[]( nfx::memory::CacheEntry& entry ) {
@@ -240,10 +241,10 @@ namespace dnv::vista::sdk
 			throw std::invalid_argument{ "Invalid VIS version: " + VisVersionExtensions::toVersionString( version ) };
 		}
 
-		return internal::codebooksCache.getOrCreate(
+		return internal::vis::codebooksCache.getOrCreate(
 			version,
 			[version]() -> Codebooks {
-				const auto& dto = internal::codebooksDto( internal::codebooksDtoCache, version );
+				const auto& dto = internal::vis::codebooksDto( internal::vis::codebooksDtoCache, version );
 				return Codebooks{ version, dto };
 			},
 			[]( nfx::memory::CacheEntry& entry ) {
@@ -259,10 +260,10 @@ namespace dnv::vista::sdk
 			throw std::invalid_argument{ "Invalid VIS version: " + VisVersionExtensions::toVersionString( version ) };
 		}
 
-		return internal::locationsCache.getOrCreate(
+		return internal::vis::locationsCache.getOrCreate(
 			version,
 			[version]() -> Locations {
-				const auto& dto = internal::locationsDto( internal::locationsDtoCache, version );
+				const auto& dto = internal::vis::locationsDto( internal::vis::locationsDtoCache, version );
 				return Locations{ version, dto };
 			},
 			[]( nfx::memory::CacheEntry& entry ) {
@@ -287,7 +288,7 @@ namespace dnv::vista::sdk
 		{
 			if ( !VisVersionExtensions::isValid( version ) )
 			{
-				internal::throwInvalidVersionError( version );
+				internal::vis::throwInvalidVersionError( version );
 			}
 
 			/* Need to copy the GMOD from cache since try_emplace requires construction
@@ -309,7 +310,7 @@ namespace dnv::vista::sdk
 		{
 			if ( !VisVersionExtensions::isValid( version ) )
 			{
-				internal::throwInvalidVersionError( version );
+				internal::vis::throwInvalidVersionError( version );
 			}
 
 			/* Need to copy the Codebooks from cache since try_emplace requires construction
@@ -331,7 +332,7 @@ namespace dnv::vista::sdk
 		{
 			if ( !VisVersionExtensions::isValid( version ) )
 			{
-				internal::throwInvalidVersionError( version );
+				internal::vis::throwInvalidVersionError( version );
 			}
 
 			/* Need to copy the Locations from cache since try_emplace requires construction
@@ -354,7 +355,7 @@ namespace dnv::vista::sdk
 
 	std::optional<GmodNode> VIS::convertNode( VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion ) const
 	{
-		return internal::gmodVersioning().convertNode( sourceVersion, sourceNode, targetVersion );
+		return internal::vis::gmodVersioning().convertNode( sourceVersion, sourceNode, targetVersion );
 	}
 
 	std::optional<GmodNode> VIS::convertNode( const GmodNode& sourceNode, VisVersion targetVersion, [[maybe_unused]] const GmodNode* sourceParent ) const
@@ -368,7 +369,7 @@ namespace dnv::vista::sdk
 
 	std::optional<GmodPath> VIS::convertPath( VisVersion sourceVersion, const GmodPath& sourcePath, VisVersion targetVersion ) const
 	{
-		return internal::gmodVersioning().convertPath( sourceVersion, sourcePath, targetVersion );
+		return internal::vis::gmodVersioning().convertPath( sourceVersion, sourcePath, targetVersion );
 	}
 
 	std::optional<GmodPath> VIS::convertPath( const GmodPath& sourcePath, VisVersion targetVersion ) const
@@ -382,11 +383,11 @@ namespace dnv::vista::sdk
 
 	std::optional<LocalIdBuilder> VIS::convertLocalId( const LocalIdBuilder& sourceLocalId, VisVersion targetVersion ) const
 	{
-		return internal::gmodVersioning().convertLocalId( sourceLocalId, targetVersion );
+		return internal::vis::gmodVersioning().convertLocalId( sourceLocalId, targetVersion );
 	}
 
 	std::optional<LocalId> VIS::convertLocalId( const LocalId& sourceLocalId, VisVersion targetVersion ) const
 	{
-		return internal::gmodVersioning().convertLocalId( sourceLocalId, targetVersion );
+		return internal::vis::gmodVersioning().convertLocalId( sourceLocalId, targetVersion );
 	}
 }

@@ -5,68 +5,13 @@
 
 #include "dnv/vista/sdk/Codebook.h"
 
-#include "dnv/vista/sdk/MetadataTag.h"
-#include "dnv/vista/sdk/VIS.h"
 #include "internal/constants/Codebook.h"
 #include "internal/dto/CodebooksDto.h"
+#include "dnv/vista/sdk/MetadataTag.h"
+#include "dnv/vista/sdk/VIS.h"
 
 namespace dnv::vista::sdk
 {
-	//=====================================================================
-	// Magic numbers
-	//=====================================================================
-
-	namespace internal
-	{
-		/*
-		 * TODO: Future enhancement: Consider making these limits configurable through a CodebookConfig
-		 *       structure to allow users to tune performance/memory trade-offs for their specific use cases.
-		 */
-
-		/**
-		 * @brief Stack allocation limit for position parsing arrays to avoid heap allocation during position validation.
-		 * @details This constant defines the maximum number of position components that can be parsed from a
-		 *          hyphen-separated position string (e.g., "port-forward-upper"). Using stack allocation for
-		 *          small arrays provides significant performance benefits over dynamic allocation, especially
-		 *          for high-frequency validation operations.
-		 *
-		 *          Typical VISTA position strings contain 1-4 components, making 16 a generous upper bound
-		 *          that covers edge cases while maintaining stack safety. If a position string exceeds this
-		 *          limit, validation returns Invalid to prevent buffer overflows.
-		 *
-		 * @note Value chosen based on analysis of VISTA position vocabulary patterns and performance testing.
-		 */
-		static constexpr size_t MAX_POSITIONS = 16;
-
-		/**
-		 * @brief Stack allocation limit for group tracking arrays to avoid heap allocation during position grouping validation.
-		 * @details During position validation, the system tracks which groups each position component belongs to
-		 *          (e.g., "Side (ship)", "Longitudinal", "Vertical"). This constant limits the number of unique
-		 *          groups that can be tracked on the stack.
-		 *
-		 *          VISTA position codebook contains approximately 13 distinct groups, making 16 a safe upper bound
-		 *          that accommodates all current groups plus potential future extensions. Stack allocation here
-		 *          avoids memory fragmentation during frequent group validation operations.
-		 *
-		 * @note Corresponds to the number of position groups in VISTA codebook specification.
-		 */
-		static constexpr size_t MAX_GROUPS = 16;
-
-		/**
-		 * @brief Stack allocation limit for non-numeric position tracking to avoid heap allocation during order validation.
-		 * @details Position validation includes checking the alphabetical ordering of non-numeric components
-		 *          (numeric components like "1", "2", "3" must appear at the end). This constant limits how many
-		 *          non-numeric position components can be tracked for sorting validation.
-		 *
-		 *          Most VISTA position strings contain 2-3 non-numeric components, making 8 a conservative
-		 *          upper bound that handles complex position hierarchies while maintaining stack efficiency.
-		 *          Exceeding this limit degrades to less strict validation but remains functional.
-		 *
-		 * @note Chosen to handle complex multi-level position hierarchies without excessive stack usage.
-		 */
-		static constexpr size_t MAX_NON_NUMERIC = 8;
-	}
-
 	//=====================================================================
 	// PositionValidationResults class
 	//=====================================================================
@@ -82,23 +27,23 @@ namespace dnv::vista::sdk
 			throw std::invalid_argument{ "PositionValidationResult name cannot be empty" };
 		}
 
-		if ( nfx::string::iequals( name, internal::constants::codebook::POSITION_VALIDATION_INVALID ) )
+		if ( nfx::string::iequals( name, internal::codebook::POSITION_VALIDATION_INVALID ) )
 		{
 			return PositionValidationResult::Invalid;
 		}
-		if ( nfx::string::iequals( name, internal::constants::codebook::POSITION_VALIDATION_INVALID_ORDER ) )
+		if ( nfx::string::iequals( name, internal::codebook::POSITION_VALIDATION_INVALID_ORDER ) )
 		{
 			return PositionValidationResult::InvalidOrder;
 		}
-		if ( nfx::string::iequals( name, internal::constants::codebook::POSITION_VALIDATION_INVALID_GROUPING ) )
+		if ( nfx::string::iequals( name, internal::codebook::POSITION_VALIDATION_INVALID_GROUPING ) )
 		{
 			return PositionValidationResult::InvalidGrouping;
 		}
-		if ( nfx::string::iequals( name, internal::constants::codebook::POSITION_VALIDATION_VALID ) )
+		if ( nfx::string::iequals( name, internal::codebook::POSITION_VALIDATION_VALID ) )
 		{
 			return PositionValidationResult::Valid;
 		}
-		if ( nfx::string::iequals( name, internal::constants::codebook::POSITION_VALIDATION_CUSTOM ) )
+		if ( nfx::string::iequals( name, internal::codebook::POSITION_VALIDATION_CUSTOM ) )
 		{
 			return PositionValidationResult::Custom;
 		}
@@ -159,7 +104,7 @@ namespace dnv::vista::sdk
 				std::string valueStr{ valueTrimmed };
 				trimmedValues.emplace_back( std::move( valueStr ) );
 
-				if ( trimmedValues.back() != internal::constants::codebook::GROUP_NUMBER )
+				if ( trimmedValues.back() != internal::codebook::GROUP_NUMBER )
 				{
 					m_groupMap.emplace( trimmedValues.back(), groupStr );
 					valueSet.emplace( trimmedValues.back() );
@@ -287,14 +232,14 @@ namespace dnv::vista::sdk
 			return PositionValidationResult::Custom;
 		}
 
-		std::array<std::string_view, internal::MAX_POSITIONS> positions;
+		std::array<std::string_view, internal::codebook::MAX_POSITIONS> positions;
 		size_t positionCount = 0;
 
 		const char* data = position.data();
 		const char* end = data + position.size();
 		const char* start = data;
 
-		while ( start < end && positionCount < internal::MAX_POSITIONS )
+		while ( start < end && positionCount < internal::codebook::MAX_POSITIONS )
 		{
 			const char* hyphen = std::find( start, end, '-' );
 			positions[positionCount] = std::string_view( start, static_cast<size_t>( hyphen - start ) );
@@ -308,13 +253,13 @@ namespace dnv::vista::sdk
 			start = hyphen + 1;
 		}
 
-		if ( positionCount >= internal::MAX_POSITIONS )
+		if ( positionCount >= internal::codebook::MAX_POSITIONS )
 		{
 			return PositionValidationResult::Invalid;
 		}
 
-		std::array<bool, internal::MAX_POSITIONS> isDigitArray;
-		std::array<std::string_view, internal::MAX_NON_NUMERIC> nonNumericPositions;
+		std::array<bool, internal::codebook::MAX_POSITIONS> isDigitArray;
+		std::array<std::string_view, internal::codebook::MAX_NON_NUMERIC> nonNumericPositions;
 		size_t nonNumericCount = 0;
 		bool hasNumberNotAtEnd = false;
 		PositionValidationResult worstResult = PositionValidationResult::Valid;
@@ -356,7 +301,7 @@ namespace dnv::vista::sdk
 			}
 			else
 			{
-				if ( nonNumericCount < internal::MAX_NON_NUMERIC )
+				if ( nonNumericCount < internal::codebook::MAX_NON_NUMERIC )
 				{
 					if ( nonNumericCount > 0 && positions[i] < nonNumericPositions[nonNumericCount - 1] )
 					{
@@ -376,7 +321,7 @@ namespace dnv::vista::sdk
 		if ( worstResult == PositionValidationResult::Valid )
 		{
 			nfx::containers::StringSet uniqueGroups;
-			uniqueGroups.reserve( internal::MAX_GROUPS );
+			uniqueGroups.reserve( internal::codebook::MAX_GROUPS );
 			bool hasDefaultGroup = false;
 
 			for ( size_t i = 0; i < positionCount; ++i )
@@ -385,18 +330,18 @@ namespace dnv::vista::sdk
 
 				if ( isDigitArray[i] )
 				{
-					group = internal::constants::codebook::GROUP_NUMBER;
+					group = internal::codebook::GROUP_NUMBER;
 				}
 				else
 				{
 					auto it = m_groupMap.find( std::string{ positions[i] } );
 					group = ( it != m_groupMap.end() ) ? std::string_view{ it->second }
-													   : internal::constants::codebook::GROUP_UNKNOWN;
+													   : internal::codebook::GROUP_UNKNOWN;
 				}
 
 				uniqueGroups.emplace( group );
 
-				if ( group == internal::constants::codebook::GROUP_DEFAULT )
+				if ( group == internal::codebook::GROUP_DEFAULT )
 				{
 					hasDefaultGroup = true;
 				}

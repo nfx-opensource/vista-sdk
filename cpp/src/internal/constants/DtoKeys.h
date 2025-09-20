@@ -9,163 +9,166 @@
 
 #include <string_view>
 
-namespace dnv::vista::sdk::internal::constants::dto
+namespace dnv::vista::sdk::internal
 {
-	//=====================================================================
-	// VIS Release Version Keys
-	//=====================================================================
-
-	/** @brief VIS release version key for JSON parsing. */
-	inline constexpr std::string_view KEY_VIS_RELEASE = "visRelease";
-
-	//=====================================================================
-	// Domain-Specific DTO Parsing Keys
-	//=====================================================================
-
-	namespace codebook
+	namespace dto
 	{
-		//----------------------------------------------
-		// Codebook DTO parsing keys
-		//----------------------------------------------
+		//=====================================================================
+		// VIS Release Version Keys
+		//=====================================================================
 
-		/** @brief Codebook name key for JSON parsing. */
-		inline constexpr std::string_view KEY_NAME = "name";
+		/** @brief VIS release version key for JSON parsing. */
+		inline constexpr std::string_view KEY_VIS_RELEASE = "visRelease";
 
-		/** @brief Items array key for codebook JSON parsing. */
-		inline constexpr std::string_view KEY_ITEMS = "items";
+		//=====================================================================
+		// Domain-Specific DTO Parsing Keys
+		//=====================================================================
 
-		/** @brief Values array key for codebook JSON parsing. */
-		inline constexpr std::string_view KEY_VALUES = "values";
-	}
+		namespace codebook
+		{
+			//----------------------------------------------
+			// Codebook DTO parsing keys
+			//----------------------------------------------
 
-	namespace gmod
-	{
-		//----------------------------------------------
-		// GMOD DTO parsing keys
-		//----------------------------------------------
+			/** @brief Codebook name key for JSON parsing. */
+			inline constexpr std::string_view KEY_NAME = "name";
 
-		/** @brief GMOD name key for JSON parsing. */
-		inline constexpr std::string_view KEY_NAME = "name";
+			/** @brief Items array key for codebook JSON parsing. */
+			inline constexpr std::string_view KEY_ITEMS = "items";
 
-		/** @brief Items array key for GMOD JSON parsing. */
-		inline constexpr std::string_view KEY_ITEMS = "items";
+			/** @brief Values array key for codebook JSON parsing. */
+			inline constexpr std::string_view KEY_VALUES = "values";
+		}
 
-		//----------------------------------------------
-		// GMOD DTO classification keys
-		//----------------------------------------------
+		namespace gmod
+		{
+			//----------------------------------------------
+			// GMOD DTO parsing keys
+			//----------------------------------------------
 
-		/** @brief Category classification key for GMOD JSON parsing. */
-		inline constexpr std::string_view KEY_CATEGORY = "category";
+			/** @brief GMOD name key for JSON parsing. */
+			inline constexpr std::string_view KEY_NAME = "name";
 
-		/** @brief Type classification key for GMOD JSON parsing. */
-		inline constexpr std::string_view KEY_TYPE = "type";
+			/** @brief Items array key for GMOD JSON parsing. */
+			inline constexpr std::string_view KEY_ITEMS = "items";
 
-		/** @brief Code identifier key for GMOD JSON parsing. */
-		inline constexpr std::string_view KEY_CODE = "code";
+			//----------------------------------------------
+			// GMOD DTO classification keys
+			//----------------------------------------------
 
-		/** @brief Common name key for GMOD JSON parsing. */
-		inline constexpr std::string_view KEY_COMMON_NAME = "commonName";
+			/** @brief Category classification key for GMOD JSON parsing. */
+			inline constexpr std::string_view KEY_CATEGORY = "category";
 
-		/** @brief Definition key for GMOD JSON parsing. */
-		inline constexpr std::string_view KEY_DEFINITION = "definition";
+			/** @brief Type classification key for GMOD JSON parsing. */
+			inline constexpr std::string_view KEY_TYPE = "type";
 
-		/** @brief Common definition key for GMOD JSON parsing. */
-		inline constexpr std::string_view KEY_COMMON_DEFINITION = "commonDefinition";
+			/** @brief Code identifier key for GMOD JSON parsing. */
+			inline constexpr std::string_view KEY_CODE = "code";
 
-		/** @brief Install substructure key for GMOD JSON parsing. */
-		inline constexpr std::string_view KEY_INSTALL_SUBSTRUCTURE = "installSubstructure";
+			/** @brief Common name key for GMOD JSON parsing. */
+			inline constexpr std::string_view KEY_COMMON_NAME = "commonName";
 
-		/** @brief Normal assignment names key for GMOD JSON parsing. */
-		inline constexpr std::string_view KEY_NORMAL_ASSIGNMENT_NAMES = "normalAssignmentNames";
+			/** @brief Definition key for GMOD JSON parsing. */
+			inline constexpr std::string_view KEY_DEFINITION = "definition";
 
-		/** @brief Relations key for GMOD JSON parsing. */
-		inline constexpr std::string_view KEY_RELATIONS = "relations";
-	}
+			/** @brief Common definition key for GMOD JSON parsing. */
+			inline constexpr std::string_view KEY_COMMON_DEFINITION = "commonDefinition";
 
-	namespace gmodversioning
-	{
-		//----------------------------------------------
-		// GMOD versioning DTO parsing keys
-		//----------------------------------------------
+			/** @brief Install substructure key for GMOD JSON parsing. */
+			inline constexpr std::string_view KEY_INSTALL_SUBSTRUCTURE = "installSubstructure";
 
-		/** @brief Items array key for GMOD versioning JSON parsing. */
-		inline constexpr std::string_view KEY_ITEMS = "items";
+			/** @brief Normal assignment names key for GMOD JSON parsing. */
+			inline constexpr std::string_view KEY_NORMAL_ASSIGNMENT_NAMES = "normalAssignmentNames";
 
-		/** @brief Old assignment key for GMOD versioning JSON parsing. */
-		inline constexpr std::string_view KEY_OLD_ASSIGNMENT = "oldAssignment";
+			/** @brief Relations key for GMOD JSON parsing. */
+			inline constexpr std::string_view KEY_RELATIONS = "relations";
+		}
 
-		/** @brief Current assignment key for GMOD versioning JSON parsing. */
-		inline constexpr std::string_view KEY_CURRENT_ASSIGNMENT = "currentAssignment";
+		namespace gmodversioning
+		{
+			//----------------------------------------------
+			// GMOD versioning DTO parsing keys
+			//----------------------------------------------
 
-		/** @brief New assignment key for GMOD versioning JSON parsing. */
-		inline constexpr std::string_view KEY_NEW_ASSIGNMENT = "newAssignment";
+			/** @brief Items array key for GMOD versioning JSON parsing. */
+			inline constexpr std::string_view KEY_ITEMS = "items";
 
-		/** @brief Delete assignment key for GMOD versioning JSON parsing. */
-		inline constexpr std::string_view KEY_DELETE_ASSIGNMENT = "deleteAssignment";
+			/** @brief Old assignment key for GMOD versioning JSON parsing. */
+			inline constexpr std::string_view KEY_OLD_ASSIGNMENT = "oldAssignment";
 
-		/** @brief Operations key for GMOD versioning JSON parsing. */
-		inline constexpr std::string_view KEY_OPERATIONS = "operations";
+			/** @brief Current assignment key for GMOD versioning JSON parsing. */
+			inline constexpr std::string_view KEY_CURRENT_ASSIGNMENT = "currentAssignment";
 
-		/** @brief Source key for GMOD versioning JSON parsing. */
-		inline constexpr std::string_view KEY_SOURCE = "source";
+			/** @brief New assignment key for GMOD versioning JSON parsing. */
+			inline constexpr std::string_view KEY_NEW_ASSIGNMENT = "newAssignment";
 
-		/** @brief Target key for GMOD versioning JSON parsing. */
-		inline constexpr std::string_view KEY_TARGET = "target";
-	}
+			/** @brief Delete assignment key for GMOD versioning JSON parsing. */
+			inline constexpr std::string_view KEY_DELETE_ASSIGNMENT = "deleteAssignment";
 
-	namespace iso19848
-	{
-		//----------------------------------------------
-		// ISO19848 DTO parsing keys
-		//----------------------------------------------
+			/** @brief Operations key for GMOD versioning JSON parsing. */
+			inline constexpr std::string_view KEY_OPERATIONS = "operations";
 
-		/** @brief Values key for ISO19848 JSON parsing. */
-		inline constexpr std::string_view KEY_VALUES = "values";
+			/** @brief Source key for GMOD versioning JSON parsing. */
+			inline constexpr std::string_view KEY_SOURCE = "source";
 
-		/** @brief Type key for ISO19848 JSON parsing. */
-		inline constexpr std::string_view KEY_TYPE = "type";
+			/** @brief Target key for GMOD versioning JSON parsing. */
+			inline constexpr std::string_view KEY_TARGET = "target";
+		}
 
-		/** @brief Description key for ISO19848 JSON parsing. */
-		inline constexpr std::string_view KEY_DESCRIPTION = "description";
-	}
+		namespace iso19848
+		{
+			//----------------------------------------------
+			// ISO19848 DTO parsing keys
+			//----------------------------------------------
 
-	namespace locations
-	{
-		//----------------------------------------------
-		// Locations DTO parsing keys
-		//----------------------------------------------
+			/** @brief Values key for ISO19848 JSON parsing. */
+			inline constexpr std::string_view KEY_VALUES = "values";
 
-		/** @brief Code key for locations JSON parsing. */
-		inline constexpr std::string_view KEY_CODE = "code";
+			/** @brief Type key for ISO19848 JSON parsing. */
+			inline constexpr std::string_view KEY_TYPE = "type";
 
-		/** @brief Name key for locations JSON parsing. */
-		inline constexpr std::string_view KEY_NAME = "name";
+			/** @brief Description key for ISO19848 JSON parsing. */
+			inline constexpr std::string_view KEY_DESCRIPTION = "description";
+		}
 
-		/** @brief Definition key for locations JSON parsing. */
-		inline constexpr std::string_view KEY_DEFINITION = "definition";
+		namespace locations
+		{
+			//----------------------------------------------
+			// Locations DTO parsing keys
+			//----------------------------------------------
 
-		/** @brief Items array key for locations JSON parsing. */
-		inline constexpr std::string_view KEY_ITEMS = "items";
-	}
+			/** @brief Code key for locations JSON parsing. */
+			inline constexpr std::string_view KEY_CODE = "code";
 
-	namespace error
-	{
-		/** @brief Unknown codebook name fallback constant. */
-		inline constexpr std::string_view UNKNOWN_NAME = "[unknown name]";
+			/** @brief Name key for locations JSON parsing. */
+			inline constexpr std::string_view KEY_NAME = "name";
 
-		/** @brief Unknown GMOD code fallback constant. */
-		inline constexpr std::string_view UNKNOWN_CODE = "[unknown code]";
+			/** @brief Definition key for locations JSON parsing. */
+			inline constexpr std::string_view KEY_DEFINITION = "definition";
 
-		/** @brief Unknown GMOD version fallback constant. */
-		inline constexpr std::string_view UNKNOWN_VERSION = "[unknown version]";
+			/** @brief Items array key for locations JSON parsing. */
+			inline constexpr std::string_view KEY_ITEMS = "items";
+		}
 
-		/** @brief Unknown old assignment fallback constant. */
-		inline constexpr std::string_view UNKNOWN_OLD_ASSIGNMENT = "[unknown oldAssignment]";
+		namespace error
+		{
+			/** @brief Unknown codebook name fallback constant. */
+			inline constexpr std::string_view UNKNOWN_NAME = "[unknown name]";
 
-		/** @brief Unknown source fallback constant. */
-		inline constexpr std::string_view UNKNOWN_SOURCE = "[unknown source]";
+			/** @brief Unknown GMOD code fallback constant. */
+			inline constexpr std::string_view UNKNOWN_CODE = "[unknown code]";
 
-		/** @brief Unknown ISO19848 type fallback constant. */
-		inline constexpr std::string_view UNKNOWN_TYPE = "[unknown type]";
+			/** @brief Unknown GMOD version fallback constant. */
+			inline constexpr std::string_view UNKNOWN_VERSION = "[unknown version]";
+
+			/** @brief Unknown old assignment fallback constant. */
+			inline constexpr std::string_view UNKNOWN_OLD_ASSIGNMENT = "[unknown oldAssignment]";
+
+			/** @brief Unknown source fallback constant. */
+			inline constexpr std::string_view UNKNOWN_SOURCE = "[unknown source]";
+
+			/** @brief Unknown ISO19848 type fallback constant. */
+			inline constexpr std::string_view UNKNOWN_TYPE = "[unknown type]";
+		}
 	}
 }

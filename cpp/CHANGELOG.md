@@ -31,6 +31,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.39] - 2025-09-20
+
+### Added
+
+-   **Benchmark infrastructure improvements**: Re-enabled `BM_GmodLoad.cpp` benchmark
+
+### Changed
+
+-   **BREAKING CHANGE: Internal constants namespace reorganization**
+    -   Migrated all `internal::constants::*` namespaces to simplified `internal::*` structure
+    -   `internal::constants::codebook` → `internal::codebook`
+    -   `internal::constants::gmodnode` → `internal::gmodnode`
+    -   `internal::constants::localId` → `internal::localId`
+    -   `internal::constants::locations` → `internal::locations`
+    -   `internal::constants::dto` → `internal::dto`
+    -   `internal::constants::iso19848` → `internal::iso19848`
+-   **Internal namespace structure consolidation**: Moved magic numbers and configuration constants to more appropriate locations
+    -   Relocated position validation constants (`MAX_POSITIONS`, `MAX_GROUPS`, `MAX_NON_NUMERIC`) from `Codebook.cpp` to `internal/constants/Codebook.h`
+    -   Consolidated namespace-specific internal functions under their respective namespaces
+-   **VIS implementation improvements**: Better organization of internal caching and resource management
+    -   Reorganized `VIS.cpp` internal namespace from generic `internal` to specific `internal::vis`
+    -   Improved separation of concerns between different internal subsystems
+    -   Enhanced cache management with more specific namespace organization
+
+### Fixed
+
+-   **Code organization consistency**: Standardized internal namespace usage patterns across the entire codebase
+    -   Updated all references to use new simplified namespace structure
+    -   Maintained API compatibility while improving internal code organization
+    -   Enhanced maintainability through consistent namespace naming conventions
+
 ## [0.0.38] - 2025-09-19
 
 ### Changed

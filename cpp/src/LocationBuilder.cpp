@@ -15,7 +15,7 @@
 
 namespace dnv::vista::sdk
 {
-	namespace internal
+	namespace internal::locations
 	{
 		/**
 		 * @brief Internal method for setting character values with validation.
@@ -50,27 +50,27 @@ namespace dnv::vista::sdk
 					{
 						case LocationGroup::Side:
 						{
-							return internal::constants::locations::GROUP_NAME_SIDE;
+							return GROUP_NAME_SIDE;
 						}
 						case LocationGroup::Vertical:
 						{
-							return internal::constants::locations::GROUP_NAME_VERTICAL;
+							return GROUP_NAME_VERTICAL;
 						}
 						case LocationGroup::Transverse:
 						{
-							return internal::constants::locations::GROUP_NAME_TRANSVERSE;
+							return GROUP_NAME_TRANSVERSE;
 						}
 						case LocationGroup::Longitudinal:
 						{
-							return internal::constants::locations::GROUP_NAME_LONGITUDINAL;
+							return GROUP_NAME_LONGITUDINAL;
 						}
 						case LocationGroup::Number:
 						{
-							return internal::constants::locations::GROUP_NAME_NUMBER;
+							return GROUP_NAME_NUMBER;
 						}
 						default:
 						{
-							return internal::constants::locations::GROUP_NAME_UNKNOWN;
+							return GROUP_NAME_UNKNOWN;
 						}
 					}
 				}();
@@ -269,7 +269,7 @@ namespace dnv::vista::sdk
 	LocationBuilder LocationBuilder::withSide( char side ) const
 	{
 		LocationBuilder result = *this;
-		internal::withValue( m_reversedGroups, result.m_side, result.m_vertical, result.m_transverse, result.m_longitudinal, LocationGroup::Side, side );
+		internal::locations::withValue( m_reversedGroups, result.m_side, result.m_vertical, result.m_transverse, result.m_longitudinal, LocationGroup::Side, side );
 		return result;
 	}
 
@@ -285,7 +285,7 @@ namespace dnv::vista::sdk
 	LocationBuilder LocationBuilder::withVertical( char vertical ) const
 	{
 		LocationBuilder result = *this;
-		internal::withValue( m_reversedGroups, result.m_side, result.m_vertical, result.m_transverse, result.m_longitudinal, LocationGroup::Vertical, vertical );
+		internal::locations::withValue( m_reversedGroups, result.m_side, result.m_vertical, result.m_transverse, result.m_longitudinal, LocationGroup::Vertical, vertical );
 		return result;
 	}
 
@@ -301,7 +301,7 @@ namespace dnv::vista::sdk
 	LocationBuilder LocationBuilder::withTransverse( char transverse ) const
 	{
 		LocationBuilder result = *this;
-		internal::withValue( m_reversedGroups, result.m_side, result.m_vertical, result.m_transverse, result.m_longitudinal, LocationGroup::Transverse, transverse );
+		internal::locations::withValue( m_reversedGroups, result.m_side, result.m_vertical, result.m_transverse, result.m_longitudinal, LocationGroup::Transverse, transverse );
 		return result;
 	}
 
@@ -317,7 +317,7 @@ namespace dnv::vista::sdk
 	LocationBuilder LocationBuilder::withLongitudinal( char longitudinal ) const
 	{
 		LocationBuilder result = *this;
-		internal::withValue( m_reversedGroups, result.m_side, result.m_vertical, result.m_transverse, result.m_longitudinal, LocationGroup::Longitudinal, longitudinal );
+		internal::locations::withValue( m_reversedGroups, result.m_side, result.m_vertical, result.m_transverse, result.m_longitudinal, LocationGroup::Longitudinal, longitudinal );
 		return result;
 	}
 
@@ -349,7 +349,7 @@ namespace dnv::vista::sdk
 		}
 
 		LocationBuilder result = *this;
-		internal::withValue( m_reversedGroups, result.m_side, result.m_vertical, result.m_transverse, result.m_longitudinal, it->second, value );
+		internal::locations::withValue( m_reversedGroups, result.m_side, result.m_vertical, result.m_transverse, result.m_longitudinal, it->second, value );
 		return result;
 	}
 

@@ -1,37 +1,32 @@
 /**
  * @file GmodLoad.cpp
- * @brief GMOD loading and construction performance analysis
+ * @brief GMOD caching and access performance analysis for VIS system
  */
 
 #include <benchmark/benchmark.h>
 
 #include <dnv/vista/sdk/Gmod.h>
 #include <dnv/vista/sdk/VIS.h>
+#include <dnv/vista/sdk/VISVersion.h>
 
-// TODO: Temporary disabled - loadGmodDto() is part of the private API
+#include <internal/core/EmbeddedResource.h>
 
-// namespace dnv::vista::sdk::benchmarks
-// {
-// 	static void BM_gmodLoad( benchmark::State& state )
-// 	{
-// 		for ( auto _ : state )
-// 		{
-// 			auto dto = loadGmodDto( VisVersion::v3_7a );
+namespace dnv::vista::sdk::benchmarks
+{
+	static void BM_gmodCacheAccess( benchmark::State& state )
+	{
+		// Prime the cache with a single version
+		const auto& vis = VIS::instance();
 
-// 			if ( !dto.has_value() )
-// 			{
-// 				state.SkipWithError( "Failed to load GMOD DTO" );
-// 				return;
-// 			}
+		for ( auto _ : state )
+		{
+			// This measures: Cache lookup and reference return
+			const auto& gmod = vis.gmod( VisVersion::v3_7a );
+			benchmark::DoNotOptimize( gmod );
+		}
+	}
 
-// 			auto gmod = std::make_unique<Gmod>( VisVersion::v3_7a, *dto );
+	BENCHMARK( BM_gmodCacheAccess )->Unit( benchmark::kNanosecond );
+}
 
-// 			benchmark::DoNotOptimize( dto );
-// 			benchmark::DoNotOptimize( gmod );
-// 		}
-// 	}
-
-// 	BENCHMARK( BM_gmodLoad )->MinTime( 10.0 )->Unit( benchmark::kMillisecond );
-// }
-
-// BENCHMARK_MAIN();
+BENCHMARK_MAIN();

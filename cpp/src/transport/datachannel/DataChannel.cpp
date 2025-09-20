@@ -205,7 +205,7 @@ namespace dnv::vista::sdk::transport
 
 	bool Format::isDecimal() const noexcept
 	{
-		return m_type && nfx::string::equals( *m_type, dnv::vista::sdk::internal::constants::iso19848::FORMAT_TYPE_DECIMAL );
+		return m_type && nfx::string::equals( *m_type, sdk::internal::iso19848::FORMAT_TYPE_DECIMAL );
 	}
 
 	//----------------------------------------------

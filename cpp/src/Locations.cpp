@@ -18,7 +18,7 @@
 
 namespace dnv::vista::sdk
 {
-	namespace internal
+	namespace internal::locations
 	{
 		/**
 		 * @brief Convert a LocationGroup enum value to its string representation
@@ -31,27 +31,27 @@ namespace dnv::vista::sdk
 			{
 				case LocationGroup::Number:
 				{
-					return constants::locations::GROUP_NAME_NUMBER;
+					return GROUP_NAME_NUMBER;
 				}
 				case LocationGroup::Side:
 				{
-					return constants::locations::GROUP_NAME_SIDE;
+					return GROUP_NAME_SIDE;
 				}
 				case LocationGroup::Vertical:
 				{
-					return constants::locations::GROUP_NAME_VERTICAL;
+					return GROUP_NAME_VERTICAL;
 				}
 				case LocationGroup::Transverse:
 				{
-					return constants::locations::GROUP_NAME_TRANSVERSE;
+					return GROUP_NAME_TRANSVERSE;
 				}
 				case LocationGroup::Longitudinal:
 				{
-					return constants::locations::GROUP_NAME_LONGITUDINAL;
+					return GROUP_NAME_LONGITUDINAL;
 				}
 				default:
 				{
-					return constants::locations::GROUP_NAME_UNKNOWN;
+					return GROUP_NAME_UNKNOWN;
 				}
 			}
 		}
@@ -158,7 +158,7 @@ namespace dnv::vista::sdk
 					for ( char c : source )
 					{
 						if ( !nfx::string::isDigit( c ) &&
-							 ( c == constants::locations::CHAR_NUMBER || locationCodes.find( c ) == locationCodes.end() ) )
+							 ( c == CHAR_NUMBER || locationCodes.find( c ) == locationCodes.end() ) )
 						{
 							if ( !first )
 							{
@@ -282,36 +282,36 @@ namespace dnv::vista::sdk
 
 			m_relativeLocations.push_back( RelativeLocation{ code, relLocDto.name(), loc, relLocDto.definition() } );
 
-			if ( code == internal::constants::locations::CHAR_HORIZONTAL ||
-				 code == internal::constants::locations::CHAR_VERTICAL )
+			if ( code == internal::locations::CHAR_HORIZONTAL ||
+				 code == internal::locations::CHAR_VERTICAL )
 			{
 				continue;
 			}
 
 			LocationGroup key;
-			if ( code == internal::constants::locations::CHAR_NUMBER )
+			if ( code == internal::locations::CHAR_NUMBER )
 			{
 				key = LocationGroup::Number;
 			}
-			else if ( code == internal::constants::locations::CHAR_PORT ||
-					  code == internal::constants::locations::CHAR_CENTER ||
-					  code == internal::constants::locations::CHAR_STARBOARD )
+			else if ( code == internal::locations::CHAR_PORT ||
+					  code == internal::locations::CHAR_CENTER ||
+					  code == internal::locations::CHAR_STARBOARD )
 			{
 				key = LocationGroup::Side;
 			}
-			else if ( code == internal::constants::locations::CHAR_UPPER ||
-					  code == internal::constants::locations::CHAR_MIDDLE ||
-					  code == internal::constants::locations::CHAR_LOWER )
+			else if ( code == internal::locations::CHAR_UPPER ||
+					  code == internal::locations::CHAR_MIDDLE ||
+					  code == internal::locations::CHAR_LOWER )
 			{
 				key = LocationGroup::Vertical;
 			}
-			else if ( code == internal::constants::locations::CHAR_INBOARD ||
-					  code == internal::constants::locations::CHAR_OUTBOARD )
+			else if ( code == internal::locations::CHAR_INBOARD ||
+					  code == internal::locations::CHAR_OUTBOARD )
 			{
 				key = LocationGroup::Transverse;
 			}
-			else if ( code == internal::constants::locations::CHAR_FORWARD ||
-					  code == internal::constants::locations::CHAR_AFT )
+			else if ( code == internal::locations::CHAR_FORWARD ||
+					  code == internal::locations::CHAR_AFT )
 			{
 				key = LocationGroup::Longitudinal;
 			}
@@ -398,7 +398,7 @@ namespace dnv::vista::sdk
 		internal::LocationParsingErrorBuilder errorBuilder;
 		std::string parsedLocationString;
 
-		if ( !internal::tryParse( m_locationCodes, m_reversedGroups, value.value(), value, parsedLocationString, errorBuilder ) )
+		if ( !internal::locations::tryParse( m_locationCodes, m_reversedGroups, value.value(), value, parsedLocationString, errorBuilder ) )
 		{
 			return false;
 		}
@@ -426,7 +426,7 @@ namespace dnv::vista::sdk
 		internal::LocationParsingErrorBuilder errorBuilder = internal::LocationParsingErrorBuilder::create();
 		std::string parsedLocationString;
 
-		bool result = internal::tryParse( m_locationCodes, m_reversedGroups, value.value(), value, parsedLocationString, errorBuilder );
+		bool result = internal::locations::tryParse( m_locationCodes, m_reversedGroups, value.value(), value, parsedLocationString, errorBuilder );
 		errors = errorBuilder.build();
 
 		if ( result )
@@ -442,7 +442,7 @@ namespace dnv::vista::sdk
 		internal::LocationParsingErrorBuilder errorBuilder;
 		std::string parsedLocationString;
 
-		if ( internal::tryParse( m_locationCodes, m_reversedGroups, value, std::nullopt, parsedLocationString, errorBuilder ) )
+		if ( internal::locations::tryParse( m_locationCodes, m_reversedGroups, value, std::nullopt, parsedLocationString, errorBuilder ) )
 		{
 			location = Location{ parsedLocationString };
 			return true;
@@ -456,7 +456,7 @@ namespace dnv::vista::sdk
 		internal::LocationParsingErrorBuilder errorBuilder;
 		std::string parsedLocationString;
 
-		bool result = internal::tryParse( m_locationCodes, m_reversedGroups, value, std::nullopt, parsedLocationString, errorBuilder );
+		bool result = internal::locations::tryParse( m_locationCodes, m_reversedGroups, value, std::nullopt, parsedLocationString, errorBuilder );
 		if ( !result )
 		{
 			errors = errorBuilder.build();

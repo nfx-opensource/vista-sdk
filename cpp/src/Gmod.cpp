@@ -137,30 +137,30 @@ namespace dnv::vista::sdk
 	bool Gmod::isPotentialParent( std::string_view type ) noexcept
 	{
 		/**
-		 * Length 4: "Leaf" - internal::constants::gmodnode::TYPE_LEAF
+		 * Length 4: "Leaf" - internal::gmodnode::TYPE_LEAF
 		 *   - Represents terminal nodes in the GMOD hierarchy
 		 *   - Cannot have child nodes
 		 *
-		 * Length 5: "Group" - internal::constants::gmodnode::TYPE_GROUP
+		 * Length 5: "Group" - internal::gmodnode::TYPE_GROUP
 		 *   - Represents container nodes that can hold other nodes
 		 *   - Used for organizational grouping in the hierarchy
 		 *
-		 * Length 9: "Selection" - internal::constants::gmodnode::TYPE_SELECTION
+		 * Length 9: "Selection" - internal::gmodnode::TYPE_SELECTION
 		 *   - Represents selection nodes for product configurations
 		 *   - Can contain multiple selectable options
 		 */
 
 		if ( nfx::string::hasExactLength( type, 4 ) )
 		{
-			return nfx::string::equals( type, internal::constants::gmodnode::TYPE_LEAF );
+			return nfx::string::equals( type, internal::gmodnode::TYPE_LEAF );
 		}
 		else if ( nfx::string::hasExactLength( type, 5 ) )
 		{
-			return nfx::string::equals( type, internal::constants::gmodnode::TYPE_GROUP );
+			return nfx::string::equals( type, internal::gmodnode::TYPE_GROUP );
 		}
 		else if ( nfx::string::hasExactLength( type, 9 ) )
 		{
-			return nfx::string::equals( type, internal::constants::gmodnode::TYPE_SELECTION );
+			return nfx::string::equals( type, internal::gmodnode::TYPE_SELECTION );
 		}
 
 		return false;
@@ -169,38 +169,38 @@ namespace dnv::vista::sdk
 	bool Gmod::isLeafNode( const GmodNodeMetadata& metadata ) noexcept
 	{
 		const auto& fullType = metadata.fullType();
-		return nfx::string::equals( fullType, internal::constants::gmodnode::FULLTYPE_ASSET_FUNCTION_LEAF ) ||
-			   nfx::string::equals( fullType, internal::constants::gmodnode::FULLTYPE_PRODUCT_FUNCTION_LEAF );
+		return nfx::string::equals( fullType, internal::gmodnode::FULLTYPE_ASSET_FUNCTION_LEAF ) ||
+			   nfx::string::equals( fullType, internal::gmodnode::FULLTYPE_PRODUCT_FUNCTION_LEAF );
 	}
 
 	bool Gmod::isFunctionNode( const GmodNodeMetadata& metadata ) noexcept
 	{
 		const auto& category = metadata.category();
 
-		return !nfx::string::equals( category, internal::constants::gmodnode::CATEGORY_PRODUCT ) &&
-			   !nfx::string::equals( category, internal::constants::gmodnode::CATEGORY_ASSET );
+		return !nfx::string::equals( category, internal::gmodnode::CATEGORY_PRODUCT ) &&
+			   !nfx::string::equals( category, internal::gmodnode::CATEGORY_ASSET );
 	}
 
 	bool Gmod::isProductSelection( const GmodNodeMetadata& metadata ) noexcept
 	{
-		return nfx::string::equals( metadata.category(), internal::constants::gmodnode::CATEGORY_PRODUCT ) &&
-			   nfx::string::equals( metadata.type(), internal::constants::gmodnode::TYPE_SELECTION );
+		return nfx::string::equals( metadata.category(), internal::gmodnode::CATEGORY_PRODUCT ) &&
+			   nfx::string::equals( metadata.type(), internal::gmodnode::TYPE_SELECTION );
 	}
 
 	bool Gmod::isProductType( const GmodNodeMetadata& metadata ) noexcept
 	{
-		return nfx::string::equals( metadata.category(), internal::constants::gmodnode::CATEGORY_PRODUCT ) &&
-			   nfx::string::equals( metadata.type(), internal::constants::gmodnode::TYPE_TYPE );
+		return nfx::string::equals( metadata.category(), internal::gmodnode::CATEGORY_PRODUCT ) &&
+			   nfx::string::equals( metadata.type(), internal::gmodnode::TYPE_TYPE );
 	}
 
 	bool Gmod::isAsset( const GmodNodeMetadata& metadata ) noexcept
 	{
-		return nfx::string::equals( metadata.category(), internal::constants::gmodnode::CATEGORY_ASSET );
+		return nfx::string::equals( metadata.category(), internal::gmodnode::CATEGORY_ASSET );
 	}
 
 	bool Gmod::isAssetFunctionNode( const GmodNodeMetadata& metadata ) noexcept
 	{
-		return nfx::string::equals( metadata.category(), internal::constants::gmodnode::ASSET_FUNCTION );
+		return nfx::string::equals( metadata.category(), internal::gmodnode::ASSET_FUNCTION );
 	}
 
 	bool Gmod::isProductTypeAssignment( const GmodNode* parent, const GmodNode* child ) noexcept
@@ -214,12 +214,12 @@ namespace dnv::vista::sdk
 		const auto& childCategory = child->metadata().category();
 		const auto& childType = child->metadata().type();
 
-		if ( !nfx::string::contains( parentCategory, internal::constants::gmodnode::CATEGORY_FUNCTION ) )
+		if ( !nfx::string::contains( parentCategory, internal::gmodnode::CATEGORY_FUNCTION ) )
 		{
 			return false;
 		}
-		if ( !nfx::string::equals( childCategory, internal::constants::gmodnode::CATEGORY_PRODUCT ) ||
-			 !nfx::string::equals( childType, internal::constants::gmodnode::TYPE_TYPE ) )
+		if ( !nfx::string::equals( childCategory, internal::gmodnode::CATEGORY_PRODUCT ) ||
+			 !nfx::string::equals( childType, internal::gmodnode::TYPE_TYPE ) )
 		{
 			return false;
 		}
@@ -238,12 +238,12 @@ namespace dnv::vista::sdk
 		const auto& childCategory = child->metadata().category();
 		const auto& childType = child->metadata().type();
 
-		if ( !nfx::string::contains( parentCategory, internal::constants::gmodnode::CATEGORY_FUNCTION ) )
+		if ( !nfx::string::contains( parentCategory, internal::gmodnode::CATEGORY_FUNCTION ) )
 		{
 			return false;
 		}
-		if ( !nfx::string::equals( childCategory, internal::constants::gmodnode::CATEGORY_PRODUCT ) ||
-			 !nfx::string::equals( childType, internal::constants::gmodnode::TYPE_SELECTION ) )
+		if ( !nfx::string::equals( childCategory, internal::gmodnode::CATEGORY_PRODUCT ) ||
+			 !nfx::string::equals( childType, internal::gmodnode::TYPE_SELECTION ) )
 		{
 			return false;
 		}

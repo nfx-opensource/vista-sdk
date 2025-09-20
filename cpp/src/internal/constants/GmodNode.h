@@ -10,61 +10,64 @@
 #include <cstdint>
 #include <string_view>
 
-namespace dnv::vista::sdk::internal::constants::gmodnode
+namespace dnv::vista::sdk::internal
 {
-	//=====================================================================
-	// GMOD node classification constants
-	//=====================================================================
+	namespace gmodnode
+	{
+		//=====================================================================
+		// GMOD node classification constants
+		//=====================================================================
 
-	//----------------------------------------------
-	// Primary node categories
-	//----------------------------------------------
+		//----------------------------------------------
+		// Primary node categories
+		//----------------------------------------------
 
-	/** @brief Asset category identifier for GMOD nodes. */
-	inline constexpr std::string_view CATEGORY_ASSET = "ASSET";
+		/** @brief Asset category identifier for GMOD nodes. */
+		inline constexpr std::string_view CATEGORY_ASSET = "ASSET";
 
-	/** @brief Function category identifier for GMOD nodes. */
-	inline constexpr std::string_view CATEGORY_FUNCTION = "FUNCTION";
+		/** @brief Function category identifier for GMOD nodes. */
+		inline constexpr std::string_view CATEGORY_FUNCTION = "FUNCTION";
 
-	/** @brief Product category identifier for GMOD nodes. */
-	inline constexpr std::string_view CATEGORY_PRODUCT = "PRODUCT";
+		/** @brief Product category identifier for GMOD nodes. */
+		inline constexpr std::string_view CATEGORY_PRODUCT = "PRODUCT";
 
-	//----------------------------------------------
-	// Composite node categories
-	//----------------------------------------------
+		//----------------------------------------------
+		// Composite node categories
+		//----------------------------------------------
 
-	/** @brief Asset function composite category for GMOD nodes. */
-	inline constexpr std::string_view ASSET_FUNCTION = "ASSET FUNCTION";
+		/** @brief Asset function composite category for GMOD nodes. */
+		inline constexpr std::string_view ASSET_FUNCTION = "ASSET FUNCTION";
 
-	/** @brief Product function composite category for GMOD nodes. */
-	inline constexpr std::string_view CATEGORY_PRODUCT_FUNCTION = "PRODUCT FUNCTION";
+		/** @brief Product function composite category for GMOD nodes. */
+		inline constexpr std::string_view CATEGORY_PRODUCT_FUNCTION = "PRODUCT FUNCTION";
 
-	//----------------------------------------------
-	// Node Type Classifications
-	//----------------------------------------------
+		//----------------------------------------------
+		// Node Type Classifications
+		//----------------------------------------------
 
-	/** @brief Selection type identifier for GMOD nodes. */
-	inline constexpr std::string_view TYPE_SELECTION = "SELECTION";
+		/** @brief Selection type identifier for GMOD nodes. */
+		inline constexpr std::string_view TYPE_SELECTION = "SELECTION";
 
-	/** @brief Group type identifier for GMOD nodes. */
-	inline constexpr std::string_view TYPE_GROUP = "GROUP";
+		/** @brief Group type identifier for GMOD nodes. */
+		inline constexpr std::string_view TYPE_GROUP = "GROUP";
 
-	/** @brief Leaf type identifier for GMOD nodes. */
-	inline constexpr std::string_view TYPE_LEAF = "LEAF";
+		/** @brief Leaf type identifier for GMOD nodes. */
+		inline constexpr std::string_view TYPE_LEAF = "LEAF";
 
-	/** @brief Type type identifier for GMOD nodes. */
-	inline constexpr std::string_view TYPE_TYPE = "TYPE";
+		/** @brief Type type identifier for GMOD nodes. */
+		inline constexpr std::string_view TYPE_TYPE = "TYPE";
 
-	/** @brief Composition type identifier for GMOD nodes. */
-	inline constexpr std::string_view TYPE_COMPOSITION = "COMPOSITION";
+		/** @brief Composition type identifier for GMOD nodes. */
+		inline constexpr std::string_view TYPE_COMPOSITION = "COMPOSITION";
 
-	//----------------------------------------------
-	// Full Type Specifications
-	//----------------------------------------------
+		//----------------------------------------------
+		// Full Type Specifications
+		//----------------------------------------------
 
-	/** @brief Complete asset function leaf type specification. */
-	inline constexpr std::string_view FULLTYPE_ASSET_FUNCTION_LEAF = "ASSET FUNCTION LEAF";
+		/** @brief Complete asset function leaf type specification. */
+		inline constexpr std::string_view FULLTYPE_ASSET_FUNCTION_LEAF = "ASSET FUNCTION LEAF";
 
-	/** @brief Complete product function leaf type specification. */
-	inline constexpr std::string_view FULLTYPE_PRODUCT_FUNCTION_LEAF = "PRODUCT FUNCTION LEAF";
+		/** @brief Complete product function leaf type specification. */
+		inline constexpr std::string_view FULLTYPE_PRODUCT_FUNCTION_LEAF = "PRODUCT FUNCTION LEAF";
+	}
 }

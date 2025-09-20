@@ -32,7 +32,7 @@ namespace dnv::vista::sdk
 			m_codebooks[index] = std::move( codebook );
 		}
 
-		CodebookDto detailDto( std::string{ internal::constants::codebook::NAME_DETAIL }, CodebookDto::ValuesMap{} );
+		CodebookDto detailDto( std::string{ internal::codebook::NAME_DETAIL }, CodebookDto::ValuesMap{} );
 		constexpr auto detailIndex = static_cast<size_t>( CodebookName::Detail ) - 1;
 		m_codebooks[detailIndex] = Codebook( std::move( detailDto ) );
 	}

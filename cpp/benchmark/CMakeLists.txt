@@ -17,7 +17,7 @@ endif()
 
 set(BENCHMARK_SOURCES
 	codebooks/BM_CodebooksLookup.cpp
-#	gmod/BM_GmodLoad.cpp  // TODO: Temporary disabled
+	gmod/BM_GmodLoad.cpp
 	gmod/BM_GmodLookup.cpp
 	gmod/BM_GmodPathParse.cpp
 	gmod/BM_GmodTraversal.cpp
@@ -149,6 +149,15 @@ foreach(benchmark_source ${BENCHMARK_SOURCES})
 			vista-sdk-cpp::static
 			nfx-core::static
 			benchmark::benchmark
+		)
+
+		#----------------------------------------------
+		# Include directories
+		#----------------------------------------------
+
+		target_include_directories(${benchmark_target_name} PRIVATE
+			${VISTA_SDK_CPP_INCLUDE_DIR}
+			${VISTA_SDK_CPP_SOURCE_DIR}
 		)
 
 		#----------------------------------------------

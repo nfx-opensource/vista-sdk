@@ -24,7 +24,7 @@ namespace dnv::vista::sdk::internal
 		{
 			try
 			{
-				const auto typeIt = json.find( dnv::vista::sdk::internal::constants::dto::iso19848::KEY_TYPE );
+				const auto typeIt = json.find( dnv::vista::sdk::internal::dto::iso19848::KEY_TYPE );
 				if ( typeIt != json.end() && typeIt->is_string() )
 				{
 					const auto& str = typeIt->get_ref<const std::string&>();
@@ -32,11 +32,11 @@ namespace dnv::vista::sdk::internal
 					return std::string_view{ str };
 				}
 
-				return constants::dto::error::UNKNOWN_TYPE;
+				return dto::error::UNKNOWN_TYPE;
 			}
 			catch ( ... )
 			{
-				return constants::dto::error::UNKNOWN_TYPE;
+				return dto::error::UNKNOWN_TYPE;
 			}
 		}
 	}
@@ -140,15 +140,15 @@ namespace dnv::vista::sdk::internal
 
 		void from_json( const nlohmann::json& j, DataChannelTypeNameDto& dto )
 		{
-			const auto typeIt = j.find( internal::constants::dto::iso19848::KEY_TYPE );
-			const auto descIt = j.find( internal::constants::dto::iso19848::KEY_DESCRIPTION );
+			const auto typeIt = j.find( internal::dto::iso19848::KEY_TYPE );
+			const auto descIt = j.find( internal::dto::iso19848::KEY_DESCRIPTION );
 
 			if ( typeIt == j.end() || !typeIt->is_string() )
 			{
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "DataChannelTypeNameDto JSON missing required '" );
-				builder.append( internal::constants::dto::iso19848::KEY_TYPE );
+				builder.append( internal::dto::iso19848::KEY_TYPE );
 				builder.append( "' field or not a string" );
 
 				throw nlohmann::json::parse_error::create( 101, 0u, lease.toString(), nullptr );
@@ -158,7 +158,7 @@ namespace dnv::vista::sdk::internal
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "DataChannelTypeNameDto JSON missing required '" );
-				builder.append( internal::constants::dto::iso19848::KEY_DESCRIPTION );
+				builder.append( internal::dto::iso19848::KEY_DESCRIPTION );
 				builder.append( "' field or not a string" );
 
 				throw nlohmann::json::parse_error::create( 101, 0u, lease.toString(), nullptr );
@@ -179,7 +179,7 @@ namespace dnv::vista::sdk::internal
 
 		void to_json( nlohmann::json& j, const DataChannelTypeNameDto& dto )
 		{
-			j = nlohmann::json{ { internal::constants::dto::iso19848::KEY_TYPE, dto.m_type }, { internal::constants::dto::iso19848::KEY_DESCRIPTION, dto.m_description } };
+			j = nlohmann::json{ { internal::dto::iso19848::KEY_TYPE, dto.m_type }, { internal::dto::iso19848::KEY_DESCRIPTION, dto.m_description } };
 		}
 
 		//=====================================================================
@@ -219,11 +219,11 @@ namespace dnv::vista::sdk::internal
 					return std::nullopt;
 				}
 
-				const auto valuesIt = json.find( internal::constants::dto::iso19848::KEY_VALUES );
+				const auto valuesIt = json.find( internal::dto::iso19848::KEY_VALUES );
 				if ( valuesIt == json.end() || !valuesIt->is_array() )
 				{
 					std::fprintf( stderr, "ERROR: DataChannelTypeNamesDto JSON missing required '%s' array\n",
-						internal::constants::dto::iso19848::KEY_VALUES.data() );
+						internal::dto::iso19848::KEY_VALUES.data() );
 
 					return std::nullopt;
 				}
@@ -303,13 +303,13 @@ namespace dnv::vista::sdk::internal
 
 		void from_json( const nlohmann::json& j, DataChannelTypeNamesDto& dto )
 		{
-			const auto valuesIt = j.find( internal::constants::dto::iso19848::KEY_VALUES );
+			const auto valuesIt = j.find( internal::dto::iso19848::KEY_VALUES );
 			if ( valuesIt == j.end() || !valuesIt->is_array() )
 			{
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "DataChannelTypeNamesDto JSON missing required '" );
-				builder.append( internal::constants::dto::iso19848::KEY_VALUES );
+				builder.append( internal::dto::iso19848::KEY_VALUES );
 				builder.append( "' array" );
 
 				throw nlohmann::json::parse_error::create( 101, 0u, lease.toString(), nullptr );
@@ -349,7 +349,7 @@ namespace dnv::vista::sdk::internal
 			}
 		}
 
-		void to_json( nlohmann::json& j, const DataChannelTypeNamesDto& dto ) { j = nlohmann::json{ { internal::constants::dto::iso19848::KEY_VALUES, dto.m_values } }; }
+		void to_json( nlohmann::json& j, const DataChannelTypeNamesDto& dto ) { j = nlohmann::json{ { internal::dto::iso19848::KEY_VALUES, dto.m_values } }; }
 
 		//=====================================================================
 		// Single Format Data Type data transfer objects
@@ -448,15 +448,15 @@ namespace dnv::vista::sdk::internal
 
 		void from_json( const nlohmann::json& j, FormatDataTypeDto& dto )
 		{
-			const auto typeIt = j.find( internal::constants::dto::iso19848::KEY_TYPE );
-			const auto descIt = j.find( internal::constants::dto::iso19848::KEY_DESCRIPTION );
+			const auto typeIt = j.find( internal::dto::iso19848::KEY_TYPE );
+			const auto descIt = j.find( internal::dto::iso19848::KEY_DESCRIPTION );
 
 			if ( typeIt == j.end() || !typeIt->is_string() )
 			{
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "FormatDataTypeDto JSON missing required '" );
-				builder.append( internal::constants::dto::iso19848::KEY_TYPE );
+				builder.append( internal::dto::iso19848::KEY_TYPE );
 				builder.append( "' field or not a string" );
 
 				throw nlohmann::json::parse_error::create( 101, 0u, lease.toString(), nullptr );
@@ -466,7 +466,7 @@ namespace dnv::vista::sdk::internal
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "FormatDataTypeDto JSON missing required '" );
-				builder.append( internal::constants::dto::iso19848::KEY_DESCRIPTION );
+				builder.append( internal::dto::iso19848::KEY_DESCRIPTION );
 				builder.append( "' field or not a string" );
 
 				throw nlohmann::json::parse_error::create( 101, 0u, lease.toString(), nullptr );
@@ -486,7 +486,7 @@ namespace dnv::vista::sdk::internal
 		}
 		void to_json( nlohmann::json& j, const FormatDataTypeDto& dto )
 		{
-			j = nlohmann::json{ { internal::constants::dto::iso19848::KEY_TYPE, dto.m_type }, { internal::constants::dto::iso19848::KEY_DESCRIPTION, dto.m_description } };
+			j = nlohmann::json{ { internal::dto::iso19848::KEY_TYPE, dto.m_type }, { internal::dto::iso19848::KEY_DESCRIPTION, dto.m_description } };
 		}
 
 		//=====================================================================
@@ -526,11 +526,11 @@ namespace dnv::vista::sdk::internal
 					return std::nullopt;
 				}
 
-				const auto valuesIt = json.find( internal::constants::dto::iso19848::KEY_VALUES );
+				const auto valuesIt = json.find( internal::dto::iso19848::KEY_VALUES );
 				if ( valuesIt == json.end() || !valuesIt->is_array() )
 				{
 					std::fprintf( stderr, "ERROR: FormatDataTypesDto JSON missing required '%s' array\n",
-						internal::constants::dto::iso19848::KEY_VALUES.data() );
+						internal::dto::iso19848::KEY_VALUES.data() );
 
 					return std::nullopt;
 				}
@@ -611,13 +611,13 @@ namespace dnv::vista::sdk::internal
 
 		void from_json( const nlohmann::json& j, FormatDataTypesDto& dto )
 		{
-			const auto valuesIt = j.find( internal::constants::dto::iso19848::KEY_VALUES );
+			const auto valuesIt = j.find( internal::dto::iso19848::KEY_VALUES );
 			if ( valuesIt == j.end() || !valuesIt->is_array() )
 			{
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "FormatDataTypesDto JSON missing required '" );
-				builder.append( internal::constants::dto::iso19848::KEY_VALUES );
+				builder.append( internal::dto::iso19848::KEY_VALUES );
 				builder.append( "' array" );
 
 				throw nlohmann::json::parse_error::create( 101, 0u, lease.toString(), nullptr );
@@ -660,7 +660,7 @@ namespace dnv::vista::sdk::internal
 
 		void to_json( nlohmann::json& j, const FormatDataTypesDto& dto )
 		{
-			j = nlohmann::json{ { internal::constants::dto::iso19848::KEY_VALUES, dto.m_values } };
+			j = nlohmann::json{ { internal::dto::iso19848::KEY_VALUES, dto.m_values } };
 		}
 	}
 }

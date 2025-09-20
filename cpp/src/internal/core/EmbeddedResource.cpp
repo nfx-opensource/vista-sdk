@@ -115,9 +115,9 @@ namespace dnv::vista::sdk::internal
 					const auto stream = decompressedStream( resourceName );
 					const nlohmann::json gmodJson = nlohmann::json::parse( *stream );
 
-					if ( gmodJson.contains( constants::dto::KEY_VIS_RELEASE ) && gmodJson.at( constants::dto::KEY_VIS_RELEASE ).is_string() )
+					if ( gmodJson.contains( dto::KEY_VIS_RELEASE ) && gmodJson.at( dto::KEY_VIS_RELEASE ).is_string() )
 					{
-						std::string version = gmodJson.at( constants::dto::KEY_VIS_RELEASE ).get<std::string>();
+						std::string version = gmodJson.at( dto::KEY_VIS_RELEASE ).get<std::string>();
 						visVersions.push_back( version );
 					}
 					else
@@ -126,7 +126,7 @@ namespace dnv::vista::sdk::internal
 							stderr,
 							"WARN: GMOD resource %s missing or has invalid '%.*s' field.\n",
 							resourceName.data(),
-							static_cast<int>( constants::dto::KEY_VIS_RELEASE.size() ), constants::dto::KEY_VIS_RELEASE.data() );
+							static_cast<int>( dto::KEY_VIS_RELEASE.size() ), dto::KEY_VIS_RELEASE.data() );
 					}
 				}
 				catch ( [[maybe_unused]] const nlohmann::json::parse_error& ex )
@@ -200,9 +200,9 @@ namespace dnv::vista::sdk::internal
 				const auto stream = decompressedStream( resourceName );
 				const nlohmann::json versioningJson = nlohmann::json::parse( *stream );
 
-				if ( versioningJson.contains( constants::dto::KEY_VIS_RELEASE ) && versioningJson.at( constants::dto::KEY_VIS_RELEASE ).is_string() )
+				if ( versioningJson.contains( dto::KEY_VIS_RELEASE ) && versioningJson.at( dto::KEY_VIS_RELEASE ).is_string() )
 				{
-					std::string visVersion = versioningJson.at( constants::dto::KEY_VIS_RELEASE ).get<std::string>();
+					std::string visVersion = versioningJson.at( dto::KEY_VIS_RELEASE ).get<std::string>();
 
 					auto dto = GmodVersioningDto::fromJson( versioningJson );
 
@@ -215,7 +215,7 @@ namespace dnv::vista::sdk::internal
 						stderr,
 						"WARN: GMOD Versioning resource %s missing or has invalid '%.*s' field.\n",
 						resourceName.data(),
-						static_cast<int>( constants::dto::KEY_VIS_RELEASE.size() ), constants::dto::KEY_VIS_RELEASE.data() );
+						static_cast<int>( dto::KEY_VIS_RELEASE.size() ), dto::KEY_VIS_RELEASE.data() );
 				}
 			}
 			catch ( [[maybe_unused]] const nlohmann::json::parse_error& ex )

@@ -30,7 +30,7 @@ namespace dnv::vista::sdk::benchmarks
 
 		void Setup()
 		{
-			auto& vis = VIS::instance();
+			const auto& vis = VIS::instance();
 			m_sdk_codebooks = &vis.codebooks( VisVersion::v3_7a );
 
 			m_unordered_map.clear();

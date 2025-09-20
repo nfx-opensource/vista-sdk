@@ -92,7 +92,7 @@ namespace dnv::vista::sdk
 
 		if ( m_secondaryItem )
 		{
-			builder.append( internal::constants::localId::PREFIX_SEC );
+			builder.append( internal::localId::PREFIX_SEC );
 			builder.push_back( '/' );
 			m_secondaryItem->toString( builder );
 			builder.push_back( '/' );
@@ -126,12 +126,12 @@ namespace dnv::vista::sdk
 				{
 					if ( isFirstSecondary )
 					{
-						builder.append( internal::constants::localId::PREFIX_FOR );
+						builder.append( internal::localId::PREFIX_FOR );
 						isFirstSecondary = false;
 					}
 					else
 					{
-						builder.append( internal::constants::localId::PREFIX_TILDE );
+						builder.append( internal::localId::PREFIX_TILDE );
 					}
 
 					const GmodNode& nodeRef = ( *m_secondaryItem )[depth];

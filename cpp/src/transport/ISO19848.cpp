@@ -16,7 +16,7 @@
 
 namespace dnv::vista::sdk
 {
-	namespace
+	namespace internal::iso19848
 	{
 		//=====================================================================
 		// Internal Cache Infrastructure
@@ -31,34 +31,34 @@ namespace dnv::vista::sdk
 		//-----------------------------
 
 		static auto dataChannelTypeNamesDtoCache{
-			nfx::memory::MemoryCache<transport::ISO19848Version, internal::transport::DataChannelTypeNamesDto>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::memory::MemoryCache<sdk::transport::ISO19848Version, internal::transport::DataChannelTypeNamesDto>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 		static auto formatDataTypesDtoCache{
-			nfx::memory::MemoryCache<transport::ISO19848Version, internal::transport::FormatDataTypesDto>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::memory::MemoryCache<sdk::transport::ISO19848Version, internal::transport::FormatDataTypesDto>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 
 		//-----------------------------
 		// Domain objects
 		//-----------------------------
 
 		static auto dataChannelTypeNamesCache{
-			nfx::memory::MemoryCache<transport::ISO19848Version, transport::DataChannelTypeNames>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::memory::MemoryCache<sdk::transport::ISO19848Version, sdk::transport::DataChannelTypeNames>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 		static auto formatDataTypesCache{
-			nfx::memory::MemoryCache<transport::ISO19848Version, transport::FormatDataTypes>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::memory::MemoryCache<sdk::transport::ISO19848Version, sdk::transport::FormatDataTypes>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 
 		//----------------------------------------------
 		// Resource loading
 		//----------------------------------------------
 
-		static std::string_view iso19848ToVesionString( transport::ISO19848Version version )
+		static std::string_view iso19848ToVesionString( sdk::transport::ISO19848Version version )
 		{
 			switch ( version )
 			{
-				case transport::ISO19848Version::v2018:
+				case sdk::transport::ISO19848Version::v2018:
 				{
-					return transport::ISO19848_v2018;
+					return sdk::transport::ISO19848_v2018;
 				}
-				case transport::ISO19848Version::v2024:
+				case sdk::transport::ISO19848Version::v2024:
 				{
-					return transport::ISO19848_v2024;
+					return sdk::transport::ISO19848_v2024;
 				}
 				default:
 				{
@@ -67,12 +67,12 @@ namespace dnv::vista::sdk
 			}
 		}
 
-		static std::optional<internal::transport::DataChannelTypeNamesDto> loadDataChannelTypeNamesDto( transport::ISO19848Version version )
+		static std::optional<internal::transport::DataChannelTypeNamesDto> loadDataChannelTypeNamesDto( sdk::transport::ISO19848Version version )
 		{
 			return internal::EmbeddedResource::dataChannelTypeNames( iso19848ToVesionString( version ) );
 		}
 
-		static std::optional<internal::transport::FormatDataTypesDto> loadFormatDataTypesDto( transport::ISO19848Version version )
+		static std::optional<internal::transport::FormatDataTypesDto> loadFormatDataTypesDto( sdk::transport::ISO19848Version version )
 		{
 			return internal::EmbeddedResource::formatDataTypes( iso19848ToVesionString( version ) );
 		}
@@ -81,11 +81,11 @@ namespace dnv::vista::sdk
 		// DTO access
 		//----------------------------------------------
 
-		static const dnv::vista::sdk::internal::transport::DataChannelTypeNamesDto& dataChannelTypeNamesDto( nfx::memory::MemoryCache<transport::ISO19848Version, dnv::vista::sdk::internal::transport::DataChannelTypeNamesDto>& dtoCache, transport::ISO19848Version version )
+		static const internal::transport::DataChannelTypeNamesDto& dataChannelTypeNamesDto( nfx::memory::MemoryCache<sdk::transport::ISO19848Version, internal::transport::DataChannelTypeNamesDto>& dtoCache, sdk::transport::ISO19848Version version )
 		{
 			return dtoCache.getOrCreate(
 				version,
-				[version]() -> dnv::vista::sdk::internal::transport::DataChannelTypeNamesDto {
+				[version]() -> internal::transport::DataChannelTypeNamesDto {
 					const auto dto = loadDataChannelTypeNamesDto( version );
 					if ( !dto.has_value() )
 					{
@@ -100,11 +100,11 @@ namespace dnv::vista::sdk
 				} );
 		}
 
-		static const dnv::vista::sdk::internal::transport::FormatDataTypesDto& formatDataTypesDto( nfx::memory::MemoryCache<transport::ISO19848Version, dnv::vista::sdk::internal::transport::FormatDataTypesDto>& dtoCache, transport::ISO19848Version version )
+		static const internal::transport::FormatDataTypesDto& formatDataTypesDto( nfx::memory::MemoryCache<sdk::transport::ISO19848Version, internal::transport::FormatDataTypesDto>& dtoCache, sdk::transport::ISO19848Version version )
 		{
 			return dtoCache.getOrCreate(
 				version,
-				[version]() -> dnv::vista::sdk::internal::transport::FormatDataTypesDto {
+				[version]() -> internal::transport::FormatDataTypesDto {
 					const auto dto = loadFormatDataTypesDto( version );
 					if ( !dto.has_value() )
 					{
@@ -150,10 +150,10 @@ namespace dnv::vista::sdk
 
 		const DataChannelTypeNames& ISO19848::dataChannelTypeNames( ISO19848Version version )
 		{
-			return dataChannelTypeNamesCache.getOrCreate(
+			return internal::iso19848::dataChannelTypeNamesCache.getOrCreate(
 				version,
 				[version]() -> DataChannelTypeNames {
-					const auto dto = dataChannelTypeNamesDto( dataChannelTypeNamesDtoCache, version );
+					const auto dto = internal::iso19848::dataChannelTypeNamesDto( internal::iso19848::dataChannelTypeNamesDtoCache, version );
 
 					std::vector<DataChannelTypeName> values;
 					values.reserve( dto.values().size() );
@@ -173,10 +173,10 @@ namespace dnv::vista::sdk
 
 		const FormatDataTypes& ISO19848::formatDataTypes( ISO19848Version version )
 		{
-			return formatDataTypesCache.getOrCreate(
+			return internal::iso19848::formatDataTypesCache.getOrCreate(
 				version,
 				[version]() -> FormatDataTypes {
-					const auto dto = formatDataTypesDto( formatDataTypesDtoCache, version );
+					const auto dto = internal::iso19848::formatDataTypesDto( internal::iso19848::formatDataTypesDtoCache, version );
 
 					std::vector<FormatDataType> values;
 					values.reserve( dto.values().size() );
@@ -236,17 +236,17 @@ namespace dnv::vista::sdk
 
 		ValidateResult FormatDataType::validate( std::string_view value, Value& outValue ) const
 		{
-			if ( !nfx::string::iequals( m_type, dnv::vista::sdk::internal::constants::iso19848::FORMAT_TYPE_STRING ) &&
+			if ( !nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_STRING ) &&
 				 nfx::string::isNullOrWhiteSpace( value ) )
 			{
 				return ValidateResult{ ValidateResult::Invalid{ { "Value cannot be null, empty, or whitespace for non-string types - Value='" + std::string{ value } + "'" } } };
 			}
 
-			const auto trimmedValue = nfx::string::iequals( m_type, dnv::vista::sdk::internal::constants::iso19848::FORMAT_TYPE_STRING ) ? value : nfx::string::trim( value );
+			const auto trimmedValue = nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_STRING ) ? value : nfx::string::trim( value );
 
 			outValue = Value{ Value::String{ trimmedValue } };
 
-			if ( nfx::string::iequals( m_type, dnv::vista::sdk::internal::constants::iso19848::FORMAT_TYPE_DECIMAL ) )
+			if ( nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_DECIMAL ) )
 			{
 				nfx::datatypes::Decimal d;
 				if ( !nfx::datatypes::Decimal::tryParse( trimmedValue, d ) )
@@ -257,7 +257,7 @@ namespace dnv::vista::sdk
 				outValue = Value{ Value::Decimal{ d } };
 				return ValidateResult{ ValidateResult::Ok{} };
 			}
-			else if ( nfx::string::iequals( m_type, dnv::vista::sdk::internal::constants::iso19848::FORMAT_TYPE_DOUBLE ) )
+			else if ( nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_DOUBLE ) )
 			{
 				double d;
 				if ( !nfx::string::tryParseDouble( trimmedValue, d ) )
@@ -268,7 +268,7 @@ namespace dnv::vista::sdk
 				outValue = Value{ Value::Double{ d } };
 				return ValidateResult{ ValidateResult::Ok{} };
 			}
-			else if ( nfx::string::iequals( m_type, dnv::vista::sdk::internal::constants::iso19848::FORMAT_TYPE_INTEGER ) )
+			else if ( nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_INTEGER ) )
 			{
 				int i;
 				if ( !nfx::string::tryParseInt( trimmedValue, i ) )
@@ -279,7 +279,7 @@ namespace dnv::vista::sdk
 				outValue = Value{ Value::Integer{ i } };
 				return ValidateResult{ ValidateResult::Ok{} };
 			}
-			else if ( nfx::string::iequals( m_type, dnv::vista::sdk::internal::constants::iso19848::FORMAT_TYPE_BOOLEAN ) )
+			else if ( nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_BOOLEAN ) )
 			{
 				bool b;
 				if ( !nfx::string::tryParseBool( trimmedValue, b ) )
@@ -290,7 +290,7 @@ namespace dnv::vista::sdk
 				outValue = Value{ Value::Boolean{ b } };
 				return ValidateResult{ ValidateResult::Ok{} };
 			}
-			else if ( nfx::string::iequals( m_type, dnv::vista::sdk::internal::constants::iso19848::FORMAT_TYPE_CHAR ) )
+			else if ( nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_CHAR ) )
 			{
 				if ( !nfx::string::hasExactLength( trimmedValue, 1 ) )
 				{
@@ -300,7 +300,7 @@ namespace dnv::vista::sdk
 				outValue = Value{ Value::Char{ trimmedValue[0] } };
 				return ValidateResult{ ValidateResult::Ok{} };
 			}
-			else if ( nfx::string::iequals( m_type, dnv::vista::sdk::internal::constants::iso19848::FORMAT_TYPE_UNSIGNED_INTEGER ) )
+			else if ( nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_UNSIGNED_INTEGER ) )
 			{
 				std::uint32_t ui;
 				if ( !nfx::string::tryParseUInt( trimmedValue, ui ) )
@@ -311,7 +311,7 @@ namespace dnv::vista::sdk
 				outValue = Value{ Value::UnsignedInteger{ ui } };
 				return ValidateResult{ ValidateResult::Ok{} };
 			}
-			else if ( nfx::string::iequals( m_type, dnv::vista::sdk::internal::constants::iso19848::FORMAT_TYPE_LONG ) )
+			else if ( nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_LONG ) )
 			{
 				std::int64_t l;
 				if ( !nfx::string::tryParseLong( trimmedValue, l ) )
@@ -322,11 +322,11 @@ namespace dnv::vista::sdk
 				outValue = Value{ Value::Long{ l } };
 				return ValidateResult{ ValidateResult::Ok{} };
 			}
-			else if ( nfx::string::iequals( m_type, dnv::vista::sdk::internal::constants::iso19848::FORMAT_TYPE_STRING ) )
+			else if ( nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_STRING ) )
 			{
 				return ValidateResult{ ValidateResult::Ok{} };
 			}
-			else if ( nfx::string::iequals( m_type, dnv::vista::sdk::internal::constants::iso19848::FORMAT_TYPE_DATETIME ) )
+			else if ( nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_DATETIME ) )
 			{
 				nfx::time::DateTimeOffset dt;
 				if ( !nfx::time::DateTimeOffset::tryParse( trimmedValue, dt ) )

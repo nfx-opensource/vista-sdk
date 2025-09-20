@@ -24,7 +24,7 @@ namespace dnv::vista::sdk
 		{
 			try
 			{
-				const auto visIt = json.find( constants::dto::KEY_VIS_RELEASE );
+				const auto visIt = json.find( dto::KEY_VIS_RELEASE );
 				if ( visIt != json.end() && visIt->is_string() )
 				{
 					const auto& str = visIt->get_ref<const std::string&>();
@@ -32,11 +32,11 @@ namespace dnv::vista::sdk
 					return std::string_view{ str };
 				}
 
-				return constants::dto::error::UNKNOWN_VERSION;
+				return dto::error::UNKNOWN_VERSION;
 			}
 			catch ( ... )
 			{
-				return constants::dto::error::UNKNOWN_VERSION;
+				return dto::error::UNKNOWN_VERSION;
 			}
 		}
 
@@ -44,7 +44,7 @@ namespace dnv::vista::sdk
 		{
 			try
 			{
-				const auto codeIt = json.find( constants::dto::gmod::KEY_CODE );
+				const auto codeIt = json.find( dto::gmod::KEY_CODE );
 				if ( codeIt != json.end() && codeIt->is_string() )
 				{
 					const auto& str = codeIt->get_ref<const std::string&>();
@@ -52,11 +52,11 @@ namespace dnv::vista::sdk
 					return std::string_view{ str };
 				}
 
-				return constants::dto::error::UNKNOWN_CODE;
+				return dto::error::UNKNOWN_CODE;
 			}
 			catch ( ... )
 			{
-				return constants::dto::error::UNKNOWN_CODE;
+				return dto::error::UNKNOWN_CODE;
 			}
 		}
 	}
@@ -150,38 +150,38 @@ namespace dnv::vista::sdk
 
 		try
 		{
-			const auto codeIt = json.find( internal::constants::dto::gmod::KEY_CODE );
+			const auto codeIt = json.find( internal::dto::gmod::KEY_CODE );
 			if ( codeIt == json.end() || !codeIt->is_string() )
 			{
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "ERROR: GMOD Node JSON missing required '" );
-				builder.append( internal::constants::dto::gmod::KEY_CODE );
+				builder.append( internal::dto::gmod::KEY_CODE );
 				builder.append( "' field or not a string\n" );
 				std::fprintf( stderr, "%s", lease.toString().c_str() );
 
 				return std::nullopt;
 			}
-			const auto categoryIt = json.find( internal::constants::dto::gmod::KEY_CATEGORY );
+			const auto categoryIt = json.find( internal::dto::gmod::KEY_CATEGORY );
 			if ( categoryIt == json.end() || !categoryIt->is_string() )
 			{
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "ERROR: GMOD Node JSON missing required '" );
-				builder.append( internal::constants::dto::gmod::KEY_CATEGORY );
+				builder.append( internal::dto::gmod::KEY_CATEGORY );
 				builder.append( "' field or not a string\n" );
 
 				std::fprintf( stderr, "%s", lease.toString().c_str() );
 
 				return std::nullopt;
 			}
-			const auto typeIt = json.find( internal::constants::dto::gmod::KEY_TYPE );
+			const auto typeIt = json.find( internal::dto::gmod::KEY_TYPE );
 			if ( typeIt == json.end() || !typeIt->is_string() )
 			{
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "ERROR: GMOD Node JSON missing required '" );
-				builder.append( internal::constants::dto::gmod::KEY_TYPE );
+				builder.append( internal::dto::gmod::KEY_TYPE );
 				builder.append( "' field or not a string\n" );
 
 				std::fprintf( stderr, "%s", lease.toString().c_str() );
@@ -194,7 +194,7 @@ namespace dnv::vista::sdk
 			std::string tempType = typeIt->get<std::string>();
 
 			std::string tempName;
-			const auto nameIt = json.find( internal::constants::dto::gmod::KEY_NAME );
+			const auto nameIt = json.find( internal::dto::gmod::KEY_NAME );
 			if ( nameIt != json.end() )
 			{
 				if ( nameIt->is_string() )
@@ -208,7 +208,7 @@ namespace dnv::vista::sdk
 					builder.append( "ERROR: GMOD Node JSON (code='" );
 					builder.append( tempCode );
 					builder.append( "') field '" );
-					builder.append( internal::constants::dto::gmod::KEY_NAME );
+					builder.append( internal::dto::gmod::KEY_NAME );
 					builder.append( "' is present but not a string\n" );
 
 					std::fprintf( stderr, "%s", lease.toString().c_str() );
@@ -223,7 +223,7 @@ namespace dnv::vista::sdk
 				builder.append( "WARN: GMOD Node JSON (code='" );
 				builder.append( tempCode );
 				builder.append( "') missing '" );
-				builder.append( internal::constants::dto::gmod::KEY_NAME );
+				builder.append( internal::dto::gmod::KEY_NAME );
 				builder.append( "' field. Defaulting name to empty string.\n" );
 
 				// std::fprintf( stderr, "%s", lease.toString().c_str() );
@@ -271,7 +271,7 @@ namespace dnv::vista::sdk
 			}
 
 			std::optional<std::string> tempCommonName = std::nullopt;
-			const auto commonNameIt = json.find( internal::constants::dto::gmod::KEY_COMMON_NAME );
+			const auto commonNameIt = json.find( internal::dto::gmod::KEY_COMMON_NAME );
 			if ( commonNameIt != json.end() )
 			{
 				if ( commonNameIt->is_string() )
@@ -285,7 +285,7 @@ namespace dnv::vista::sdk
 					builder.append( "WARN: GMOD Node code='" );
 					builder.append( tempCode );
 					builder.append( "' has non-string '" );
-					builder.append( internal::constants::dto::gmod::KEY_COMMON_NAME );
+					builder.append( internal::dto::gmod::KEY_COMMON_NAME );
 					builder.append( "'\n" );
 
 					std::fprintf( stderr, "%s", lease.toString().c_str() );
@@ -293,7 +293,7 @@ namespace dnv::vista::sdk
 			}
 
 			std::optional<std::string> tempDefinition = std::nullopt;
-			const auto definitionIt = json.find( internal::constants::dto::gmod::KEY_DEFINITION );
+			const auto definitionIt = json.find( internal::dto::gmod::KEY_DEFINITION );
 			if ( definitionIt != json.end() )
 			{
 				if ( definitionIt->is_string() )
@@ -307,7 +307,7 @@ namespace dnv::vista::sdk
 					builder.append( "WARN: GMOD Node code='" );
 					builder.append( tempCode );
 					builder.append( "' has non-string '" );
-					builder.append( internal::constants::dto::gmod::KEY_DEFINITION );
+					builder.append( internal::dto::gmod::KEY_DEFINITION );
 					builder.append( "'\n" );
 
 					std::fprintf( stderr, "%s", lease.toString().c_str() );
@@ -315,7 +315,7 @@ namespace dnv::vista::sdk
 			}
 
 			std::optional<std::string> tempCommonDefinition = std::nullopt;
-			const auto commonDefinitionIt = json.find( internal::constants::dto::gmod::KEY_COMMON_DEFINITION );
+			const auto commonDefinitionIt = json.find( internal::dto::gmod::KEY_COMMON_DEFINITION );
 			if ( commonDefinitionIt != json.end() )
 			{
 				if ( commonDefinitionIt->is_string() )
@@ -329,7 +329,7 @@ namespace dnv::vista::sdk
 					builder.append( "WARN: GMOD Node code='" );
 					builder.append( tempCode );
 					builder.append( "' has non-string '" );
-					builder.append( internal::constants::dto::gmod::KEY_COMMON_DEFINITION );
+					builder.append( internal::dto::gmod::KEY_COMMON_DEFINITION );
 					builder.append( "'\n" );
 
 					std::fprintf( stderr, "%s", lease.toString().c_str() );
@@ -337,7 +337,7 @@ namespace dnv::vista::sdk
 			}
 
 			std::optional<bool> tempInstallSubstructure = std::nullopt;
-			const auto installIt = json.find( internal::constants::dto::gmod::KEY_INSTALL_SUBSTRUCTURE );
+			const auto installIt = json.find( internal::dto::gmod::KEY_INSTALL_SUBSTRUCTURE );
 			if ( installIt != json.end() )
 			{
 				if ( installIt->is_boolean() )
@@ -351,7 +351,7 @@ namespace dnv::vista::sdk
 					builder.append( "WARN: GMOD Node code='" );
 					builder.append( tempCode );
 					builder.append( "' has non-bool '" );
-					builder.append( internal::constants::dto::gmod::KEY_INSTALL_SUBSTRUCTURE );
+					builder.append( internal::dto::gmod::KEY_INSTALL_SUBSTRUCTURE );
 					builder.append( "'\n" );
 
 					std::fprintf( stderr, "%s", lease.toString().c_str() );
@@ -359,7 +359,7 @@ namespace dnv::vista::sdk
 			}
 
 			std::optional<NormalAssignmentNamesMap> tempNormalAssignmentNames = std::nullopt;
-			const auto assignmentIt = json.find( internal::constants::dto::gmod::KEY_NORMAL_ASSIGNMENT_NAMES );
+			const auto assignmentIt = json.find( internal::dto::gmod::KEY_NORMAL_ASSIGNMENT_NAMES );
 			if ( assignmentIt != json.end() )
 			{
 				if ( assignmentIt->is_object() )
@@ -379,7 +379,7 @@ namespace dnv::vista::sdk
 						builder.append( "WARN: GMOD Node code='" );
 						builder.append( tempCode );
 						builder.append( "' failed to parse '" );
-						builder.append( internal::constants::dto::gmod::KEY_NORMAL_ASSIGNMENT_NAMES );
+						builder.append( internal::dto::gmod::KEY_NORMAL_ASSIGNMENT_NAMES );
 						builder.append( "' object: " );
 						builder.append( ex.what() );
 						builder.append( "\n" );
@@ -394,7 +394,7 @@ namespace dnv::vista::sdk
 					builder.append( "WARN: GMOD Node code='" );
 					builder.append( tempCode );
 					builder.append( "' has non-object '" );
-					builder.append( internal::constants::dto::gmod::KEY_NORMAL_ASSIGNMENT_NAMES );
+					builder.append( internal::dto::gmod::KEY_NORMAL_ASSIGNMENT_NAMES );
 					builder.append( "'\n" );
 
 					std::fprintf( stderr, "%s", lease.toString().c_str() );
@@ -477,37 +477,37 @@ namespace dnv::vista::sdk
 	void from_json( const nlohmann::json& j, GmodNodeDto& dto )
 	{
 		// ADL hook for nlohmann::json deserialization.
-		const auto categoryIt = j.find( internal::constants::dto::gmod::KEY_CATEGORY );
+		const auto categoryIt = j.find( internal::dto::gmod::KEY_CATEGORY );
 		if ( categoryIt == j.end() || !categoryIt->is_string() )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "GMOD Node JSON missing required '" );
-			builder.append( internal::constants::dto::gmod::KEY_CATEGORY );
+			builder.append( internal::dto::gmod::KEY_CATEGORY );
 			builder.append( "' field or not a string" );
 
 			throw nlohmann::json::parse_error::create( 101, 0u, lease.toString(), &j );
 		}
 
-		const auto typeIt = j.find( internal::constants::dto::gmod::KEY_TYPE );
+		const auto typeIt = j.find( internal::dto::gmod::KEY_TYPE );
 		if ( typeIt == j.end() || !typeIt->is_string() )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "GMOD Node JSON missing required '" );
-			builder.append( internal::constants::dto::gmod::KEY_TYPE );
+			builder.append( internal::dto::gmod::KEY_TYPE );
 			builder.append( "' field or not a string" );
 
 			throw nlohmann::json::parse_error::create( 102, 0u, lease.toString(), &j );
 		}
 
-		const auto codeIt = j.find( internal::constants::dto::gmod::KEY_CODE );
+		const auto codeIt = j.find( internal::dto::gmod::KEY_CODE );
 		if ( codeIt == j.end() || !codeIt->is_string() )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "GMOD Node JSON missing required '" );
-			builder.append( internal::constants::dto::gmod::KEY_CODE );
+			builder.append( internal::dto::gmod::KEY_CODE );
 			builder.append( "' field or not a string" );
 
 			throw nlohmann::json::parse_error::create( 103, 0u, lease.toString(), &j );
@@ -520,7 +520,7 @@ namespace dnv::vista::sdk
 
 		// SPECIAL CASE: Name field handling - matches tryFromJson logic
 		std::string tempName;
-		const auto nameIt = j.find( internal::constants::dto::gmod::KEY_NAME );
+		const auto nameIt = j.find( internal::dto::gmod::KEY_NAME );
 		if ( nameIt != j.end() )
 		{
 			if ( nameIt->is_string() )
@@ -534,7 +534,7 @@ namespace dnv::vista::sdk
 				builder.append( "WARN: GMOD Node JSON (code='" );
 				builder.append( tempCode );
 				builder.append( "') has null '" );
-				builder.append( internal::constants::dto::gmod::KEY_NAME );
+				builder.append( internal::dto::gmod::KEY_NAME );
 				builder.append( "' field. Defaulting name to empty string.\n" );
 
 				// std::fprintf( stderr, "%s", lease.toString().c_str() );
@@ -547,7 +547,7 @@ namespace dnv::vista::sdk
 				builder.append( "WARN: GMOD Node JSON (code='" );
 				builder.append( tempCode );
 				builder.append( "') has non-string '" );
-				builder.append( internal::constants::dto::gmod::KEY_NAME );
+				builder.append( internal::dto::gmod::KEY_NAME );
 				builder.append( "' field. Defaulting name to empty string.\n" );
 
 				// std::fprintf( stderr, "%s", lease.toString().c_str() );
@@ -561,7 +561,7 @@ namespace dnv::vista::sdk
 			builder.append( "WARN: GMOD Node JSON (code='" );
 			builder.append( tempCode );
 			builder.append( "') missing '" );
-			builder.append( internal::constants::dto::gmod::KEY_NAME );
+			builder.append( internal::dto::gmod::KEY_NAME );
 			builder.append( "' field. Defaulting name to empty string.\n" );
 
 			// std::fprintf( stderr, "%s", lease.toString().c_str() );
@@ -570,7 +570,7 @@ namespace dnv::vista::sdk
 
 		// Optional fields with robust validation (matches tryFromJson pattern)
 		std::optional<std::string> tempCommonName = std::nullopt;
-		const auto commonNameIt = j.find( internal::constants::dto::gmod::KEY_COMMON_NAME );
+		const auto commonNameIt = j.find( internal::dto::gmod::KEY_COMMON_NAME );
 		if ( commonNameIt != j.end() )
 		{
 			if ( commonNameIt->is_string() )
@@ -584,7 +584,7 @@ namespace dnv::vista::sdk
 				builder.append( "WARN: GMOD Node code='" );
 				builder.append( tempCode );
 				builder.append( "' has non-string '" );
-				builder.append( internal::constants::dto::gmod::KEY_COMMON_NAME );
+				builder.append( internal::dto::gmod::KEY_COMMON_NAME );
 				builder.append( "' in from_json\n" );
 
 				std::fprintf( stderr, "%s", lease.toString().c_str() );
@@ -592,7 +592,7 @@ namespace dnv::vista::sdk
 		}
 
 		std::optional<std::string> tempDefinition = std::nullopt;
-		const auto definitionIt = j.find( internal::constants::dto::gmod::KEY_DEFINITION );
+		const auto definitionIt = j.find( internal::dto::gmod::KEY_DEFINITION );
 		if ( definitionIt != j.end() )
 		{
 			if ( definitionIt->is_string() )
@@ -606,7 +606,7 @@ namespace dnv::vista::sdk
 				builder.append( "WARN: GMOD Node code='" );
 				builder.append( tempCode );
 				builder.append( "' has non-string '" );
-				builder.append( internal::constants::dto::gmod::KEY_DEFINITION );
+				builder.append( internal::dto::gmod::KEY_DEFINITION );
 				builder.append( "' in from_json\n" );
 
 				std::fprintf( stderr, "%s", lease.toString().c_str() );
@@ -614,7 +614,7 @@ namespace dnv::vista::sdk
 		}
 
 		std::optional<std::string> tempCommonDefinition = std::nullopt;
-		const auto commonDefinitionIt = j.find( internal::constants::dto::gmod::KEY_COMMON_DEFINITION );
+		const auto commonDefinitionIt = j.find( internal::dto::gmod::KEY_COMMON_DEFINITION );
 		if ( commonDefinitionIt != j.end() )
 		{
 			if ( commonDefinitionIt->is_string() )
@@ -628,7 +628,7 @@ namespace dnv::vista::sdk
 				builder.append( "WARN: GMOD Node code='" );
 				builder.append( tempCode );
 				builder.append( "' has non-string '" );
-				builder.append( internal::constants::dto::gmod::KEY_COMMON_DEFINITION );
+				builder.append( internal::dto::gmod::KEY_COMMON_DEFINITION );
 				builder.append( "' in from_json\n" );
 
 				std::fprintf( stderr, "%s", lease.toString().c_str() );
@@ -636,7 +636,7 @@ namespace dnv::vista::sdk
 		}
 
 		std::optional<bool> tempInstallSubstructure = std::nullopt;
-		const auto installIt = j.find( internal::constants::dto::gmod::KEY_INSTALL_SUBSTRUCTURE );
+		const auto installIt = j.find( internal::dto::gmod::KEY_INSTALL_SUBSTRUCTURE );
 		if ( installIt != j.end() )
 		{
 			if ( installIt->is_boolean() )
@@ -650,7 +650,7 @@ namespace dnv::vista::sdk
 				builder.append( "WARN: GMOD Node code='" );
 				builder.append( tempCode );
 				builder.append( "' has non-bool '" );
-				builder.append( internal::constants::dto::gmod::KEY_INSTALL_SUBSTRUCTURE );
+				builder.append( internal::dto::gmod::KEY_INSTALL_SUBSTRUCTURE );
 				builder.append( "' in from_json\n" );
 
 				std::fprintf( stderr, "%s", lease.toString().c_str() );
@@ -658,7 +658,7 @@ namespace dnv::vista::sdk
 		}
 
 		std::optional<GmodNodeDto::NormalAssignmentNamesMap> tempNormalAssignmentNames = std::nullopt;
-		const auto assignmentIt = j.find( internal::constants::dto::gmod::KEY_NORMAL_ASSIGNMENT_NAMES );
+		const auto assignmentIt = j.find( internal::dto::gmod::KEY_NORMAL_ASSIGNMENT_NAMES );
 		if ( assignmentIt != j.end() )
 		{
 			if ( assignmentIt->is_object() )
@@ -678,7 +678,7 @@ namespace dnv::vista::sdk
 					builder.append( "WARN: GMOD Node code='" );
 					builder.append( tempCode );
 					builder.append( "' failed to parse '" );
-					builder.append( internal::constants::dto::gmod::KEY_NORMAL_ASSIGNMENT_NAMES );
+					builder.append( internal::dto::gmod::KEY_NORMAL_ASSIGNMENT_NAMES );
 					builder.append( "' object in from_json: " );
 					builder.append( ex.what() );
 					builder.append( "\n" );
@@ -693,7 +693,7 @@ namespace dnv::vista::sdk
 				builder.append( "WARN: GMOD Node code='" );
 				builder.append( tempCode );
 				builder.append( "' has non-object '" );
-				builder.append( internal::constants::dto::gmod::KEY_NORMAL_ASSIGNMENT_NAMES );
+				builder.append( internal::dto::gmod::KEY_NORMAL_ASSIGNMENT_NAMES );
 				builder.append( "' in from_json\n" );
 
 				std::fprintf( stderr, "%s", lease.toString().c_str() );
@@ -715,28 +715,28 @@ namespace dnv::vista::sdk
 	void to_json( nlohmann::json& j, const GmodNodeDto& dto )
 	{
 		// ADL hook for nlohmann::json serialization.
-		j = { { internal::constants::dto::gmod::KEY_CATEGORY, dto.category() }, { internal::constants::dto::gmod::KEY_TYPE, dto.type() },
-			{ internal::constants::dto::gmod::KEY_CODE, dto.code() }, { internal::constants::dto::gmod::KEY_NAME, dto.name() } };
+		j = { { internal::dto::gmod::KEY_CATEGORY, dto.category() }, { internal::dto::gmod::KEY_TYPE, dto.type() },
+			{ internal::dto::gmod::KEY_CODE, dto.code() }, { internal::dto::gmod::KEY_NAME, dto.name() } };
 
 		if ( dto.commonName().has_value() )
 		{
-			j[internal::constants::dto::gmod::KEY_COMMON_NAME] = dto.commonName().value();
+			j[internal::dto::gmod::KEY_COMMON_NAME] = dto.commonName().value();
 		}
 		if ( dto.definition().has_value() )
 		{
-			j[internal::constants::dto::gmod::KEY_DEFINITION] = dto.definition().value();
+			j[internal::dto::gmod::KEY_DEFINITION] = dto.definition().value();
 		}
 		if ( dto.commonDefinition().has_value() )
 		{
-			j[internal::constants::dto::gmod::KEY_COMMON_DEFINITION] = dto.commonDefinition().value();
+			j[internal::dto::gmod::KEY_COMMON_DEFINITION] = dto.commonDefinition().value();
 		}
 		if ( dto.installSubstructure().has_value() )
 		{
-			j[internal::constants::dto::gmod::KEY_INSTALL_SUBSTRUCTURE] = dto.installSubstructure().value();
+			j[internal::dto::gmod::KEY_INSTALL_SUBSTRUCTURE] = dto.installSubstructure().value();
 		}
 		if ( dto.normalAssignmentNames().has_value() )
 		{
-			j[internal::constants::dto::gmod::KEY_NORMAL_ASSIGNMENT_NAMES] = dto.normalAssignmentNames().value();
+			j[internal::dto::gmod::KEY_NORMAL_ASSIGNMENT_NAMES] = dto.normalAssignmentNames().value();
 		}
 	}
 
@@ -784,13 +784,13 @@ namespace dnv::vista::sdk
 
 		try
 		{
-			const auto visReleaseIt = json.find( internal::constants::dto::KEY_VIS_RELEASE );
+			const auto visReleaseIt = json.find( internal::dto::KEY_VIS_RELEASE );
 			if ( visReleaseIt == json.end() || !visReleaseIt->is_string() )
 			{
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "ERROR: GMOD JSON missing required '" );
-				builder.append( internal::constants::dto::KEY_VIS_RELEASE );
+				builder.append( internal::dto::KEY_VIS_RELEASE );
 				builder.append( "' field or not a string\n" );
 
 				std::fprintf( stderr, "%s", lease.toString().c_str() );
@@ -804,7 +804,7 @@ namespace dnv::vista::sdk
 			size_t totalItems = 0;
 			size_t successCount = 0;
 
-			const auto itemsIt = json.find( internal::constants::dto::gmod::KEY_ITEMS );
+			const auto itemsIt = json.find( internal::dto::gmod::KEY_ITEMS );
 			if ( itemsIt != json.end() )
 			{
 				if ( !itemsIt->is_array() )
@@ -812,7 +812,7 @@ namespace dnv::vista::sdk
 					auto lease = nfx::string::StringBuilderPool::lease();
 					auto builder = lease.builder();
 					builder.append( "WARN: '" );
-					builder.append( internal::constants::dto::gmod::KEY_ITEMS );
+					builder.append( internal::dto::gmod::KEY_ITEMS );
 					builder.append( "' field is not an array for VIS version " );
 					builder.append( tempVisVersion );
 					builder.append( "\n" );
@@ -859,7 +859,7 @@ namespace dnv::vista::sdk
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "WARN: No '" );
-				builder.append( internal::constants::dto::gmod::KEY_ITEMS );
+				builder.append( internal::dto::gmod::KEY_ITEMS );
 				builder.append( "' array found in GmodDto for VIS version " );
 				builder.append( tempVisVersion );
 				builder.append( "\n" );
@@ -871,7 +871,7 @@ namespace dnv::vista::sdk
 			size_t relationCount = 0;
 			size_t validRelationCount = 0;
 
-			const auto relationsIt = json.find( internal::constants::dto::gmod::KEY_RELATIONS );
+			const auto relationsIt = json.find( internal::dto::gmod::KEY_RELATIONS );
 			if ( relationsIt != json.end() )
 			{
 				if ( !relationsIt->is_array() )
@@ -879,7 +879,7 @@ namespace dnv::vista::sdk
 					auto lease = nfx::string::StringBuilderPool::lease();
 					auto builder = lease.builder();
 					builder.append( "WARN: '" );
-					builder.append( internal::constants::dto::gmod::KEY_RELATIONS );
+					builder.append( internal::dto::gmod::KEY_RELATIONS );
 					builder.append( "' field is not an array for VIS version " );
 					builder.append( tempVisVersion );
 					builder.append( "\n" );
@@ -931,7 +931,7 @@ namespace dnv::vista::sdk
 							auto lease = nfx::string::StringBuilderPool::lease();
 							auto builder = lease.builder();
 							builder.append( "WARN: Non-array entry found in '" );
-							builder.append( internal::constants::dto::gmod::KEY_RELATIONS );
+							builder.append( internal::dto::gmod::KEY_RELATIONS );
 							builder.append( "' array for VIS version " );
 							builder.append( tempVisVersion );
 							builder.append( "\n" );
@@ -955,7 +955,7 @@ namespace dnv::vista::sdk
 				auto lease = nfx::string::StringBuilderPool::lease();
 				auto builder = lease.builder();
 				builder.append( "WARN: No '" );
-				builder.append( internal::constants::dto::gmod::KEY_RELATIONS );
+				builder.append( internal::dto::gmod::KEY_RELATIONS );
 				builder.append( "' array found in GmodDto for VIS version " );
 				builder.append( tempVisVersion );
 				builder.append( "\n" );
@@ -1035,37 +1035,37 @@ namespace dnv::vista::sdk
 	void from_json( const nlohmann::json& j, GmodDto& dto )
 	{
 		// ADL hook for nlohmann::json deserialization.
-		const auto visIt = j.find( internal::constants::dto::KEY_VIS_RELEASE );
+		const auto visIt = j.find( internal::dto::KEY_VIS_RELEASE );
 		if ( visIt == j.end() || !visIt->is_string() )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "GMOD JSON missing required '" );
-			builder.append( internal::constants::dto::KEY_VIS_RELEASE );
+			builder.append( internal::dto::KEY_VIS_RELEASE );
 			builder.append( "' field or not a string" );
 
 			throw nlohmann::json::parse_error::create( 201, 0u, lease.toString(), &j );
 		}
 
-		const auto itemsIt = j.find( internal::constants::dto::gmod::KEY_ITEMS );
+		const auto itemsIt = j.find( internal::dto::gmod::KEY_ITEMS );
 		if ( itemsIt == j.end() || !itemsIt->is_array() )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "GMOD JSON missing required '" );
-			builder.append( internal::constants::dto::gmod::KEY_ITEMS );
+			builder.append( internal::dto::gmod::KEY_ITEMS );
 			builder.append( "' field or not an array" );
 
 			throw nlohmann::json::parse_error::create( 202, 0u, lease.toString(), &j );
 		}
 
-		const auto relationsIt = j.find( internal::constants::dto::gmod::KEY_RELATIONS );
+		const auto relationsIt = j.find( internal::dto::gmod::KEY_RELATIONS );
 		if ( relationsIt == j.end() || !relationsIt->is_array() )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
 			auto builder = lease.builder();
 			builder.append( "GMOD JSON missing required '" );
-			builder.append( internal::constants::dto::gmod::KEY_RELATIONS );
+			builder.append( internal::dto::gmod::KEY_RELATIONS );
 			builder.append( "' field or not an array" );
 
 			throw nlohmann::json::parse_error::create( 203, 0u, lease.toString(), &j );
@@ -1145,8 +1145,8 @@ namespace dnv::vista::sdk
 	void to_json( nlohmann::json& j, const GmodDto& dto )
 	{
 		// ADL hook for nlohmann::json serialization.
-		j = { { internal::constants::dto::KEY_VIS_RELEASE, dto.visVersion() },
-			{ internal::constants::dto::gmod::KEY_ITEMS, dto.items() },
-			{ internal::constants::dto::gmod::KEY_RELATIONS, dto.relations() } };
+		j = { { internal::dto::KEY_VIS_RELEASE, dto.visVersion() },
+			{ internal::dto::gmod::KEY_ITEMS, dto.items() },
+			{ internal::dto::gmod::KEY_RELATIONS, dto.relations() } };
 	}
 }
