@@ -762,4 +762,4 @@ namespace dnv::vista::sdk
 	};
 }
 
-#include "GmodNode.inl"
+#include "detail/GmodNode.inl"

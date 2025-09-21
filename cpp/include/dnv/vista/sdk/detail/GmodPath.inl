@@ -8,11 +8,11 @@
 #include <nfx/string/StringBuilderPool.h>
 #include <nfx/string/Utils.h>
 
-#include "config/config.h"
-#include "Gmod.h"
-#include "Locations.h"
-#include "VIS.h"
-#include "VISVersion.h"
+#include "dnv/vista/sdk/config/config.h"
+#include "dnv/vista/sdk/Gmod.h"
+#include "dnv/vista/sdk/Locations.h"
+#include "dnv/vista/sdk/VIS.h"
+#include "dnv/vista/sdk/VISVersion.h"
 
 namespace dnv::vista::sdk
 {

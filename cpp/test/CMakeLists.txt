@@ -210,7 +210,7 @@ foreach(test_source ${TEST_SOURCES})
 
 		gtest_discover_tests(${test_target_name}
 			WORKING_DIRECTORY "$<TARGET_FILE_DIR:${test_target_name}>"
-			DISCOVERY_MODE PRE_TEST
+			DISCOVERY_MODE POST_BUILD
 			PROPERTIES
 				TIMEOUT 120
 		)

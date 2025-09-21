@@ -124,7 +124,7 @@ namespace dnv::vista::sdk::benchmarks
 	}
 
 	/** @brief Direct SDK access benchmark */
-	BENCHMARK_F( CodebooksLookupFixture, codebooks )( benchmark::State& state )
+	BENCHMARK_F( CodebooksLookupFixture, sdk_codebooks )( benchmark::State& state )
 	{
 		for ( auto _ : state )
 		{
@@ -149,7 +149,7 @@ namespace dnv::vista::sdk::benchmarks
 
 	BENCHMARK_REGISTER_F( CodebooksLookupFixture, std_unordered_map )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
 	BENCHMARK_REGISTER_F( CodebooksLookupFixture, std_map )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
-	BENCHMARK_REGISTER_F( CodebooksLookupFixture, codebooks )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
+	BENCHMARK_REGISTER_F( CodebooksLookupFixture, sdk_codebooks )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
 	BENCHMARK_REGISTER_F( CodebooksLookupFixture, sdk_lookup_operator )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
 }
 

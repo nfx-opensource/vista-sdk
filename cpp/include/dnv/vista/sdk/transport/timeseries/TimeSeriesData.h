@@ -1203,4 +1203,4 @@ namespace dnv::vista::sdk::transport::timeseries
 	};
 }
 
-#include "TimeSeriesData.inl"
+#include "dnv/vista/sdk/detail/transport/timeseries/TimeSeriesData.inl"

@@ -3,7 +3,7 @@
  * @brief Inline implementations for performance-critical UniversalId operations
  */
 
-#include "config/config.h"
+#include "dnv/vista/sdk/config/config.h"
 
 namespace dnv::vista::sdk
 {

@@ -4,6 +4,7 @@
  */
 
 #include <stdexcept>
+
 #include <nfx/string/Utils.h>
 
 namespace dnv::vista::sdk

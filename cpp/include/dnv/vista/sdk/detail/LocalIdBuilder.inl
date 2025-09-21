@@ -7,9 +7,8 @@
 
 #include <nfx/string/StringBuilderPool.h>
 
-#include "transport/ISO19848Constants.h"
-
-#include "CodebookName.h"
+#include "dnv/vista/sdk/transport/ISO19848Constants.h"
+#include "dnv/vista/sdk/CodebookName.h"
 
 namespace dnv::vista::sdk
 {

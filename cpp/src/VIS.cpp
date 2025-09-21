@@ -4,7 +4,7 @@
  */
 
 #include <nfx/containers/StringMap.h>
-#include <nfx/memory/MemoryCache.h>
+#include <nfx/memory/LruCache.h>
 
 #include "dnv/vista/sdk/VIS.h"
 
@@ -36,32 +36,32 @@ namespace dnv::vista::sdk
 		//-----------------------------
 
 		static auto gmodDtoCache{
-			nfx::memory::MemoryCache<VisVersion, GmodDto>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::memory::LruCache<VisVersion, GmodDto>{ nfx::memory::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 
 		static auto codebooksDtoCache{
-			nfx::memory::MemoryCache<VisVersion, CodebooksDto>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::memory::LruCache<VisVersion, CodebooksDto>{ nfx::memory::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 
 		static auto locationsDtoCache{
-			nfx::memory::MemoryCache<VisVersion, LocationsDto>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::memory::LruCache<VisVersion, LocationsDto>{ nfx::memory::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 
 		static auto gmodVersioningDtoCache{
-			nfx::memory::MemoryCache<VisVersion, nfx::containers::StringMap<GmodVersioningDto>>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::memory::LruCache<VisVersion, nfx::containers::StringMap<GmodVersioningDto>>{ nfx::memory::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 
 		//-----------------------------
 		// Domain objects
 		//-----------------------------
 
 		static auto gmodCache{
-			nfx::memory::MemoryCache<VisVersion, Gmod>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::memory::LruCache<VisVersion, Gmod>{ nfx::memory::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 
 		static auto codebooksCache{
-			nfx::memory::MemoryCache<VisVersion, Codebooks>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::memory::LruCache<VisVersion, Codebooks>{ nfx::memory::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 
 		static auto locationsCache{
-			nfx::memory::MemoryCache<VisVersion, Locations>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::memory::LruCache<VisVersion, Locations>{ nfx::memory::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 
 		static auto gmodVersioningCache{
-			nfx::memory::MemoryCache<VisVersion, GmodVersioning>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::memory::LruCache<VisVersion, GmodVersioning>{ nfx::memory::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 
 		//----------------------------------------------
 		// Resource loading
@@ -91,7 +91,7 @@ namespace dnv::vista::sdk
 		// DTO access
 		//----------------------------------------------
 
-		static const nfx::containers::StringMap<GmodVersioningDto>& gmodVersioningDto( nfx::memory::MemoryCache<VisVersion, nfx::containers::StringMap<GmodVersioningDto>>& dtoCache, VisVersion version )
+		static const nfx::containers::StringMap<GmodVersioningDto>& gmodVersioningDto( nfx::memory::LruCache<VisVersion, nfx::containers::StringMap<GmodVersioningDto>>& dtoCache, VisVersion version )
 		{
 			return dtoCache.getOrCreate(
 				version,
@@ -110,7 +110,7 @@ namespace dnv::vista::sdk
 				} );
 		}
 
-		static const GmodDto& gmodDto( nfx::memory::MemoryCache<VisVersion, GmodDto>& dtoCache, VisVersion version )
+		static const GmodDto& gmodDto( nfx::memory::LruCache<VisVersion, GmodDto>& dtoCache, VisVersion version )
 		{
 			return dtoCache.getOrCreate(
 				version,
@@ -129,7 +129,7 @@ namespace dnv::vista::sdk
 				} );
 		}
 
-		static const CodebooksDto& codebooksDto( nfx::memory::MemoryCache<VisVersion, CodebooksDto>& dtoCache, VisVersion version )
+		static const CodebooksDto& codebooksDto( nfx::memory::LruCache<VisVersion, CodebooksDto>& dtoCache, VisVersion version )
 		{
 			if ( !VisVersionExtensions::isValid( version ) )
 			{
@@ -153,7 +153,7 @@ namespace dnv::vista::sdk
 				} );
 		}
 
-		static const LocationsDto& locationsDto( nfx::memory::MemoryCache<VisVersion, LocationsDto>& dtoCache, VisVersion version )
+		static const LocationsDto& locationsDto( nfx::memory::LruCache<VisVersion, LocationsDto>& dtoCache, VisVersion version )
 		{
 			if ( !VisVersionExtensions::isValid( version ) )
 			{
@@ -189,6 +189,7 @@ namespace dnv::vista::sdk
 				cacheKey,
 				[]() -> internal::GmodVersioning {
 					const auto& dto = gmodVersioningDto( gmodVersioningDtoCache, cacheKey );
+
 					return GmodVersioning{ dto };
 				},
 				[]( nfx::memory::CacheEntry& entry ) {

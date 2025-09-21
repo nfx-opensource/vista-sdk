@@ -176,4 +176,4 @@ namespace dnv::vista::sdk
 	};
 }
 
-#include "MetadataTagsQuery.inl"
+#include "detail/MetadataTagsQuery.inl"

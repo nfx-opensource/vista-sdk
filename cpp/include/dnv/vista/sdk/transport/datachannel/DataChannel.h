@@ -1999,4 +1999,4 @@ namespace dnv::vista::sdk::transport
 	};
 }
 
-#include "DataChannel.inl"
+#include "dnv/vista/sdk/detail/transport/datachannel/DataChannel.inl"

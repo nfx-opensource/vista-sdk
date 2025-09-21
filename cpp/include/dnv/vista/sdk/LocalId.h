@@ -391,4 +391,4 @@ namespace std
 	};
 }
 
-#include "LocalId.inl"
+#include "detail/LocalId.inl"

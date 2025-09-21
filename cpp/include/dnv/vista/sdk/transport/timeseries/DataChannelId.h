@@ -251,4 +251,4 @@ namespace dnv::vista::sdk::transport::timeseries
 	};
 }
 
-#include "DataChannelId.inl"
+#include "dnv/vista/sdk/detail/transport/timeseries/DataChannelId.inl"

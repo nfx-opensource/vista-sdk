@@ -6,7 +6,7 @@
 #include <nfx/string/StringBuilderPool.h>
 #include <nfx/string/Utils.h>
 
-#include "config/config.h"
+#include "dnv/vista/sdk/config/config.h"
 
 namespace dnv::vista::sdk
 {

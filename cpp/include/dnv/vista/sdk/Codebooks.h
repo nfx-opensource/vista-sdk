@@ -285,4 +285,4 @@ namespace dnv::vista::sdk
 	};
 }
 
-#include "Codebooks.inl"
+#include "detail/Codebooks.inl"

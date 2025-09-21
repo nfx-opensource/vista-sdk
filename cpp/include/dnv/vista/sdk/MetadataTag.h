@@ -305,4 +305,4 @@ namespace dnv::vista::sdk
 	};
 }
 
-#include "MetadataTag.inl"
+#include "detail/MetadataTag.inl"

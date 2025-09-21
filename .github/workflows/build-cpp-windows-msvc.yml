@@ -1,0 +1,52 @@
+name: Vista SDK C++ - Windows MSVC
+
+on:
+  push:
+    branches: [ cpp, main ]
+    paths:
+      - 'cpp/**'
+      - '.github/workflows/build-cpp-windows-msvc.yml'
+  pull_request:
+    branches: [ cpp, main ]
+    paths:
+      - 'cpp/**'
+      - '.github/workflows/build-cpp-windows-msvc.yml'
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build-windows:
+    runs-on: windows-2022
+    name: Windows MSVC 2022
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Configure CMake
+      working-directory: cpp
+      run: |
+        cmake -B build -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DVISTA_SDK_CPP_BUILD_STATIC=ON -DVISTA_SDK_CPP_BUILD_SHARED=OFF -DVISTA_SDK_CPP_BUILD_TESTS=ON -DVISTA_SDK_CPP_BUILD_BENCHMARKS=OFF -DVISTA_SDK_CPP_BUILD_SAMPLES=OFF -DVISTA_SDK_CPP_BUILD_DOCUMENTATION=OFF
+
+    - name: Build
+      working-directory: cpp
+      run: cmake --build build --config ${{ env.BUILD_TYPE }} --parallel
+
+    - name: Test
+      working-directory: cpp/build
+      run: ctest --output-on-failure --parallel
+
+    - name: Archive build artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: vista-sdk-cpp-windows-msvc-${{ github.sha }}
+        path: |
+          cpp/build/vista-sdk-cpp-*/
+          !cpp/build/**/CMakeFiles/
+          !cpp/build/**/*.obj
+          !cpp/build/**/*.o
+        retention-days: 7

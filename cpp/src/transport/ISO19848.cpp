@@ -4,7 +4,7 @@
  */
 
 #include <nfx/containers/HashMap.h>
-#include <nfx/memory/MemoryCache.h>
+#include <nfx/memory/LruCache.h>
 #include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/transport/ISO19848.h"
@@ -31,18 +31,18 @@ namespace dnv::vista::sdk
 		//-----------------------------
 
 		static auto dataChannelTypeNamesDtoCache{
-			nfx::memory::MemoryCache<sdk::transport::ISO19848Version, internal::transport::DataChannelTypeNamesDto>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::memory::LruCache<sdk::transport::ISO19848Version, internal::transport::DataChannelTypeNamesDto>{ nfx::memory::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 		static auto formatDataTypesDtoCache{
-			nfx::memory::MemoryCache<sdk::transport::ISO19848Version, internal::transport::FormatDataTypesDto>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::memory::LruCache<sdk::transport::ISO19848Version, internal::transport::FormatDataTypesDto>{ nfx::memory::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 
 		//-----------------------------
 		// Domain objects
 		//-----------------------------
 
 		static auto dataChannelTypeNamesCache{
-			nfx::memory::MemoryCache<sdk::transport::ISO19848Version, sdk::transport::DataChannelTypeNames>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::memory::LruCache<sdk::transport::ISO19848Version, sdk::transport::DataChannelTypeNames>{ nfx::memory::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 		static auto formatDataTypesCache{
-			nfx::memory::MemoryCache<sdk::transport::ISO19848Version, sdk::transport::FormatDataTypes>{ nfx::memory::MemoryCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::memory::LruCache<sdk::transport::ISO19848Version, sdk::transport::FormatDataTypes>{ nfx::memory::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 
 		//----------------------------------------------
 		// Resource loading
@@ -81,7 +81,7 @@ namespace dnv::vista::sdk
 		// DTO access
 		//----------------------------------------------
 
-		static const internal::transport::DataChannelTypeNamesDto& dataChannelTypeNamesDto( nfx::memory::MemoryCache<sdk::transport::ISO19848Version, internal::transport::DataChannelTypeNamesDto>& dtoCache, sdk::transport::ISO19848Version version )
+		static const internal::transport::DataChannelTypeNamesDto& dataChannelTypeNamesDto( nfx::memory::LruCache<sdk::transport::ISO19848Version, internal::transport::DataChannelTypeNamesDto>& dtoCache, sdk::transport::ISO19848Version version )
 		{
 			return dtoCache.getOrCreate(
 				version,
@@ -100,7 +100,7 @@ namespace dnv::vista::sdk
 				} );
 		}
 
-		static const internal::transport::FormatDataTypesDto& formatDataTypesDto( nfx::memory::MemoryCache<sdk::transport::ISO19848Version, internal::transport::FormatDataTypesDto>& dtoCache, sdk::transport::ISO19848Version version )
+		static const internal::transport::FormatDataTypesDto& formatDataTypesDto( nfx::memory::LruCache<sdk::transport::ISO19848Version, internal::transport::FormatDataTypesDto>& dtoCache, sdk::transport::ISO19848Version version )
 		{
 			return dtoCache.getOrCreate(
 				version,

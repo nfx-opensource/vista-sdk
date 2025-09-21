@@ -159,4 +159,4 @@ namespace dnv::vista::sdk
 	};
 }
 
-#include "ImoNumber.inl"
+#include "detail/ImoNumber.inl"

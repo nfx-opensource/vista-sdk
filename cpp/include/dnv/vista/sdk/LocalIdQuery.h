@@ -374,4 +374,4 @@ namespace dnv::vista::sdk
 	};
 }
 
-#include "LocalIdQuery.inl"
+#include "detail/LocalIdQuery.inl"

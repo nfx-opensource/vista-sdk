@@ -582,4 +582,4 @@ namespace dnv::vista::sdk
 	};
 }
 
-#include "Locations.inl"
+#include "detail/Locations.inl"

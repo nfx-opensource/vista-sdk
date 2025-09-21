@@ -195,22 +195,15 @@ namespace dnv::vista::sdk::internal
 
 		validateSourceAndTargetVersions( sourceVersion, targetVersion );
 
-		std::optional<GmodNode> node = sourceNode;
-		VisVersion source = sourceVersion;
+		VisVersion nextVersion = static_cast<VisVersion>( static_cast<std::uint16_t>( sourceVersion ) + 100 );
+		std::string_view nextCodeView = sourceNode.code();
 
-		while ( source <= targetVersion - 1 )
+		auto& versioningsMapRef = const_cast<nfx::containers::HashMap<VisVersion, GmodVersioningNode>&>( m_versioningsMap );
+
+		while ( nextVersion <= targetVersion )
 		{
-			if ( !node.has_value() )
-			{
-				break;
-			}
-
-			const VisVersion target = source + 1;
-
-			std::string_view nextCodeView = node->code();
-
 			GmodVersioningNode* versioningNodePtr = nullptr;
-			if ( const_cast<nfx::containers::HashMap<VisVersion, GmodVersioningNode>&>( m_versioningsMap ).tryGetValue( target, versioningNodePtr ) )
+			if ( versioningsMapRef.tryGetValue( nextVersion, versioningNodePtr ) )
 			{
 				const GmodNodeConversion* change = nullptr;
 				if ( versioningNodePtr->tryGetCodeChanges( nextCodeView, change ) && change && change->target.has_value() )
@@ -219,28 +212,30 @@ namespace dnv::vista::sdk::internal
 				}
 			}
 
-			const Gmod& currentTargetGmod = ( target == targetVersion ) ? targetGmod : VIS::instance().gmod( target );
-
-			GmodNode* targetNodePtr = nullptr;
-			if ( !currentTargetGmod.tryGetNode( nextCodeView, targetNodePtr ) )
-			{
-				node = std::nullopt;
-				break;
-			}
-
-			if ( node->location().has_value() )
-			{
-				node = targetNodePtr->tryWithLocation( node->location().value() );
-			}
-			else
-			{
-				node = *targetNodePtr;
-			}
-
-			++source;
+			nextVersion = static_cast<VisVersion>( static_cast<std::uint16_t>( nextVersion ) + 100 );
 		}
 
-		return node;
+		// Try to find the node in the target GMOD
+		GmodNode* targetNodePtr = nullptr;
+		if ( !targetGmod.tryGetNode( nextCodeView, targetNodePtr ) )
+		{
+			return std::nullopt;
+		}
+
+		// Handle location if present
+		if ( sourceNode.location().has_value() )
+		{
+			auto result = targetNodePtr->tryWithLocation( sourceNode.location().value() );
+			if ( sourceNode.location().has_value() && result.location() != sourceNode.location() )
+			{
+				throw std::runtime_error( "Failed to set location" );
+			}
+			return result;
+		}
+		else
+		{
+			return *targetNodePtr;
+		}
 	}
 
 	//----------------------------

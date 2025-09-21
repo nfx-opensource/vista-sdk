@@ -301,4 +301,4 @@ namespace dnv::vista::sdk
 	};
 }
 
-#include "UniversalId.inl"
+#include "detail/UniversalId.inl"

@@ -225,4 +225,4 @@ namespace dnv::vista::sdk
 	};
 }
 
-#include "Results.inl"
+#include "detail/Results.inl"

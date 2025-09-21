@@ -683,4 +683,4 @@ namespace dnv::vista::sdk
 	};
 }
 
-#include "GmodPath.inl"
+#include "detail/GmodPath.inl"

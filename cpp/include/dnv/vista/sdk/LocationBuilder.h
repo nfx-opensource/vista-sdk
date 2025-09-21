@@ -334,4 +334,4 @@ namespace dnv::vista::sdk
 	};
 }
 
-#include "LocationBuilder.inl"
+#include "detail/LocationBuilder.inl"

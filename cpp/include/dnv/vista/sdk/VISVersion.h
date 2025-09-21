@@ -82,4 +82,4 @@ namespace dnv::vista::sdk
 	};
 }
 
-#include "VISVersion.inl"
+#include "detail/VISVersion.inl"

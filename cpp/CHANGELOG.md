@@ -31,6 +31,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.45] - 2025-09-21
+
+### Added
+
+-   **Comprehensive benchmark documentation**: Complete performance benchmarking suite with detailed results
+-   **GitHub Actions CI/CD**: Comprehensive multi-compiler build workflows
+    -   Separate workflows for Windows MSVC 2022, Linux GCC 14, and Linux Clang 18
+    -   Automated testing with CTest on all supported platforms
+    -   Build artifact archiving with 7-day retention
+    -   Path-filtered triggers for efficient CI execution
+
+### Changed
+
+-   **NFX Core dependency update** from v0.0.7 to v0.0.8
+-   **Memory architecture migration**: Complete transition from MemoryCache to LruCache implementation
+    -   Migrate all cache implementations from `nfx::memory::MemoryCache` to `nfx::memory::LruCache`
+    -   Update cache options from `MemoryCacheOptions` to `LruCacheOptions`
+    -   Enhanced LRU (Least Recently Used) eviction strategy for better memory management
+-   **GmodVersioning algorithm optimization**: Complete refactoring of version conversion logic
+    -   Simplified conversion algorithm with better performance characteristics
+    -   Enhanced error handling and location preservation during conversions
+
 ## [0.0.44] - 2025-09-21
 
 ### Changed

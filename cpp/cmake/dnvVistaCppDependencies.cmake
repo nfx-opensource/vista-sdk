@@ -27,20 +27,21 @@ FetchContent_Declare(nlohmann_json
 )
 
 # --- nfx-core ---
-set(NFX_CORE_BUILD_STATIC     ON   CACHE BOOL  "Build static library"                FORCE)
-set(NFX_CORE_BUILD_SHARED     OFF  CACHE BOOL  "Build shared library"                FORCE)
-set(NFX_CORE_WITH_CONTAINERS  ON   CACHE BOOL  "Enable container utilities"          FORCE)
-set(NFX_CORE_WITH_DATATYPES   ON   CACHE BOOL  "Enable mathematical datatypes"       FORCE)
-set(NFX_CORE_WITH_MEMORY      ON   CACHE BOOL  "Enable memory management utilities"  FORCE)
-set(NFX_CORE_WITH_STRING      ON   CACHE BOOL  "Enable string utilities"             FORCE)
-set(NFX_CORE_WITH_TIME        ON   CACHE BOOL  "Enable temporal classes"             FORCE)
-set(NFX_CORE_BUILD_TESTS      OFF  CACHE BOOL  "Build tests"                         FORCE)
-set(NFX_CORE_BUILD_SAMPLES    OFF  CACHE BOOL  "Build samples"                       FORCE)
+set(NFX_CORE_BUILD_STATIC      ON   CACHE BOOL  "Build static library"                FORCE)
+set(NFX_CORE_BUILD_SHARED      OFF  CACHE BOOL  "Build shared library"                FORCE)
+set(NFX_CORE_WITH_CONTAINERS   ON   CACHE BOOL  "Enable container utilities"          FORCE)
+set(NFX_CORE_WITH_DATATYPES    ON   CACHE BOOL  "Enable mathematical datatypes"       FORCE)
+set(NFX_CORE_WITH_MEMORY       ON   CACHE BOOL  "Enable memory management utilities"  FORCE)
+set(NFX_CORE_WITH_STRING       ON   CACHE BOOL  "Enable string utilities"             FORCE)
+set(NFX_CORE_WITH_TIME         ON   CACHE BOOL  "Enable temporal classes"             FORCE)
+set(NFX_CORE_BUILD_TESTS       OFF  CACHE BOOL  "Build tests"                         FORCE)
+set(NFX_CORE_BUILD_SAMPLES     OFF  CACHE BOOL  "Build samples"                       FORCE)
+set(NFX_CORE_BUILD_BENCHMARKS  OFF  CACHE BOOL  "Build benchmarks"                    FORCE)
 
 FetchContent_Declare(
 	nfx-core
 	GIT_REPOSITORY https://github.com/ronan-fdev/nfx-core.git
-	GIT_TAG        0.0.7
+	GIT_TAG        0.0.8
 	GIT_SHALLOW    TRUE
 )
 

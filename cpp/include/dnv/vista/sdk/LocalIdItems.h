@@ -210,4 +210,4 @@ namespace dnv::vista::sdk
 	};
 }
 
-#include "LocalIdItems.inl"
+#include "detail/LocalIdItems.inl"

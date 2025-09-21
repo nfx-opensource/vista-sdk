@@ -9,7 +9,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(vista-sdk-cpp
-	VERSION 0.0.44
+	VERSION 0.0.45
 	DESCRIPTION "DNV VISTA SDK C++ implementation"
 	LANGUAGES CXX
 )
@@ -30,7 +30,7 @@ option(VISTA_SDK_CPP_BUILD_TESTS           "Build tests"                        
 option(VISTA_SDK_CPP_BUILD_SMOKE_TESTS     "Build smoke tests"                          OFF  )
 option(VISTA_SDK_CPP_BUILD_BENCHMARKS      "Build benchmarks"                           ON   )
 option(VISTA_SDK_CPP_BUILD_SAMPLES         "Build vista-sdk-cpp samples"                ON   )
-option(VISTA_SDK_CPP_BUILD_DOCUMENTATION   "Build vista-sdk-cpp doxygen documentation"  OFF  )
+option(VISTA_SDK_CPP_BUILD_DOCUMENTATION   "Build vista-sdk-cpp doxygen documentation"  ON   )
 
 set(VISTA_SDK_CPP_INSTALL_DIR "" CACHE PATH "Install directory option (empty = use platform defaults)")
 

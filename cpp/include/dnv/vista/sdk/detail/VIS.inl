@@ -3,8 +3,6 @@
  * @brief Inline implementations for performance-critical VIS operations
  */
 
-#include <nfx/string/StringBuilderPool.h>
-
 namespace dnv::vista::sdk
 {
 	//=====================================================================

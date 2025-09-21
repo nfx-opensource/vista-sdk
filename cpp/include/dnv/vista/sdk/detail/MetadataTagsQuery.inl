@@ -3,7 +3,7 @@
  * @brief Inline implementations for performance-critical MetadataTagsQuery operations
  */
 
-#include "CodebookName.h"
+#include "dnv/vista/sdk/CodebookName.h"
 
 namespace dnv::vista::sdk
 {

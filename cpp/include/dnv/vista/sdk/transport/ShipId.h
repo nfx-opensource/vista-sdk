@@ -269,4 +269,4 @@ namespace dnv::vista::sdk::transport
 	};
 }
 
-#include "ShipId.inl"
+#include "dnv/vista/sdk/detail/transport/ShipId.inl"

@@ -882,4 +882,4 @@ namespace dnv::vista::sdk
 	};
 }
 
-#include "LocalIdBuilder.inl"
+#include "detail/LocalIdBuilder.inl"
