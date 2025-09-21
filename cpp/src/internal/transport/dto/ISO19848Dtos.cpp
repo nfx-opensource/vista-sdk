@@ -10,7 +10,7 @@
 
 #include "ISO19848Dtos.h"
 
-#include "internal/constants/DtoKeys.h"
+#include "internal/dto/Keys.h"
 
 namespace dnv::vista::sdk::internal
 {
@@ -24,7 +24,7 @@ namespace dnv::vista::sdk::internal
 		{
 			try
 			{
-				const auto typeIt = json.find( dnv::vista::sdk::internal::dto::iso19848::KEY_TYPE );
+				const auto typeIt = json.find( internal::dto::iso19848::KEY_TYPE );
 				if ( typeIt != json.end() && typeIt->is_string() )
 				{
 					const auto& str = typeIt->get_ref<const std::string&>();
@@ -39,10 +39,7 @@ namespace dnv::vista::sdk::internal
 				return dto::error::UNKNOWN_TYPE;
 			}
 		}
-	}
 
-	namespace transport
-	{
 		//=====================================================================
 		// Single Data Channel Type data transfer objects
 		//=====================================================================

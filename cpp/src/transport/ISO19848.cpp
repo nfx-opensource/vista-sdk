@@ -10,8 +10,8 @@
 #include "dnv/vista/sdk/transport/ISO19848.h"
 #include "dnv/vista/sdk/transport/ISO19848Constants.h"
 
-#include "internal/constants/ISO19848.h"
 #include "internal/core/EmbeddedResource.h"
+#include "internal/transport/ISO19848.h"
 #include "internal/transport/dto/ISO19848Dtos.h"
 
 namespace dnv::vista::sdk

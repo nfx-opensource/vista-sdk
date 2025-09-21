@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -17,7 +18,6 @@
 #include <nfx/string/Utils.h>
 
 #include "internal/dto/GmodVersioningDto.h"
-
 #include "dnv/vista/sdk/Gmod.h"
 #include "dnv/vista/sdk/GmodNode.h"
 #include "dnv/vista/sdk/Locations.h"
@@ -31,23 +31,21 @@ namespace dnv::vista::sdk::internal
 	//=====================================================================
 
 	/**
-	 * @brief Enumeration of conversion operation types
-	 */
-	enum class ConversionType
-	{
-		ChangeCode = 0,
-		Merge,
-		Move,
-		AssignmentChange = 20,
-		AssignmentDelete = 21
-	};
-
-	/**
 	 * @brief Structure holding information about a node conversion
 	 */
 	struct GmodNodeConversion final
 	{
-		std::unordered_set<ConversionType> operations;
+		enum class Type : std::uint8_t
+		{
+			ChangeCode = 0,
+			Merge,
+			Move,
+
+			AssignmentChange = 20,
+			AssignmentDelete = 21
+		};
+
+		std::unordered_set<Type> operations;
 		std::string source;
 		std::optional<std::string> target;
 		std::optional<std::string> oldAssignment;

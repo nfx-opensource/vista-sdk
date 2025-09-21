@@ -15,27 +15,27 @@ namespace dnv::vista::sdk::internal
 	/**
 	 * @brief Parse a conversion type from a string
 	 */
-	static ConversionType parseConversionType( std::string_view type )
+	static GmodNodeConversion::Type parseConversionType( std::string_view type )
 	{
 		if ( nfx::string::equals( type, "changeCode" ) )
 		{
-			return ConversionType::ChangeCode;
+			return GmodNodeConversion::Type::ChangeCode;
 		}
 		if ( nfx::string::equals( type, "move" ) )
 		{
-			return ConversionType::Move;
+			return GmodNodeConversion::Type::Move;
 		}
 		if ( nfx::string::equals( type, "merge" ) )
 		{
-			return ConversionType::Merge;
+			return GmodNodeConversion::Type::Merge;
 		}
 		if ( nfx::string::equals( type, "assignmentChange" ) )
 		{
-			return ConversionType::AssignmentChange;
+			return GmodNodeConversion::Type::AssignmentChange;
 		}
 		if ( nfx::string::equals( type, "assignmentDelete" ) )
 		{
-			return ConversionType::AssignmentDelete;
+			return GmodNodeConversion::Type::AssignmentDelete;
 		}
 
 		throw std::invalid_argument{ "Invalid conversion type: " + std::string{ type } };

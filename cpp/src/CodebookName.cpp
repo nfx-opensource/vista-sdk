@@ -7,8 +7,8 @@
 
 #include <nfx/string/Utils.h>
 
+#include "internal/core/Codebook.h"
 #include "dnv/vista/sdk/CodebookName.h"
-#include "internal/constants/Codebook.h"
 
 namespace dnv::vista::sdk
 {

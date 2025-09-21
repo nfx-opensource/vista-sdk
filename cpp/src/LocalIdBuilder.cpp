@@ -8,9 +8,8 @@
 
 #include "dnv/vista/sdk/LocalIdBuilder.h"
 
-#include "internal/constants/LocalId.h"
+#include "internal/core/LocalId.h"
 #include "internal/parsing/LocalIdParsingErrorBuilder.h"
-
 #include "dnv/vista/sdk/CodebookName.h"
 #include "dnv/vista/sdk/Codebooks.h"
 #include "dnv/vista/sdk/Gmod.h"

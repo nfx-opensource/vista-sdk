@@ -31,6 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.44] - 2025-09-21
+
+### Changed
+
+-   **NFX Core dependency update** from v0.0.6 to v0.0.7
+-   **Internal code organization refactoring**: Relocated internal constants to more appropriate modules
+
 ## [0.0.43] - 2025-09-20
 
 ### Added

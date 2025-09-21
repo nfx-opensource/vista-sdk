@@ -8,11 +8,10 @@
 
 #include "dnv/vista/sdk/Locations.h"
 
-#include "internal/constants/Locations.h"
+#include "internal/core/Locations.h"
 #include "internal/dto/LocationsDto.h"
 #include "internal/parsing/LocationCharDict.h"
 #include "internal/parsing/LocationParsingErrorBuilder.h"
-
 #include "dnv/vista/sdk/ParsingErrors.h"
 #include "dnv/vista/sdk/VISVersion.h"
 

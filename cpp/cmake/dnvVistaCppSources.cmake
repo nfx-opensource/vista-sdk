@@ -66,24 +66,21 @@ set(PUBLIC_HEADERS
 )
 
 set(PRIVATE_HEADERS
-	# --- Internal constants ---
-	${VISTA_SDK_CPP_SOURCE_DIR}/internal/constants/Codebook.h
-	${VISTA_SDK_CPP_SOURCE_DIR}/internal/constants/DtoKeys.h
-	${VISTA_SDK_CPP_SOURCE_DIR}/internal/constants/GmodNode.h
-	${VISTA_SDK_CPP_SOURCE_DIR}/internal/constants/ISO19848.h
-	${VISTA_SDK_CPP_SOURCE_DIR}/internal/constants/LocalId.h
-	${VISTA_SDK_CPP_SOURCE_DIR}/internal/constants/Locations.h
-
 	# --- Internal core utilities ---
+	${VISTA_SDK_CPP_SOURCE_DIR}/internal/core/Codebook.h
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/core/EmbeddedResource.h
+	${VISTA_SDK_CPP_SOURCE_DIR}/internal/core/GmodNode.h
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/core/GmodVersioning.h
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/core/GmodVersioningNode.h
+	${VISTA_SDK_CPP_SOURCE_DIR}/internal/core/LocalId.h
+	${VISTA_SDK_CPP_SOURCE_DIR}/internal/core/Locations.h
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/core/LocationSetsVisitor.h
 
 	# --- Internal data transfer objects ---
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/dto/CodebooksDto.h
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/dto/GmodDto.h
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/dto/GmodVersioningDto.h
+	${VISTA_SDK_CPP_SOURCE_DIR}/internal/dto/Keys.h
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/dto/LocationsDto.h
 
 	# --- Internal parsing utilities ---
@@ -92,8 +89,8 @@ set(PRIVATE_HEADERS
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/parsing/LocationParsingErrorBuilder.h
 
 	# --- Internal transport utilities ---
-	${VISTA_SDK_CPP_SOURCE_DIR}/internal/transport/datachannel/DataChannelHelpers.h
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/transport/dto/ISO19848Dtos.h
+	${VISTA_SDK_CPP_SOURCE_DIR}/internal/transport/ISO19848.h
 )
 
 set(PRIVATE_SOURCES

@@ -8,7 +8,7 @@
 
 #include "dnv/vista/sdk/LocationBuilder.h"
 
-#include "internal/constants/Locations.h"
+#include "internal/core/Locations.h"
 #include "dnv/vista/sdk/Exceptions.h"
 #include "dnv/vista/sdk/Locations.h"
 #include "dnv/vista/sdk/VISVersion.h"

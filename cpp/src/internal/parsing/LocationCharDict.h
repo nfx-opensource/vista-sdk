@@ -8,6 +8,7 @@
 #pragma once
 
 #include <array>
+#include <stdexcept>
 #include <optional>
 
 #include <nfx/string/StringBuilderPool.h>

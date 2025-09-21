@@ -10,7 +10,7 @@
 
 #include "LocationsDto.h"
 
-#include "internal/constants/DtoKeys.h"
+#include "internal/dto/Keys.h"
 
 namespace dnv::vista::sdk
 {

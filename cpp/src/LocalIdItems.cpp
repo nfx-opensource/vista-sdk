@@ -13,7 +13,7 @@
 
 #include "dnv/vista/sdk/LocalIdItems.h"
 
-#include "internal/constants/LocalId.h"
+#include "internal/core/LocalId.h"
 
 namespace dnv::vista::sdk
 {

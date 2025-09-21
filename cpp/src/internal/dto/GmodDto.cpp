@@ -10,7 +10,7 @@
 
 #include "GmodDto.h"
 
-#include "internal/constants/DtoKeys.h"
+#include "internal/dto/Keys.h"
 
 namespace dnv::vista::sdk
 {

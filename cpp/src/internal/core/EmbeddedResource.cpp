@@ -14,11 +14,10 @@
 
 #include "EmbeddedResource.h"
 
-#include "internal/constants/DtoKeys.h"
-
 #include "internal/dto/CodebooksDto.h"
 #include "internal/dto/GmodDto.h"
 #include "internal/dto/GmodVersioningDto.h"
+#include "internal/dto/Keys.h"
 #include "internal/dto/LocationsDto.h"
 #include "internal/transport/dto/ISO19848Dtos.h"
 

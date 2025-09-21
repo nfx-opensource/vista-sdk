@@ -159,7 +159,7 @@ namespace dnv::vista::sdk
 	namespace internal
 	{
 		class LocalIdParsingErrorBuilder;
-		enum class LocalIdParsingState;
+		enum class LocalIdParsingState : std::uint8_t;
 	}
 
 	//=====================================================================

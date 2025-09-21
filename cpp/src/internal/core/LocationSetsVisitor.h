@@ -16,12 +16,11 @@
 
 namespace dnv::vista::sdk::internal
 {
-	struct LocationSetsVisitor
+	class LocationSetsVisitor
 	{
-		size_t currentParentStart;
-
+	public:
 		LocationSetsVisitor()
-			: currentParentStart{ std::numeric_limits<size_t>().max() }
+			: m_currentParentStart{ std::numeric_limits<size_t>().max() }
 		{
 		}
 
@@ -31,11 +30,11 @@ namespace dnv::vista::sdk::internal
 			bool isParent = Gmod::isPotentialParent( node.metadata().type() );
 			bool isTargetNode = ( static_cast<size_t>( i ) == pathParents.size() );
 
-			if ( currentParentStart == std::numeric_limits<size_t>().max() )
+			if ( m_currentParentStart == std::numeric_limits<size_t>().max() )
 			{
 				if ( isParent )
 				{
-					currentParentStart = i;
+					m_currentParentStart = i;
 				}
 				if ( node.isIndividualizable( isTargetNode ) )
 				{
@@ -48,7 +47,7 @@ namespace dnv::vista::sdk::internal
 				{
 					std::optional<std::tuple<size_t, size_t, std::optional<Location>>> nodes = std::nullopt;
 
-					if ( currentParentStart + 1 == i )
+					if ( m_currentParentStart + 1 == i )
 					{
 						if ( node.isIndividualizable( isTargetNode ) )
 							nodes = std::make_tuple( i, i, node.location() );
@@ -58,7 +57,7 @@ namespace dnv::vista::sdk::internal
 						size_t skippedOne = std::numeric_limits<size_t>().max();
 						bool hasComposition = false;
 
-						for ( size_t j = currentParentStart + 1; j <= i; ++j )
+						for ( size_t j = m_currentParentStart + 1; j <= i; ++j )
 						{
 							const GmodNode& setNode = ( j < pathParents.size() )
 														  ? pathParents[j]
@@ -107,7 +106,7 @@ namespace dnv::vista::sdk::internal
 						}
 					}
 
-					currentParentStart = i;
+					m_currentParentStart = i;
 					if ( nodes.has_value() )
 					{
 						bool hasLeafNode = false;
@@ -142,5 +141,8 @@ namespace dnv::vista::sdk::internal
 
 			return std::nullopt;
 		}
+
+	private:
+		size_t m_currentParentStart;
 	};
 }

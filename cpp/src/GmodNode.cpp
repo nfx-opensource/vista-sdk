@@ -7,7 +7,7 @@
 
 #include "dnv/vista/sdk/GmodNode.h"
 
-#include "internal/constants/GmodNode.h"
+#include "internal/core/GmodNode.h"
 #include "internal/dto/GmodDto.h"
 #include "dnv/vista/sdk/Gmod.h"
 #include "dnv/vista/sdk/ParsingErrors.h"

@@ -30,6 +30,7 @@ namespace dnv::vista::sdk
 			class DataChannelTypeNamesDto;
 			class FormatDataTypesDto;
 		}
+
 		//=====================================================================
 		// EmbeddedResource class
 		//=====================================================================

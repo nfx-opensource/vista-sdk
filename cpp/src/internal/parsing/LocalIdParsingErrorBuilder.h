@@ -7,168 +7,169 @@
 
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
+//=====================================================================
+// Forward declarations
+//=====================================================================
+
 namespace dnv::vista::sdk
 {
-	//=====================================================================
-	// Forward declarations
-	//=====================================================================
-
 	class ParsingErrors;
+}
 
-	namespace internal
+namespace dnv::vista::sdk::internal
+{
+	//=====================================================================
+	// Enumerations
+	//=====================================================================
+
+	/**
+	 * @brief Represents the specific stage or aspect of LocalId parsing.
+	 * @details Used internally by the parser to track progress and externally
+	 *          within ParsingErrors to categorize issues found during LocalId parsing.
+	 *          Values 0-99 represent sequential parsing stages, 100-199 represent
+	 *          structural errors, and 200+ represent validation errors.
+	 */
+	enum class LocalIdParsingState : std::uint8_t
 	{
+		NamingRule = 0,
+		VisVersion,
+		PrimaryItem,
+		SecondaryItem,
+		ItemDescription,
+		MetaQuantity,
+		MetaContent,
+		MetaCalculation,
+		MetaState,
+		MetaCommand,
+		MetaType,
+		MetaPosition,
+		MetaDetail,
+
+		EmptyState = 100,
+		Formatting = 101,
+		Completeness = 102,
+
+		NamingEntity = 200,
+		IMONumber = 201
+	};
+
+	//=====================================================================
+	// LocalIdParsingErrorBuilder class
+	//=====================================================================
+
+	/**
+	 * @class LocalIdParsingErrorBuilder
+	 * @brief A builder class for accumulating errors encountered during LocalId parsing.
+	 *
+	 * @details This class provides methods to add errors associated with specific parsing states
+	 *          (defined by `LocalIdParsingState`) and finally builds a `ParsingErrors` object
+	 *          containing the collected issues, formatted for user presentation. It is used
+	 *          internally by the `LocalIdBuilder` parsing logic.
+	 */
+	class LocalIdParsingErrorBuilder final
+	{
+	public:
 		//----------------------------------------------
-		// Enumerations
+		// Construction
+		//----------------------------------------------
+
+		/** @brief Default constructor. */
+		LocalIdParsingErrorBuilder();
+
+		/** @brief Copy constructor */
+		LocalIdParsingErrorBuilder( const LocalIdParsingErrorBuilder& ) = default;
+
+		/** @brief Move constructor */
+		LocalIdParsingErrorBuilder( LocalIdParsingErrorBuilder&& ) noexcept = default;
+
+		//----------------------------------------------
+		// Destruction
+		//----------------------------------------------
+
+		/** @brief Destructor */
+		~LocalIdParsingErrorBuilder() = default;
+
+		//----------------------------------------------
+		// Assignment operators
+		//----------------------------------------------
+
+		/** @brief Copy assignment operator */
+		LocalIdParsingErrorBuilder& operator=( const LocalIdParsingErrorBuilder& ) = default;
+
+		/** @brief Move assignment operator */
+		LocalIdParsingErrorBuilder& operator=( LocalIdParsingErrorBuilder&& ) noexcept = default;
+
+		//----------------------------------------------
+		// State inspection methods
 		//----------------------------------------------
 
 		/**
-		 * @brief Represents the specific stage or aspect of LocalId parsing.
-		 * @details Used internally by the parser to track progress and externally
-		 *          within ParsingErrors to categorize issues found during LocalId parsing.
-		 *          Values 0-99 represent sequential parsing stages, 100-199 represent
-		 *          structural errors, and 200+ represent validation errors.
+		 * @brief Checks if any errors have been added to the builder.
+		 * @return `true` if at least one error has been added, `false` otherwise.
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		enum class LocalIdParsingState
-		{
-			NamingRule = 0,
-			VisVersion,
-			PrimaryItem,
-			SecondaryItem,
-			ItemDescription,
-			MetaQuantity,
-			MetaContent,
-			MetaCalculation,
-			MetaState,
-			MetaCommand,
-			MetaType,
-			MetaPosition,
-			MetaDetail,
+		[[nodiscard]] bool hasError() const noexcept;
 
-			EmptyState = 100,
-			Formatting = 101,
-			Completeness = 102,
-
-			NamingEntity = 200,
-			IMONumber = 201
-		};
-
-		//=====================================================================
-		// LocalIdParsingErrorBuilder class
-		//=====================================================================
+		//----------------------------------------------
+		// Static factory method
+		//----------------------------------------------
 
 		/**
-		 * @class LocalIdParsingErrorBuilder
-		 * @brief A builder class for accumulating errors encountered during LocalId parsing.
-		 *
-		 * @details This class provides methods to add errors associated with specific parsing states
-		 *          (defined by `LocalIdParsingState`) and finally builds a `ParsingErrors` object
-		 *          containing the collected issues, formatted for user presentation. It is used
-		 *          internally by the `LocalIdBuilder` parsing logic.
+		 * @brief Creates a new, empty LocalIdParsingErrorBuilder instance.
+		 * @details Provides a clear entry point for creating a builder.
+		 * @return A new instance of `LocalIdParsingErrorBuilder`.
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		class LocalIdParsingErrorBuilder final
-		{
-		public:
-			//----------------------------------------------
-			// Construction
-			//----------------------------------------------
+		[[nodiscard]] static LocalIdParsingErrorBuilder create();
 
-			/** @brief Default constructor. */
-			LocalIdParsingErrorBuilder();
+		//----------------------------------------------
+		// ParsingErrors construction
+		//----------------------------------------------
 
-			/** @brief Copy constructor */
-			LocalIdParsingErrorBuilder( const LocalIdParsingErrorBuilder& ) = default;
+		/**
+		 * @brief Constructs a `ParsingErrors` object from the errors collected by this builder.
+		 * @details Formats the collected state/message pairs into a final `ParsingErrors` object.
+		 * @return A `ParsingErrors` object containing the formatted error messages.
+		 *         Returns an empty `ParsingErrors` object if `hasError()` is false.
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		[[nodiscard]] ParsingErrors build() const;
 
-			/** @brief Move constructor */
-			LocalIdParsingErrorBuilder( LocalIdParsingErrorBuilder&& ) noexcept = default;
+		//----------------------------------------------
+		// Error addition
+		//----------------------------------------------
 
-			//----------------------------------------------
-			// Destruction
-			//----------------------------------------------
+		/**
+		 * @brief Adds an error associated with a specific parsing state, using a predefined message.
+		 * @details Retrieves a standard error message based on the `state` and adds it to the list.
+		 * @param[in] state The `LocalIdParsingState` where the error occurred.
+		 * @return A reference to this builder instance for method chaining.
+		 */
+		LocalIdParsingErrorBuilder& addError( LocalIdParsingState state );
 
-			/** @brief Destructor */
-			~LocalIdParsingErrorBuilder() = default;
+		/**
+		 * @brief Adds an error associated with a specific parsing state, with custom message.
+		 * @details Adds the provided custom message for the specified parsing state.
+		 * @param[in] state The `LocalIdParsingState` where the error occurred.
+		 * @param[in] message Custom error message to associate with the state.
+		 * @return A reference to this builder instance for method chaining.
+		 */
+		LocalIdParsingErrorBuilder& addError( LocalIdParsingState state, const std::string& message );
 
-			//----------------------------------------------
-			// Assignment operators
-			//----------------------------------------------
+	private:
+		//----------------------------------------------
+		// Private member variables
+		//----------------------------------------------
 
-			/** @brief Copy assignment operator */
-			LocalIdParsingErrorBuilder& operator=( const LocalIdParsingErrorBuilder& ) = default;
-
-			/** @brief Move assignment operator */
-			LocalIdParsingErrorBuilder& operator=( LocalIdParsingErrorBuilder&& ) noexcept = default;
-
-			//----------------------------------------------
-			// State inspection methods
-			//----------------------------------------------
-
-			/**
-			 * @brief Checks if any errors have been added to the builder.
-			 * @return `true` if at least one error has been added, `false` otherwise.
-			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-			 */
-			[[nodiscard]] bool hasError() const noexcept;
-
-			//----------------------------------------------
-			// Static factory method
-			//----------------------------------------------
-
-			/**
-			 * @brief Creates a new, empty LocalIdParsingErrorBuilder instance.
-			 * @details Provides a clear entry point for creating a builder.
-			 * @return A new instance of `LocalIdParsingErrorBuilder`.
-			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-			 */
-			[[nodiscard]] static LocalIdParsingErrorBuilder create();
-
-			//----------------------------------------------
-			// ParsingErrors construction
-			//----------------------------------------------
-
-			/**
-			 * @brief Constructs a `ParsingErrors` object from the errors collected by this builder.
-			 * @details Formats the collected state/message pairs into a final `ParsingErrors` object.
-			 * @return A `ParsingErrors` object containing the formatted error messages.
-			 *         Returns an empty `ParsingErrors` object if `hasError()` is false.
-			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-			 */
-			[[nodiscard]] ParsingErrors build() const;
-
-			//----------------------------------------------
-			// Error addition
-			//----------------------------------------------
-
-			/**
-			 * @brief Adds an error associated with a specific parsing state, using a predefined message.
-			 * @details Retrieves a standard error message based on the `state` and adds it to the list.
-			 * @param[in] state The `LocalIdParsingState` where the error occurred.
-			 * @return A reference to this builder instance for method chaining.
-			 */
-			LocalIdParsingErrorBuilder& addError( LocalIdParsingState state );
-
-			/**
-			 * @brief Adds an error associated with a specific parsing state, with custom message.
-			 * @details Adds the provided custom message for the specified parsing state.
-			 * @param[in] state The `LocalIdParsingState` where the error occurred.
-			 * @param[in] message Custom error message to associate with the state.
-			 * @return A reference to this builder instance for method chaining.
-			 */
-			LocalIdParsingErrorBuilder& addError( LocalIdParsingState state, const std::string& message );
-
-		private:
-			//----------------------------------------------
-			// Private member variables
-			//----------------------------------------------
-
-			/**
-			 * @brief Internal storage for the collected parsing errors.
-			 * @details Each pair contains the `LocalIdParsingState` where the error occurred
-			 *          and the associated error message string.
-			 */
-			std::vector<std::pair<LocalIdParsingState, std::string>> m_errors;
-		};
-	}
+		/**
+		 * @brief Internal storage for the collected parsing errors.
+		 * @details Each pair contains the `LocalIdParsingState` where the error occurred
+		 *          and the associated error message string.
+		 */
+		std::vector<std::pair<LocalIdParsingState, std::string>> m_errors;
+	};
 }

@@ -9,9 +9,9 @@
 
 #include "dnv/vista/sdk/Gmod.h"
 
-#include "dnv/vista/sdk/GmodPath.h"
-#include "internal/constants/GmodNode.h"
+#include "internal/core/GmodNode.h"
 #include "internal/dto/GmodDto.h"
+#include "dnv/vista/sdk/GmodPath.h"
 
 namespace dnv::vista::sdk
 {
