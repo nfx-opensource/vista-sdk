@@ -250,10 +250,16 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
+		/**
+		 * @brief Copy assignment operator
+		 * @return Reference to this object
+		 */
 		CodebookStandardValues& operator=( const CodebookStandardValues& ) = default;
 
-		/** @brief Move assignment operator */
+		/**
+		 * @brief Move assignment operator
+		 * @return Reference to this object
+		 */
 		CodebookStandardValues& operator=( CodebookStandardValues&& ) noexcept = default;
 
 		//----------------------------------------------
@@ -355,10 +361,16 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
+		/**
+		 * @brief Copy assignment operator
+		 * @return Reference to this object
+		 */
 		CodebookGroups& operator=( const CodebookGroups& ) = default;
 
-		/** @brief Move assignment operator */
+		/**
+		 * @brief Move assignment operator
+		 * @return Reference to this object
+		 */
 		CodebookGroups& operator=( CodebookGroups&& ) noexcept = default;
 
 		//----------------------------------------------
@@ -459,10 +471,16 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
+		/**
+		 * @brief Copy assignment operator
+		 * @return Reference to this object
+		 */
 		Codebook& operator=( const Codebook& ) = default;
 
-		/** @brief Move assignment operator */
+		/**
+		 * @brief Move assignment operator
+		 * @return Reference to this object
+		 */
 		Codebook& operator=( Codebook&& ) noexcept = default;
 
 		//----------------------------------------------

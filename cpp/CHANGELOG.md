@@ -31,6 +31,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.46] - 2025-09-24
+
+### Added
+
+-   **GitHub Actions CI/CD**:
+    -   MinGW workflow support added
+    -   ccache integration across all CI/CD workflows
+        -   Enhanced workflow security with explicit `contents: read` permissions
+
+### Changed
+
+-   **Core dependency upgrade**: nfx-core updated from v0.0.8 to v0.1.1
+-   **Performance enhancements**:
+    -   Migrated from `std::unordered_map` to `nfx::containers::HashMap` in `DataChannelList`
+    -   Enhanced LocalId hashing with SSE4.2/FNV-1a string processing
+    -   Streamlined data channel storage using direct pointers over reference wrappers
+
 ## [0.0.45] - 2025-09-21
 
 ### Added

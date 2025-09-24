@@ -169,15 +169,6 @@ foreach(sample_source ${SAMPLE_SOURCES})
 			RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/samples"
 			RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/samples"
 		)
-
-		#----------------------------------------------
-		# Add to sample target
-		#----------------------------------------------
-
-		if(NOT TARGET samples)
-			add_custom_target(samples)
-		endif()
-		add_dependencies(samples ${sample_target_name})
 	endif()
 endforeach()
 

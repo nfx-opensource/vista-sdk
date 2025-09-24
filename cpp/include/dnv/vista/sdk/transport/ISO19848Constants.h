@@ -42,16 +42,41 @@
 
 namespace dnv::vista::sdk::transport
 {
+	/**
+	 * @brief ISO-19848:2018 version identifier string
+	 */
 	inline constexpr std::string_view ISO19848_v2018 = "v2018";
+
+	/**
+	 * @brief ISO-19848:2024 version identifier string
+	 */
 	inline constexpr std::string_view ISO19848_v2024 = "v2024";
 
+	/**
+	 * @brief Official naming entity for ISO-19848 Annex C
+	 */
 	inline constexpr std::string_view ISO19848_ANNEX_C_NAMING_ENTITY = "data.dnv.com";
+
+	/**
+	 * @brief Reference URL for ISO-19848 Annex C documentation
+	 */
 	inline constexpr std::string_view ISO19848_ANNEX_C_REFERENCE_URL = "https://docs.vista.dnv.com";
+
+	/**
+	 * @brief Naming rule prefix for ISO-19848 Annex C
+	 */
 	inline constexpr std::string_view ISO19848_ANNEX_C_NAMING_RULE_PREFIX = "dnv";
+
+	/**
+	 * @brief Naming scheme version for ISO-19848 Annex C
+	 */
 	inline constexpr std::string_view ISO19848_ANNEX_C_NAMING_SCHEME_VERSION = "v2";
+
+	/**
+	 * @brief Full naming rule for ISO-19848 Annex C (prefix-version)
+	 */
 	inline constexpr std::string_view ISO19848_ANNEX_C_NAMING_RULE = "dnv-v2";
 
-	// TODO
 	// static_assert( ISO19848_ANNEX_C_NAMING_RULE ==
 	//			   std::string{ ISO19848_ANNEX_C_NAMING_RULE_PREFIX } + "-" + std::string{ ISO19848_ANNEX_C_NAMING_SCHEME_VERSION } );
 }

@@ -464,7 +464,7 @@ namespace dnv::vista::sdk::transport
 	{
 		m_dataChannels.clear();
 		m_shortIdMap.clear();
-		m_localIdMap.clear();
+		m_localIdMap = nfx::containers::HashMap<LocalId, const DataChannel*>{};
 	}
 
 	//----------------------------------------------
@@ -476,7 +476,7 @@ namespace dnv::vista::sdk::transport
 		auto it = m_shortIdMap.find( shortId );
 		if ( it != m_shortIdMap.end() )
 		{
-			return &( it->second.get() );
+			return it->second;
 		}
 
 		return nullptr;
@@ -487,7 +487,7 @@ namespace dnv::vista::sdk::transport
 		auto it = m_shortIdMap.find( shortId );
 		if ( it != m_shortIdMap.end() )
 		{
-			return &( it->second.get() );
+			return it->second;
 		}
 
 		return nullptr;
@@ -495,10 +495,11 @@ namespace dnv::vista::sdk::transport
 
 	const DataChannel* DataChannelList::tryGetByLocalId( const LocalId& localId ) const
 	{
-		auto it = m_localIdMap.find( localId );
-		if ( it != m_localIdMap.end() )
+		const DataChannel** valuePtr = nullptr;
+		auto& mutableMap = const_cast<nfx::containers::HashMap<LocalId, const DataChannel*>&>(m_localIdMap);
+		if ( mutableMap.tryGetValue( localId, valuePtr ) )
 		{
-			return &( it->second.get() );
+			return *valuePtr;
 		}
 
 		return nullptr;
@@ -511,7 +512,8 @@ namespace dnv::vista::sdk::transport
 	void DataChannelList::add( DataChannel dataChannel )
 	{
 		// Check for LocalId conflicts
-		if ( m_localIdMap.find( dataChannel.dataChannelId().localId() ) != m_localIdMap.end() )
+		const DataChannel** existingPtr = nullptr;
+		if ( m_localIdMap.tryGetValue( dataChannel.dataChannelId().localId(), existingPtr ) )
 		{
 			throw std::invalid_argument{ "LocalId already exists in collection" };
 		}
@@ -536,11 +538,11 @@ namespace dnv::vista::sdk::transport
 		const auto& addedChannel = m_dataChannels.back();
 
 		// Update indexes
-		m_localIdMap.emplace( addedChannel.dataChannelId().localId(), std::cref( addedChannel ) );
+		m_localIdMap.insertOrAssign( addedChannel.dataChannelId().localId(), &addedChannel );
 
 		if ( addedChannel.dataChannelId().shortId() )
 		{
-			m_shortIdMap.emplace( *addedChannel.dataChannelId().shortId(), std::cref( addedChannel ) );
+			m_shortIdMap.emplace( *addedChannel.dataChannelId().shortId(), &addedChannel );
 		}
 	}
 

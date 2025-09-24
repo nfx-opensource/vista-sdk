@@ -15,6 +15,9 @@ on:
 env:
   BUILD_TYPE: Release
 
+permissions:
+  contents: read
+
 jobs:
   build-linux-clang:
     runs-on: ubuntu-24.04
@@ -29,12 +32,17 @@ jobs:
     - name: Set up build environment
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential cmake ninja-build clang-18 libc++-18-dev libc++abi-18-dev
+        sudo apt-get install -y build-essential cmake ninja-build clang-18 libc++-18-dev libc++abi-18-dev ccache
 
     - name: Set environment variables
       run: |
         echo "CC=clang-18" >> $GITHUB_ENV
         echo "CXX=clang++-18" >> $GITHUB_ENV
+
+    - name: Setup ccache
+      run: |
+        ccache --zero-stats
+        ccache --show-config
 
     - name: Configure CMake
       working-directory: cpp
@@ -57,14 +65,6 @@ jobs:
       working-directory: cpp/build
       run: ctest --output-on-failure --parallel
 
-    - name: Archive build artifacts
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: vista-sdk-cpp-linux-clang-${{ github.sha }}
-        path: |
-          cpp/build/vista-sdk-cpp-*/
-          !cpp/build/**/CMakeFiles/
-          !cpp/build/**/*.obj
-          !cpp/build/**/*.o
-        retention-days: 7
+    - name: Show ccache statistics
+      run: ccache --show-stats
+

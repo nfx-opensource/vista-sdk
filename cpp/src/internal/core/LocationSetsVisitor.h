@@ -16,6 +16,16 @@
 
 namespace dnv::vista::sdk::internal
 {
+	/**
+	 * @brief Visitor for traversing GMOD paths and managing individualization sets during version conversion.
+	 *
+	 * @details
+	 * The LocationSetsVisitor class implements the visitor pattern for traversing nodes in a GMOD path,
+	 * identifying and managing sets of nodes that can be individualized (assigned unique locations) during
+	 * version conversion or path processing. It provides logic to detect contiguous and valid individualizable
+	 * node sets, handles error conditions for invalid groupings, and returns tuple information for each set found.
+	 * This class is used internally by the VISTA SDK for advanced path and location management workflows.
+	 */
 	class LocationSetsVisitor
 	{
 	public:

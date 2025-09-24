@@ -175,10 +175,16 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
+		/**
+		 * @brief Copy assignment operator
+		 * @return Reference to this object
+		 */
 		Codebooks& operator=( const Codebooks& ) = default;
 
-		/** @brief Move assignment operator */
+		/**
+		 * @brief Move assignment operator
+		 * @return Reference to this object
+		 */
 		Codebooks& operator=( Codebooks&& ) noexcept = default;
 
 		//----------------------------------------------

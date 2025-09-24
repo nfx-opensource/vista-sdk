@@ -18,27 +18,55 @@ namespace dnv::vista::sdk::internal
 		// Location character constants
 		//----------------------------------------------
 
-		// Special characters
+		/**
+		 * @name Special location character codes
+		 * @brief Special characters used in location parsing
+		 */
+		/// Horizontal location character
 		inline constexpr char CHAR_HORIZONTAL = 'H';
+		/// Vertical location character
 		inline constexpr char CHAR_VERTICAL = 'V';
+		/// Number location character
 		inline constexpr char CHAR_NUMBER = 'N';
 
-		// Side group
+		/**
+		 * @name Side group character codes
+		 * @brief Characters representing port, center, and starboard sides
+		 */
+		/// Port side character
 		inline constexpr char CHAR_PORT = 'P';
+		/// Center side character
 		inline constexpr char CHAR_CENTER = 'C';
+		/// Starboard side character
 		inline constexpr char CHAR_STARBOARD = 'S';
 
-		// Vertical group
+		/**
+		 * @name Vertical group character codes
+		 * @brief Characters representing upper, middle, and lower vertical positions
+		 */
+		/// Upper vertical character
 		inline constexpr char CHAR_UPPER = 'U';
+		/// Middle vertical character
 		inline constexpr char CHAR_MIDDLE = 'M';
+		/// Lower vertical character
 		inline constexpr char CHAR_LOWER = 'L';
 
-		// Transverse group
+		/**
+		 * @name Transverse group character codes
+		 * @brief Characters representing inboard and outboard positions
+		 */
+		/// Inboard transverse character
 		inline constexpr char CHAR_INBOARD = 'I';
+		/// Outboard transverse character
 		inline constexpr char CHAR_OUTBOARD = 'O';
 
-		// Longitudinal group
+		/**
+		 * @name Longitudinal group character codes
+		 * @brief Characters representing forward and aft positions
+		 */
+		/// Forward longitudinal character
 		inline constexpr char CHAR_FORWARD = 'F';
+		/// Aft longitudinal character
 		inline constexpr char CHAR_AFT = 'A';
 
 		//----------------------------------------------

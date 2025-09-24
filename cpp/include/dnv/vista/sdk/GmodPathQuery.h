@@ -147,10 +147,16 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
+		/**
+		 * @brief Copy assignment operator
+		 * @return Reference to this GmodPathQuery after assignment
+		 */
 		GmodPathQuery& operator=( const GmodPathQuery& ) = default;
 
-		/** @brief Move assignment operator */
+		/**
+		 * @brief Move assignment operator
+		 * @return Reference to this GmodPathQuery after assignment
+		 */
 		GmodPathQuery& operator=( GmodPathQuery&& ) noexcept = default;
 
 		//----------------------------------------------

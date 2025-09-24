@@ -70,10 +70,16 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
+		/**
+		 * @brief Copy assignment operator
+		 * @return Reference to this ImoNumber after assignment
+		 */
 		ImoNumber& operator=( const ImoNumber& ) = default;
 
-		/** @brief Move assignment operator */
+		/**
+		 * @brief Move assignment operator
+		 * @return Reference to this ImoNumber after assignment
+		 */
 		ImoNumber& operator=( ImoNumber&& ) noexcept = default;
 
 		//----------------------------------------------

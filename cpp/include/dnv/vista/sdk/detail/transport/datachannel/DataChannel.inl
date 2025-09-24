@@ -796,18 +796,19 @@ namespace dnv::vista::sdk::transport
 			throw std::out_of_range{ "Short ID not found: " + shortId };
 		}
 
-		return it->second.get();
+		return *it->second;
 	}
 
 	VISTA_SDK_CPP_INLINE const DataChannel& DataChannelList::operator[]( const LocalId& localId ) const
 	{
-		auto it = m_localIdMap.find( localId );
-		if ( it == m_localIdMap.end() )
+		const DataChannel** valuePtr = nullptr;
+		auto& mutableMap = const_cast<nfx::containers::HashMap<LocalId, const DataChannel*>&>(m_localIdMap);
+		if ( !mutableMap.tryGetValue( localId, valuePtr ) )
 		{
 			throw std::out_of_range{ "Local ID not found" };
 		}
 
-		return it->second.get();
+		return **valuePtr;
 	}
 
 	//----------------------------------------------

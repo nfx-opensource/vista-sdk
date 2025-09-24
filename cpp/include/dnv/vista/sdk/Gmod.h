@@ -301,10 +301,16 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
+		/**
+		 * @brief Copy assignment operator
+		 * @return Reference to this object
+		 */
 		Gmod& operator=( const Gmod& ) = default;
 
-		/** @brief Move assignment operator */
+		/**
+		 * @brief Move assignment operator
+		 * @return Reference to this object
+		 */
 		Gmod& operator=( Gmod&& ) noexcept = default;
 
 		//----------------------------------------------
@@ -595,8 +601,19 @@ namespace dnv::vista::sdk
 			// Private member variables
 			//-----------------------------
 
+			/**
+			 * @brief Pointer to the source ChdHashMap of GmodNodes being enumerated.
+			 */
 			const nfx::containers::ChdHashMap<GmodNode>* m_sourceMapPtr;
+
+			/**
+			 * @brief Iterator to the current position in the ChdHashMap.
+			 */
 			nfx::containers::ChdHashMap<GmodNode>::Iterator m_currentMapIterator;
+
+			/**
+			 * @brief Indicates if the enumerator is in its initial state (before first next()).
+			 */
 			bool m_isInitialState;
 		};
 

@@ -248,10 +248,16 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
+		/**
+		 * @brief Copy assignment operator
+		 * @return Reference to this GmodNodeMetadata after assignment
+		 */
 		inline GmodNodeMetadata& operator=( const GmodNodeMetadata& ) noexcept;
 
-		/** @brief Move assignment operator */
+		/**
+		 * @brief Move assignment operator
+		 * @return Reference to this GmodNodeMetadata after assignment
+		 */
 		GmodNodeMetadata& operator=( GmodNodeMetadata&& ) noexcept = default;
 
 		//----------------------------------------------
@@ -422,10 +428,16 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
+		/**
+		 * @brief Copy assignment operator
+		 * @return Reference to this GmodNode after assignment
+		 */
 		inline GmodNode& operator=( const GmodNode& ) noexcept;
 
-		/** @brief Move assignment operator */
+		/**
+		 * @brief Move assignment operator
+		 * @return Reference to this GmodNode after assignment
+		 */
 		inline GmodNode& operator=( GmodNode&& ) noexcept;
 
 		//----------------------------------------------

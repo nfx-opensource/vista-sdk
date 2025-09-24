@@ -129,6 +129,16 @@ namespace dnv::vista::sdk
 	// GmodPath class
 	//=====================================================================
 
+	/**
+	 * @brief Represents a hierarchical path within a vessel structure according to ISO 19848.
+	 *
+	 * @details
+	 * The GmodPath class provides a robust, validated representation of a component path in the VISTA GMOD system.
+	 * It supports hierarchical parent/child relationships, path parsing and validation, location individualization,
+	 * and efficient traversal and string conversion. Each GmodPath consists of a sequence of parent nodes and a target node,
+	 * with optional location data for precise instance identification. The class is immutable after construction and
+	 * supports thread-safe read and parse operations. It is the core type for all path-based operations in the VISTA SDK.
+	 */
 	class GmodPath final
 	{
 	public:
@@ -138,37 +148,60 @@ namespace dnv::vista::sdk
 		// Construction
 		//----------------------------------------------
 
-		// TODO: Make the ctors move the parents
+		// TODO: Consider the CTORS move the parents ??
 	private:
 		GmodPath( std::vector<GmodNode> parents, GmodNode node, bool skipVerify );
 
 	public:
+		/**
+		 * @brief Constructs a GmodPath from parent nodes and a target node.
+		 * @param parents Vector of parent nodes leading to the target node.
+		 * @param node The target node of the path.
+		 */
 		GmodPath( std::vector<GmodNode> parents, GmodNode node );
 
-		/** @brief Default constructor. */
+		/**
+		 * @brief Default constructor.
+		 */
 		inline GmodPath();
 
-		/** @brief Copy constructor */
+		/**
+		 * @brief Copy constructor
+		 * @param other The GmodPath to copy from
+		 */
 		inline GmodPath( const GmodPath& other );
 
-		/** @brief Move constructor */
+		/**
+		 * @brief Move constructor
+		 * @param other The GmodPath to move from
+		 */
 		inline GmodPath( GmodPath&& other ) noexcept;
 
 		//----------------------------------------------
 		// Destruction
 		//----------------------------------------------
 
-		/** @brief Destructor */
+		/**
+		 * @brief Destructor
+		 */
 		~GmodPath() = default;
 
 		//----------------------------------------------
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The GmodPath to copy from
+		 * @return Reference to this GmodPath after assignment
+		 */
 		inline GmodPath& operator=( const GmodPath& other );
 
-		/** @brief Move assignment operator */
+		/**
+		 * @brief Move assignment operator
+		 * @param other The GmodPath to move from
+		 * @return Reference to this GmodPath after assignment
+		 */
 		inline GmodPath& operator=( GmodPath&& other ) noexcept;
 
 		//----------------------------------------------
@@ -477,6 +510,15 @@ namespace dnv::vista::sdk
 		// GmodPath::enumerator
 		//----------------------------------------------
 
+		/**
+		 * @brief Iterator for traversing nodes in a GmodPath.
+		 *
+		 * @details
+		 * The Enumerator class provides efficient, index-based iteration over the nodes of a GmodPath,
+		 * supporting both forward and partial traversal from any specified depth. It exposes the depth and
+		 * node pointer for each element, and is used for path navigation, enumeration, and string conversion
+		 * operations. Enumerator instances are lightweight and non-owning, referencing the underlying GmodPath.
+		 */
 		class Enumerator final
 		{
 			friend class GmodPath;
@@ -522,10 +564,16 @@ namespace dnv::vista::sdk
 			// Assignment operators
 			//----------------------------
 
-			/** @brief Copy assignment operator */
+			/**
+			 * @brief Copy assignment operator
+			 * @return Reference to this Enumerator after assignment
+			 */
 			Enumerator& operator=( const Enumerator& ) = default;
 
-			/** @brief Move assignment operator */
+			/**
+			 * @brief Move assignment operator
+			 * @return Reference to this Enumerator after assignment
+			 */
 			Enumerator& operator=( Enumerator&& ) noexcept = default;
 
 			//----------------------------
@@ -565,6 +613,22 @@ namespace dnv::vista::sdk
 	// GmodIndividualizableSet class
 	//=====================================================================
 
+	/**
+	 * @brief Represents a set of nodes within a GmodPath that can be individualized together.
+	 *
+	 * @details
+	 * The GmodIndividualizableSet class encapsulates a group of nodes in a GmodPath that can be
+	 * assigned unique location information, enabling precise identification of component instances
+	 * within a hierarchical maritime structure. This is essential for supporting the ISO 19848
+	 * standard's requirements for component individualization and location mapping.
+	 *
+	 * Typical usage involves retrieving individualizable sets from a GmodPath, assigning or modifying
+	 * their location data, and rebuilding the path to reflect these changes. The class provides access
+	 * to the indices and pointers of the nodes that can be individualized, as well as utility methods
+	 * for string conversion and location management.
+	 *
+	 * Instances of this class are non-copyable but movable, ensuring efficient handling of path data.
+	 */
 	class GmodIndividualizableSet final
 	{
 	public:
@@ -572,29 +636,59 @@ namespace dnv::vista::sdk
 		// Construction
 		//----------------------------------------------
 
+		/**
+		 * @brief Constructs a GmodIndividualizableSet with specified node indices and source path.
+		 * @param nodeIndices Indices of nodes in the path that can be individualized.
+		 * @param sourcePath The source GmodPath from which this set is derived.
+		 */
 		GmodIndividualizableSet( const std::vector<int>& nodeIndices, const GmodPath& sourcePath );
 
+		/**
+		 * @brief Default constructor
+		 */
 		GmodIndividualizableSet() = delete;
+		/**
+		 * @brief Copy constructor
+		 */
 		GmodIndividualizableSet( const GmodIndividualizableSet& ) = delete;
-		GmodIndividualizableSet( GmodIndividualizableSet&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The GmodIndividualizableSet to move from
+		 */
+		GmodIndividualizableSet( GmodIndividualizableSet&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
 		//----------------------------------------------
 
+		/**
+		 * @brief Destructor
+		 */
 		~GmodIndividualizableSet() = default;
 
 		//----------------------------------------------
 		// Assignment operators
 		//----------------------------------------------
 
+		/**
+		 * @brief Copy assignment operator
+		 */
 		GmodIndividualizableSet& operator=( const GmodIndividualizableSet& ) = delete;
-		GmodIndividualizableSet& operator=( GmodIndividualizableSet&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The GmodIndividualizableSet to move from
+		 * @return Reference to this object
+		 */
+		GmodIndividualizableSet& operator=( GmodIndividualizableSet&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Build
 		//----------------------------------------------
 
+		/**
+		 * @brief Builds a new GmodPath with the current individualization settings applied.
+		 * @return A new GmodPath instance reflecting the individualized nodes and locations.
+		 */
 		GmodPath build();
 
 		//----------------------------------------------
@@ -653,32 +747,121 @@ namespace dnv::vista::sdk
 	// GmodParsePathResult
 	//=====================================================================
 
+	/**
+	 * @brief Result type for GMOD path parsing operations with error handling.
+	 *
+	 * @details
+	 * The GmodParsePathResult struct encapsulates the outcome of parsing a GMOD path string.
+	 * It provides a discriminated union (variant) that holds either a successfully parsed GmodPath
+	 * (via the Ok struct) or an error message (via the Error struct). This enables robust error
+	 * handling and clear separation of success and failure cases when parsing hierarchical paths
+	 * according to the ISO 19848 standard.
+	 *
+	 * Typical usage involves checking the result with isOk() or isError(), then accessing the parsed
+	 * path or error message as appropriate. This struct is used by all GMOD path parsing functions
+	 * to provide safe and expressive error reporting.
+	 */
 	struct GmodParsePathResult
 	{
+		/**
+		 * @brief Represents a successful GMOD path parsing result.
+		 *
+		 * @details
+		 * The Ok struct holds a successfully parsed GmodPath instance. It is used as the
+		 * success variant in GmodParsePathResult, enabling access to the parsed path when
+		 * parsing operations complete without error.
+		 */
 		struct Ok
 		{
+			/**
+			 * @brief The parsed GMOD path.
+			 */
 			GmodPath path;
+
+			/**
+			 * @brief Constructs an Ok result with the given path.
+			 * @param p The successfully parsed GmodPath.
+			 */
 			inline explicit Ok( GmodPath p );
 		};
 
+		/**
+		 * @brief Represents a parsing error in GmodParsePathResult.
+		 *
+		 * @details
+		 * The Error struct holds an error message describing why a GMOD path parsing operation failed.
+		 * It is used as the error variant in GmodParsePathResult, enabling robust error reporting and
+		 * diagnostics for invalid or malformed path strings.
+		 */
 		struct Error
 		{
+			/**
+			 * @brief Error message describing the parsing failure.
+			 */
 			std::string error;
+
+			/**
+			 * @brief Constructs an Error with the given message.
+			 * @param e The error message string.
+			 */
 			inline explicit Error( std::string e );
 		};
 
+		/**
+		 * @brief Holds either a successful result (Ok) or an error (Error).
+		 */
 		std::variant<Ok, Error> result;
 
+		/**
+		 * @brief Constructs a GmodParsePathResult with a successful result.
+		 * @param ok The Ok result containing the parsed path.
+		 */
 		inline GmodParsePathResult( Ok ok );
+
+		/**
+		 * @brief Constructs a GmodParsePathResult with an error result.
+		 * @param err The Error result containing the error message.
+		 */
 		inline GmodParsePathResult( Error err );
 
+		/**
+		 * @brief Checks if the result is a successful parse.
+		 * @return True if the result is Ok, false if Error.
+		 */
 		inline bool isOk() const noexcept;
+
+		/**
+		 * @brief Checks if the result is an error.
+		 * @return True if the result is Error, false if Ok.
+		 */
 		inline bool isError() const noexcept;
 
+		/**
+		 * @brief Returns a reference to the Ok result.
+		 * @return Reference to the Ok struct.
+		 * @throws std::bad_variant_access if the result is not Ok.
+		 */
 		inline Ok& ok();
+
+		/**
+		 * @brief Returns a const reference to the Ok result.
+		 * @return Const reference to the Ok struct.
+		 * @throws std::bad_variant_access if the result is not Ok.
+		 */
 		inline const Ok& ok() const;
 
+		/**
+		 * @brief Returns a reference to the Error result.
+		 * @return Reference to the Error struct.
+		 * @throws std::bad_variant_access if the result is not Error.
+		 */
 		inline Error& error();
+
+		/**
+		 * @brief Returns a const reference to the Error result.
+		 * @return Const reference to the Error struct.
+		 * @throws std::bad_variant_access if the result is not Error.
+		 */
 		inline const Error& error() const;
 	};
 }

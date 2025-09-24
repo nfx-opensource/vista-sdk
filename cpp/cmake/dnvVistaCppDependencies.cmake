@@ -41,7 +41,7 @@ set(NFX_CORE_BUILD_BENCHMARKS  OFF  CACHE BOOL  "Build benchmarks"              
 FetchContent_Declare(
 	nfx-core
 	GIT_REPOSITORY https://github.com/ronan-fdev/nfx-core.git
-	GIT_TAG        0.0.8
+	GIT_TAG        0.1.1
 	GIT_SHALLOW    TRUE
 )
 

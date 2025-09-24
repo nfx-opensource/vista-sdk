@@ -392,6 +392,15 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 		// ParsingErrors::ErrorEntry struct
 		//----------------------------------------------
+
+		/**
+		 * @brief Represents a single parsing error with type and message.
+		 *
+		 * @details
+		 * The ErrorEntry struct encapsulates an individual error encountered during parsing operations.
+		 * It stores a type string (categorizing the error) and a message string (describing the error in detail).
+		 * ErrorEntry is used for type-safe, structured error reporting in ParsingErrors and related APIs.
+		 */
 		struct ErrorEntry
 		{
 			std::string type;

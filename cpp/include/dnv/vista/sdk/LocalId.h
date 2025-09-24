@@ -109,6 +109,8 @@
 #include <string_view>
 #include <vector>
 
+#include <nfx/core/hashing/Hash.h>
+
 #include "LocalIdBuilder.h"
 
 namespace dnv::vista::sdk
@@ -154,11 +156,18 @@ namespace dnv::vista::sdk
 		explicit LocalId( LocalIdBuilder builder );
 
 	public:
-		/** @brief Copy constructor */
-		LocalId( const LocalId& other ) = default;
+		/** @brief Default constructor - creates an empty/invalid LocalId */
+		inline LocalId();
 
-		/** @brief Move constructor */
-		LocalId( LocalId&& other ) noexcept = default;
+		/**
+		 * @brief Copy constructor
+		 */
+		LocalId( const LocalId& ) = default;
+
+		/**
+		 * @brief Move constructor
+		 */
+		LocalId( LocalId&& ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -171,10 +180,16 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
+		/**
+		 * @brief Copy assignment operator
+		 */
 		LocalId& operator=( const LocalId& other ) = delete;
 
-		/** @brief Move assignment operator */
+		/**
+		 * @brief Move assignment operator
+		 * @param other The LocalId to move from
+		 * @return Reference to this LocalId after assignment
+		 */
 		LocalId& operator=( LocalId&& other ) noexcept = default;
 
 		//----------------------------------------------
@@ -183,12 +198,16 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Checks equality with another LocalId.
+		 * @param other The LocalId to compare with
+		 * @return true if the LocalIds are equal, false otherwise
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline bool operator==( const LocalId& other ) const noexcept;
 
 		/**
 		 * @brief Checks inequality with another LocalId.
+		 * @param other The LocalId to compare with
+		 * @return true if the LocalIds are not equal, false otherwise
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline bool operator!=( const LocalId& other ) const noexcept;
@@ -375,20 +394,38 @@ namespace dnv::vista::sdk
 	};
 }
 
-//=====================================================================
-// std::hash specialization for LocalId
-//=====================================================================
+#include "detail/LocalId.inl"
 
+/**
+ * @brief Hash specialization required for nfx::HashMap compatibility.
+ * @details This specialization is necessary for LocalId to work with nfx::HashMap.
+ *
+ * @note Hash computation has O(n) complexity where n is the length of the string representation.
+ */
 namespace std
 {
+	/**
+	 * @brief Hash specialization for dnv::vista::sdk::LocalId.
+	 * @details Enables LocalId instances to be used as keys in nfx::HashMap.
+	 */
 	template <>
 	struct hash<dnv::vista::sdk::LocalId>
 	{
-		std::size_t operator()( const dnv::vista::sdk::LocalId& localId ) const noexcept
+		/** @brief Default constructor */
+		hash() = default;
+
+		/**
+		 * @brief Computes hash value for a LocalId instance.
+		 * @param[in] localId The LocalId instance to hash.
+		 * @return Hash value computed from the string representation.
+		 * @note Uses nfx::core::hashing::hashStringView for optimal performance with SSE4.2/FNV-1a.
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		[[nodiscard]] std::size_t operator()( const dnv::vista::sdk::LocalId& localId ) const noexcept
 		{
-			return std::hash<std::string>{}( localId.toString() );
+			// Use nfx optimized string hashing (SSE4.2/FNV-1a) for better performance
+			const std::string localIdStr = localId.toString();
+			return static_cast<std::size_t>( nfx::core::hashing::hashStringView( localIdStr ) );
 		}
 	};
 }
-
-#include "detail/LocalId.inl"

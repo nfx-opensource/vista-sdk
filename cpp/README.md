@@ -1,8 +1,15 @@
 # Vista SDK - C++ Implementation
 
-[![GitHub](https://img.shields.io/github/license/ronan-fdev/vista-sdk?style=flat-square)](https://github.com/ronan-fdev/vista-sdk/blob/main/LICENSE) [![Version](https://img.shields.io/badge/Version-0.0.45-brightgreen?style=flat-square)](#)<br/>
-[![C++20](https://img.shields.io/badge/C%2B%2B-20-blue?style=flat-square)](#) [![Cross Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey?style=flat-square)](#)<br/>
-[![Windows MSVC 2022](https://img.shields.io/github/actions/workflow/status/ronan-fdev/vista-sdk/build-cpp-windows-msvc.yml?branch=cpp&label=MSVC%202022&style=flat-square)](https://github.com/ronan-fdev/vista-sdk/actions/workflows/build-cpp-windows-msvc.yml)[![Linux GCC 14](https://img.shields.io/github/actions/workflow/status/ronan-fdev/vista-sdk/build-cpp-linux-gcc.yml?branch=cpp&label=GCC%2014&style=flat-square)](https://github.com/ronan-fdev/vista-sdk/actions/workflows/build-cpp-linux-gcc.yml) [![Linux Clang 18](https://img.shields.io/github/actions/workflow/status/ronan-fdev/vista-sdk/build-cpp-linux-clang.yml?branch=cpp&label=Clang%2018&style=flat-square)](https://github.com/ronan-fdev/vista-sdk/actions/workflows/build-cpp-linux-clang.yml)
+<!-- Project Info -->
+
+[![License](https://img.shields.io/github/license/ronan-fdev/vista-sdk?style=flat-square)](https://github.com/ronan-fdev/vista-sdk/blob/main/LICENSE)<br/>
+
+[![C++20](https://img.shields.io/badge/C%2B%2B-20-blue?style=flat-square)](#) [![CMake](https://img.shields.io/badge/CMake-3.20+-green.svg?style=flat-square)](#) [![Cross Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows-lightgrey?style=flat-square)](#) <br/>
+
+<!-- CI/CD Status -->
+
+[![Linux GCC](https://img.shields.io/github/actions/workflow/status/ronan-fdev/vista-sdk/build-cpp-linux-gcc.yml?branch=cpp&label=Linux%20GCC&style=flat-square)](https://github.com/ronan-fdev/vista-sdk/actions/workflows/build-cpp-linux-gcc.yml) [![Linux Clang](https://img.shields.io/github/actions/workflow/status/ronan-fdev/vista-sdk/build-cpp-linux-clang.yml?branch=cpp&label=Linux%20Clang&style=flat-square)](https://github.com/ronan-fdev/vista-sdk/actions/workflows/build-cpp-linux-clang.yml)<br/>
+[![Windows MinGW](https://img.shields.io/github/actions/workflow/status/ronan-fdev/vista-sdk/build-cpp-windows-mingw.yml?branch=cpp&label=Windows%20MinGW&style=flat-square)](https://github.com/ronan-fdev/vista-sdk/actions/workflows/build-cpp-windows-mingw.yml) [![Windows MSVC](https://img.shields.io/github/actions/workflow/status/ronan-fdev/vista-sdk/build-cpp-windows-msvc.yml?branch=cpp&label=Windows%20MSVC&style=flat-square)](https://github.com/ronan-fdev/vista-sdk/actions/workflows/build-cpp-windows-msvc.yml)
 
 > C++ implementation of the Vista maritime standards ecosystem, providing tools for vessel data standardization, sensor naming, and maritime digitalization according to **ISO 19848**, **ISO 19847**, and **DNV VIS**
 
@@ -74,7 +81,7 @@ option(VISTA_SDK_CPP_BUILD_BENCHMARKS      "Build benchmarks"                   
 option(VISTA_SDK_CPP_BUILD_SAMPLES         "Build vista-sdk-cpp samples"                ON   )
 
 # Documentation
-option(VISTA_SDK_CPP_BUILD_DOCUMENTATION   "Build vista-sdk-cpp doxygen documentation"  ON   )
+option(VISTA_SDK_CPP_BUILD_DOCUMENTATION   "Build vista-sdk-cpp Doxygen documentation"  ON   )
 ```
 
 ### Using in Your Project
@@ -161,29 +168,12 @@ int main()
 
 ### Sample Applications
 
-The `samples/` directory contains comprehensive examples demonstrating all SDK features:
-
--   **`basic/`** - Core functionality examples
-
-    -   `Sample_LocalId.cpp` - LocalID building, parsing, and validation
-    -   `Sample_GMOD.cpp` - GMOD hierarchy navigation and path operations
-    -   `Sample_Codebooks.cpp` - Metadata tag creation and validation
-    -   `Sample_BasicUsage.cpp` - Quick start examples
-
--   **`builders/`** - Advanced builder patterns
-
-    -   `Sample_Builders_LocalId.cpp` - LocalID builder variations and patterns
-
--   **`gmod/`** - GMOD-specific operations
--   **`iso19848/`** - ISO 19848 transport layer examples
--   **`parse/`** - Parsing and validation examples
--   **`versioning/`** - Cross-version conversion examples
--   **`vis/`** - VIS data structure examples
+The `samples/` directory contains comprehensive examples demonstrating all Vista SDK C++- features.
 
 To build and run samples:
 
 ```bash
-cmake --build . --config Release --target samples
+cmake .. -DCMAKE_BUILD_TYPE=Release -DVISTA_SDK_CPP_BUILD_SAMPLES=ON
 ```
 
 ## Project Structure
@@ -216,23 +206,15 @@ vista-sdk/cpp/
 └── test/                   # Comprehensive unit tests with GoogleTest
 ```
 
-## Dependencies
+## Version History
 
--   **[nfx-core](https://github.com/ronan-fdev/nfx-core)**: High-performance containers and utilities
--   **[nlohmann/json](https://github.com/nlohmann/json)**: JSON parsing for VIS standard data
--   **[zlib-ng](https://github.com/zlib-ng/zlib-ng)**: High-performance zlib compression library
--   **[GoogleTest](https://github.com/google/googletest)**: Testing framework
--   **[Google Benchmark](https://github.com/google/benchmark)**: Performance benchmarking framework
+For detailed version history, feature additions, and breaking changes, see [CHANGELOG.md](CHANGELOG.md).
 
 ## Performance
 
 Vista SDK C++ is designed for efficient maritime data processing with modern C++ optimization techniques.
 
 For detailed performance metrics and cross-language comparisons, see [benchmark/README.md](benchmark/README.md).
-
-## Version History
-
-For detailed version history, feature additions, and breaking changes, see [CHANGELOG.md](CHANGELOG.md).
 
 ### Maritime Data Optimization
 
@@ -265,15 +247,15 @@ For detailed version history, feature additions, and breaking changes, see [CHAN
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/dnv-opensource/vista-sdk/blob/main/LICENSE) file for details.
 
-### Third-Party Attributions
+### Dependencies & Third-Party Attributions
 
--   **nfx-core**: High-performance containers and utilities (MIT License)
--   **nlohmann/json**: JSON parsing library (MIT License)
--   **zlib-ng**: Compression library for VIS data (zlib License)
--   **Google Benchmark**: Performance measurement framework (Apache 2.0 License)
--   **Google Test**: Unit testing framework (BSD 3-Clause License)
+-   **[nfx-core](https://github.com/ronan-fdev/nfx-core)**: High-performance containers and utilities
+-   **[nlohmann/json](https://github.com/nlohmann/json)**: JSON parsing
+-   **[zlib-ng](https://github.com/zlib-ng/zlib-ng)**: High-performance zlib compression library
+-   **[GoogleTest](https://github.com/google/googletest)**: Testing framework
+-   **[Google Benchmark](https://github.com/google/benchmark)**: Performance benchmarking framework
 
 ## Official Vista Resources
 
@@ -288,4 +270,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-_Updated September 21, 2025_
+_Updated September 24, 2025_

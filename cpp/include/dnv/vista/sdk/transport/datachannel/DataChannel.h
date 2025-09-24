@@ -83,8 +83,8 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 
+#include <nfx/containers/HashMap.h>
 #include <nfx/containers/StringMap.h>
 
 #include "dnv/vista/sdk/config/config.h"
@@ -1801,8 +1801,8 @@ namespace dnv::vista::sdk::transport
 		//----------------------------------------------
 
 		std::vector<DataChannel> m_dataChannels;
-		nfx::containers::StringMap<std::reference_wrapper<const DataChannel>> m_shortIdMap;
-		std::unordered_map<LocalId, std::reference_wrapper<const DataChannel>> m_localIdMap;
+		nfx::containers::StringMap<const DataChannel*> m_shortIdMap;
+		nfx::containers::HashMap<LocalId, const DataChannel*> m_localIdMap;
 	};
 
 	//=====================================================================

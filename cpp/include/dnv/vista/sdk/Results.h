@@ -156,6 +156,15 @@ namespace dnv::vista::sdk
 			Ok() = default;
 		};
 
+		/**
+		 * @brief Represents a failed validation result containing error messages.
+		 *
+		 * @details
+		 * The Invalid class encapsulates the failure state of a validation operation in the VISTA Result System.
+		 * It stores a vector of error messages describing the reasons for validation failure. Instances of Invalid
+		 * are used in the ValidateResult discriminated union to provide detailed, type-safe error reporting and
+		 * aggregation for robust error handling in maritime data validation workflows.
+		 */
 		class Invalid final
 		{
 		public:
