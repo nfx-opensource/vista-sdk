@@ -115,11 +115,17 @@ namespace dnv::vista::sdk::transport
 		/** @brief Default constructor */
 		ShipId() = delete;
 
-		/** @brief Copy constructor */
-		ShipId( const ShipId& ) = default;
+	/**
+	 * @brief Copy constructor
+	 * @param other The object to copy from
+	 */
+	ShipId( const ShipId& other ) = default;
 
-		/** @brief Move constructor */
-		ShipId( ShipId&& ) noexcept = default;
+	/**
+	 * @brief Move constructor
+	 * @param other The object to move from
+	 */
+	ShipId( ShipId&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -132,11 +138,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		ShipId& operator=( const ShipId& ) = default;
+	/**
+	 * @brief Copy assignment operator
+	 * @param other The object to copy from
+	 * @return Reference to this ShipId after assignment
+	 */
+	ShipId& operator=( const ShipId& other ) = default;
 
-		/** @brief Move assignment operator */
-		ShipId& operator=( ShipId&& ) noexcept = default;
+	/**
+	 * @brief Move assignment operator
+	 * @param other The object to move from
+	 * @return Reference to this ShipId after assignment
+	 */
+	ShipId& operator=( ShipId&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Equality operators
@@ -208,8 +222,8 @@ namespace dnv::vista::sdk::transport
 		 */
 		template <typename T>
 		[[nodiscard]] inline T matchOn(
-			std::function<T( const ImoNumber& )> onImoNumber,
-			std::function<T( std::string_view )> onOtherId ) const;
+			std::function<T( const ImoNumber& imo )> onImoNumber,
+			std::function<T( std::string_view otherId )> onOtherId ) const;
 
 		/**
 		 * @brief Pattern switch on ShipId content (void version)
@@ -217,8 +231,8 @@ namespace dnv::vista::sdk::transport
 		 * @param onOtherId Function to call if ShipId contains other identifier
 		 */
 		inline void switchOn(
-			std::function<void( const ImoNumber& )> onImoNumber,
-			std::function<void( std::string_view )> onOtherId ) const;
+			std::function<void( const ImoNumber& imo )> onImoNumber,
+			std::function<void( std::string_view otherId )> onOtherId ) const;
 
 		//----------------------------------------------
 		// String conversion

@@ -104,8 +104,8 @@ namespace dnv::vista::sdk
 		 * Constructs LocalIdItems by taking ownership of the provided GmodPath objects.
 		 * This is the primary way to create a populated instance from scratch.
 		 *
-		 * @param primaryItem The primary GmodPath (moved into `m_primaryItem`).
-		 * @param secondaryItem The optional secondary GmodPath (moved into `m_secondaryItem`).
+		 * @param primaryItem The primary GmodPath.
+		 * @param secondaryItem The optional secondary GmodPath.
 		 */
 		inline LocalIdItems( GmodPath&& primaryItem, std::optional<GmodPath>&& secondaryItem );
 
@@ -114,8 +114,8 @@ namespace dnv::vista::sdk
 		 *
 		 * Creates a new instance by moving the secondary item from `other` and
 		 * moving the provided `newPrimaryItem`.
-		 * @param other The existing LocalIdItems instance (moved from).
-		 * @param newPrimaryItem The new primary GmodPath (moved).
+		 * @param other The existing LocalIdItems instance.
+		 * @param newPrimaryItem The new primary GmodPath.
 		 */
 		inline LocalIdItems( LocalIdItems&& other, GmodPath&& newPrimaryItem );
 
@@ -124,8 +124,8 @@ namespace dnv::vista::sdk
 		 *
 		 * Creates a new instance by moving the primary item from `other` and
 		 * moving the provided `newSecondaryItem`.
-		 * @param other The existing LocalIdItems instance (moved from).
-		 * @param newSecondaryItem The new optional secondary GmodPath (moved).
+		 * @param other The existing LocalIdItems instance.
+		 * @param newSecondaryItem The new optional secondary GmodPath.
 		 */
 		inline LocalIdItems( LocalIdItems&& other, std::optional<GmodPath>&& newSecondaryItem );
 
@@ -133,7 +133,7 @@ namespace dnv::vista::sdk
 		LocalIdItems() = default;
 
 		/** @brief Copy constructor */
-		LocalIdItems( const LocalIdItems& ) = default;
+		LocalIdItems( const LocalIdItems& other ) = default;
 
 		/** @brief Move constructor */
 		LocalIdItems( LocalIdItems&& other ) noexcept = default;

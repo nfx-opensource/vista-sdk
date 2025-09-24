@@ -34,7 +34,7 @@ namespace dnv::vista::sdk::benchmarks
 		bool FullTraversal()
 		{
 			// Simple traversal handler that continues through all nodes
-			TraverseHandler handler = []( const std::vector<const GmodNode*>&, const GmodNode& ) -> TraversalHandlerResult {
+			TraverseHandler handler = []( [[maybe_unused]] const std::vector<const GmodNode*>& parents, [[maybe_unused]] const GmodNode& node ) -> TraversalHandlerResult {
 				return TraversalHandlerResult::Continue;
 			};
 

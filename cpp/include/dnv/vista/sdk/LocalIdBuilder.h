@@ -147,11 +147,17 @@ namespace dnv::vista::sdk
 		LocalIdBuilder() = default;
 
 	public:
-		/** @brief Copy constructor */
-		LocalIdBuilder( const LocalIdBuilder& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The LocalIdBuilder instance to copy from
+		 */
+		LocalIdBuilder( const LocalIdBuilder& other ) = default;
 
-		/** @brief Move constructor */
-		LocalIdBuilder( LocalIdBuilder&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The LocalIdBuilder instance to move from
+		 */
+		LocalIdBuilder( LocalIdBuilder&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -167,8 +173,12 @@ namespace dnv::vista::sdk
 		/** @brief Copy assignment operator */
 		LocalIdBuilder& operator=( const LocalIdBuilder& ) = delete;
 
-		/** @brief Move assignment operator */
-		inline LocalIdBuilder& operator=( LocalIdBuilder&& ) noexcept;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The LocalIdBuilder to move from
+		 * @return Reference to this LocalIdBuilder after assignment
+		 */
+		inline LocalIdBuilder& operator=( LocalIdBuilder&& other ) noexcept;
 
 		//----------------------------------------------
 		// Operators
@@ -476,7 +486,7 @@ namespace dnv::vista::sdk
 		//----------------------------
 
 		/**
-		 * @brief Returns a new builder with the primary item set (moves the provided path).
+		 * @brief Returns a new builder with the primary item set.
 		 * @details Sets the primary item, taking ownership of the `item` via move semantics.
 		 * @param[in] item The `GmodPath` to set as the primary item (rvalue reference, will be moved).
 		 * @return A new `LocalIdBuilder` instance with the updated primary item.
@@ -486,7 +496,7 @@ namespace dnv::vista::sdk
 		[[nodiscard]] LocalIdBuilder withPrimaryItem( GmodPath&& item );
 
 		/**
-		 * @brief Returns a new builder, potentially with the primary item set (moves the provided path). Does not throw.
+		 * @brief Returns a new builder, potentially with the primary item set. Does not throw.
 		 * @details Attempts to set the primary item via move semantics. If setting fails (e.g., validation),
 		 *          it returns a builder identical to the current one.
 		 * @param[in] item The `GmodPath` to attempt to set as primary (rvalue reference, will be moved).
@@ -496,7 +506,7 @@ namespace dnv::vista::sdk
 		[[nodiscard]] LocalIdBuilder tryWithPrimaryItem( GmodPath&& item );
 
 		/**
-		 * @brief Returns a new builder, potentially with the primary item set (moves the provided path). Reports success.
+		 * @brief Returns a new builder, potentially with the primary item set. Reports success.
 		 * @details Attempts to set the primary item via move semantics. Reports success or failure via `succeeded`.
 		 * @param[in] item The `GmodPath` to attempt to set as primary (rvalue reference, will be moved).
 		 * @param[out] succeeded Set to true if the primary item was successfully set, false otherwise.
@@ -506,7 +516,7 @@ namespace dnv::vista::sdk
 		[[nodiscard]] LocalIdBuilder tryWithPrimaryItem( GmodPath&& item, bool& succeeded );
 
 		/**
-		 * @brief Returns a new builder, potentially with the primary item set from an optional (moves if present). Does not throw.
+		 * @brief Returns a new builder, potentially with the primary item set from an optional. Does not throw.
 		 * @details If `item` contains a value, attempts to set it as the primary item via move semantics.
 		 * @param[in] item An `std::optional<GmodPath>` containing the item to set, if present (rvalue reference).
 		 * @return A new `LocalIdBuilder` instance, potentially updated.
@@ -515,7 +525,7 @@ namespace dnv::vista::sdk
 		[[nodiscard]] LocalIdBuilder tryWithPrimaryItem( std::optional<GmodPath>&& item );
 
 		/**
-		 * @brief Returns a new builder, potentially with the primary item set from an optional (moves if present). Reports success.
+		 * @brief Returns a new builder, potentially with the primary item set from an optional. Reports success.
 		 * @details If `item` contains a value, attempts to set it as the primary item via move semantics. Reports success.
 		 * @param[in] item An `std::optional<GmodPath>` containing the item to set, if present (rvalue reference).
 		 * @param[out] succeeded Set to true if the item was present and successfully set, false otherwise.
@@ -536,7 +546,7 @@ namespace dnv::vista::sdk
 		//----------------------------
 
 		/**
-		 * @brief Returns a new builder with the secondary item set (moves the provided path).
+		 * @brief Returns a new builder with the secondary item set.
 		 * @details Sets the secondary item, taking ownership of the `item` via move semantics.
 		 * @param[in] item The `GmodPath` to set as the secondary item (rvalue reference, will be moved).
 		 * @return A new `LocalIdBuilder` instance with the updated secondary item.
@@ -546,7 +556,7 @@ namespace dnv::vista::sdk
 		[[nodiscard]] LocalIdBuilder withSecondaryItem( GmodPath&& item );
 
 		/**
-		 * @brief Returns a new builder, potentially with the secondary item set (moves the provided path). Does not throw.
+		 * @brief Returns a new builder, potentially with the secondary item set. Does not throw.
 		 * @details Attempts to set the secondary item via move semantics. If setting fails,
 		 *          it returns a builder identical to the current one.
 		 * @param[in] item The `GmodPath` to attempt to set as secondary (rvalue reference, will be moved).
@@ -556,7 +566,7 @@ namespace dnv::vista::sdk
 		[[nodiscard]] LocalIdBuilder tryWithSecondaryItem( GmodPath&& item );
 
 		/**
-		 * @brief Returns a new builder, potentially with the secondary item set (moves the provided path). Reports success.
+		 * @brief Returns a new builder, potentially with the secondary item set. Reports success.
 		 * @details Attempts to set the secondary item via move semantics. Reports success or failure via `succeeded`.
 		 * @param[in] item The `GmodPath` to attempt to set as secondary (rvalue reference, will be moved).
 		 * @param[out] succeeded Set to true if the secondary item was successfully set, false otherwise.
@@ -566,7 +576,7 @@ namespace dnv::vista::sdk
 		[[nodiscard]] LocalIdBuilder tryWithSecondaryItem( GmodPath&& item, bool& succeeded );
 
 		/**
-		 * @brief Returns a new builder, potentially with the secondary item set from an optional (moves if present). Does not throw.
+		 * @brief Returns a new builder, potentially with the secondary item set from an optional. Does not throw.
 		 * @details If `item` contains a value, attempts to set it as the secondary item via move semantics.
 		 * @param[in] item An `std::optional<GmodPath>` containing the item to set, if present (rvalue reference).
 		 * @return A new `LocalIdBuilder` instance, potentially updated.
@@ -575,7 +585,7 @@ namespace dnv::vista::sdk
 		[[nodiscard]] LocalIdBuilder tryWithSecondaryItem( std::optional<GmodPath>&& item );
 
 		/**
-		 * @brief Returns a new builder, potentially with the secondary item set from an optional (moves if present). Reports success.
+		 * @brief Returns a new builder, potentially with the secondary item set from an optional. Reports success.
 		 * @details If `item` contains a value, attempts to set it as the secondary item via move semantics. Reports success.
 		 * @param[in] item An `std::optional<GmodPath>` containing the item to set, if present (rvalue reference).
 		 * @param[out] succeeded Set to true if the item was present and successfully set, false otherwise.

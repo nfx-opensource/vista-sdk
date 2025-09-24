@@ -224,8 +224,17 @@ namespace dnv::vista::sdk
 	 */
 	struct TraversalOptions
 	{
+		/**
+		 * @brief The default maximum number of times a node can be traversed during tree traversal.
+		 * @details Used to prevent infinite loops in cyclic structures. Default is 1.
+		 */
 		static constexpr size_t DEFAULT_MAX_TRAVERSAL_OCCURRENCE = 1;
 		constexpr TraversalOptions() = default;
+
+		/**
+		 * @brief The maximum number of times a node can be traversed during tree traversal.
+		 * @details Used to prevent cycles and infinite loops. Defaults to DEFAULT_MAX_TRAVERSAL_OCCURRENCE.
+		 */
 		size_t maxTraversalOccurrence = DEFAULT_MAX_TRAVERSAL_OCCURRENCE;
 	};
 
@@ -284,11 +293,14 @@ namespace dnv::vista::sdk
 		Gmod() = delete;
 
 		/** @brief Copy constructor */
-		Gmod( const Gmod& );
+		Gmod( const Gmod& other );
 
 	public:
-		/** @brief Move constructor */
-		Gmod( Gmod&& ) noexcept;
+		/**
+		 * @brief Move constructor
+		 * @param other The object to move from
+		 */
+		Gmod( Gmod&& other ) noexcept;
 
 		//----------------------------------------------
 		// Destruction
@@ -303,15 +315,17 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Copy assignment operator
+		 * @param other The object to copy from
 		 * @return Reference to this object
 		 */
-		Gmod& operator=( const Gmod& ) = default;
+		Gmod& operator=( const Gmod& other ) = default;
 
 		/**
 		 * @brief Move assignment operator
+		 * @param other The object to move from
 		 * @return Reference to this object
 		 */
-		Gmod& operator=( Gmod&& ) noexcept = default;
+		Gmod& operator=( Gmod&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Lookup operators

@@ -184,11 +184,17 @@ namespace dnv::vista::sdk
 		UniversalIdBuilder() = default;
 
 	public:
-		/** @brief Copy constructor */
-		UniversalIdBuilder( const UniversalIdBuilder& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The object to copy from
+		 */
+		UniversalIdBuilder( const UniversalIdBuilder& other ) = default;
 
-		/** @brief Move constructor */
-		UniversalIdBuilder( UniversalIdBuilder&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The object to move from
+		 */
+		UniversalIdBuilder( UniversalIdBuilder&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -204,7 +210,11 @@ namespace dnv::vista::sdk
 		/** @brief Copy assignment operator */
 		UniversalIdBuilder& operator=( const UniversalIdBuilder& ) = delete;
 
-		/** @brief Move assignment operator */
+		/**
+		 * @brief Move assignment operator
+		 * @param other The UniversalIdBuilder to move from
+		 * @return Reference to this UniversalIdBuilder after assignment
+		 */
 		UniversalIdBuilder& operator=( UniversalIdBuilder&& other ) noexcept;
 
 		//----------------------------------------------

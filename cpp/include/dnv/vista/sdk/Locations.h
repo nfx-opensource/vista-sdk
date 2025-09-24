@@ -183,11 +183,17 @@ namespace dnv::vista::sdk
 		explicit Location( std::string_view value );
 
 	public:
-		/** @brief Copy constructor */
-		Location( const Location& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The Location instance to copy from
+		 */
+		Location( const Location& other ) = default;
 
-		/** @brief Move constructor */
-		Location( Location&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The Location instance to move from
+		 */
+		Location( Location&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -200,11 +206,19 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		Location& operator=( const Location& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The Location instance to copy from
+		 * @return Reference to this Location after assignment
+		 */
+		Location& operator=( const Location& other ) = default;
 
-		/** @brief Move assignment operator */
-		Location& operator=( Location&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The Location instance to move from
+		 * @return Reference to this Location after assignment
+		 */
+		Location& operator=( Location&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Comparison Operators
@@ -310,11 +324,17 @@ namespace dnv::vista::sdk
 		RelativeLocation() = default;
 
 	public:
-		/** @brief Copy constructor */
-		RelativeLocation( const RelativeLocation& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The RelativeLocation instance to copy from
+		 */
+		RelativeLocation( const RelativeLocation& other ) = default;
 
-		/** @brief Move constructor */
-		RelativeLocation( RelativeLocation&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The RelativeLocation instance to move from
+		 */
+		RelativeLocation( RelativeLocation&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -327,11 +347,19 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		RelativeLocation& operator=( const RelativeLocation& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The RelativeLocation instance to copy from
+		 * @return Reference to this RelativeLocation after assignment
+		 */
+		RelativeLocation& operator=( const RelativeLocation& other ) = default;
 
-		/** @brief Move assignment operator */
-		RelativeLocation& operator=( RelativeLocation&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The RelativeLocation instance to move from
+		 * @return Reference to this RelativeLocation after assignment
+		 */
+		RelativeLocation& operator=( RelativeLocation&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Comparison Operators
@@ -435,11 +463,17 @@ namespace dnv::vista::sdk
 		Locations() = default;
 
 	public:
-		/** @brief Copy constructor */
-		Locations( const Locations& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The Locations instance to copy from
+		 */
+		Locations( const Locations& other ) = default;
 
-		/** @brief Move constructor */
-		Locations( Locations&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The Locations instance to move from
+		 */
+		Locations( Locations&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -452,11 +486,19 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		Locations& operator=( const Locations& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The Locations instance to copy from
+		 * @return Reference to this Locations after assignment
+		 */
+		Locations& operator=( const Locations& other ) = default;
 
-		/** @brief Move assignment operator */
-		Locations& operator=( Locations&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The Locations instance to move from
+		 * @return Reference to this Locations after assignment
+		 */
+		Locations& operator=( Locations&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors

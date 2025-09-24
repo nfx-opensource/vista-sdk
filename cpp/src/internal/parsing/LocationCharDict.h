@@ -38,7 +38,7 @@ namespace dnv::vista::sdk::internal
 		LocationCharDict( const LocationCharDict& ) = delete;
 
 		/** @brief Move constructor */
-		LocationCharDict( LocationCharDict&& ) noexcept = default;
+		LocationCharDict( LocationCharDict&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -55,7 +55,7 @@ namespace dnv::vista::sdk::internal
 		LocationCharDict& operator=( const LocationCharDict& ) = delete;
 
 		/** @brief Move assignment operator */
-		LocationCharDict& operator=( LocationCharDict&& ) noexcept = default;
+		LocationCharDict& operator=( LocationCharDict&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Lookup operators

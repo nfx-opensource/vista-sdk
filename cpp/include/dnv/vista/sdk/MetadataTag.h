@@ -170,11 +170,17 @@ namespace dnv::vista::sdk
 		/** @brief Default constructor. */
 		MetadataTag() = delete;
 
-		/** @brief Copy constructor. */
-		MetadataTag( const MetadataTag& ) = default;
+		/**
+		 * @brief Copy constructor.
+		 * @param other The object to copy from
+		 */
+		MetadataTag( const MetadataTag& other ) = default;
 
-		/** @brief Move constructor. */
-		MetadataTag( MetadataTag&& ) noexcept = default;
+		/**
+		 * @brief Move constructor.
+		 * @param other The object to move from
+		 */
+		MetadataTag( MetadataTag&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -187,11 +193,19 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//-------------------------------------------------------------------------
 
-		/** @brief Copy assignment operator. */
-		MetadataTag& operator=( const MetadataTag& ) = default;
+		/**
+		 * @brief Copy assignment operator.
+		 * @param other The object to copy from
+		 * @return Reference to this MetadataTag after assignment.
+		 */
+		MetadataTag& operator=( const MetadataTag& other ) = default;
 
-		/** @brief Move assignment operator. */
-		MetadataTag& operator=( MetadataTag&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator.
+		 * @param other The object to move from
+		 * @return Reference to this MetadataTag after assignment.
+		 */
+		MetadataTag& operator=( MetadataTag&& other ) noexcept = default;
 
 		//-------------------------------------------------------------------------
 		// Operators

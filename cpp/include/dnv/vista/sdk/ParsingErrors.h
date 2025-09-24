@@ -175,27 +175,35 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 	private:
 		/**
-		 * @brief Internal constructor for creating ParsingErrors with error entries (copy).
+		 * @brief Internal constructor for creating ParsingErrors with error entries.
 		 * @param errors A vector of error entries to copy.
 		 */
 		explicit ParsingErrors( const std::vector<ErrorEntry>& errors );
 
 		/**
-		 * @brief Internal constructor for creating ParsingErrors with error entries (move).
+		 * @brief Internal constructor for creating ParsingErrors with error entries.
 		 * @param errors A vector of error entries to move from.
 		 * @note This constructor takes ownership of the provided vector for optimal performance.
 		 */
 		explicit ParsingErrors( std::vector<ErrorEntry>&& errors ) noexcept;
 
 	public:
-		/** @brief Default constructor */
+		/**
+		 * @brief Default constructor.
+		 */
 		ParsingErrors();
 
-		/** @brief Copy constructor */
-		ParsingErrors( const ParsingErrors& ) = default;
+		/**
+		 * @brief Copy constructor.
+		 * @param other The object to copy from
+		 */
+		ParsingErrors( const ParsingErrors& other ) = default;
 
-		/** @brief Move constructor */
-		ParsingErrors( ParsingErrors&& errors ) noexcept;
+		/**
+		 * @brief Move constructor.
+		 * @param other The object to move from
+		 */
+		ParsingErrors( ParsingErrors&& other ) noexcept;
 
 		//----------------------------------------------
 		// Destruction
@@ -208,11 +216,19 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		ParsingErrors& operator=( const ParsingErrors& ) = default;
+		/**
+		 * @brief Copy assignment operator.
+		 * @param other The object to copy from
+		 * @return Reference to this ParsingErrors after assignment.
+		 */
+		ParsingErrors& operator=( const ParsingErrors& other ) = default;
 
-		/** @brief Move assignment operator */
-		ParsingErrors& operator=( ParsingErrors&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator.
+		 * @param other The object to move from
+		 * @return Reference to this ParsingErrors after assignment.
+		 */
+		ParsingErrors& operator=( ParsingErrors&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Operators
@@ -246,7 +262,10 @@ namespace dnv::vista::sdk
 		// Public static members
 		//----------------------------------------------
 
-		/** @brief Gets an empty set of parsing errors. */
+		/**
+		 * @brief Gets an empty set of parsing errors.
+		 * @return Reference to a static empty ParsingErrors instance.
+		 */
 		inline static const ParsingErrors& empty();
 
 		//----------------------------------------------
@@ -327,11 +346,17 @@ namespace dnv::vista::sdk
 			/** @brief Default constructor */
 			Enumerator() = delete;
 
-			/** @brief Copy constructor */
-			Enumerator( const Enumerator& ) = default;
+			/**
+			 * @brief Copy constructor
+			 * @param other The object to copy from
+			 */
+			Enumerator( const Enumerator& other ) = default;
 
-			/** @brief Move constructor */
-			Enumerator( Enumerator&& ) noexcept = default;
+			/**
+			 * @brief Move constructor
+			 * @param other The object to move from
+			 */
+			Enumerator( Enumerator&& other ) noexcept = default;
 
 			//----------------------------------------------
 			// Destruction
@@ -344,11 +369,19 @@ namespace dnv::vista::sdk
 			// Assignment operators
 			//----------------------------
 
-			/** @brief Copy assignment operator */
-			Enumerator& operator=( const Enumerator& ) = default;
+			/**
+			 * @brief Copy assignment operator
+			 * @param other The object to copy from
+			 * @return Reference to this Enumerator after assignment
+			 */
+			Enumerator& operator=( const Enumerator& other ) = default;
 
-			/** @brief Move assignment operator */
-			Enumerator& operator=( Enumerator&& ) noexcept = default;
+			/**
+			 * @brief Move assignment operator
+			 * @param other The object to move from
+			 * @return Reference to this Enumerator after assignment
+			 */
+			Enumerator& operator=( Enumerator&& other ) noexcept = default;
 
 			//----------------------------
 			// Enumeration methods
@@ -401,13 +434,38 @@ namespace dnv::vista::sdk
 		 * It stores a type string (categorizing the error) and a message string (describing the error in detail).
 		 * ErrorEntry is used for type-safe, structured error reporting in ParsingErrors and related APIs.
 		 */
+		/**
+		 * @brief Represents a single parsing error with type and message.
+		 */
 		struct ErrorEntry
 		{
+			/**
+			 * @brief Error type string (categorizes the error).
+			 */
 			std::string type;
+
+			/**
+			 * @brief Error message string (describes the error in detail).
+			 */
 			std::string message;
 
+			/**
+			 * @brief Default constructor.
+			 */
 			ErrorEntry() = default;
+
+			/**
+			 * @brief Constructs an ErrorEntry from string views.
+			 * @param errorType The error type string.
+			 * @param errorMessage The error message string.
+			 */
 			ErrorEntry( std::string_view errorType, std::string_view errorMessage );
+
+			/**
+			 * @brief Constructs an ErrorEntry from rvalue strings.
+			 * @param errorType The error type string.
+			 * @param errorMessage The error message string.
+			 */
 			ErrorEntry( std::string&& errorType, std::string&& errorMessage );
 
 			//----------------------------

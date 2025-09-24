@@ -192,11 +192,19 @@ namespace dnv::vista::sdk::transport
 			/** @brief Destructor */
 			~String() = default;
 
-			/** @brief Copy assignment */
-			String& operator=( const String& ) = default;
+			/**
+			 * @brief Copy assignment
+			 * @param other The String to copy from
+			 * @return Reference to this String
+			 */
+			String& operator=( const String& other ) = default;
 
-			/** @brief Move assignment */
-			String& operator=( String&& ) noexcept = default;
+			/**
+			 * @brief Move assignment
+			 * @param other The String to move from
+			 * @return Reference to this String
+			 */
+			String& operator=( String&& other ) noexcept = default;
 
 			/**
 			 * @brief Get the string value
@@ -466,14 +474,58 @@ namespace dnv::vista::sdk::transport
 		 * - Perfect forwarding semantics without template complexity
 		 */
 
+		/**
+		 * @brief Construct Value from String
+		 * @param string The string value to store
+		 */
 		inline Value( String string ) noexcept;
+		
+		/**
+		 * @brief Construct Value from Char
+		 * @param charValue The character value to store
+		 */
 		inline Value( Char charValue ) noexcept;
+		
+		/**
+		 * @brief Construct Value from Boolean
+		 * @param boolean The boolean value to store
+		 */
 		inline Value( Boolean boolean ) noexcept;
+		
+		/**
+		 * @brief Construct Value from Integer
+		 * @param integer The integer value to store
+		 */
 		inline Value( Integer integer ) noexcept;
+		
+		/**
+		 * @brief Construct Value from UnsignedInteger
+		 * @param unsignedInteger The unsigned integer value to store
+		 */
 		inline Value( UnsignedInteger unsignedInteger ) noexcept;
+		
+		/**
+		 * @brief Construct Value from Long
+		 * @param longValue The long integer value to store
+		 */
 		inline Value( Long longValue ) noexcept;
+		
+		/**
+		 * @brief Construct Value from Double
+		 * @param doubleValue The double precision value to store
+		 */
 		inline Value( Double doubleValue ) noexcept;
+		
+		/**
+		 * @brief Construct Value from Decimal
+		 * @param decimal The high-precision decimal value to store
+		 */
 		inline Value( Decimal decimal ) noexcept;
+		
+		/**
+		 * @brief Construct Value from DateTime
+		 * @param dateTime The date and time value to store
+		 */
 		inline Value( DateTime dateTime ) noexcept;
 
 		//----------------------------------------------
@@ -685,11 +737,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment */
-		DataChannelTypeName& operator=( const DataChannelTypeName& ) = default;
+		/**
+		 * @brief Copy assignment
+		 * @param other The DataChannelTypeName to copy from
+		 * @return Reference to this DataChannelTypeName
+		 */
+		DataChannelTypeName& operator=( const DataChannelTypeName& other ) = default;
 
-		/** @brief Move assignment */
-		DataChannelTypeName& operator=( DataChannelTypeName&& ) noexcept = default;
+		/**
+		 * @brief Move assignment
+		 * @param other The DataChannelTypeName to move from
+		 * @return Reference to this DataChannelTypeName
+		 */
+		DataChannelTypeName& operator=( DataChannelTypeName&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors
@@ -759,11 +819,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment */
-		DataChannelTypeNames& operator=( const DataChannelTypeNames& ) = default;
+		/**
+		 * @brief Copy assignment
+		 * @param other The DataChannelTypeNames to copy from
+		 * @return Reference to this DataChannelTypeNames
+		 */
+		DataChannelTypeNames& operator=( const DataChannelTypeNames& other ) = default;
 
-		/** @brief Move assignment */
-		DataChannelTypeNames& operator=( DataChannelTypeNames&& ) noexcept = default;
+		/**
+		 * @brief Move assignment
+		 * @param other The DataChannelTypeNames to move from
+		 * @return Reference to this DataChannelTypeNames
+		 */
+		DataChannelTypeNames& operator=( DataChannelTypeNames&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// DataChannelTypeNames::ParseResult class
@@ -876,7 +944,10 @@ namespace dnv::vista::sdk::transport
 		// DataChannelTypeNames::Iterator support
 		//----------------------------------------------
 
+		/** @brief Iterator type for iterating over data channel type names */
 		using iterator = std::vector<DataChannelTypeName>::const_iterator;
+		
+		/** @brief Const iterator type for iterating over data channel type names */
 		using const_iterator = std::vector<DataChannelTypeName>::const_iterator;
 
 		//----------------------------------------------
@@ -966,11 +1037,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//-----------------------------
 
-		/** @brief Copy assignment */
-		FormatDataType& operator=( const FormatDataType& ) = default;
+		/**
+		 * @brief Copy assignment
+		 * @param other The FormatDataType to copy from
+		 * @return Reference to this FormatDataType
+		 */
+		FormatDataType& operator=( const FormatDataType& other ) = default;
 
-		/** @brief Move assignment */
-		FormatDataType& operator=( FormatDataType&& ) noexcept = default;
+		/**
+		 * @brief Move assignment
+		 * @param other The FormatDataType to move from
+		 * @return Reference to this FormatDataType
+		 */
+		FormatDataType& operator=( FormatDataType&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors
@@ -1078,11 +1157,19 @@ namespace dnv::vista::sdk::transport
 		/** @brief Move constructor */
 		FormatDataTypes( FormatDataTypes&& ) noexcept = default;
 
-		/** @brief Copy assignment */
-		FormatDataTypes& operator=( const FormatDataTypes& ) = default;
+		/**
+		 * @brief Copy assignment
+		 * @param other The FormatDataTypes to copy from
+		 * @return Reference to this FormatDataTypes
+		 */
+		FormatDataTypes& operator=( const FormatDataTypes& other ) = default;
 
-		/** @brief Move assignment */
-		FormatDataTypes& operator=( FormatDataTypes&& ) noexcept = default;
+		/**
+		 * @brief Move assignment
+		 * @param other The FormatDataTypes to move from
+		 * @return Reference to this FormatDataTypes
+		 */
+		FormatDataTypes& operator=( FormatDataTypes&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// FormatDataType::ParseResult class
@@ -1186,7 +1273,10 @@ namespace dnv::vista::sdk::transport
 		// FormatDataTypes::Iterator support
 		//----------------------------------------------
 
+		/** @brief Iterator type for iterating over format data types */
 		using iterator = std::vector<FormatDataType>::const_iterator;
+		
+		/** @brief Const iterator type for iterating over format data types */
 		using const_iterator = std::vector<FormatDataType>::const_iterator;
 
 		//----------------------------------------------

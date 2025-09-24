@@ -231,11 +231,17 @@ namespace dnv::vista::sdk
 		/** @brief Default constructor. */
 		GmodNodeMetadata() = default;
 
-		/** @brief Copy constructor */
-		inline GmodNodeMetadata( const GmodNodeMetadata& ) noexcept;
+		/**
+		 * @brief Copy constructor
+		 * @param other The object to copy from
+		 */
+		inline GmodNodeMetadata( const GmodNodeMetadata& other ) noexcept;
 
-		/** @brief Move constructor */
-		GmodNodeMetadata( GmodNodeMetadata&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The object to move from
+		 */
+		GmodNodeMetadata( GmodNodeMetadata&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -250,15 +256,17 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Copy assignment operator
+		 * @param other The object to copy from
 		 * @return Reference to this GmodNodeMetadata after assignment
 		 */
-		inline GmodNodeMetadata& operator=( const GmodNodeMetadata& ) noexcept;
+		inline GmodNodeMetadata& operator=( const GmodNodeMetadata& other ) noexcept;
 
 		/**
 		 * @brief Move assignment operator
+		 * @param other The object to move from
 		 * @return Reference to this GmodNodeMetadata after assignment
 		 */
-		GmodNodeMetadata& operator=( GmodNodeMetadata&& ) noexcept = default;
+		GmodNodeMetadata& operator=( GmodNodeMetadata&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Operators
@@ -411,11 +419,17 @@ namespace dnv::vista::sdk
 		/** @brief Default constructor. */
 		GmodNode() = default;
 
-		/** @brief Copy constructor */
-		inline GmodNode( const GmodNode& ) noexcept;
+		/**
+		 * @brief Copy constructor
+		 * @param other The object to copy from
+		 */
+		inline GmodNode( const GmodNode& other ) noexcept;
 
-		/** @brief Move constructor */
-		inline GmodNode( GmodNode&& ) noexcept;
+		/**
+		 * @brief Move constructor
+		 * @param other The object to move from
+		 */
+		inline GmodNode( GmodNode&& other ) noexcept;
 
 		//----------------------------------------------
 		// Destruction
@@ -430,15 +444,17 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Copy assignment operator
+		 * @param other The object to copy from
 		 * @return Reference to this GmodNode after assignment
 		 */
-		inline GmodNode& operator=( const GmodNode& ) noexcept;
+		inline GmodNode& operator=( const GmodNode& other ) noexcept;
 
 		/**
 		 * @brief Move assignment operator
+		 * @param other The object to move from
 		 * @return Reference to this GmodNode after assignment
 		 */
-		inline GmodNode& operator=( GmodNode&& ) noexcept;
+		inline GmodNode& operator=( GmodNode&& other ) noexcept;
 
 		//----------------------------------------------
 		// Operators

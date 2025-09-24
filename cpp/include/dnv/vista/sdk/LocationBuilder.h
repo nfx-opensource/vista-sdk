@@ -54,11 +54,17 @@ namespace dnv::vista::sdk
 		LocationBuilder() = default;
 
 	public:
-		/** @brief Copy constructor */
-		LocationBuilder( const LocationBuilder& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The object to copy from
+		 */
+		LocationBuilder( const LocationBuilder& other ) = default;
 
-		/** @brief Move constructor */
-		LocationBuilder( LocationBuilder&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The object to move from
+		 */
+		LocationBuilder( LocationBuilder&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -71,11 +77,19 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		LocationBuilder& operator=( const LocationBuilder& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The LocationBuilder to copy from
+		 * @return Reference to this LocationBuilder after assignment
+		 */
+		LocationBuilder& operator=( const LocationBuilder& other ) = default;
 
-		/** @brief Move assignment operator */
-		LocationBuilder& operator=( LocationBuilder&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The LocationBuilder to move from
+		 * @return Reference to this LocationBuilder after assignment
+		 */
+		LocationBuilder& operator=( LocationBuilder&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors

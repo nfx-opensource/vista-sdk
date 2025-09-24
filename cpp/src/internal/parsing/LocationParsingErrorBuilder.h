@@ -64,10 +64,10 @@ namespace dnv::vista::sdk::internal
 		LocationParsingErrorBuilder();
 
 		/** @brief Copy constructor */
-		LocationParsingErrorBuilder( const LocationParsingErrorBuilder& ) = default;
+		LocationParsingErrorBuilder( const LocationParsingErrorBuilder& other ) = default;
 
 		/** @brief Move constructor */
-		LocationParsingErrorBuilder( LocationParsingErrorBuilder&& ) noexcept = default;
+		LocationParsingErrorBuilder( LocationParsingErrorBuilder&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -81,10 +81,10 @@ namespace dnv::vista::sdk::internal
 		//----------------------------------------------
 
 		/** @brief Copy assignment operator */
-		LocationParsingErrorBuilder& operator=( const LocationParsingErrorBuilder& ) = default;
+		LocationParsingErrorBuilder& operator=( const LocationParsingErrorBuilder& other ) = default;
 
 		/** @brief Move assignment operator */
-		LocationParsingErrorBuilder& operator=( LocationParsingErrorBuilder&& ) noexcept = default;
+		LocationParsingErrorBuilder& operator=( LocationParsingErrorBuilder&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// State inspection methods

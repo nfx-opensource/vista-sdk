@@ -76,10 +76,10 @@ namespace dnv::vista::sdk::internal
 		GmodVersioningNode() = default;
 
 		/** @brief Copy constructor */
-		GmodVersioningNode( const GmodVersioningNode& ) = default;
+		GmodVersioningNode( const GmodVersioningNode& other ) = default;
 
 		/** @brief Move constructor */
-		GmodVersioningNode( GmodVersioningNode&& ) noexcept = default;
+		GmodVersioningNode( GmodVersioningNode&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -93,10 +93,10 @@ namespace dnv::vista::sdk::internal
 		//----------------------------------------------
 
 		/** @brief Copy assignment operator */
-		GmodVersioningNode& operator=( const GmodVersioningNode& ) = default;
+		GmodVersioningNode& operator=( const GmodVersioningNode& other ) = default;
 
 		/** @brief Move assignment operator */
-		GmodVersioningNode& operator=( GmodVersioningNode&& ) noexcept = default;
+		GmodVersioningNode& operator=( GmodVersioningNode&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors

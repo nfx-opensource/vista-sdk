@@ -51,10 +51,10 @@ namespace dnv::vista::sdk
 		CodebookDto() = default;
 
 		/** @brief Copy constructor */
-		CodebookDto( const CodebookDto& ) = default;
+		CodebookDto( const CodebookDto& other ) = default;
 
 		/** @brief Move constructor */
-		CodebookDto( CodebookDto&& ) noexcept = default;
+		CodebookDto( CodebookDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -68,10 +68,10 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 
 		/** @brief Copy assignment operator */
-		CodebookDto& operator=( const CodebookDto& ) = default;
+		CodebookDto& operator=( const CodebookDto& other ) = default;
 
 		/** @brief Move assignment operator */
-		CodebookDto& operator=( CodebookDto&& ) noexcept = default;
+		CodebookDto& operator=( CodebookDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors
@@ -192,10 +192,10 @@ namespace dnv::vista::sdk
 		CodebooksDto() = default;
 
 		/** @brief Copy constructor */
-		CodebooksDto( const CodebooksDto& ) = default;
+		CodebooksDto( const CodebooksDto& other ) = default;
 
 		/** @brief Move constructor */
-		CodebooksDto( CodebooksDto&& ) noexcept = default;
+		CodebooksDto( CodebooksDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -209,10 +209,10 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 
 		/** @brief Copy assignment operator */
-		CodebooksDto& operator=( const CodebooksDto& ) = default;
+		CodebooksDto& operator=( const CodebooksDto& other ) = default;
 
 		/** @brief Move assignment operator */
-		CodebooksDto& operator=( CodebooksDto&& ) noexcept = default;
+		CodebooksDto& operator=( CodebooksDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors

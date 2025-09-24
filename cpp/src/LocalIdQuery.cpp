@@ -104,7 +104,6 @@ namespace dnv::vista::sdk
 		try
 		{
 			auto localId = LocalId::parse( localIdStr );
-
 			return match( localId );
 		}
 		catch ( const std::exception& )

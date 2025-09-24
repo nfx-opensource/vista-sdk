@@ -53,11 +53,17 @@ namespace dnv::vista::sdk
 		/** @brief Default constructor. */
 		ImoNumber() = delete;
 
-		/** @brief Copy constructor */
-		ImoNumber( const ImoNumber& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The object to copy from
+		 */
+		ImoNumber( const ImoNumber& other ) = default;
 
-		/** @brief Move constructor */
-		ImoNumber( ImoNumber&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The object to move from
+		 */
+		ImoNumber( ImoNumber&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -72,15 +78,17 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Copy assignment operator
+		 * @param other The object to copy from
 		 * @return Reference to this ImoNumber after assignment
 		 */
-		ImoNumber& operator=( const ImoNumber& ) = default;
+		ImoNumber& operator=( const ImoNumber& other ) = default;
 
 		/**
 		 * @brief Move assignment operator
+		 * @param other The object to move from
 		 * @return Reference to this ImoNumber after assignment
 		 */
-		ImoNumber& operator=( ImoNumber&& ) noexcept = default;
+		ImoNumber& operator=( ImoNumber&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Operators

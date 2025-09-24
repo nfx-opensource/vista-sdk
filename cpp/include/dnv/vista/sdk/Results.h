@@ -170,11 +170,13 @@ namespace dnv::vista::sdk
 		public:
 			/**
 			 * @brief Constructs an invalid result with a list of validation errors
+			 * @param errors The list of validation error messages
 			 */
 			inline explicit Invalid( std::vector<std::string> errors ) noexcept;
 
 			/**
 			 * @brief Gets the list of validation errors
+			 * @return Constant reference to the vector of validation error messages
 			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
 			[[nodiscard]] inline const std::vector<std::string>& errors() const noexcept;
@@ -189,11 +191,13 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Constructs a ValidateResult from a successful Ok result
+		 * @param ok The Ok result state
 		 */
 		inline ValidateResult( Ok ok ) noexcept;
 
 		/**
 		 * @brief Constructs a ValidateResult from an Invalid result containing errors
+		 * @param invalid The Invalid result state
 		 */
 		inline ValidateResult( Invalid invalid ) noexcept;
 
@@ -203,12 +207,14 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Checks if this result represents a successful validation
+		 * @return True if the result is Ok, false otherwise
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline bool isOk() const noexcept;
 
 		/**
 		 * @brief Checks if this result represents a failed validation with errors
+		 * @return True if the result is Invalid, false otherwise
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline bool isInvalid() const noexcept;
@@ -219,12 +225,14 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Gets the Ok result value, throws if this result is Invalid
+		 * @return Constant reference to the Ok result state
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline const Ok& ok() const;
 
 		/**
 		 * @brief Gets the Invalid result value, throws if this result is Ok
+		 * @return Constant reference to the Invalid result state
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline const Invalid& invalid() const;

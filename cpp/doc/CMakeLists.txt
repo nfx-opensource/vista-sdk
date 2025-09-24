@@ -66,10 +66,10 @@ if(Doxygen_FOUND)
 
 	# --- Warnings ---
 	set(DOXYGEN_QUIET                    "YES")
-	set(DOXYGEN_WARNINGS                 "NO")
-	set(DOXYGEN_WARN_IF_UNDOCUMENTED     "NO")
-	set(DOXYGEN_WARN_IF_DOC_ERROR        "NO")
-	set(DOXYGEN_WARN_NO_PARAMDOC         "NO")
+	set(DOXYGEN_WARNINGS                 "YES")
+	set(DOXYGEN_WARN_IF_UNDOCUMENTED     "YES")
+	set(DOXYGEN_WARN_IF_DOC_ERROR        "YES")
+	set(DOXYGEN_WARN_NO_PARAMDOC         "YES")
 	set(DOXYGEN_WARN_AS_ERROR            "NO")
 
 	# --- Input ---
@@ -218,7 +218,7 @@ if(Doxygen_FOUND)
 				COMMENT "Generate documentation."
 	)
 
-	if(TARGET documentation)
+	if(TARGET vista_cpp_sdk_documentation)
 			add_custom_command(
 				TARGET vista_cpp_sdk_documentation
 					POST_BUILD

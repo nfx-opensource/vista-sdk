@@ -46,10 +46,10 @@ namespace dnv::vista::sdk
 		RelativeLocationsDto() = default;
 
 		/** @brief Copy constructor */
-		RelativeLocationsDto( const RelativeLocationsDto& ) = default;
+		RelativeLocationsDto( const RelativeLocationsDto& other ) = default;
 
 		/** @brief Move constructor */
-		RelativeLocationsDto( RelativeLocationsDto&& ) noexcept = default;
+		RelativeLocationsDto( RelativeLocationsDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -63,10 +63,10 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 
 		/** @brief Copy assignment operator */
-		RelativeLocationsDto& operator=( const RelativeLocationsDto& ) = default;
+		RelativeLocationsDto& operator=( const RelativeLocationsDto& other ) = default;
 
 		/** @brief Move assignment operator */
-		RelativeLocationsDto& operator=( RelativeLocationsDto&& ) noexcept = default;
+		RelativeLocationsDto& operator=( RelativeLocationsDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors
@@ -194,10 +194,10 @@ namespace dnv::vista::sdk
 		LocationsDto() = default;
 
 		/** @brief Copy constructor */
-		LocationsDto( const LocationsDto& ) = default;
+		LocationsDto( const LocationsDto& other ) = default;
 
 		/** @brief Move constructor */
-		LocationsDto( LocationsDto&& ) noexcept = default;
+		LocationsDto( LocationsDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -211,10 +211,10 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 
 		/** @brief Copy assignment operator */
-		LocationsDto& operator=( const LocationsDto& ) = default;
+		LocationsDto& operator=( const LocationsDto& other ) = default;
 
 		/** @brief Move assignment operator */
-		LocationsDto& operator=( LocationsDto&& ) noexcept = default;
+		LocationsDto& operator=( LocationsDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors

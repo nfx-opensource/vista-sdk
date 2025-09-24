@@ -174,11 +174,19 @@ namespace dnv::vista::sdk::transport::timeseries
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		TimeRange& operator=( const TimeRange& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The TimeRange to copy from
+		 * @return Reference to this TimeRange
+		 */
+		TimeRange& operator=( const TimeRange& other ) = default;
 
-		/** @brief Move assignment operator */
-		TimeRange& operator=( TimeRange&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The TimeRange to move from
+		 * @return Reference to this TimeRange
+		 */
+		TimeRange& operator=( TimeRange&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -193,6 +201,7 @@ namespace dnv::vista::sdk::transport::timeseries
 
 		/**
 		 * @brief Get end timestamp
+		 * @return End time
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const nfx::time::DateTimeOffset& end() const noexcept;
@@ -261,11 +270,19 @@ namespace dnv::vista::sdk::transport::timeseries
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		ConfigurationReference& operator=( const ConfigurationReference& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The ConfigurationReference to copy from
+		 * @return Reference to this ConfigurationReference
+		 */
+		ConfigurationReference& operator=( const ConfigurationReference& other ) = default;
 
-		/** @brief Move assignment operator */
-		ConfigurationReference& operator=( ConfigurationReference&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The ConfigurationReference to move from
+		 * @return Reference to this ConfigurationReference
+		 */
+		ConfigurationReference& operator=( ConfigurationReference&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -273,12 +290,14 @@ namespace dnv::vista::sdk::transport::timeseries
 
 		/**
 		 * @brief Get configuration ID
+		 * @return The configuration ID
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::string& id() const noexcept;
 
 		/**
 		 * @brief Get timestamp
+		 * @return The configuration timestamp
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const nfx::time::DateTimeOffset& timeStamp() const noexcept;
@@ -358,11 +377,19 @@ namespace dnv::vista::sdk::transport::timeseries
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		TabularDataSet& operator=( const TabularDataSet& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The TabularDataSet to copy from
+		 * @return Reference to this TabularDataSet
+		 */
+		TabularDataSet& operator=( const TabularDataSet& other ) = default;
 
-		/** @brief Move assignment operator */
-		TabularDataSet& operator=( TabularDataSet&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The TabularDataSet to move from
+		 * @return Reference to this TabularDataSet
+		 */
+		TabularDataSet& operator=( TabularDataSet&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -370,18 +397,21 @@ namespace dnv::vista::sdk::transport::timeseries
 
 		/**
 		 * @brief Get timestamp
+		 * @return The data timestamp
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const nfx::time::DateTimeOffset& timeStamp() const noexcept;
 
 		/**
 		 * @brief Get values
+		 * @return The data values
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::vector<std::string>& value() const noexcept;
 
 		/**
 		 * @brief Get quality values
+		 * @return The quality values
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::vector<std::string>>& quality() const noexcept;
@@ -461,11 +491,19 @@ namespace dnv::vista::sdk::transport::timeseries
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		EventDataSet& operator=( const EventDataSet& ) = delete;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The EventDataSet to copy from
+		 * @return Reference to this EventDataSet
+		 */
+		EventDataSet& operator=( const EventDataSet& other ) = delete;
 
-		/** @brief Move assignment operator */
-		EventDataSet& operator=( EventDataSet&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The EventDataSet to move from
+		 * @return Reference to this EventDataSet
+		 */
+		EventDataSet& operator=( EventDataSet&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -473,24 +511,28 @@ namespace dnv::vista::sdk::transport::timeseries
 
 		/**
 		 * @brief Get timestamp
+		 * @return The event timestamp
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const nfx::time::DateTimeOffset& timeStamp() const noexcept;
 
 		/**
 		 * @brief Get data channel ID
+		 * @return The data channel ID
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const DataChannelId& dataChannelId() const noexcept;
 
 		/**
 		 * @brief Get value
+		 * @return The event value
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::string& value() const noexcept;
 
 		/**
 		 * @brief Get quality
+		 * @return The quality value
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::string>& quality() const noexcept;
@@ -573,11 +615,19 @@ namespace dnv::vista::sdk::transport::timeseries
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		TabularData& operator=( const TabularData& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The TabularData to copy from
+		 * @return Reference to this TabularData
+		 */
+		TabularData& operator=( const TabularData& other ) = default;
 
-		/** @brief Move assignment operator */
-		TabularData& operator=( TabularData&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The TabularData to move from
+		 * @return Reference to this TabularData
+		 */
+		TabularData& operator=( TabularData&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -585,12 +635,14 @@ namespace dnv::vista::sdk::transport::timeseries
 
 		/**
 		 * @brief Get data channel IDs
+		 * @return The data channel IDs
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::vector<DataChannelId>& dataChannelIds() const noexcept;
 
 		/**
 		 * @brief Get data sets
+		 * @return The data sets
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::vector<TabularDataSet>& dataSets() const noexcept;
@@ -617,6 +669,7 @@ namespace dnv::vista::sdk::transport::timeseries
 
 		/**
 		 * @brief Validate tabular data structure (instance method)
+		 * @return Validation result
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] ValidateResult validate() const;
@@ -624,6 +677,7 @@ namespace dnv::vista::sdk::transport::timeseries
 		/**
 		 * @brief Static validation method
 		 * @param table TabularData instance to validate
+		 * @return Validation result
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] static ValidateResult Validate( const TabularData& table );
@@ -651,7 +705,10 @@ namespace dnv::vista::sdk::transport::timeseries
 		// Construction
 		//----------------------------------------------
 
-		/** @brief Default constructor with optional capacity */
+		/**
+		 * @brief Default constructor with optional capacity
+		 * @param dataSet Initial capacity for data set vector
+		 */
 		VISTA_SDK_CPP_INLINE explicit EventData( size_t dataSet = 0 );
 
 		/**
@@ -673,11 +730,19 @@ namespace dnv::vista::sdk::transport::timeseries
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		EventData& operator=( const EventData& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The EventData to copy from
+		 * @return Reference to this EventData
+		 */
+		EventData& operator=( const EventData& other ) = default;
 
-		/** @brief Move assignment operator */
-		EventData& operator=( EventData&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The EventData to move from
+		 * @return Reference to this EventData
+		 */
+		EventData& operator=( EventData&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -685,6 +750,7 @@ namespace dnv::vista::sdk::transport::timeseries
 
 		/**
 		 * @brief Get data set
+		 * @return The event data sets
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::vector<EventDataSet>& dataSet() const noexcept;
@@ -782,11 +848,19 @@ namespace dnv::vista::sdk::transport::timeseries
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		Header& operator=( const Header& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The Header to copy from
+		 * @return Reference to this Header
+		 */
+		Header& operator=( const Header& other ) = default;
 
-		/** @brief Move assignment operator */
-		Header& operator=( Header&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The Header to move from
+		 * @return Reference to this Header
+		 */
+		Header& operator=( Header&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -794,42 +868,49 @@ namespace dnv::vista::sdk::transport::timeseries
 
 		/**
 		 * @brief Get ship ID
+		 * @return The ship ID
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const ShipId& shipId() const noexcept;
 
 		/**
 		 * @brief Get time range
+		 * @return The time range
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<TimeRange>& timeRange() const noexcept;
 
 		/**
 		 * @brief Get date created
+		 * @return The creation date
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<nfx::time::DateTimeOffset>& dateCreated() const noexcept;
 
 		/**
 		 * @brief Get date modified
+		 * @return The modification date
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<nfx::time::DateTimeOffset>& dateModified() const noexcept;
 
 		/**
 		 * @brief Get author
+		 * @return The author information
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::string>& author() const noexcept;
 
 		/**
 		 * @brief Get system configuration
+		 * @return The system configuration references
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::vector<ConfigurationReference>>& systemConfiguration() const noexcept;
 
 		/**
 		 * @brief Get custom headers
+		 * @return The custom headers
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<nfx::containers::StringMap<Value>>& customHeaders() const noexcept;
@@ -950,11 +1031,19 @@ namespace dnv::vista::sdk::transport::timeseries
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		TimeSeriesData& operator=( const TimeSeriesData& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The TimeSeriesData to copy from
+		 * @return Reference to this TimeSeriesData
+		 */
+		TimeSeriesData& operator=( const TimeSeriesData& other ) = default;
 
-		/** @brief Move assignment operator */
-		TimeSeriesData& operator=( TimeSeriesData&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The TimeSeriesData to move from
+		 * @return Reference to this TimeSeriesData
+		 */
+		TimeSeriesData& operator=( TimeSeriesData&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -962,24 +1051,28 @@ namespace dnv::vista::sdk::transport::timeseries
 
 		/**
 		 * @brief Get data configuration
+		 * @return The data configuration reference
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<ConfigurationReference>& dataConfiguration() const noexcept;
 
 		/**
 		 * @brief Get tabular data
+		 * @return The tabular data collections
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::vector<TabularData>>& tabularData() const noexcept;
 
 		/**
 		 * @brief Get event data
+		 * @return The event data collection
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<EventData>& eventData() const noexcept;
 
 		/**
 		 * @brief Get custom data kinds
+		 * @return The custom data kinds
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<nfx::containers::StringMap<Value>>& customDataKinds() const noexcept;
@@ -1021,6 +1114,7 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @param dcPackage Data channel list package for validation
 		 * @param onTabularData Validation function for tabular data
 		 * @param onEventData Validation function for event data
+		 * @return Validation result
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] ValidateResult validate(
@@ -1078,11 +1172,19 @@ namespace dnv::vista::sdk::transport::timeseries
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		Package& operator=( const Package& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The Package to copy from
+		 * @return Reference to this Package
+		 */
+		Package& operator=( const Package& other ) = default;
 
-		/** @brief Move assignment operator */
-		Package& operator=( Package&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The Package to move from
+		 * @return Reference to this Package
+		 */
+		Package& operator=( Package&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -1090,12 +1192,14 @@ namespace dnv::vista::sdk::transport::timeseries
 
 		/**
 		 * @brief Get header
+		 * @return The package header
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<Header>& header() const noexcept;
 
 		/**
 		 * @brief Get time series data
+		 * @return The time series data collections
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::vector<TimeSeriesData>& timeSeriesData() const noexcept;
@@ -1162,11 +1266,19 @@ namespace dnv::vista::sdk::transport::timeseries
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		TimeSeriesDataPackage& operator=( const TimeSeriesDataPackage& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The TimeSeriesDataPackage to copy from
+		 * @return Reference to this TimeSeriesDataPackage
+		 */
+		TimeSeriesDataPackage& operator=( const TimeSeriesDataPackage& other ) = default;
 
-		/** @brief Move assignment operator */
-		TimeSeriesDataPackage& operator=( TimeSeriesDataPackage&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The TimeSeriesDataPackage to move from
+		 * @return Reference to this TimeSeriesDataPackage
+		 */
+		TimeSeriesDataPackage& operator=( TimeSeriesDataPackage&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -1174,12 +1286,14 @@ namespace dnv::vista::sdk::transport::timeseries
 
 		/**
 		 * @brief Get package
+		 * @return The time series data package
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const Package& package() const noexcept;
 
 		/**
 		 * @brief Get package (mutable)
+		 * @return The time series data package
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE Package& package() noexcept;

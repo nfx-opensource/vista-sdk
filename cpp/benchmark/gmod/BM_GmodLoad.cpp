@@ -21,7 +21,7 @@ namespace dnv::vista::sdk::benchmarks
 		{
 			// This measures: Cache lookup and reference return
 			const auto& gmod = vis.gmod( VisVersion::v3_7a );
-			benchmark::DoNotOptimize( gmod );
+			benchmark::DoNotOptimize( &gmod );
 		}
 	}
 

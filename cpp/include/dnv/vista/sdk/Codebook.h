@@ -233,11 +233,17 @@ namespace dnv::vista::sdk
 		/** @brief Default constructor. */
 		CodebookStandardValues() = default;
 
-		/** @brief Copy constructor */
-		CodebookStandardValues( const CodebookStandardValues& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The object to copy from
+		 */
+		CodebookStandardValues( const CodebookStandardValues& other ) = default;
 
-		/** @brief Move constructor */
-		CodebookStandardValues( CodebookStandardValues&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The object to move from
+		 */
+		CodebookStandardValues( CodebookStandardValues&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -252,15 +258,17 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Copy assignment operator
+		 * @param other The object to copy from
 		 * @return Reference to this object
 		 */
-		CodebookStandardValues& operator=( const CodebookStandardValues& ) = default;
+		CodebookStandardValues& operator=( const CodebookStandardValues& other ) = default;
 
 		/**
 		 * @brief Move assignment operator
+		 * @param other The object to move from
 		 * @return Reference to this object
 		 */
-		CodebookStandardValues& operator=( CodebookStandardValues&& ) noexcept = default;
+		CodebookStandardValues& operator=( CodebookStandardValues&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Public methods
@@ -344,11 +352,17 @@ namespace dnv::vista::sdk
 		/** @brief Default constructor. */
 		CodebookGroups() = default;
 
-		/** @brief Copy constructor */
-		CodebookGroups( const CodebookGroups& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The object to copy from
+		 */
+		CodebookGroups( const CodebookGroups& other ) = default;
 
-		/** @brief Move constructor */
-		CodebookGroups( CodebookGroups&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The object to move from
+		 */
+		CodebookGroups( CodebookGroups&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -363,15 +377,17 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Copy assignment operator
+		 * @param other The object to copy from
 		 * @return Reference to this object
 		 */
-		CodebookGroups& operator=( const CodebookGroups& ) = default;
+		CodebookGroups& operator=( const CodebookGroups& other ) = default;
 
 		/**
 		 * @brief Move assignment operator
+		 * @param other The object to move from
 		 * @return Reference to this object
 		 */
-		CodebookGroups& operator=( CodebookGroups&& ) noexcept = default;
+		CodebookGroups& operator=( CodebookGroups&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Public methods
@@ -454,11 +470,17 @@ namespace dnv::vista::sdk
 		Codebook() = default;
 
 	public:
-		/** @brief Copy constructor */
-		Codebook( const Codebook& );
+		/**
+		 * @brief Copy constructor
+		 * @param other The object to copy from
+		 */
+		Codebook( const Codebook& other );
 
-		/** @brief Move constructor */
-		Codebook( Codebook&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The object to move from
+		 */
+		Codebook( Codebook&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -473,15 +495,17 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Copy assignment operator
+		 * @param other The object to copy from
 		 * @return Reference to this object
 		 */
-		Codebook& operator=( const Codebook& ) = default;
+		Codebook& operator=( const Codebook& other ) = default;
 
 		/**
 		 * @brief Move assignment operator
+		 * @param other The object to move from
 		 * @return Reference to this object
 		 */
-		Codebook& operator=( Codebook&& ) noexcept = default;
+		Codebook& operator=( Codebook&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors

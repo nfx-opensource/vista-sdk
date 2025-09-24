@@ -59,9 +59,9 @@ Originally ported from the [official DNV Vista SDK](https://github.com/dnv-opens
 ### Requirements
 
 -   C++20 compatible compiler:
-    -   **MSVC 2022+** (19.44+ tested)
-    -   **GCC 10+** (14.2.0 tested)
-    -   **Clang 12+** (19.1.5 tested)
+	-   **MSVC 2022+** (19.44+ tested)
+	-   **GCC 10+** (14.2.0 tested)
+	-   **Clang 12+** (19.1.5 tested)
 -   CMake 3.20 or higher
 -   **Multi-compiler builds supported** across x64/x86 architectures
 
@@ -117,10 +117,7 @@ cmake .. -DCMAKE_BUILD_TYPE=Release
 cmake --build . --config Release
 
 # Run tests (optional)
-ctest --config Release
-
-# Run benchmarks (optional)
-cmake --build . --config Release --target benchmarks
+ctest -C Release
 ```
 
 ### Usage Example
@@ -239,9 +236,9 @@ For detailed performance metrics and cross-language comparisons, see [benchmark/
 
 -   **Platforms**: Windows, Linux, macOS
 -   **Compilers**:
-    -   **MSVC 2022+** (tested with Visual Studio 19.44.35214.0)
-    -   **GCC 10+** (tested with GCC 14.2.0)
-    -   **Clang 12+** (tested with Clang 19.1.5)
+	-   **MSVC 2022+** (tested with Visual Studio 19.44.35214.0)
+	-   **GCC 10+** (tested with GCC 14.2.0)
+	-   **Clang 12+** (tested with Clang 19.1.5)
 -   **Architectures**: x64
 -   **Standards**: C++20
 

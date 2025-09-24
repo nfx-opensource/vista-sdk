@@ -141,11 +141,17 @@ namespace dnv::vista::sdk::transport
 		/** @brief Default constructor with standard values */
 		VISTA_SDK_CPP_INLINE VersionInformation();
 
-		/** @brief Copy constructor */
-		VersionInformation( const VersionInformation& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The VersionInformation to copy from
+		 */
+		VersionInformation( const VersionInformation& other ) = default;
 
-		/** @brief Move constructor */
-		VersionInformation( VersionInformation&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The VersionInformation to move from
+		 */
+		VersionInformation( VersionInformation&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -158,11 +164,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		VersionInformation& operator=( const VersionInformation& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The VersionInformation to copy from
+		 * @return Reference to this VersionInformation
+		 */
+		VersionInformation& operator=( const VersionInformation& other ) = default;
 
-		/** @brief Move assignment operator */
-		VersionInformation& operator=( VersionInformation&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The VersionInformation to move from
+		 * @return Reference to this VersionInformation
+		 */
+		VersionInformation& operator=( VersionInformation&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -246,11 +260,17 @@ namespace dnv::vista::sdk::transport
 		 */
 		VISTA_SDK_CPP_INLINE ConfigurationReference( std::string_view id, nfx::time::DateTimeOffset timeStamp, std::optional<std::string_view> version = std::nullopt );
 
-		/** @brief Copy constructor */
-		ConfigurationReference( const ConfigurationReference& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The ConfigurationReference to copy from
+		 */
+		ConfigurationReference( const ConfigurationReference& other ) = default;
 
-		/** @brief Move constructor */
-		ConfigurationReference( ConfigurationReference&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The ConfigurationReference to move from
+		 */
+		ConfigurationReference( ConfigurationReference&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -263,11 +283,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		ConfigurationReference& operator=( const ConfigurationReference& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The ConfigurationReference to copy from
+		 * @return Reference to this ConfigurationReference
+		 */
+		ConfigurationReference& operator=( const ConfigurationReference& other ) = default;
 
-		/** @brief Move assignment operator */
-		ConfigurationReference& operator=( ConfigurationReference&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The ConfigurationReference to move from
+		 * @return Reference to this ConfigurationReference
+		 */
+		ConfigurationReference& operator=( ConfigurationReference&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -344,11 +372,17 @@ namespace dnv::vista::sdk::transport
 		/** @brief Default constructor */
 		Restriction() = default;
 
-		/** @brief Copy constructor */
-		Restriction( const Restriction& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The Restriction to copy from
+		 */
+		Restriction( const Restriction& other ) = default;
 
-		/** @brief Move constructor */
-		Restriction( Restriction&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The Restriction to move from
+		 */
+		Restriction( Restriction&& other ) noexcept = default;
 
 		/** @brief Destructor */
 		~Restriction() = default;
@@ -357,11 +391,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		Restriction& operator=( const Restriction& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The Restriction to copy from
+		 * @return Reference to this Restriction
+		 */
+		Restriction& operator=( const Restriction& other ) = default;
 
-		/** @brief Move assignment operator */
-		Restriction& operator=( Restriction&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The Restriction to move from
+		 * @return Reference to this Restriction
+		 */
+		Restriction& operator=( Restriction&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -586,11 +628,17 @@ namespace dnv::vista::sdk::transport
 		 */
 		VISTA_SDK_CPP_INLINE Range( double low, double high );
 
-		/** @brief Copy constructor */
-		Range( const Range& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The Range to copy from
+		 */
+		Range( const Range& other ) = default;
 
-		/** @brief Move constructor */
-		Range( Range&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The Range to move from
+		 */
+		Range( Range&& other ) noexcept = default;
 
 		/** @brief Destructor */
 		~Range() = default;
@@ -599,11 +647,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		Range& operator=( const Range& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The Range to copy from
+		 * @return Reference to this Range
+		 */
+		Range& operator=( const Range& other ) = default;
 
-		/** @brief Move assignment operator */
-		Range& operator=( Range&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The Range to move from
+		 * @return Reference to this Range
+		 */
+		Range& operator=( Range&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -673,11 +729,17 @@ namespace dnv::vista::sdk::transport
 		 */
 		VISTA_SDK_CPP_INLINE explicit Unit( std::string_view unitSymbol );
 
-		/** @brief Copy constructor */
-		Unit( const Unit& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The Unit to copy from
+		 */
+		Unit( const Unit& other ) = default;
 
-		/** @brief Move constructor */
-		Unit( Unit&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The Unit to move from
+		 */
+		Unit( Unit&& other ) noexcept = default;
 
 		/** @brief Destructor */
 		~Unit() = default;
@@ -686,11 +748,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		Unit& operator=( const Unit& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The Unit to copy from
+		 * @return Reference to this Unit
+		 */
+		Unit& operator=( const Unit& other ) = default;
 
-		/** @brief Move assignment operator */
-		Unit& operator=( Unit&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The Unit to move from
+		 * @return Reference to this Unit
+		 */
+		Unit& operator=( Unit&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -794,11 +864,17 @@ namespace dnv::vista::sdk::transport
 			std::optional<nfx::time::DateTimeOffset> dateCreated,
 			std::optional<nfx::containers::StringMap<Value>> customHeaders );
 
-		/** @brief Copy constructor */
-		Header( const Header& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The Header to copy from
+		 */
+		Header( const Header& other ) = default;
 
-		/** @brief Move constructor */
-		Header( Header&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The Header to move from
+		 */
+		Header( Header&& other ) noexcept = default;
 
 		/** @brief Destructor */
 		~Header() = default;
@@ -807,11 +883,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		Header& operator=( const Header& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The Header to copy from
+		 * @return Reference to this Header
+		 */
+		Header& operator=( const Header& other ) = default;
 
-		/** @brief Move assignment operator */
-		Header& operator=( Header&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The Header to move from
+		 * @return Reference to this Header
+		 */
+		Header& operator=( Header&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -929,11 +1013,17 @@ namespace dnv::vista::sdk::transport
 		/** @brief Default constructor with standard naming rule */
 		VISTA_SDK_CPP_INLINE NameObject();
 
-		/** @brief Copy constructor */
-		NameObject( const NameObject& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The NameObject to copy from
+		 */
+		NameObject( const NameObject& other ) = default;
 
-		/** @brief Move constructor */
-		NameObject( NameObject&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The NameObject to move from
+		 */
+		NameObject( NameObject&& other ) noexcept = default;
 
 		/** @brief Destructor */
 		~NameObject() = default;
@@ -942,11 +1032,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		NameObject& operator=( const NameObject& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The NameObject to copy from
+		 * @return Reference to this NameObject
+		 */
+		NameObject& operator=( const NameObject& other ) = default;
 
-		/** @brief Move assignment operator */
-		NameObject& operator=( NameObject&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The NameObject to move from
+		 * @return Reference to this NameObject
+		 */
+		NameObject& operator=( NameObject&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -1014,11 +1112,17 @@ namespace dnv::vista::sdk::transport
 		 */
 		explicit Format( std::string_view type );
 
-		/** @brief Copy constructor */
-		Format( const Format& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The Format to copy from
+		 */
+		Format( const Format& other ) = default;
 
-		/** @brief Move constructor */
-		Format( Format&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The Format to move from
+		 */
+		Format( Format&& other ) noexcept = default;
 
 		/** @brief Destructor */
 		~Format() = default;
@@ -1027,11 +1131,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		Format& operator=( const Format& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The Format to copy from
+		 * @return Reference to this Format
+		 */
+		Format& operator=( const Format& other ) = default;
 
-		/** @brief Move assignment operator */
-		Format& operator=( Format&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The Format to move from
+		 * @return Reference to this Format
+		 */
+		Format& operator=( Format&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -1122,11 +1234,17 @@ namespace dnv::vista::sdk::transport
 		 */
 		explicit DataChannelType( std::string_view type );
 
-		/** @brief Copy constructor */
-		DataChannelType( const DataChannelType& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The DataChannelType to copy from
+		 */
+		DataChannelType( const DataChannelType& other ) = default;
 
-		/** @brief Move constructor */
-		DataChannelType( DataChannelType&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The DataChannelType to move from
+		 */
+		DataChannelType( DataChannelType&& other ) noexcept = default;
 
 		/** @brief Destructor */
 		~DataChannelType() = default;
@@ -1135,11 +1253,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		DataChannelType& operator=( const DataChannelType& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The DataChannelType to copy from
+		 * @return Reference to this DataChannelType
+		 */
+		DataChannelType& operator=( const DataChannelType& other ) = default;
 
-		/** @brief Move assignment operator */
-		DataChannelType& operator=( DataChannelType&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The DataChannelType to move from
+		 * @return Reference to this DataChannelType
+		 */
+		DataChannelType& operator=( DataChannelType&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -1241,11 +1367,17 @@ namespace dnv::vista::sdk::transport
 			std::optional<Unit> unit,
 			std::optional<std::string> alertPriority );
 
-		/** @brief Copy constructor */
-		Property( const Property& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The Property to copy from
+		 */
+		Property( const Property& other ) = default;
 
-		/** @brief Move constructor */
-		Property( Property&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The Property to move from
+		 */
+		Property( Property&& other ) noexcept = default;
 
 		/** @brief Destructor */
 		~Property() = default;
@@ -1254,11 +1386,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		Property& operator=( const Property& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The Property to copy from
+		 * @return Reference to this Property
+		 */
+		Property& operator=( const Property& other ) = default;
 
-		/** @brief Move assignment operator */
-		Property& operator=( Property&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The Property to move from
+		 * @return Reference to this Property
+		 */
+		Property& operator=( Property&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -1436,11 +1576,17 @@ namespace dnv::vista::sdk::transport
 		 */
 		VISTA_SDK_CPP_INLINE DataChannelId( LocalId localId, std::optional<std::string> shortId );
 
-		/** @brief Copy constructor */
-		DataChannelId( const DataChannelId& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The DataChannelId to copy from
+		 */
+		DataChannelId( const DataChannelId& other ) = default;
 
-		/** @brief Move constructor */
-		DataChannelId( DataChannelId&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The DataChannelId to move from
+		 */
+		DataChannelId( DataChannelId&& other ) noexcept = default;
 
 		/** @brief Destructor */
 		~DataChannelId() = default;
@@ -1449,11 +1595,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		DataChannelId& operator=( const DataChannelId& ) = delete;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The DataChannelId to copy from
+		 * @return Reference to this DataChannelId
+		 */
+		DataChannelId& operator=( const DataChannelId& other ) = delete;
 
-		/** @brief Move assignment operator */
-		DataChannelId& operator=( DataChannelId&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The DataChannelId to move from
+		 * @return Reference to this DataChannelId
+		 */
+		DataChannelId& operator=( DataChannelId&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -1537,11 +1691,17 @@ namespace dnv::vista::sdk::transport
 		 */
 		DataChannel( DataChannelId dataChannelId, Property property );
 
-		/** @brief Copy constructor */
-		DataChannel( const DataChannel& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The DataChannel to copy from
+		 */
+		DataChannel( const DataChannel& other ) = default;
 
-		/** @brief Move constructor */
-		DataChannel( DataChannel&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The DataChannel to move from
+		 */
+		DataChannel( DataChannel&& other ) noexcept = default;
 
 		/** @brief Destructor */
 		~DataChannel() = default;
@@ -1550,11 +1710,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		DataChannel& operator=( const DataChannel& ) = delete;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The DataChannel to copy from
+		 * @return Reference to this DataChannel
+		 */
+		DataChannel& operator=( const DataChannel& other ) = delete;
 
-		/** @brief Move assignment operator */
-		DataChannel& operator=( DataChannel&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The DataChannel to move from
+		 * @return Reference to this DataChannel
+		 */
+		DataChannel& operator=( DataChannel&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -1615,8 +1783,13 @@ namespace dnv::vista::sdk::transport
 		// Type aliases
 		//----------------------------------------------
 
+		/** @brief Iterator type for mutable access to data channels */
 		using iterator = std::vector<DataChannel>::iterator;
+		
+		/** @brief Iterator type for const access to data channels */
 		using const_iterator = std::vector<DataChannel>::const_iterator;
+		
+		/** @brief Size type for collection operations */
 		using size_type = std::vector<DataChannel>::size_type;
 
 		//----------------------------------------------
@@ -1626,11 +1799,17 @@ namespace dnv::vista::sdk::transport
 		/** @brief Default constructor */
 		DataChannelList() = default;
 
-		/** @brief Copy constructor */
-		DataChannelList( const DataChannelList& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The DataChannelList to copy from
+		 */
+		DataChannelList( const DataChannelList& other ) = default;
 
-		/** @brief Move constructor */
-		DataChannelList( DataChannelList&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The DataChannelList to move from
+		 */
+		DataChannelList( DataChannelList&& other ) noexcept = default;
 
 		/** @brief Destructor */
 		~DataChannelList() = default;
@@ -1639,11 +1818,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		DataChannelList& operator=( const DataChannelList& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The DataChannelList to copy from
+		 * @return Reference to this DataChannelList
+		 */
+		DataChannelList& operator=( const DataChannelList& other ) = default;
 
-		/** @brief Move assignment operator */
-		DataChannelList& operator=( DataChannelList&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The DataChannelList to move from
+		 * @return Reference to this DataChannelList
+		 */
+		DataChannelList& operator=( DataChannelList&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Collection interface
@@ -1829,11 +2016,17 @@ namespace dnv::vista::sdk::transport
 		 */
 		VISTA_SDK_CPP_INLINE Package( Header header, DataChannelList dataChannelList );
 
-		/** @brief Copy constructor */
-		Package( const Package& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The Package to copy from
+		 */
+		Package( const Package& other ) = default;
 
-		/** @brief Move constructor */
-		Package( Package&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The Package to move from
+		 */
+		Package( Package&& other ) noexcept = default;
 
 		/** @brief Destructor */
 		~Package() = default;
@@ -1842,11 +2035,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		Package& operator=( const Package& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The Package to copy from
+		 * @return Reference to this Package
+		 */
+		Package& operator=( const Package& other ) = default;
 
-		/** @brief Move assignment operator */
-		Package& operator=( Package&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The Package to move from
+		 * @return Reference to this Package
+		 */
+		Package& operator=( Package&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access
@@ -1929,11 +2130,17 @@ namespace dnv::vista::sdk::transport
 		 */
 		VISTA_SDK_CPP_INLINE explicit DataChannelListPackage( Package package );
 
-		/** @brief Copy constructor */
-		DataChannelListPackage( const DataChannelListPackage& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The DataChannelListPackage to copy from
+		 */
+		DataChannelListPackage( const DataChannelListPackage& other ) = default;
 
-		/** @brief Move constructor */
-		DataChannelListPackage( DataChannelListPackage&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The DataChannelListPackage to move from
+		 */
+		DataChannelListPackage( DataChannelListPackage&& other ) noexcept = default;
 
 		/** @brief Destructor */
 		~DataChannelListPackage() = default;
@@ -1942,11 +2149,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		DataChannelListPackage& operator=( const DataChannelListPackage& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The DataChannelListPackage to copy from
+		 * @return Reference to this DataChannelListPackage
+		 */
+		DataChannelListPackage& operator=( const DataChannelListPackage& other ) = default;
 
-		/** @brief Move assignment operator */
-		DataChannelListPackage& operator=( DataChannelListPackage&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The DataChannelListPackage to move from
+		 * @return Reference to this DataChannelListPackage
+		 */
+		DataChannelListPackage& operator=( DataChannelListPackage&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Property access

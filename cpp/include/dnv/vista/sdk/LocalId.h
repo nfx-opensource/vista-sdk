@@ -150,7 +150,7 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Constructs LocalId from validated LocalIdBuilder.
-		 * @param[in] builder Valid LocalIdBuilder instance (moved).
+		 * @param[in] builder Valid LocalIdBuilder instance.
 		 * @throws std::invalid_argument If builder is invalid or empty.
 		 */
 		explicit LocalId( LocalIdBuilder builder );
@@ -161,13 +161,15 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Copy constructor
+		 * @param other The object to copy from
 		 */
-		LocalId( const LocalId& ) = default;
+		LocalId( const LocalId& other ) = default;
 
 		/**
 		 * @brief Move constructor
+		 * @param other The object to move from
 		 */
-		LocalId( LocalId&& ) noexcept = default;
+		LocalId( LocalId&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction

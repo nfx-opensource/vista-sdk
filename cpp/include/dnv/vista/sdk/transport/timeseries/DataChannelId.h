@@ -98,11 +98,17 @@ namespace dnv::vista::sdk::transport::timeseries
 		/** @brief Default constructor */
 		DataChannelId() = delete;
 
-		/** @brief Copy constructor */
-		DataChannelId( const DataChannelId& ) = default;
+	/**
+	 * @brief Copy constructor
+	 * @param other The object to copy from
+	 */
+	DataChannelId( const DataChannelId& other ) = default;
 
-		/** @brief Move constructor */
-		DataChannelId( DataChannelId&& ) noexcept = default;
+	/**
+	 * @brief Move constructor
+	 * @param other The object to move from
+	 */
+	DataChannelId( DataChannelId&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -118,8 +124,12 @@ namespace dnv::vista::sdk::transport::timeseries
 		/** @brief Copy assignment operator */
 		DataChannelId& operator=( const DataChannelId& ) = delete;
 
-		/** @brief Move assignment operator */
-		DataChannelId& operator=( DataChannelId&& ) noexcept = default;
+	/**
+	 * @brief Move assignment operator
+	 * @param other The object to move from
+	 * @return Reference to this DataChannelId after assignment
+	 */
+	DataChannelId& operator=( DataChannelId&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Equality operators

@@ -50,10 +50,10 @@ namespace dnv::vista::sdk
 		GmodVersioningAssignmentChangeDto() = default;
 
 		/** @brief Copy constructor */
-		GmodVersioningAssignmentChangeDto( const GmodVersioningAssignmentChangeDto& ) = default;
+		GmodVersioningAssignmentChangeDto( const GmodVersioningAssignmentChangeDto& other ) = default;
 
 		/** @brief Move constructor */
-		GmodVersioningAssignmentChangeDto( GmodVersioningAssignmentChangeDto&& ) noexcept = default;
+		GmodVersioningAssignmentChangeDto( GmodVersioningAssignmentChangeDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -67,10 +67,10 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 
 		/** @brief Copy assignment operator */
-		GmodVersioningAssignmentChangeDto& operator=( const GmodVersioningAssignmentChangeDto& ) = default;
+		GmodVersioningAssignmentChangeDto& operator=( const GmodVersioningAssignmentChangeDto& other ) = default;
 
 		/** @brief Move assignment operator */
-		GmodVersioningAssignmentChangeDto& operator=( GmodVersioningAssignmentChangeDto&& ) noexcept = default;
+		GmodVersioningAssignmentChangeDto& operator=( GmodVersioningAssignmentChangeDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors
@@ -197,10 +197,10 @@ namespace dnv::vista::sdk
 		GmodNodeConversionDto() = default;
 
 		/** @brief Copy constructor */
-		GmodNodeConversionDto( const GmodNodeConversionDto& ) = default;
+		GmodNodeConversionDto( const GmodNodeConversionDto& other ) = default;
 
 		/** @brief Move constructor */
-		GmodNodeConversionDto( GmodNodeConversionDto&& ) noexcept = default;
+		GmodNodeConversionDto( GmodNodeConversionDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -214,10 +214,10 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 
 		/** @brief Copy assignment operator */
-		GmodNodeConversionDto& operator=( const GmodNodeConversionDto& ) = default;
+		GmodNodeConversionDto& operator=( const GmodNodeConversionDto& other ) = default;
 
 		/** @brief Move assignment operator */
-		GmodNodeConversionDto& operator=( GmodNodeConversionDto&& ) noexcept = default;
+		GmodNodeConversionDto& operator=( GmodNodeConversionDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors
@@ -378,10 +378,10 @@ namespace dnv::vista::sdk
 		GmodVersioningDto() = default;
 
 		/** @brief Copy constructor */
-		GmodVersioningDto( const GmodVersioningDto& ) = default;
+		GmodVersioningDto( const GmodVersioningDto& other ) = default;
 
 		/** @brief Move constructor */
-		GmodVersioningDto( GmodVersioningDto&& ) noexcept = default;
+		GmodVersioningDto( GmodVersioningDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -395,10 +395,10 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 
 		/** @brief Copy assignment operator */
-		GmodVersioningDto& operator=( const GmodVersioningDto& ) = default;
+		GmodVersioningDto& operator=( const GmodVersioningDto& other ) = default;
 
 		/** @brief Move assignment operator */
-		GmodVersioningDto& operator=( GmodVersioningDto&& ) noexcept = default;
+		GmodVersioningDto& operator=( GmodVersioningDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors

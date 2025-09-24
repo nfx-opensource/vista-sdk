@@ -39,14 +39,24 @@ namespace dnv::vista::sdk
 		/** @brief Default constructor */
 		NodeItem() = delete;
 
-		/** @brief Construct NodeItem with specified node and locations */
+		/**
+		 * @brief Construct NodeItem with specified node and locations
+		 * @param node The GMOD node for this item
+		 * @param locations The vector of locations to associate with this node
+		 */
 		NodeItem( GmodNode node, std::vector<Location> locations ) noexcept;
 
-		/** @brief Copy constructor */
-		NodeItem( const NodeItem& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The object to copy from
+		 */
+		NodeItem( const NodeItem& other ) = default;
 
-		/** @brief Move constructor */
-		NodeItem( NodeItem&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The object to move from
+		 */
+		NodeItem( NodeItem&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -59,11 +69,19 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		NodeItem& operator=( const NodeItem& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The object to copy from
+		 * @return Reference to this NodeItem after assignment
+		 */
+		NodeItem& operator=( const NodeItem& other ) = default;
 
-		/** @brief Move assignment operator */
-		NodeItem& operator=( NodeItem&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The object to move from
+		 * @return Reference to this NodeItem after assignment
+		 */
+		NodeItem& operator=( NodeItem&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors
@@ -71,18 +89,21 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Get the GmodNode associated with this filter item
+		 * @return Constant reference to the associated GmodNode
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline const GmodNode& node() const noexcept;
 
 		/**
 		 * @brief Get the vector of locations to match for this node
+		 * @return Constant reference to the vector of locations
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline const std::vector<Location>& locations() const noexcept;
 
 		/**
 		 * @brief Check if this item matches all locations (no location filtering)
+		 * @return True if all locations are matched, false otherwise
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] inline bool matchAllLocations() const noexcept;
@@ -91,10 +112,16 @@ namespace dnv::vista::sdk
 		// Mutators
 		//----------------------------------------------
 
-		/** @brief Set the locations vector for this node filter */
+		/**
+		 * @brief Set the locations vector for this node filter
+		 * @param locations The new vector of locations to set
+		 */
 		inline void setLocations( std::vector<Location> locations ) noexcept;
 
-		/** @brief Set whether this node should match all locations */
+		/**
+		 * @brief Set whether this node should match all locations
+		 * @param matchAll True to match all locations, false to use location filtering
+		 */
 		inline void setMatchAllLocations( bool matchAll ) noexcept;
 
 	private:
@@ -130,11 +157,17 @@ namespace dnv::vista::sdk
 		explicit GmodPathQuery( const GmodPath& path );
 
 	public:
-		/** @brief Copy constructor */
-		GmodPathQuery( const GmodPathQuery& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The object to copy from
+		 */
+		GmodPathQuery( const GmodPathQuery& other ) = default;
 
-		/** @brief Move constructor */
-		GmodPathQuery( GmodPathQuery&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The object to move from
+		 */
+		GmodPathQuery( GmodPathQuery&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -149,15 +182,17 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Copy assignment operator
+		 * @param other The object to copy from
 		 * @return Reference to this GmodPathQuery after assignment
 		 */
-		GmodPathQuery& operator=( const GmodPathQuery& ) = default;
+		GmodPathQuery& operator=( const GmodPathQuery& other ) = default;
 
 		/**
 		 * @brief Move assignment operator
+		 * @param other The object to move from
 		 * @return Reference to this GmodPathQuery after assignment
 		 */
-		GmodPathQuery& operator=( GmodPathQuery&& ) noexcept = default;
+		GmodPathQuery& operator=( GmodPathQuery&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors
@@ -205,7 +240,7 @@ namespace dnv::vista::sdk
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] GmodPathQuery withNode(
-			std::function<const GmodNode&( const nfx::containers::StringMap<GmodNode>& )> selector,
+			std::function<const GmodNode&( const nfx::containers::StringMap<GmodNode>& nodes )> selector,
 			bool matchAllLocations = false ) const;
 
 		/**
@@ -216,7 +251,7 @@ namespace dnv::vista::sdk
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] GmodPathQuery withNode(
-			std::function<const GmodNode&( const nfx::containers::StringMap<GmodNode>& )> selector,
+			std::function<const GmodNode&( const nfx::containers::StringMap<GmodNode>& nodes )> selector,
 			const std::vector<Location>& locations ) const;
 
 		//----------------------------

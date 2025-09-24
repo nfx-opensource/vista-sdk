@@ -104,8 +104,8 @@ namespace dnv::vista::sdk::transport
 
 	template <typename T>
 	inline T ShipId::matchOn(
-		std::function<T( const ImoNumber& )> onImoNumber,
-		std::function<T( std::string_view )> onOtherId ) const
+		std::function<T( const ImoNumber& imo )> onImoNumber,
+		std::function<T( std::string_view otherId )> onOtherId ) const
 	{
 		switch ( m_tag )
 		{
@@ -125,8 +125,8 @@ namespace dnv::vista::sdk::transport
 	}
 
 	inline void ShipId::switchOn(
-		std::function<void( const ImoNumber& )> onImoNumber,
-		std::function<void( std::string_view )> onOtherId ) const
+		std::function<void( const ImoNumber& imo )> onImoNumber,
+		std::function<void( std::string_view otherId )> onOtherId ) const
 	{
 		switch ( m_tag )
 		{

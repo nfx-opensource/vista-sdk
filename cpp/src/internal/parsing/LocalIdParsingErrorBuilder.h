@@ -81,10 +81,10 @@ namespace dnv::vista::sdk::internal
 		LocalIdParsingErrorBuilder();
 
 		/** @brief Copy constructor */
-		LocalIdParsingErrorBuilder( const LocalIdParsingErrorBuilder& ) = default;
+		LocalIdParsingErrorBuilder( const LocalIdParsingErrorBuilder& other ) = default;
 
 		/** @brief Move constructor */
-		LocalIdParsingErrorBuilder( LocalIdParsingErrorBuilder&& ) noexcept = default;
+		LocalIdParsingErrorBuilder( LocalIdParsingErrorBuilder&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -98,10 +98,10 @@ namespace dnv::vista::sdk::internal
 		//----------------------------------------------
 
 		/** @brief Copy assignment operator */
-		LocalIdParsingErrorBuilder& operator=( const LocalIdParsingErrorBuilder& ) = default;
+		LocalIdParsingErrorBuilder& operator=( const LocalIdParsingErrorBuilder& other ) = default;
 
 		/** @brief Move assignment operator */
-		LocalIdParsingErrorBuilder& operator=( LocalIdParsingErrorBuilder&& ) noexcept = default;
+		LocalIdParsingErrorBuilder& operator=( LocalIdParsingErrorBuilder&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// State inspection methods

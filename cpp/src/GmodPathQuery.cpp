@@ -107,7 +107,7 @@ namespace dnv::vista::sdk
 	//----------------------------
 
 	GmodPathQuery GmodPathQuery::withNode(
-		std::function<const GmodNode&( const nfx::containers::StringMap<GmodNode>& )> selector,
+		std::function<const GmodNode&( const nfx::containers::StringMap<GmodNode>& nodes )> selector,
 		bool matchAllLocations ) const
 	{
 		if ( !m_sourcePath.has_value() )
@@ -130,7 +130,7 @@ namespace dnv::vista::sdk
 	}
 
 	GmodPathQuery GmodPathQuery::withNode(
-		std::function<const GmodNode&( const nfx::containers::StringMap<GmodNode>& )> selector,
+		std::function<const GmodNode&( const nfx::containers::StringMap<GmodNode>& nodes )> selector,
 		const std::vector<Location>& locations ) const
 	{
 		if ( !m_sourcePath.has_value() )

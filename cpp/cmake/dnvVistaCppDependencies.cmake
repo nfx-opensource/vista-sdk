@@ -20,93 +20,109 @@ set(FETCHCONTENT_QUIET OFF)
 #----------------------------
 
 # --- nlohmann/json ---
-FetchContent_Declare(nlohmann_json
-	URL https://github.com/nlohmann/json/releases/download/v3.12.0/include.zip
-	URL_HASH SHA256=b8cb0ef2dd7f57f18933997c9934bb1fa962594f701cd5a8d3c2c80541559372
-	DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-)
+find_package(nlohmann_json 3.12.0 QUIET)
+if(NOT nlohmann_json_FOUND)
+	FetchContent_Declare(nlohmann_json
+		URL https://github.com/nlohmann/json/releases/download/v3.12.0/include.zip
+		URL_HASH SHA256=b8cb0ef2dd7f57f18933997c9934bb1fa962594f701cd5a8d3c2c80541559372
+		DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+	)
+endif()
 
 # --- nfx-core ---
-set(NFX_CORE_BUILD_STATIC      ON   CACHE BOOL  "Build static library"                FORCE)
-set(NFX_CORE_BUILD_SHARED      OFF  CACHE BOOL  "Build shared library"                FORCE)
-set(NFX_CORE_WITH_CONTAINERS   ON   CACHE BOOL  "Enable container utilities"          FORCE)
-set(NFX_CORE_WITH_DATATYPES    ON   CACHE BOOL  "Enable mathematical datatypes"       FORCE)
-set(NFX_CORE_WITH_MEMORY       ON   CACHE BOOL  "Enable memory management utilities"  FORCE)
-set(NFX_CORE_WITH_STRING       ON   CACHE BOOL  "Enable string utilities"             FORCE)
-set(NFX_CORE_WITH_TIME         ON   CACHE BOOL  "Enable temporal classes"             FORCE)
-set(NFX_CORE_BUILD_TESTS       OFF  CACHE BOOL  "Build tests"                         FORCE)
-set(NFX_CORE_BUILD_SAMPLES     OFF  CACHE BOOL  "Build samples"                       FORCE)
-set(NFX_CORE_BUILD_BENCHMARKS  OFF  CACHE BOOL  "Build benchmarks"                    FORCE)
+find_package(nfx-core 0.1.2 QUIET)
+if(NOT nfx-core_FOUND)
+	set(NFX_CORE_BUILD_STATIC      ON   CACHE BOOL  "Build static library"                FORCE)
+	set(NFX_CORE_BUILD_SHARED      OFF  CACHE BOOL  "Build shared library"                FORCE)
+	set(NFX_CORE_WITH_CONTAINERS   ON   CACHE BOOL  "Enable container utilities"          FORCE)
+	set(NFX_CORE_WITH_DATATYPES    ON   CACHE BOOL  "Enable mathematical datatypes"       FORCE)
+	set(NFX_CORE_WITH_MEMORY       ON   CACHE BOOL  "Enable memory management utilities"  FORCE)
+	set(NFX_CORE_WITH_STRING       ON   CACHE BOOL  "Enable string utilities"             FORCE)
+	set(NFX_CORE_WITH_TIME         ON   CACHE BOOL  "Enable temporal classes"             FORCE)
+	set(NFX_CORE_BUILD_TESTS       OFF  CACHE BOOL  "Build tests"                         FORCE)
+	set(NFX_CORE_BUILD_SAMPLES     OFF  CACHE BOOL  "Build samples"                       FORCE)
+	set(NFX_CORE_BUILD_BENCHMARKS  OFF  CACHE BOOL  "Build benchmarks"                    FORCE)
 
-FetchContent_Declare(
-	nfx-core
-	GIT_REPOSITORY https://github.com/ronan-fdev/nfx-core.git
-	GIT_TAG        0.1.1
-	GIT_SHALLOW    TRUE
-)
+	FetchContent_Declare(
+		nfx-core
+		GIT_REPOSITORY https://github.com/ronan-fdev/nfx-core.git
+		GIT_TAG        0.1.2
+		GIT_SHALLOW    TRUE
+	)
+endif()
 
 # --- zlib-ng ---
-set(ZLIB_COMPAT                 OFF  CACHE BOOL  "Compile with zlib compatible API"       FORCE)
-set(ZLIB_ENABLE_TESTS           OFF  CACHE BOOL  "Build zlib-ng test binaries"            FORCE)
-set(ZLIBNG_ENABLE_TESTS         OFF  CACHE BOOL  "Build zlib-ng test binaries"            FORCE)
-set(WITH_GZFILEOP               ON   CACHE BOOL  "Support for gzFile related functions"   FORCE)
-set(WITH_OPTIM                  ON   CACHE BOOL  "Build with optimisations"               FORCE)
-set(WITH_NEW_STRATEGIES         ON   CACHE BOOL  "Use new strategies"                     FORCE)
-set(WITH_NATIVE_INSTRUCTIONS    OFF  CACHE BOOL  "Use host-specific instructions"         FORCE)
-set(WITH_RUNTIME_CPU_DETECTION  OFF  CACHE BOOL  "Runtime CPU detection"                  FORCE)
-set(WITH_SANITIZER              OFF  CACHE BOOL  "Build with sanitizer"                   FORCE)
-set(WITH_GTEST                  OFF  CACHE BOOL  "Build gtest_zlib"                       FORCE)
-set(WITH_FUZZERS                OFF  CACHE BOOL  "Build test/fuzz"                        FORCE)
-set(WITH_BENCHMARKS             OFF  CACHE BOOL  "Build test/benchmarks"                  FORCE)
-set(WITH_MAINTAINER_WARNINGS    OFF  CACHE BOOL  "Build with maintainer warnings"         FORCE)
-set(WITH_CODE_COVERAGE          OFF  CACHE BOOL  "Enable code coverage reporting"         FORCE)
+# Vista SDK requires zlib-ng specifically, so always fetch it if not found
+find_package(zlib-ng 2.2.0 QUIET)
+if(NOT TARGET zlib-ng::zlib-ng)
+	set(ZLIB_COMPAT                 OFF  CACHE BOOL  "Compile with zlib compatible API"       FORCE)
+	set(ZLIB_ENABLE_TESTS           OFF  CACHE BOOL  "Build zlib-ng test binaries"            FORCE)
+	set(ZLIBNG_ENABLE_TESTS         OFF  CACHE BOOL  "Build zlib-ng test binaries"            FORCE)
+	set(WITH_GZFILEOP               ON   CACHE BOOL  "Support for gzFile related functions"   FORCE)
+	set(WITH_OPTIM                  ON   CACHE BOOL  "Build with optimisations"               FORCE)
+	set(WITH_NEW_STRATEGIES         ON   CACHE BOOL  "Use new strategies"                     FORCE)
+	set(WITH_NATIVE_INSTRUCTIONS    OFF  CACHE BOOL  "Use host-specific instructions"         FORCE)
+	set(WITH_RUNTIME_CPU_DETECTION  OFF  CACHE BOOL  "Runtime CPU detection"                  FORCE)
+	set(WITH_SANITIZER              OFF  CACHE BOOL  "Build with sanitizer"                   FORCE)
+	set(WITH_GTEST                  OFF  CACHE BOOL  "Build gtest_zlib"                       FORCE)
+	set(WITH_FUZZERS                OFF  CACHE BOOL  "Build test/fuzz"                        FORCE)
+	set(WITH_BENCHMARKS             OFF  CACHE BOOL  "Build test/benchmarks"                  FORCE)
+	set(WITH_MAINTAINER_WARNINGS    OFF  CACHE BOOL  "Build with maintainer warnings"         FORCE)
+	set(WITH_CODE_COVERAGE          OFF  CACHE BOOL  "Enable code coverage reporting"         FORCE)
 
-FetchContent_Declare(
-	zlib-ng
-	GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
-	GIT_TAG        2.2.5
-	GIT_SHALLOW    TRUE
-)
+	FetchContent_Declare(
+		zlib-ng
+		GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
+		GIT_TAG        2.2.5
+		GIT_SHALLOW    TRUE
+	)
+endif()
 
 # --- Google test ---
 if(VISTA_SDK_CPP_BUILD_TESTS)
-	set(BUILD_GMOCK                     OFF  CACHE BOOL  "Build GoogleMock library"              FORCE)
-	set(INSTALL_GTEST                   OFF  CACHE BOOL  "Install GoogleTest targets"            FORCE)
-	set(GTEST_HAS_ABSL                  OFF  CACHE BOOL  "Disable Abseil support in GoogleTest"  FORCE)
+	find_package(GTest 1.17.0 QUIET)
+	if(NOT GTest_FOUND)
+		set(BUILD_GMOCK                     OFF  CACHE BOOL  "Build GoogleMock library"              FORCE)
+		set(INSTALL_GTEST                   OFF  CACHE BOOL  "Install GoogleTest targets"            FORCE)
+		set(GTEST_HAS_ABSL                  OFF  CACHE BOOL  "Disable Abseil support in GoogleTest"  FORCE)
 
-	FetchContent_Declare(
-		googletest
-		GIT_REPOSITORY https://github.com/google/googletest.git
-		GIT_TAG        v1.17.0
-		GIT_SHALLOW    TRUE
-	)
+		FetchContent_Declare(
+			googletest
+			GIT_REPOSITORY https://github.com/google/googletest.git
+			GIT_TAG        v1.17.0
+			GIT_SHALLOW    TRUE
+		)
+	endif()
 endif()
 
 
 # --- Google benchmark ---
 if(VISTA_SDK_CPP_BUILD_BENCHMARKS)
-	set(BENCHMARK_ENABLE_TESTING         OFF  CACHE BOOL  "Build benchmark tests"                          FORCE)
-	set(BENCHMARK_ENABLE_EXCEPTIONS      ON   CACHE BOOL  "Enable exceptions in benchmark library"         FORCE)
-	set(BENCHMARK_ENABLE_LTO             OFF  CACHE BOOL  "Enable link time optimization"                  FORCE)
-	set(BENCHMARK_USE_LIBCXX             OFF  CACHE BOOL  "Use libc++ as the standard library"             FORCE)
-	set(BENCHMARK_ENABLE_WERROR          OFF  CACHE BOOL  "Treat warnings as errors"                       FORCE)
-	set(BENCHMARK_FORCE_WERROR           OFF  CACHE BOOL  "Force warnings as errors regardless of issues"  FORCE)
-	set(BENCHMARK_BUILD_32_BITS          OFF  CACHE BOOL  "Build a 32-bit version of the library"          FORCE)
-	set(BENCHMARK_ENABLE_INSTALL         OFF  CACHE BOOL  "Install benchmark targets"                      FORCE)
-	set(BENCHMARK_ENABLE_DOXYGEN         OFF  CACHE BOOL  "Build documentation with Doxygen"               FORCE)
-	set(BENCHMARK_INSTALL_DOCS           OFF  CACHE BOOL  "Install documentation"                          FORCE)
-	set(BENCHMARK_DOWNLOAD_DEPENDENCIES  OFF  CACHE BOOL  "Download and build unmet dependencies"          FORCE)
-	set(BENCHMARK_ENABLE_GTEST_TESTS     OFF  CACHE BOOL  "Build benchmark GTest-based tests"              FORCE)
-	set(BENCHMARK_USE_BUNDLED_GTEST      OFF  CACHE BOOL  "Use bundled GoogleTest for benchmark"           FORCE)
-	set(BENCHMARK_ENABLE_LIBPFM          OFF  CACHE BOOL  "Enable performance counters via libpfm"         FORCE)
-	set(ENABLE_ASSEMBLY_TESTS_DEFAULT    OFF  CACHE BOOL  "Enable assembly tests by default"               FORCE)
+	find_package(benchmark 1.9.0 QUIET)
+	if(NOT benchmark_FOUND)
+		set(BENCHMARK_ENABLE_TESTING         OFF  CACHE BOOL  "Build benchmark tests"                          FORCE)
+		set(BENCHMARK_ENABLE_EXCEPTIONS      ON   CACHE BOOL  "Enable exceptions in benchmark library"         FORCE)
+		set(BENCHMARK_ENABLE_LTO             OFF  CACHE BOOL  "Enable link time optimization"                  FORCE)
+		set(BENCHMARK_USE_LIBCXX             OFF  CACHE BOOL  "Use libc++ as the standard library"             FORCE)
+		set(BENCHMARK_ENABLE_WERROR          OFF  CACHE BOOL  "Treat warnings as errors"                       FORCE)
+		set(BENCHMARK_FORCE_WERROR           OFF  CACHE BOOL  "Force warnings as errors regardless of issues"  FORCE)
+		set(BENCHMARK_BUILD_32_BITS          OFF  CACHE BOOL  "Build a 32-bit version of the library"          FORCE)
+		set(BENCHMARK_ENABLE_INSTALL         OFF  CACHE BOOL  "Install benchmark targets"                      FORCE)
+		set(BENCHMARK_ENABLE_DOXYGEN         OFF  CACHE BOOL  "Build documentation with Doxygen"               FORCE)
+		set(BENCHMARK_INSTALL_DOCS           OFF  CACHE BOOL  "Install documentation"                          FORCE)
+		set(BENCHMARK_DOWNLOAD_DEPENDENCIES  OFF  CACHE BOOL  "Download and build unmet dependencies"          FORCE)
+		set(BENCHMARK_ENABLE_GTEST_TESTS     OFF  CACHE BOOL  "Build benchmark GTest-based tests"              FORCE)
+		set(BENCHMARK_USE_BUNDLED_GTEST      OFF  CACHE BOOL  "Use bundled GoogleTest for benchmark"           FORCE)
+		set(BENCHMARK_ENABLE_LIBPFM          OFF  CACHE BOOL  "Enable performance counters via libpfm"         FORCE)
+		set(ENABLE_ASSEMBLY_TESTS_DEFAULT    OFF  CACHE BOOL  "Enable assembly tests by default"               FORCE)
 
-	FetchContent_Declare(
-		googlebenchmark
-		GIT_REPOSITORY https://github.com/google/benchmark.git
-		GIT_TAG        v1.9.4
-		GIT_SHALLOW    TRUE
-	)
+		FetchContent_Declare(
+			googlebenchmark
+			GIT_REPOSITORY https://github.com/google/benchmark.git
+			GIT_TAG        v1.9.4
+			GIT_SHALLOW    TRUE
+		)
+	endif()
 endif()
 
 #----------------------------
@@ -115,22 +131,25 @@ endif()
 
 message(STATUS "Fetching dependencies...")
 
-FetchContent_MakeAvailable(
-	nfx-core
-	nlohmann_json
-	zlib-ng
-)
-
-if(VISTA_SDK_CPP_BUILD_TESTS)
-	FetchContent_MakeAvailable(
-		googletest
-	)
+# Fetch only dependencies not found on system
+if(NOT nfx-core_FOUND)
+	FetchContent_MakeAvailable(nfx-core)
 endif()
 
-if(VISTA_SDK_CPP_BUILD_BENCHMARKS)
-	FetchContent_MakeAvailable(
-		googlebenchmark
-	)
+if(NOT nlohmann_json_FOUND)
+	FetchContent_MakeAvailable(nlohmann_json)
+endif()
+
+if(NOT TARGET zlib-ng::zlib-ng)
+	FetchContent_MakeAvailable(zlib-ng)
+endif()
+
+if(VISTA_SDK_CPP_BUILD_TESTS AND NOT GTest_FOUND)
+	FetchContent_MakeAvailable(googletest)
+endif()
+
+if(VISTA_SDK_CPP_BUILD_BENCHMARKS AND NOT benchmark_FOUND)
+	FetchContent_MakeAvailable(googlebenchmark)
 endif()
 
 #----------------------------------------------

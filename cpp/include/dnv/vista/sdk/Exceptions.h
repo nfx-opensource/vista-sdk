@@ -35,11 +35,31 @@ namespace dnv::vista::sdk
 		 */
 		explicit VistaException( const std::string& message );
 
-		VistaException( const VistaException& ) = default;
-		VistaException( VistaException&& ) noexcept = default;
+		/**
+		 * @brief Copy constructor.
+		 * @param other The VistaException to copy from.
+		 */
+		VistaException( const VistaException& other ) = default;
 
-		VistaException& operator=( const VistaException& ) = default;
-		VistaException& operator=( VistaException&& ) noexcept = default;
+		/**
+		 * @brief Move constructor.
+		 * @param other The VistaException to move from.
+		 */
+		VistaException( VistaException&& other ) noexcept = default;
+
+		/**
+		 * @brief Copy assignment operator.
+		 * @param other The VistaException to copy from.
+		 * @return Reference to this VistaException after assignment.
+		 */
+		VistaException& operator=( const VistaException& other ) = default;
+
+		/**
+		 * @brief Move assignment operator.
+		 * @param other The VistaException to move from.
+		 * @return Reference to this VistaException after assignment.
+		 */
+		VistaException& operator=( VistaException&& other ) noexcept = default;
 
 		virtual ~VistaException() override = default;
 	};
@@ -87,11 +107,31 @@ namespace dnv::vista::sdk
 		 */
 		explicit ValidationException( const ValidateResult::Invalid& result );
 
-		ValidationException( const ValidationException& ) = default;
-		ValidationException( ValidationException&& ) noexcept = default;
+		/**
+		 * @brief Copy constructor.
+		 * @param other The ValidationException to copy from.
+		 */
+		ValidationException( const ValidationException& other ) = default;
 
-		ValidationException& operator=( const ValidationException& ) = default;
-		ValidationException& operator=( ValidationException&& ) noexcept = default;
+		/**
+		 * @brief Move constructor.
+		 * @param other The ValidationException to move from.
+		 */
+		ValidationException( ValidationException&& other ) noexcept = default;
+
+		/**
+		 * @brief Copy assignment operator.
+		 * @param other The ValidationException to copy from.
+		 * @return Reference to this ValidationException after assignment.
+		 */
+		ValidationException& operator=( const ValidationException& other ) = default;
+
+		/**
+		 * @brief Move assignment operator.
+		 * @param other The ValidationException to move from.
+		 * @return Reference to this ValidationException after assignment.
+		 */
+		ValidationException& operator=( ValidationException&& other ) noexcept = default;
 
 		virtual ~ValidationException() override = default;
 	};

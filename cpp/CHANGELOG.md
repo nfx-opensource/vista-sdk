@@ -31,6 +31,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.47] - 2025-09-24
+
+### Added
+
+-   **Comprehensive Doxygen documentation**: Complete API documentation coverage for all public classes and methods
+
+### Changed
+
+-   **nfx-core dependency update**: Updated from v0.1.1 to v0.1.2
+-   **CMake dependency management improvements**: All dependencies now prefer system-installed packages via `find_package()` before falling back to `FetchContent`
+
 ## [0.0.46] - 2025-09-24
 
 ### Added

@@ -158,11 +158,14 @@ namespace dnv::vista::sdk
 		Codebooks() = default;
 
 		/** @brief Copy constructor */
-		Codebooks( const Codebooks& );
+		Codebooks( const Codebooks& other );
 
 	public:
-		/** @brief Move constructor */
-		Codebooks( Codebooks&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The object to move from
+		 */
+		Codebooks( Codebooks&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -177,15 +180,17 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Copy assignment operator
+		 * @param other The object to copy from
 		 * @return Reference to this object
 		 */
-		Codebooks& operator=( const Codebooks& ) = default;
+		Codebooks& operator=( const Codebooks& other ) = default;
 
 		/**
 		 * @brief Move assignment operator
+		 * @param other The object to move from
 		 * @return Reference to this object
 		 */
-		Codebooks& operator=( Codebooks&& ) noexcept = default;
+		Codebooks& operator=( Codebooks&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Lookup operators

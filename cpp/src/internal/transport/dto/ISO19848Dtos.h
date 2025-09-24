@@ -46,10 +46,10 @@ namespace dnv::vista::sdk::internal::transport
 		DataChannelTypeNameDto() = default;
 
 		/** @brief Copy constructor */
-		DataChannelTypeNameDto( const DataChannelTypeNameDto& ) = default;
+		DataChannelTypeNameDto( const DataChannelTypeNameDto& other ) = default;
 
 		/** @brief Move constructor */
-		DataChannelTypeNameDto( DataChannelTypeNameDto&& ) noexcept = default;
+		DataChannelTypeNameDto( DataChannelTypeNameDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -63,10 +63,10 @@ namespace dnv::vista::sdk::internal::transport
 		//----------------------------------------------
 
 		/** @brief Copy assignment operator */
-		DataChannelTypeNameDto& operator=( const DataChannelTypeNameDto& ) = default;
+		DataChannelTypeNameDto& operator=( const DataChannelTypeNameDto& other ) = default;
 
 		/** @brief Move assignment operator */
-		DataChannelTypeNameDto& operator=( DataChannelTypeNameDto&& ) noexcept = default;
+		DataChannelTypeNameDto& operator=( DataChannelTypeNameDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors
@@ -180,10 +180,10 @@ namespace dnv::vista::sdk::internal::transport
 		DataChannelTypeNamesDto() = default;
 
 		/** @brief Copy constructor */
-		DataChannelTypeNamesDto( const DataChannelTypeNamesDto& ) = default;
+		DataChannelTypeNamesDto( const DataChannelTypeNamesDto& other ) = default;
 
 		/** @brief Move constructor */
-		DataChannelTypeNamesDto( DataChannelTypeNamesDto&& ) noexcept = default;
+		DataChannelTypeNamesDto( DataChannelTypeNamesDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -197,10 +197,10 @@ namespace dnv::vista::sdk::internal::transport
 		//----------------------------------------------
 
 		/** @brief Copy assignment operator */
-		DataChannelTypeNamesDto& operator=( const DataChannelTypeNamesDto& ) = default;
+		DataChannelTypeNamesDto& operator=( const DataChannelTypeNamesDto& other ) = default;
 
 		/** @brief Move assignment operator */
-		DataChannelTypeNamesDto& operator=( DataChannelTypeNamesDto&& ) noexcept = default;
+		DataChannelTypeNamesDto& operator=( DataChannelTypeNamesDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors
@@ -303,10 +303,10 @@ namespace dnv::vista::sdk::internal::transport
 		FormatDataTypeDto() = default;
 
 		/** @brief Copy constructor */
-		FormatDataTypeDto( const FormatDataTypeDto& ) = default;
+		FormatDataTypeDto( const FormatDataTypeDto& other ) = default;
 
 		/** @brief Move constructor */
-		FormatDataTypeDto( FormatDataTypeDto&& ) noexcept = default;
+		FormatDataTypeDto( FormatDataTypeDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -320,10 +320,10 @@ namespace dnv::vista::sdk::internal::transport
 		//----------------------------------------------
 
 		/** @brief Copy assignment operator */
-		FormatDataTypeDto& operator=( const FormatDataTypeDto& ) = default;
+		FormatDataTypeDto& operator=( const FormatDataTypeDto& other ) = default;
 
 		/** @brief Move assignment operator */
-		FormatDataTypeDto& operator=( FormatDataTypeDto&& ) noexcept = default;
+		FormatDataTypeDto& operator=( FormatDataTypeDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors
@@ -437,10 +437,10 @@ namespace dnv::vista::sdk::internal::transport
 		FormatDataTypesDto() = default;
 
 		/** @brief Copy constructor */
-		FormatDataTypesDto( const FormatDataTypesDto& ) = default;
+		FormatDataTypesDto( const FormatDataTypesDto& other ) = default;
 
 		/** @brief Move constructor */
-		FormatDataTypesDto( FormatDataTypesDto&& ) noexcept = default;
+		FormatDataTypesDto( FormatDataTypesDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -454,10 +454,10 @@ namespace dnv::vista::sdk::internal::transport
 		//----------------------------------------------
 
 		/** @brief Copy assignment operator */
-		FormatDataTypesDto& operator=( const FormatDataTypesDto& ) = default;
+		FormatDataTypesDto& operator=( const FormatDataTypesDto& other ) = default;
 
 		/** @brief Move assignment operator */
-		FormatDataTypesDto& operator=( FormatDataTypesDto&& ) noexcept = default;
+		FormatDataTypesDto& operator=( FormatDataTypesDto&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Accessors

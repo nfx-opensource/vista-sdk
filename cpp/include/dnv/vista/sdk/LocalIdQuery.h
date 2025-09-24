@@ -45,13 +45,13 @@ namespace dnv::vista::sdk
 	 * @brief Function type for configuring queries
 	 * @details Takes a GmodPathQuery and returns a modified version
 	 */
-	using QueryConfiguration = std::function<GmodPathQuery( const GmodPathQuery& )>;
+	using QueryConfiguration = std::function<GmodPathQuery( const GmodPathQuery& query )>;
 
 	/**
 	 * @brief Function type for configuring metadata tags
 	 * @details Takes a MetadataTagsQuery and returns a modified version
 	 */
-	using TagsConfiguration = std::function<MetadataTagsQuery( const MetadataTagsQuery& )>;
+	using TagsConfiguration = std::function<MetadataTagsQuery( const MetadataTagsQuery& tags )>;
 
 	//=====================================================================
 	// LocalIdQuery class
@@ -78,11 +78,17 @@ namespace dnv::vista::sdk
 		explicit LocalIdQuery( const LocalIdQueryBuilder& builder );
 
 	public:
-		/** @brief Copy constructor */
-		LocalIdQuery( const LocalIdQuery& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The LocalIdQuery instance to copy from
+		 */
+		LocalIdQuery( const LocalIdQuery& other ) = default;
 
-		/** @brief Move constructor */
-		LocalIdQuery( LocalIdQuery&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The LocalIdQuery instance to move from
+		 */
+		LocalIdQuery( LocalIdQuery&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -95,11 +101,19 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		LocalIdQuery& operator=( const LocalIdQuery& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The LocalIdQuery instance to copy from
+		 * @return Reference to this LocalIdQuery after assignment
+		 */
+		LocalIdQuery& operator=( const LocalIdQuery& other ) = default;
 
-		/** @brief Move assignment operator */
-		LocalIdQuery& operator=( LocalIdQuery&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The LocalIdQuery instance to move from
+		 * @return Reference to this LocalIdQuery after assignment
+		 */
+		LocalIdQuery& operator=( LocalIdQuery&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Query execution
@@ -153,11 +167,17 @@ namespace dnv::vista::sdk
 		/** @brief Default constructor */
 		LocalIdQueryBuilder() = default;
 
-		/** @brief Copy constructor */
-		LocalIdQueryBuilder( const LocalIdQueryBuilder& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The LocalIdQueryBuilder instance to copy from
+		 */
+		LocalIdQueryBuilder( const LocalIdQueryBuilder& other ) = default;
 
-		/** @brief Move constructor */
-		LocalIdQueryBuilder( LocalIdQueryBuilder&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The LocalIdQueryBuilder instance to move from
+		 */
+		LocalIdQueryBuilder( LocalIdQueryBuilder&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -170,11 +190,19 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		LocalIdQueryBuilder& operator=( const LocalIdQueryBuilder& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The object to copy from
+		 * @return Reference to this LocalIdQueryBuilder after assignment
+		 */
+		LocalIdQueryBuilder& operator=( const LocalIdQueryBuilder& other ) = default;
 
-		/** @brief Move assignment operator */
-		LocalIdQueryBuilder& operator=( LocalIdQueryBuilder&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The object to move from
+		 * @return Reference to this LocalIdQueryBuilder after assignment
+		 */
+		LocalIdQueryBuilder& operator=( LocalIdQueryBuilder&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Factory methods

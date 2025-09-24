@@ -49,11 +49,17 @@ namespace dnv::vista::sdk
 		/** @brief Default constructor deleted */
 		MetadataTagsQuery() = delete;
 
-		/** @brief Copy constructor */
-		MetadataTagsQuery( const MetadataTagsQuery& ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The object to copy from
+		 */
+		MetadataTagsQuery( const MetadataTagsQuery& other ) = default;
 
-		/** @brief Move constructor */
-		MetadataTagsQuery( MetadataTagsQuery&& ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The object to move from
+		 */
+		MetadataTagsQuery( MetadataTagsQuery&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -66,11 +72,19 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		MetadataTagsQuery& operator=( const MetadataTagsQuery& ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The object to copy from
+		 * @return Reference to this MetadataTagsQuery after assignment
+		 */
+		MetadataTagsQuery& operator=( const MetadataTagsQuery& other ) = default;
 
-		/** @brief Move assignment operator */
-		MetadataTagsQuery& operator=( MetadataTagsQuery&& ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The object to move from
+		 * @return Reference to this MetadataTagsQuery after assignment
+		 */
+		MetadataTagsQuery& operator=( MetadataTagsQuery&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Factory methods
@@ -114,8 +128,8 @@ namespace dnv::vista::sdk
 		[[nodiscard]] MetadataTagsQuery withTag( const MetadataTag& tag ) const;
 
 		/**
-		 * @brief Add a metadata tag constraint (move version for performance)
-		 * @param tag The metadata tag to add to the query (will be moved)
+		 * @brief Add a metadata tag constraint
+		 * @param tag The metadata tag to add to the query
 		 * @return New query instance with the tag constraint added
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */

@@ -340,7 +340,6 @@ message(STATUS "Build smoke tests               : ${VISTA_SDK_CPP_BUILD_SMOKE_TE
 message(STATUS "Build benchmarks                : ${VISTA_SDK_CPP_BUILD_BENCHMARKS}")
 message(STATUS "Build samples                   : ${VISTA_SDK_CPP_BUILD_SAMPLES}")
 message(STATUS "Build documentation             : ${VISTA_SDK_CPP_BUILD_DOCUMENTATION}")
-message(STATUS "Copy resources                  : ${VISTA_SDK_CPP_COPY_RESOURCES}")
 message(STATUS "")
 
 #----------------------------
@@ -348,8 +347,9 @@ message(STATUS "")
 #----------------------------
 
 message(STATUS "--- Dependencies ---")
+message(STATUS "nfx-core                        : ${NFX_CORE_VERSION}")
 message(STATUS "nlohmann/json version           : ${NLOHMANN_VERSION}")
-message(STATUS "zlib-ng version                 : ${ZLIBNG_HEADER_VERSION}")
+message(STATUS "zlib-ng version                 : ${ZLIBNG_VERSION}")
 message(STATUS "GoogleTest version              : ${GTEST_VERSION}")
 message(STATUS "Google Benchmark version        : ${BENCHMARK_VERSION}")
 message(STATUS "")
