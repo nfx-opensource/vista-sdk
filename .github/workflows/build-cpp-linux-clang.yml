@@ -29,6 +29,24 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          .deps
+        key: ${{ runner.os }}-clang-deps-${{ hashFiles('cpp/cmake/dnvVistaCppDependencies.cmake') }}
+        restore-keys: |
+          ${{ runner.os }}-clang-deps-
+
+    - name: Cache ccache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.ccache
+        key: ${{ runner.os }}-clang-ccache-${{ github.run_number }}
+        restore-keys: |
+          ${{ runner.os }}-clang-ccache-
+
     - name: Set up build environment
       run: |
         sudo apt-get update
@@ -41,12 +59,20 @@ jobs:
 
     - name: Setup ccache
       run: |
+        export CCACHE_DIR="$HOME/.ccache"
+        export CCACHE_COMPILERCHECK=content
+        export CCACHE_COMPRESS=true
+        export CCACHE_MAXSIZE=200M
+        mkdir -p "$CCACHE_DIR"
         ccache --zero-stats
         ccache --show-config
 
     - name: Configure CMake
       working-directory: cpp
       run: |
+        export CC="ccache clang-18"
+        export CXX="ccache clang++-18"
+        export CCACHE_DIR="$HOME/.ccache"
         cmake -B build \
               -G "Unix Makefiles" \
               -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
@@ -59,12 +85,16 @@ jobs:
 
     - name: Build
       working-directory: cpp
-      run: cmake --build build --parallel
+      run: |
+        export CCACHE_DIR="$HOME/.ccache"
+        cmake --build build --parallel
 
     - name: Test
       working-directory: cpp/build
       run: ctest --output-on-failure --parallel
 
     - name: Show ccache statistics
-      run: ccache --show-stats
+      run: |
+        export CCACHE_DIR="$HOME/.ccache"
+        ccache --show-stats
 

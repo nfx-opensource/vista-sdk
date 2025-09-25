@@ -29,18 +29,46 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Install ccache
-      run: choco install ccache
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          .deps
+        key: ${{ runner.os }}-msvc-deps-${{ hashFiles('cpp/cmake/dnvVistaCppDependencies.cmake') }}
+        restore-keys: |
+          ${{ runner.os }}-msvc-deps-
 
-    - name: Setup ccache
+    - name: Cache sccache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ runner.temp }}/sccache
+        key: ${{ runner.os }}-msvc-sccache-${{ github.run_number }}
+        restore-keys: |
+          ${{ runner.os }}-msvc-sccache-
+
+    - name: Install sccache
       run: |
-        ccache --zero-stats
-        ccache --show-config
+        $url = "https://github.com/mozilla/sccache/releases/download/v0.8.2/sccache-v0.8.2-x86_64-pc-windows-msvc.zip"
+        Invoke-WebRequest -Uri $url -OutFile sccache.zip
+        Expand-Archive sccache.zip -DestinationPath .
+        Move-Item sccache-*/sccache.exe C:/Windows/System32/
+
+    - name: Setup sccache
+      run: |
+        $env:SCCACHE_DIR = "${{ runner.temp }}/sccache"
+        $env:SCCACHE_CACHE_SIZE = "200M"
+        New-Item -ItemType Directory -Force -Path $env:SCCACHE_DIR
+        sccache --zero-stats
+        sccache --show-stats
+        # Set environment variables for all subsequent steps
+        echo "SCCACHE_DIR=${{ runner.temp }}/sccache" >> $env:GITHUB_ENV
+        echo "SCCACHE_CACHE_SIZE=200M" >> $env:GITHUB_ENV
 
     - name: Configure CMake
       working-directory: cpp
       run: |
-        cmake -B build -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DVISTA_SDK_CPP_BUILD_STATIC=ON -DVISTA_SDK_CPP_BUILD_SHARED=OFF -DVISTA_SDK_CPP_BUILD_TESTS=ON -DVISTA_SDK_CPP_BUILD_BENCHMARKS=OFF -DVISTA_SDK_CPP_BUILD_SAMPLES=OFF -DVISTA_SDK_CPP_BUILD_DOCUMENTATION=OFF
+        cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DVISTA_SDK_CPP_BUILD_STATIC=ON -DVISTA_SDK_CPP_BUILD_SHARED=OFF -DVISTA_SDK_CPP_BUILD_TESTS=ON -DVISTA_SDK_CPP_BUILD_BENCHMARKS=OFF -DVISTA_SDK_CPP_BUILD_SAMPLES=OFF -DVISTA_SDK_CPP_BUILD_DOCUMENTATION=OFF -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
 
     - name: Build
       working-directory: cpp
@@ -50,5 +78,5 @@ jobs:
       working-directory: cpp/build
       run: ctest --output-on-failure --parallel
 
-    - name: Show ccache statistics
-      run: ccache --show-stats
+    - name: Show sccache statistics
+      run: sccache --show-stats

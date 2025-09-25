@@ -29,15 +29,23 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Cache CMake build and ccache
+    - name: Cache dependencies
       uses: actions/cache@v4
       with:
         path: |
-          build
-          ${{ runner.temp }}/ccache
-        key: ${{ runner.os }}-mingw-cmake-${{ hashFiles('**/CMakeLists.txt', 'include/**', 'src/**') }}
+          .deps
+        key: ${{ runner.os }}-mingw-deps-${{ hashFiles('cpp/cmake/dnvVistaCppDependencies.cmake') }}
         restore-keys: |
-          ${{ runner.os }}-mingw-cmake-
+          ${{ runner.os }}-mingw-deps-
+
+    - name: Cache ccache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ runner.temp }}/ccache
+        key: ${{ runner.os }}-mingw-ccache-${{ github.run_number }}
+        restore-keys: |
+          ${{ runner.os }}-mingw-ccache-
 
     - name: Set up MinGW
       uses: msys2/setup-msys2@v2

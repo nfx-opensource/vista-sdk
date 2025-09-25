@@ -30,7 +30,7 @@ option(VISTA_SDK_CPP_BUILD_TESTS           "Build tests"                        
 option(VISTA_SDK_CPP_BUILD_SMOKE_TESTS     "Build smoke tests"                          OFF  )
 option(VISTA_SDK_CPP_BUILD_BENCHMARKS      "Build benchmarks"                           ON   )
 option(VISTA_SDK_CPP_BUILD_SAMPLES         "Build vista-sdk-cpp samples"                ON   )
-option(VISTA_SDK_CPP_BUILD_DOCUMENTATION   "Build vista-sdk-cpp Doxygen documentation"  ON   )
+option(VISTA_SDK_CPP_BUILD_DOCUMENTATION   "Build vista-sdk-cpp Doxygen documentation"  OFF  )
 
 set(VISTA_SDK_CPP_INSTALL_DIR "" CACHE PATH "Install directory option (empty = use platform defaults)")
 
