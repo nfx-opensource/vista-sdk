@@ -123,6 +123,11 @@ namespace dnv::vista::sdk
 	enum class CodebookName : std::uint8_t;
 	enum class VisVersion : std::uint16_t;
 
+	namespace mqtt
+	{
+		class LocalId;
+	}
+
 	//=====================================================================
 	// LocalIdBuilder class
 	//=====================================================================
@@ -297,7 +302,6 @@ namespace dnv::vista::sdk
 		 */
 		[[nodiscard]] inline bool isEmptyMetadata() const noexcept;
 
-	public:
 		/**
 		 * @brief Gets the quantity metadata tag, if present.
 		 * @return A const reference to an `std::optional<MetadataTag>` for quantity.
@@ -375,7 +379,7 @@ namespace dnv::vista::sdk
 		 *          standard Local ID string conventions and is affected by the `isVerboseMode()` setting.
 		 * @param builder The StringBuilder to append the Local ID representation to.
 		 */
-		inline void toString( nfx::string::StringBuilder& builder ) const;
+		void toString( nfx::string::StringBuilder& builder ) const;
 
 		//----------------------------------------------
 		// Static factory methods
@@ -406,6 +410,17 @@ namespace dnv::vista::sdk
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] LocalId build() const;
+
+		/**
+		 * @brief Creates an MQTT-compatible LocalId object from the current builder state.
+		 * @details Constructs and returns an MQTT LocalId object that formats output with
+		 *          underscores instead of forward slashes, making it suitable for MQTT topic names.
+		 *          This method is equivalent to the C# BuildMqtt() extension method.
+		 * @return A new instance of `mqtt::LocalId` with MQTT-compatible formatting.
+		 * @throws std::invalid_argument If the builder state is invalid (`isValid()` returns false).
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		[[nodiscard]] mqtt::LocalId buildMqtt() const;
 
 		//----------------------------
 		// Verbose mode

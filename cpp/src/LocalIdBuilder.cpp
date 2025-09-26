@@ -10,6 +10,7 @@
 
 #include "internal/core/LocalId.h"
 #include "internal/parsing/LocalIdParsingErrorBuilder.h"
+#include "dnv/vista/sdk/mqtt/LocalId.h"
 #include "dnv/vista/sdk/CodebookName.h"
 #include "dnv/vista/sdk/Codebooks.h"
 #include "dnv/vista/sdk/Gmod.h"
@@ -1009,6 +1010,24 @@ namespace dnv::vista::sdk
 
 			return ( !errorBuilder.hasError() && !invalidSecondaryItem );
 		}
+
+		//=====================================================================
+		// String Formatting Helpers
+		//=====================================================================
+
+		/**
+		 * @brief Appends metadata tag to builder in standard LocalId format.
+		 * @details Appends the metadata tag value if present. Does not append anything for empty tags,
+		 * @param[in,out] builder StringBuilder to append to.
+		 * @param[in] tag Optional metadata tag to append (ignored if empty).
+		 */
+		static void appendMeta( nfx::string::StringBuilder& builder, const std::optional<MetadataTag>& tag )
+		{
+			if ( tag.has_value() )
+			{
+				tag.value().toString( builder );
+			}
+		}
 	}
 
 	//=====================================================================
@@ -1044,6 +1063,11 @@ namespace dnv::vista::sdk
 		}
 
 		return LocalId( *this );
+	}
+
+	mqtt::LocalId LocalIdBuilder::buildMqtt() const
+	{
+		return mqtt::LocalId( *this );
 	}
 
 	//----------------------------------------------
@@ -1568,6 +1592,49 @@ namespace dnv::vista::sdk
 		result.m_detail = std::nullopt;
 
 		return result;
+	}
+
+	//----------------------------------------------
+	// String conversion
+	//----------------------------------------------
+
+	void LocalIdBuilder::toString( nfx::string::StringBuilder& builder ) const
+	{
+		if ( !m_visVersion.has_value() )
+		{
+			throw std::invalid_argument{ "No VisVersion configured on LocalId" };
+		}
+
+		// Naming rule prefix: "/dnv-v2"
+		builder.append( "/" );
+		builder.append( transport::ISO19848_ANNEX_C_NAMING_RULE );
+		builder.append( "/" );
+
+		// VIS version: "vis-{major}-{minor}{patch}"
+		builder.append( VisVersionExtensions::toVersionString( *m_visVersion ) );
+		builder.append( "/" );
+
+		// Items section: primary item [+ secondary item] [+ description]
+		m_items.append( builder, m_verboseMode );
+
+		// Metadata section prefix: "/meta"
+		builder.append( "meta/" );
+
+		// Metadata tags: {prefix}{separator}{value}
+		internal::localId::appendMeta( builder, m_quantity );
+		internal::localId::appendMeta( builder, m_content );
+		internal::localId::appendMeta( builder, m_calculation );
+		internal::localId::appendMeta( builder, m_state );
+		internal::localId::appendMeta( builder, m_command );
+		internal::localId::appendMeta( builder, m_type );
+		internal::localId::appendMeta( builder, m_position );
+		internal::localId::appendMeta( builder, m_detail );
+
+		// Cleanup trailing slash
+		if ( builder.length() > 0 && builder[builder.length() - 1] == '/' )
+		{
+			builder.resize( builder.length() - 1 );
+		}
 	}
 
 	//----------------------------------------------

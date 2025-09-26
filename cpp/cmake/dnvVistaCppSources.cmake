@@ -6,6 +6,9 @@ set(PUBLIC_HEADERS
 	# --- Core configuration ---
 	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/config/config.h
 
+	# --- Mqtt layer headers ---
+	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/mqtt/LocalId.h
+
 	# --- Transport layer headers ---
 	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/transport/datachannel/DataChannel.h
 	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/transport/timeseries/DataChannelId.h
@@ -116,6 +119,9 @@ set(PRIVATE_SOURCES
 
 	# --- Internal transport implementations ---
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/transport/dto/ISO19848Dtos.cpp
+
+	# --- Mqtt layer implementations ---
+	${VISTA_SDK_CPP_SOURCE_DIR}/mqtt/LocalId.cpp
 
 	# --- Transport layer implementations ---
 	${VISTA_SDK_CPP_SOURCE_DIR}/transport/datachannel/DataChannel.cpp

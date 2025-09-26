@@ -31,6 +31,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.48] - 2025-09-26
+
+### Added
+
+-   **MQTT LocalId support**: Complete MQTT-compatible LocalId implementation with inheritance pattern
+-   **Comprehensive MQTT test suite**: MQTT topic formatting validation
+
+### Changed
+
+-   **LocalId architecture**: Removed `final` keyword to enable controlled inheritance
+-   **LocalIdBuilder API enhancement**: Added `buildMqtt()` method
+
 ## [0.0.47] - 2025-09-24
 
 ### Added

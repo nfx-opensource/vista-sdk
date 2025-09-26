@@ -13,10 +13,10 @@
  * The **VISTA Local ID System** serves as the foundation for:
  * - **VIS Standard Compliance**  : Full ISO 19848 Local ID specification support
  * - **Immutable Value Semantics**: Thread-safe Local ID instances with value ownership
- * - **High-Performance Access**   Zero-overhead property accessors via direct storage
- * - **Comprehensive Validation**  Builder-based construction with validation guarantees
- * - **Parsing and Serialization** String-to-LocalId conversion with error handling
- * - **Metadata Management**       Complete support for all VIS metadata tag types
+ * - **High-Performance Access**  : Zero-overhead property accessors via direct storage
+ * - **Comprehensive Validation** : Builder-based construction with validation guarantees
+ * - **Parsing and Serialization**: String-to-LocalId conversion with error handling
+ * - **Metadata Management**      : Complete support for all VIS metadata tag types
  *
  * ## Core Architecture:
  *
@@ -124,6 +124,11 @@ namespace dnv::vista::sdk
 	class ParsingErrors;
 	enum class VisVersion : std::uint16_t;
 
+	namespace mqtt
+	{
+		class LocalId;
+	}
+
 	//=====================================================================
 	// LocalId class
 	//=====================================================================
@@ -139,24 +144,28 @@ namespace dnv::vista::sdk
 	 * Construction via LocalIdBuilder or static parse() methods.
 	 * All property accessors are inline and noexcept for maximum performance.
 	 */
-	class LocalId final
+	class LocalId
 	{
 		friend class LocalIdBuilder;
+		friend class mqtt::LocalId;
 
-	private:
+	protected:
 		//----------------------------------------------
 		// Construction
 		//----------------------------------------------
 
 		/**
 		 * @brief Constructs LocalId from validated LocalIdBuilder.
+		 * @details Protected constructor accessible only to friend classes:
+		 *          - LocalIdBuilder (for normal construction)
+		 *          - mqtt::LocalId (for MQTT inheritance)
 		 * @param[in] builder Valid LocalIdBuilder instance.
 		 * @throws std::invalid_argument If builder is invalid or empty.
 		 */
 		explicit LocalId( LocalIdBuilder builder );
 
 	public:
-		/** @brief Default constructor - creates an empty/invalid LocalId */
+		/** @brief Default constructor - creates an empty/invalid LocalId - Todo: check this */
 		inline LocalId();
 
 		/**
@@ -176,7 +185,7 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 
 		/** @brief Destructor */
-		~LocalId() = default;
+		virtual ~LocalId() = default;
 
 		//----------------------------------------------
 		// Assignment operators

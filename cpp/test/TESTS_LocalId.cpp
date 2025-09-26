@@ -12,9 +12,11 @@
 
 #include "internal/parsing/LocalIdParsingErrorBuilder.h"
 
+#include <dnv/vista/sdk/mqtt/LocalId.h>
 #include <dnv/vista/sdk/Codebooks.h>
 #include <dnv/vista/sdk/Gmod.h>
 #include <dnv/vista/sdk/GmodPath.h>
+#include <dnv/vista/sdk/LocalId.h>
 #include <dnv/vista/sdk/LocalIdBuilder.h>
 #include <dnv/vista/sdk/Locations.h>
 #include <dnv/vista/sdk/ParsingErrors.h>
@@ -108,6 +110,10 @@ namespace dnv::vista::sdk::tests
 	//=====================================================================
 	// LocalIdTests
 	//=====================================================================
+
+	//----------------------------------------------
+	// Test Data and Fixtures
+	//----------------------------------------------
 
 	struct Input
 	{
@@ -445,4 +451,62 @@ namespace dnv::vista::sdk::tests
 	}
 
 	INSTANTIATE_TEST_SUITE_P( ValidationCases, LocalIdValidationTest, ::testing::ValuesIn( invalidLocalIdsData() ) );
+
+	//=====================================================================
+	// Mqtt LocalId Tests
+	//=====================================================================
+
+	//----------------------------------------------
+	// MQTT Test Data and Fixtures
+	//----------------------------------------------
+
+	class LocalIdMqttValidTest : public ::testing::TestWithParam<std::pair<Input, std::string>>
+	{
+	public:
+		static std::vector<std::pair<Input, std::string>> testData()
+		{
+			return {
+				{ Input{ "411.1/C101.31-2", "", "temperature", "exhaust.gas", "inlet" }, "dnv-v2/vis-3-4a/411.1_C101.31-2/_/qty-temperature/cnt-exhaust.gas/_/_/_/_/pos-inlet/_" },
+				{ Input{ "411.1/C101.63/S206", "", "temperature", "exhaust.gas", "inlet" }, "dnv-v2/vis-3-4a/411.1_C101.63_S206/_/qty-temperature/cnt-exhaust.gas/_/_/_/_/pos-inlet/_" },
+				{ Input{ "411.1/C101.63/S206", "411.1/C101.31-5", "temperature", "exhaust.gas", "inlet" }, "dnv-v2/vis-3-4a/411.1_C101.63_S206/411.1_C101.31-5/qty-temperature/cnt-exhaust.gas/_/_/_/_/pos-inlet/_" } };
+		}
+	};
+
+	//----------------------------------------------
+	// Test_Mqtt_LocalId_Build_Valid
+	//----------------------------------------------
+
+	TEST_P( LocalIdMqttValidTest, Test_Mqtt_LocalId_Build_Valid )
+	{
+		const auto& [input, expectedOutput] = GetParam();
+
+		const auto& vis = VIS::instance();
+
+		auto visVersion = VisVersion::v3_4a;
+		const auto& gmod = vis.gmod( visVersion );
+		const auto& codebooks = vis.codebooks( visVersion );
+
+		auto primaryItem = gmod.parsePath( input.primaryItem );
+
+		std::optional<GmodPath> secondaryItem;
+		if ( !input.secondaryItem.empty() )
+		{
+			secondaryItem = gmod.parsePath( input.secondaryItem );
+		}
+
+		auto localIdBuilder = LocalIdBuilder::create( visVersion )
+								  .withPrimaryItem( std::move( primaryItem ) )
+								  .tryWithSecondaryItem( std::move( secondaryItem ) )
+								  .withVerboseMode( input.verbose )
+								  .tryWithMetadataTag( codebooks.tryCreateTag( CodebookName::Quantity, input.quantity ) )
+								  .tryWithMetadataTag( codebooks.tryCreateTag( CodebookName::Content, input.content ) )
+								  .tryWithMetadataTag( codebooks.tryCreateTag( CodebookName::Position, input.position ) );
+
+		auto mqttLocalId = localIdBuilder.buildMqtt();
+		auto localIdStr = mqttLocalId.toString();
+
+		EXPECT_EQ( expectedOutput, localIdStr );
+	}
+
+	INSTANTIATE_TEST_SUITE_P( MqttValidCases, LocalIdMqttValidTest, ::testing::ValuesIn( LocalIdMqttValidTest::testData() ) );
 }
