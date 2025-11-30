@@ -35,33 +35,55 @@
  * ## Data Flow Architecture:
  *
  * ```
- * Universal ID Construction
- *         ↓
- * Component Validation
- *         ↓
+ *        Universal ID Construction
+ *                  ↓
+ *         Component Validation
+ *                  ↓
  * ┌─────────────────────────────────────┐
- * │          UniversalId                │
+ * │            UniversalId              │
  * ├─────────────────────────────────────┤
  * │ ┌─────────────────────────────────┐ │
- * │ │         ImoNumber               │ │ ← Global vessel identifier
- * │ │      (IMO1234567)               │ │   (7-digit validated)
+ * │ │      UniversalIdBuilder         │ │ ← Centralized data container
+ * │ │                                 │ │
+ * │ │  ┌───────────────────────────┐  │ │
+ * │ │  │       ImoNumber           │  │ │ ← Global vessel identifier
+ * │ │  │      (IMO1234567)         │  │ │   (7-digit validated)
+ * │ │  └───────────────────────────┘  │ │
+ * │ │  ┌───────────────────────────┐  │ │
+ * │ │  │    LocalIdBuilder         │  │ │ ← Local ID construction data
+ * │ │  │                           │  │ │
+ * │ │  │ ┌─────────────────────┐   │  │ │
+ * │ │  │ │   LocalIdItems      │   │  │ │ ← GMOD path components
+ * │ │  │ │ (Primary+Secondary) │   │  │ │   (Primary + Secondary)
+ * │ │  │ └─────────────────────┘   │  │ │
+ * │ │  │ ┌─────────────────────┐   │  │ │
+ * │ │  │ │   Metadata Tags     │   │  │ │ ← Data classification
+ * │ │  │ │(Position,Detail,etc)│   │  │ │   (Position, Detail, etc)
+ * │ │  │ └─────────────────────┘   │  │ │
+ * │ │  │ ┌─────────────────────┐   │  │ │
+ * │ │  │ │   Cached Hash       │   │  │ │ ← Hardware-accelerated hash (O(1) access)
+ * │ │  │ └─────────────────────┘   │  │ │
+ * │ │  └───────────────────────────┘  │ │
  * │ └─────────────────────────────────┘ │
- * │              +                      │
  * │ ┌─────────────────────────────────┐ │
- * │ │          LocalId                │ │ ← Vessel-specific data ID
- * │ │  ┌───────────────────────────┐  │ │
- * │ │  │      LocalIdItems         │  │ │ ← GMOD path components
- * │ │  │   (Primary + Secondary)   │  │ │
- * │ │  └───────────────────────────┘  │ │
- * │ │  ┌───────────────────────────┐  │ │
- * │ │  │    Metadata Tags          │  │ │ ← Data classification
- * │ │  │   (Position, Detail, etc) │  │ │
- * │ │  └───────────────────────────┘  │ │
+ * │ │       Cached LocalId            │ │ ← Fast accessor cache
+ * │ │    (Built from Builder)         │ │   (Immutable instance)
  * │ └─────────────────────────────────┘ │
  * └─────────────────────────────────────┘
- *         ↓
- * Global Unique Identification
- * ```
+ *                  ↓
+ *      Global Unique Identification
+ *                  ↓
+ * ┌─────────────────────────────────────┐
+ * │    Maritime Data Resolution         │
+ * ├─────────────────────────────────────┤
+ * │ - Fleet-Wide Data Operations        │
+ * │ - Cross-System Integration          │
+ * │ - Regulatory Compliance Tracking    │
+ * │ - Distributed Network Coordination  │
+ * │ - STL Container Integration         │
+ * │ - Hash-based Operations (O(1))      │
+ * └─────────────────────────────────────┘
+ *```
  *
  * ## Usage Patterns:
  *
@@ -146,11 +168,14 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
 #include <string_view>
 
+#include "config/config.h"
 #include "ImoNumber.h"
 #include "LocalId.h"
+#include "UniversalIdBuilder.h"
 
 namespace dnv::vista::sdk
 {
@@ -158,7 +183,6 @@ namespace dnv::vista::sdk
 	// Forward declarations
 	//=====================================================================
 
-	class UniversalIdBuilder;
 	class ParsingErrors;
 
 	//=====================================================================
@@ -273,6 +297,17 @@ namespace dnv::vista::sdk
 		[[nodiscard]] inline const LocalId& localId() const noexcept;
 
 		//----------------------------------------------
+		// Hashing
+		//----------------------------------------------
+
+		/**
+		 * @brief Gets the cached hash value for this UniversalId instance.
+		 * @return The cached hash value computed using hardware-accelerated algorithms.
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		[[nodiscard]] inline std::size_t hashCode() const noexcept;
+
+		//----------------------------------------------
 		// String conversion
 		//----------------------------------------------
 
@@ -309,9 +344,33 @@ namespace dnv::vista::sdk
 		// Private member variables
 		//----------------------------------------------
 
-		ImoNumber m_imoNumber;
+		/** @brief Builder instance that contains all data */
+		UniversalIdBuilder m_builder;
+
+		/** @brief Cached LocalId built from builder for fast access */
 		LocalId m_localId;
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/UniversalId.inl"
+
+namespace std
+{
+	/**
+	 * @brief Hash specialization for dnv::vista::sdk::UniversalId.
+	 * @details Enables UniversalId instances to be used as keys in all hash-based STL containers.
+	 */
+	template <>
+	struct hash<dnv::vista::sdk::UniversalId>
+	{
+		/**
+		 * @brief Returns the cached hash value for optimal performance.
+		 * @param[in] universalId The UniversalId instance to hash.
+		 * @return Pre-computed hash value (O(1) access) using hardware-accelerated algorithms.
+		 */
+		std::size_t operator()( const dnv::vista::sdk::UniversalId& universalId ) const noexcept
+		{
+			return universalId.hashCode();
+		}
+	};
+} // namespace std

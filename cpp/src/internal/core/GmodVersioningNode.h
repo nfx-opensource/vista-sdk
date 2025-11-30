@@ -14,7 +14,7 @@
 #include <unordered_set>
 #include <string_view>
 
-#include <nfx/containers/StringMap.h>
+#include <nfx/Containers.h>
 #include <nfx/string/Utils.h>
 
 #include "internal/dto/GmodVersioningDto.h"
@@ -70,7 +70,7 @@ namespace dnv::vista::sdk::internal
 		/**
 		 * @brief Constructor for GmodVersioningNode
 		 */
-		explicit GmodVersioningNode( VisVersion visVersion, const nfx::containers::StringMap<GmodNodeConversionDto>& dto );
+		explicit GmodVersioningNode( VisVersion visVersion, const nfx::containers::FastHashMap<std::string, GmodNodeConversionDto>& dto );
 
 		/** @brief Default constructor. */
 		GmodVersioningNode() = default;
@@ -118,6 +118,6 @@ namespace dnv::vista::sdk::internal
 		//----------------------------
 
 		VisVersion m_visVersion;
-		nfx::containers::StringMap<GmodNodeConversion> m_versioningNodeChanges;
+		nfx::containers::FastHashMap<std::string, GmodNodeConversion> m_versioningNodeChanges;
 	};
-}
+} // namespace dnv::vista::sdk::internal

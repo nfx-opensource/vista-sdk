@@ -104,7 +104,8 @@
 #include <string_view>
 #include <vector>
 
-#include <nfx/containers/StringMap.h>
+#include <nfx/Containers.h>
+#include <nfx/DateTime.h>
 
 #include "dnv/vista/sdk/config/config.h"
 #include "dnv/vista/sdk/transport/datachannel/DataChannel.h"
@@ -116,11 +117,6 @@
 // Forward declarations
 //=====================================================================
 
-namespace nfx::datatypes
-{
-	class DateTimeOffset;
-}
-
 namespace dnv::vista::sdk
 {
 	class ValidateResult;
@@ -129,7 +125,7 @@ namespace dnv::vista::sdk
 	{
 		class Value;
 	}
-}
+} // namespace dnv::vista::sdk
 
 namespace dnv::vista::sdk::transport::timeseries
 {
@@ -159,13 +155,17 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @param end End timestamp
 		 * @throws std::invalid_argument If start > end
 		 */
-		VISTA_SDK_CPP_INLINE TimeRange( nfx::time::DateTimeOffset start, nfx::time::DateTimeOffset end );
+		inline TimeRange( nfx::time::DateTimeOffset start, nfx::time::DateTimeOffset end );
 
 		/** @brief Copy constructor */
 		TimeRange( const TimeRange& ) = default;
 
 		/** @brief Move constructor */
 		TimeRange( TimeRange&& ) noexcept = default;
+
+		//----------------------------------------------
+		// Destruction
+		//----------------------------------------------
 
 		/** @brief Destructor */
 		~TimeRange() = default;
@@ -197,14 +197,14 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @return Start time
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] VISTA_SDK_CPP_INLINE const nfx::time::DateTimeOffset& start() const noexcept;
+		[[nodiscard]] inline const nfx::time::DateTimeOffset& start() const noexcept;
 
 		/**
 		 * @brief Get end timestamp
 		 * @return End time
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const nfx::time::DateTimeOffset& end() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const nfx::time::DateTimeOffset& end() const noexcept;
 
 		//----------------------------------------------
 		// Setters
@@ -248,20 +248,24 @@ namespace dnv::vista::sdk::transport::timeseries
 		//----------------------------------------------
 
 		/** @brief Default constructor */
-		ConfigurationReference() = delete;
+		ConfigurationReference() = default;
 
 		/**
 		 * @brief Constructs ConfigurationReference with required parameters
 		 * @param id Configuration identifier
 		 * @param timeStamp Configuration timestamp
 		 */
-		VISTA_SDK_CPP_INLINE ConfigurationReference( std::string_view id, nfx::time::DateTimeOffset timeStamp );
+		inline ConfigurationReference( std::string_view id, nfx::time::DateTimeOffset timeStamp );
 
 		/** @brief Copy constructor */
 		ConfigurationReference( const ConfigurationReference& ) = default;
 
 		/** @brief Move constructor */
 		ConfigurationReference( ConfigurationReference&& ) noexcept = default;
+
+		//----------------------------------------------
+		// Destruction
+		//----------------------------------------------
 
 		/** @brief Destructor */
 		~ConfigurationReference() = default;
@@ -293,14 +297,14 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @return The configuration ID
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::string& id() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::string& id() const noexcept;
 
 		/**
 		 * @brief Get timestamp
 		 * @return The configuration timestamp
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const nfx::time::DateTimeOffset& timeStamp() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const nfx::time::DateTimeOffset& timeStamp() const noexcept;
 
 		//----------------------------------------------
 		// Setters
@@ -310,13 +314,13 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @brief Set configuration ID
 		 * @param id New configuration identifier
 		 */
-		VISTA_SDK_CPP_INLINE void setId( std::string_view id );
+		inline void setId( std::string_view id );
 
 		/**
 		 * @brief Set timestamp
 		 * @param timeStamp New configuration timestamp
 		 */
-		VISTA_SDK_CPP_INLINE void setTimeStamp( nfx::time::DateTimeOffset timeStamp );
+		inline void setTimeStamp( nfx::time::DateTimeOffset timeStamp );
 
 	private:
 		//----------------------------------------------
@@ -342,26 +346,17 @@ namespace dnv::vista::sdk::transport::timeseries
 		//----------------------------------------------
 
 		/** @brief Default constructor */
-		TabularDataSet() = delete;
+		TabularDataSet() = default;
 
 		/**
-		 * @brief Constructs TabularDataSet with capacity
-		 * @param timeStamp Data timestamp
-		 * @param capacity Initial capacity for value vector
-		 */
-		VISTA_SDK_CPP_INLINE TabularDataSet(
-			nfx::time::DateTimeOffset timeStamp,
-			size_t capacity = 0 );
-
-		/**
-		 * @brief Constructs TabularDataSet with required fields
+		 * @brief Constructs TabularDataSet with parameter list
 		 * @param timeStamp Data timestamp
 		 * @param value Data values
 		 * @param quality Optional quality values
 		 */
-		VISTA_SDK_CPP_INLINE TabularDataSet(
+		inline TabularDataSet(
 			nfx::time::DateTimeOffset timeStamp,
-			std::vector<std::string> value,
+			std::vector<std::string> value = {},
 			std::optional<std::vector<std::string>> quality = std::nullopt );
 
 		/** @brief Copy constructor */
@@ -369,6 +364,10 @@ namespace dnv::vista::sdk::transport::timeseries
 
 		/** @brief Move constructor */
 		TabularDataSet( TabularDataSet&& ) noexcept = default;
+
+		//----------------------------------------------
+		// Destruction
+		//----------------------------------------------
 
 		/** @brief Destructor */
 		~TabularDataSet() = default;
@@ -400,21 +399,21 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @return The data timestamp
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const nfx::time::DateTimeOffset& timeStamp() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const nfx::time::DateTimeOffset& timeStamp() const noexcept;
 
 		/**
 		 * @brief Get values
 		 * @return The data values
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::vector<std::string>& value() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::vector<std::string>& value() const noexcept;
 
 		/**
 		 * @brief Get quality values
 		 * @return The quality values
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::vector<std::string>>& quality() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::optional<std::vector<std::string>>& quality() const noexcept;
 
 		//----------------------------------------------
 		// Setters
@@ -424,19 +423,19 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @brief Set timestamp
 		 * @param timeStamp New timestamp
 		 */
-		VISTA_SDK_CPP_INLINE void setTimeStamp( nfx::time::DateTimeOffset timeStamp );
+		inline void setTimeStamp( nfx::time::DateTimeOffset timeStamp );
 
 		/**
 		 * @brief Set values
 		 * @param value New data values
 		 */
-		VISTA_SDK_CPP_INLINE void setValue( std::vector<std::string> value );
+		inline void setValue( std::vector<std::string> value );
 
 		/**
 		 * @brief Set quality values
 		 * @param quality New optional quality values
 		 */
-		VISTA_SDK_CPP_INLINE void setQuality( std::optional<std::vector<std::string>> quality );
+		inline void setQuality( std::optional<std::vector<std::string>> quality );
 
 	private:
 		//----------------------------------------------
@@ -472,7 +471,7 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @param value Event value
 		 * @param quality Optional quality value
 		 */
-		VISTA_SDK_CPP_INLINE EventDataSet(
+		inline EventDataSet(
 			nfx::time::DateTimeOffset timeStamp,
 			DataChannelId dataChannelId,
 			std::string value,
@@ -483,6 +482,10 @@ namespace dnv::vista::sdk::transport::timeseries
 
 		/** @brief Move constructor */
 		EventDataSet( EventDataSet&& ) noexcept = default;
+
+		//----------------------------------------------
+		// Destruction
+		//----------------------------------------------
 
 		/** @brief Destructor */
 		~EventDataSet() = default;
@@ -514,28 +517,28 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @return The event timestamp
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const nfx::time::DateTimeOffset& timeStamp() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const nfx::time::DateTimeOffset& timeStamp() const noexcept;
 
 		/**
 		 * @brief Get data channel ID
 		 * @return The data channel ID
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const DataChannelId& dataChannelId() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const DataChannelId& dataChannelId() const noexcept;
 
 		/**
 		 * @brief Get value
 		 * @return The event value
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::string& value() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::string& value() const noexcept;
 
 		/**
 		 * @brief Get quality
 		 * @return The quality value
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::string>& quality() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::optional<std::string>& quality() const noexcept;
 
 		//----------------------------------------------
 		// Setters
@@ -545,25 +548,25 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @brief Set timestamp
 		 * @param timeStamp New timestamp
 		 */
-		VISTA_SDK_CPP_INLINE void setTimeStamp( nfx::time::DateTimeOffset timeStamp );
+		inline void setTimeStamp( nfx::time::DateTimeOffset timeStamp );
 
 		/**
 		 * @brief Set data channel ID
 		 * @param dataChannelId New channel identifier
 		 */
-		VISTA_SDK_CPP_INLINE void setDataChannelId( DataChannelId dataChannelId );
+		inline void setDataChannelId( DataChannelId dataChannelId );
 
 		/**
 		 * @brief Set value
 		 * @param value New event value
 		 */
-		VISTA_SDK_CPP_INLINE void setValue( std::string_view value );
+		inline void setValue( std::string_view value );
 
 		/**
 		 * @brief Set quality
 		 * @param quality New optional quality value
 		 */
-		VISTA_SDK_CPP_INLINE void setQuality( std::optional<std::string_view> quality );
+		inline void setQuality( std::optional<std::string_view> quality );
 
 	private:
 		//----------------------------------------------
@@ -591,22 +594,26 @@ namespace dnv::vista::sdk::transport::timeseries
 		//----------------------------------------------
 
 		/** @brief Default constructor */
-		TabularData() = delete;
+		TabularData() = default;
 
 		/**
 		 * @brief Constructs TabularData with required fields
 		 * @param dataChannelIds Channel identifiers
 		 * @param dataSets Data sets
 		 */
-		VISTA_SDK_CPP_INLINE TabularData(
-			std::vector<DataChannelId> dataChannelIds,
-			std::vector<TabularDataSet> dataSets );
+		inline TabularData(
+			std::vector<DataChannelId> dataChannelIds = {},
+			std::vector<TabularDataSet> dataSets = {} );
 
 		/** @brief Copy constructor */
 		TabularData( const TabularData& ) = default;
 
 		/** @brief Move constructor */
 		TabularData( TabularData&& ) noexcept = default;
+
+		//----------------------------------------------
+		// Destruction
+		//----------------------------------------------
 
 		/** @brief Destructor */
 		~TabularData() = default;
@@ -638,14 +645,14 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @return The data channel IDs
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::vector<DataChannelId>& dataChannelIds() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::vector<DataChannelId>& dataChannelIds() const noexcept;
 
 		/**
 		 * @brief Get data sets
 		 * @return The data sets
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::vector<TabularDataSet>& dataSets() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::vector<TabularDataSet>& dataSets() const noexcept;
 
 		//----------------------------------------------
 		// Setters
@@ -655,24 +662,17 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @brief Set data channel IDs
 		 * @param dataChannelIds New channel identifiers
 		 */
-		VISTA_SDK_CPP_INLINE void setDataChannelIds( std::vector<DataChannelId> dataChannelIds );
+		inline void setDataChannelIds( std::vector<DataChannelId> dataChannelIds );
 
 		/**
 		 * @brief Set data sets
 		 * @param dataSets New data sets
 		 */
-		VISTA_SDK_CPP_INLINE void setDataSets( std::vector<TabularDataSet> dataSets );
+		inline void setDataSets( std::vector<TabularDataSet> dataSets );
 
 		//----------------------------------------------
 		// Validation
 		//----------------------------------------------
-
-		/**
-		 * @brief Validate tabular data structure (instance method)
-		 * @return Validation result
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] [[nodiscard]] ValidateResult validate() const;
 
 		/**
 		 * @brief Static validation method
@@ -707,21 +707,25 @@ namespace dnv::vista::sdk::transport::timeseries
 
 		/**
 		 * @brief Default constructor with optional capacity
-		 * @param dataSet Initial capacity for data set vector
+		 * @param capacity Initial capacity for data set vector
 		 */
-		VISTA_SDK_CPP_INLINE explicit EventData( size_t dataSet = 0 );
+		inline explicit EventData( size_t capacity = 0 );
 
 		/**
 		 * @brief Constructs EventData with data sets
 		 * @param dataSet Event data sets vector
 		 */
-		VISTA_SDK_CPP_INLINE explicit EventData( std::vector<EventDataSet> dataSet );
+		inline explicit EventData( std::vector<EventDataSet> dataSet );
 
 		/** @brief Copy constructor */
 		EventData( const EventData& ) = default;
 
 		/** @brief Move constructor */
 		EventData( EventData&& ) noexcept = default;
+
+		//----------------------------------------------
+		// Destruction
+		//----------------------------------------------
 
 		/** @brief Destructor */
 		~EventData() = default;
@@ -753,7 +757,7 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @return The event data sets
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::vector<EventDataSet>& dataSet() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::vector<EventDataSet>& dataSet() const noexcept;
 
 		//----------------------------------------------
 		// Setters
@@ -763,7 +767,7 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @brief Set data set
 		 * @param dataSet New event data sets
 		 */
-		VISTA_SDK_CPP_INLINE void setDataSet( std::vector<EventDataSet> dataSet );
+		inline void setDataSet( std::vector<EventDataSet> dataSet );
 
 		//----------------------------------------------
 		// Collection interface
@@ -773,12 +777,12 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @brief Add event data set
 		 * @param dataSet Event data set to add
 		 */
-		VISTA_SDK_CPP_INLINE void add( EventDataSet dataSet );
+		inline void add( EventDataSet dataSet );
 
 		/**
 		 * @brief Clear all data sets
 		 */
-		VISTA_SDK_CPP_INLINE void clear();
+		inline void clear();
 
 	private:
 		//----------------------------------------------
@@ -806,17 +810,6 @@ namespace dnv::vista::sdk::transport::timeseries
 		Header() = delete;
 
 		/**
-		 * @brief Constructs Header with required fields
-		 * @param shipId Ship identifier
-		 * @param timeRange Time range for the data
-		 * @param author Author information
-		 */
-		VISTA_SDK_CPP_INLINE Header(
-			ShipId shipId,
-			timeseries::TimeRange timeRange,
-			std::optional<std::string> author );
-
-		/**
 		 * @brief Constructs Header with all fields
 		 * @param shipId Ship identifier
 		 * @param timeRange Optional time range for the data
@@ -826,20 +819,24 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @param systemConfiguration Optional system configuration references
 		 * @param customHeaders Optional custom headers dictionary
 		 */
-		VISTA_SDK_CPP_INLINE Header(
+		inline Header(
 			ShipId shipId,
-			std::optional<TimeRange> timeRange,
-			std::optional<nfx::time::DateTimeOffset> dateCreated,
-			std::optional<nfx::time::DateTimeOffset> dateModified,
-			std::optional<std::string> author,
-			std::optional<std::vector<ConfigurationReference>> systemConfiguration,
-			std::optional<nfx::containers::StringMap<Value>> customHeaders );
+			std::optional<TimeRange> timeRange = std::nullopt,
+			std::optional<nfx::time::DateTimeOffset> dateCreated = nfx::time::DateTimeOffset::utcNow(),
+			std::optional<nfx::time::DateTimeOffset> dateModified = std::nullopt,
+			std::optional<std::string> author = std::nullopt,
+			std::optional<std::vector<ConfigurationReference>> systemConfiguration = std::nullopt,
+			std::optional<nfx::containers::FastHashMap<std::string, Value>> customHeaders = std::nullopt );
 
 		/** @brief Copy constructor */
 		Header( const Header& ) = default;
 
 		/** @brief Move constructor */
 		Header( Header&& ) noexcept = default;
+
+		//----------------------------------------------
+		// Destruction
+		//----------------------------------------------
 
 		/** @brief Destructor */
 		~Header() = default;
@@ -871,49 +868,49 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @return The ship ID
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const ShipId& shipId() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const ShipId& shipId() const noexcept;
 
 		/**
 		 * @brief Get time range
 		 * @return The time range
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<TimeRange>& timeRange() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::optional<TimeRange>& timeRange() const noexcept;
 
 		/**
 		 * @brief Get date created
 		 * @return The creation date
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<nfx::time::DateTimeOffset>& dateCreated() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::optional<nfx::time::DateTimeOffset>& dateCreated() const noexcept;
 
 		/**
 		 * @brief Get date modified
 		 * @return The modification date
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<nfx::time::DateTimeOffset>& dateModified() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::optional<nfx::time::DateTimeOffset>& dateModified() const noexcept;
 
 		/**
 		 * @brief Get author
 		 * @return The author information
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::string>& author() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::optional<std::string>& author() const noexcept;
 
 		/**
 		 * @brief Get system configuration
 		 * @return The system configuration references
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::vector<ConfigurationReference>>& systemConfiguration() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::optional<std::vector<ConfigurationReference>>& systemConfiguration() const noexcept;
 
 		/**
 		 * @brief Get custom headers
 		 * @return The custom headers
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<nfx::containers::StringMap<Value>>& customHeaders() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::optional<nfx::containers::FastHashMap<std::string, Value>>& customHeaders() const noexcept;
 
 		//----------------------------------------------
 		// Setters
@@ -923,43 +920,43 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @brief Set ship ID
 		 * @param shipId New ship identifier
 		 */
-		VISTA_SDK_CPP_INLINE void setShipId( ShipId shipId );
+		inline void setShipId( ShipId shipId );
 
 		/**
 		 * @brief Set time range
 		 * @param timeRange New optional time range
 		 */
-		VISTA_SDK_CPP_INLINE void setTimeRange( std::optional<TimeRange> timeRange );
+		inline void setTimeRange( std::optional<TimeRange> timeRange );
 
 		/**
 		 * @brief Set date created
 		 * @param dateCreated New optional creation timestamp
 		 */
-		VISTA_SDK_CPP_INLINE void setDateCreated( std::optional<nfx::time::DateTimeOffset> dateCreated );
+		inline void setDateCreated( std::optional<nfx::time::DateTimeOffset> dateCreated );
 
 		/**
 		 * @brief Set date modified
 		 * @param dateModified New optional modification timestamp
 		 */
-		VISTA_SDK_CPP_INLINE void setDateModified( std::optional<nfx::time::DateTimeOffset> dateModified );
+		inline void setDateModified( std::optional<nfx::time::DateTimeOffset> dateModified );
 
 		/**
 		 * @brief Set author
 		 * @param author New optional author string
 		 */
-		VISTA_SDK_CPP_INLINE void setAuthor( std::optional<std::string_view> author );
+		inline void setAuthor( std::optional<std::string_view> author );
 
 		/**
 		 * @brief Set system configuration
 		 * @param systemConfiguration New optional system configuration
 		 */
-		VISTA_SDK_CPP_INLINE void setSystemConfiguration( std::optional<std::vector<ConfigurationReference>> systemConfiguration );
+		inline void setSystemConfiguration( std::optional<std::vector<ConfigurationReference>> systemConfiguration );
 
 		/**
 		 * @brief Set custom headers
 		 * @param customHeaders New optional custom headers
 		 */
-		VISTA_SDK_CPP_INLINE void setCustomHeaders( std::optional<nfx::containers::StringMap<Value>> customHeaders );
+		inline void setCustomHeaders( std::optional<nfx::containers::FastHashMap<std::string, Value>> customHeaders );
 
 	private:
 		//----------------------------------------------
@@ -972,7 +969,7 @@ namespace dnv::vista::sdk::transport::timeseries
 		std::optional<nfx::time::DateTimeOffset> m_dateModified;
 		std::optional<std::string> m_author;
 		std::optional<std::vector<ConfigurationReference>> m_systemConfiguration;
-		std::optional<nfx::containers::StringMap<Value>> m_customHeaders;
+		std::optional<nfx::containers::FastHashMap<std::string, Value>> m_customHeaders;
 	};
 
 	//=====================================================================
@@ -1012,17 +1009,21 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @param eventData Optional event data collection
 		 * @param customDataKinds Optional custom data kinds dictionary
 		 */
-		VISTA_SDK_CPP_INLINE TimeSeriesData(
-			std::optional<ConfigurationReference> dataConfiguration,
-			std::optional<std::vector<TabularData>> tabularData,
-			std::optional<EventData> eventData,
-			std::optional<nfx::containers::StringMap<Value>> customDataKinds );
+		inline TimeSeriesData(
+			std::optional<ConfigurationReference> dataConfiguration = std::nullopt,
+			std::optional<std::vector<TabularData>> tabularData = std::nullopt,
+			std::optional<EventData> eventData = std::nullopt,
+			std::optional<nfx::containers::FastHashMap<std::string, Value>> customDataKinds = std::nullopt );
 
 		/** @brief Copy constructor */
 		TimeSeriesData( const TimeSeriesData& ) = default;
 
 		/** @brief Move constructor */
 		TimeSeriesData( TimeSeriesData&& ) noexcept = default;
+
+		//----------------------------------------------
+		// Destruction
+		//----------------------------------------------
 
 		/** @brief Destructor */
 		~TimeSeriesData() = default;
@@ -1054,28 +1055,28 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @return The data configuration reference
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<ConfigurationReference>& dataConfiguration() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::optional<ConfigurationReference>& dataConfiguration() const noexcept;
 
 		/**
 		 * @brief Get tabular data
 		 * @return The tabular data collections
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<std::vector<TabularData>>& tabularData() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::optional<std::vector<TabularData>>& tabularData() const noexcept;
 
 		/**
 		 * @brief Get event data
 		 * @return The event data collection
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<EventData>& eventData() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::optional<EventData>& eventData() const noexcept;
 
 		/**
 		 * @brief Get custom data kinds
 		 * @return The custom data kinds
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<nfx::containers::StringMap<Value>>& customDataKinds() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::optional<nfx::containers::FastHashMap<std::string, Value>>& customDataKinds() const noexcept;
 
 		//----------------------------------------------
 		// Setters
@@ -1085,25 +1086,25 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @brief Set data configuration
 		 * @param dataConfiguration New optional data configuration
 		 */
-		VISTA_SDK_CPP_INLINE void setDataConfiguration( std::optional<ConfigurationReference> dataConfiguration );
+		inline void setDataConfiguration( std::optional<ConfigurationReference> dataConfiguration );
 
 		/**
 		 * @brief Set tabular data
 		 * @param tabularData New optional tabular data
 		 */
-		VISTA_SDK_CPP_INLINE void setTabularData( std::optional<std::vector<TabularData>> tabularData );
+		inline void setTabularData( std::optional<std::vector<TabularData>> tabularData );
 
 		/**
 		 * @brief Set event data
 		 * @param eventData New optional event data
 		 */
-		VISTA_SDK_CPP_INLINE void setEventData( std::optional<EventData> eventData );
+		inline void setEventData( std::optional<EventData> eventData );
 
 		/**
 		 * @brief Set custom data kinds
 		 * @param customDataKinds New optional custom data kinds
 		 */
-		VISTA_SDK_CPP_INLINE void setCustomDataKinds( std::optional<nfx::containers::StringMap<Value>> customDataKinds );
+		inline void setCustomDataKinds( std::optional<nfx::containers::FastHashMap<std::string, Value>> customDataKinds );
 
 		//----------------------------------------------
 		// Validation
@@ -1130,7 +1131,7 @@ namespace dnv::vista::sdk::transport::timeseries
 		std::optional<ConfigurationReference> m_dataConfiguration;
 		std::optional<std::vector<TabularData>> m_tabularData;
 		std::optional<EventData> m_eventData;
-		std::optional<nfx::containers::StringMap<Value>> m_customDataKinds;
+		std::optional<nfx::containers::FastHashMap<std::string, Value>> m_customDataKinds;
 	};
 
 	//=====================================================================
@@ -1148,14 +1149,14 @@ namespace dnv::vista::sdk::transport::timeseries
 		//----------------------------------------------
 
 		/** @brief Default constructor */
-		Package() = delete;
+		Package() = default;
 
 		/**
 		 * @brief Constructs Package with required components
 		 * @param header Package header with metadata
 		 * @param timeSeriesData Collection of time series data
 		 */
-		VISTA_SDK_CPP_INLINE Package(
+		inline Package(
 			std::optional<Header> header,
 			std::vector<TimeSeriesData> timeSeriesData );
 
@@ -1164,6 +1165,10 @@ namespace dnv::vista::sdk::transport::timeseries
 
 		/** @brief Move constructor */
 		Package( Package&& ) noexcept = default;
+
+		//----------------------------------------------
+		// Destruction
+		//----------------------------------------------
 
 		/** @brief Destructor */
 		~Package() = default;
@@ -1195,14 +1200,14 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @return The package header
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::optional<Header>& header() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::optional<Header>& header() const noexcept;
 
 		/**
 		 * @brief Get time series data
 		 * @return The time series data collections
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const std::vector<TimeSeriesData>& timeSeriesData() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const std::vector<TimeSeriesData>& timeSeriesData() const noexcept;
 
 		//----------------------------------------------
 		// Setters
@@ -1212,13 +1217,13 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @brief Set header
 		 * @param header New optional package header
 		 */
-		VISTA_SDK_CPP_INLINE void setHeader( std::optional<Header> header );
+		inline void setHeader( std::optional<Header> header );
 
 		/**
 		 * @brief Set time series data
 		 * @param timeSeriesData New time series data vector
 		 */
-		VISTA_SDK_CPP_INLINE void setTimeSeriesData( std::vector<TimeSeriesData> timeSeriesData );
+		inline void setTimeSeriesData( std::vector<TimeSeriesData> timeSeriesData );
 
 	private:
 		//----------------------------------------------
@@ -1245,19 +1250,23 @@ namespace dnv::vista::sdk::transport::timeseries
 		//----------------------------------------------
 
 		/** @brief Default constructor */
-		TimeSeriesDataPackage() = delete;
+		TimeSeriesDataPackage() = default;
 
 		/**
 		 * @brief Constructs TimeSeriesDataPackage with required package
 		 * @param package Package containing header and time series data
 		 */
-		VISTA_SDK_CPP_INLINE explicit TimeSeriesDataPackage( Package package );
+		inline explicit TimeSeriesDataPackage( Package package );
 
 		/** @brief Copy constructor */
 		TimeSeriesDataPackage( const TimeSeriesDataPackage& ) = default;
 
 		/** @brief Move constructor */
 		TimeSeriesDataPackage( TimeSeriesDataPackage&& ) noexcept = default;
+
+		//----------------------------------------------
+		// Destruction
+		//----------------------------------------------
 
 		/** @brief Destructor */
 		~TimeSeriesDataPackage() = default;
@@ -1289,14 +1298,14 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @return The time series data package
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE const Package& package() const noexcept;
+		[[nodiscard]] [[nodiscard]] inline const Package& package() const noexcept;
 
 		/**
 		 * @brief Get package (mutable)
 		 * @return The time series data package
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] [[nodiscard]] VISTA_SDK_CPP_INLINE Package& package() noexcept;
+		[[nodiscard]] [[nodiscard]] inline Package& package() noexcept;
 
 		//----------------------------------------------
 		// Setters
@@ -1306,7 +1315,7 @@ namespace dnv::vista::sdk::transport::timeseries
 		 * @brief Set package
 		 * @param package New package
 		 */
-		VISTA_SDK_CPP_INLINE void setPackage( Package package );
+		inline void setPackage( Package package );
 
 	private:
 		//----------------------------------------------
@@ -1315,6 +1324,6 @@ namespace dnv::vista::sdk::transport::timeseries
 
 		Package m_package;
 	};
-}
+} // namespace dnv::vista::sdk::transport::timeseries
 
 #include "dnv/vista/sdk/detail/transport/timeseries/TimeSeriesData.inl"

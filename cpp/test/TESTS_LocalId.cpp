@@ -8,9 +8,9 @@
 
 #include <gtest/gtest.h>
 
-#include "TestDataLoader.h"
+#include <nfx/serialization/json/Document.h>
 
-#include "internal/parsing/LocalIdParsingErrorBuilder.h"
+#include "TestDataLoader.h"
 
 #include <dnv/vista/sdk/mqtt/LocalId.h>
 #include <dnv/vista/sdk/Codebooks.h>
@@ -22,6 +22,7 @@
 #include <dnv/vista/sdk/ParsingErrors.h>
 #include <dnv/vista/sdk/VIS.h>
 #include <dnv/vista/sdk/VISVersion.h>
+#include <internal/parsing/LocalIdParsingErrorBuilder.h>
 
 namespace dnv::vista::sdk::tests
 {
@@ -41,7 +42,7 @@ namespace dnv::vista::sdk::tests
 			return "testdata/LocalIds.txt";
 #endif
 		}
-	}
+	} // namespace
 
 	//=====================================================================
 	// ParsingErrorsTests
@@ -327,6 +328,7 @@ namespace dnv::vista::sdk::tests
 			std::optional<std::string> ExceptionMsgOpt;
 			ParsingErrors Errors;
 		};
+
 		std::vector<ErrorInfo> errored;
 
 		std::string localIdStr;
@@ -402,23 +404,46 @@ namespace dnv::vista::sdk::tests
 	static std::vector<std::pair<std::string, std::vector<std::string>>> invalidLocalIdsData()
 	{
 		std::vector<std::pair<std::string, std::vector<std::string>>> data;
-		const nlohmann::json& jsonDataFromFile = test::loadTestData( INVALID_LOCAL_IDS_TEST_DATA_FILE );
+		const nfx::serialization::json::Document& jsonDataFromFile = test::loadTestData( INVALID_LOCAL_IDS_TEST_DATA_FILE );
 
-		if ( jsonDataFromFile.contains( "InvalidLocalIds" ) && jsonDataFromFile["InvalidLocalIds"].is_array() )
+		if ( jsonDataFromFile.contains( "/InvalidLocalIds" ) )
 		{
-			for ( const auto& item : jsonDataFromFile["InvalidLocalIds"] )
+			const auto invalidLocalIds = jsonDataFromFile.get<nfx::serialization::json::Document>( "/InvalidLocalIds" );
+			if ( !invalidLocalIds.has_value() )
 			{
-				if ( item.contains( "input" ) && item.contains( "expectedErrorMessages" ) && item["input"].is_string() &&
-					 item["expectedErrorMessages"].is_array() )
+				return data;
+			}
+
+			auto arrayOpt = invalidLocalIds->get<nfx::serialization::json::Document::Array>( "" );
+			if ( !arrayOpt )
+			{
+				return data;
+			}
+
+			for ( const auto& item : arrayOpt.value() )
+			{
+				if ( item.contains( "/input" ) && item.contains( "/expectedErrorMessages" ) )
 				{
-					std::string input = item["input"].get<std::string>();
+					auto inputOpt = item.get<std::string>( "/input" );
+					auto expectedMsgDocOpt = item.get<nfx::serialization::json::Document>( "/expectedErrorMessages" );
+
+					if ( !inputOpt.has_value() || !expectedMsgDocOpt.has_value() )
+					{
+						continue;
+					}
+
+					std::string input = inputOpt.value();
 					std::vector<std::string> expectedMessages;
 
-					for ( const auto& msg : item["expectedErrorMessages"] )
+					auto msgArrayOpt = expectedMsgDocOpt->get<nfx::serialization::json::Document::Array>( "" );
+					if ( msgArrayOpt )
 					{
-						if ( msg.is_string() )
+						for ( const auto& msgElem : msgArrayOpt.value() )
 						{
-							expectedMessages.push_back( msg.get<std::string>() );
+							if ( auto msg = msgElem.get<std::string>( "" ) )
+							{
+								expectedMessages.push_back( *msg );
+							}
 						}
 					}
 
@@ -509,4 +534,4 @@ namespace dnv::vista::sdk::tests
 	}
 
 	INSTANTIATE_TEST_SUITE_P( MqttValidCases, LocalIdMqttValidTest, ::testing::ValuesIn( LocalIdMqttValidTest::testData() ) );
-}
+} // namespace dnv::vista::sdk::tests

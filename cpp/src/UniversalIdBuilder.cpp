@@ -3,13 +3,14 @@
  * @brief Implementation of UniversalIdBuilder class
  */
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/Hashing.h>
+#include <nfx/string/StringBuilder.h>
 #include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/UniversalIdBuilder.h"
 
 #include "internal/parsing/LocalIdParsingErrorBuilder.h"
-
+#include "dnv/vista/sdk/config/config.h"
 #include "dnv/vista/sdk/ImoNumber.h"
 #include "dnv/vista/sdk/LocalIdBuilder.h"
 #include "dnv/vista/sdk/ParsingErrors.h"
@@ -18,9 +19,38 @@
 
 namespace dnv::vista::sdk
 {
+	namespace internal
+	{
+		//----------------------------------------------
+		// Hashing
+		//----------------------------------------------
+
+		/**
+		 * @brief Computes and updates the cached hash value
+		 * @details Combines hash codes of ImoNumber and LocalId components using
+		 *          NFX optimized hash combination for consistent results
+		 */
+		static size_t computeHash( const std::optional<ImoNumber>& imo, const std::optional<LocalIdBuilder>& localIdBuilder ) noexcept
+		{
+			uint32_t hash1 = imo.has_value() ? static_cast<uint32_t>( imo->hashCode() ) : VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS;
+			uint32_t hash2 = localIdBuilder.has_value() ? static_cast<uint32_t>( localIdBuilder->hashCode() ) : VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS;
+
+			return static_cast<size_t>( nfx::hashing::combine<uint32_t>( hash1, hash2 ) );
+		}
+	} // namespace internal
+
 	//=====================================================================
 	// UniversalIdBuilder class
 	//=====================================================================
+
+	//----------------------------------------------
+	// Construction
+	//----------------------------------------------
+
+	UniversalIdBuilder::UniversalIdBuilder()
+		: m_hashCode{ VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS }
+	{
+	}
 
 	//----------------------------------------------
 	// Assignment operators
@@ -32,6 +62,7 @@ namespace dnv::vista::sdk
 		{
 			m_imoNumber = std::move( other.m_imoNumber );
 			m_localIdBuilder = std::move( other.m_localIdBuilder );
+			m_hashCode = other.m_hashCode;
 		}
 
 		return *this;
@@ -54,10 +85,10 @@ namespace dnv::vista::sdk
 		}
 
 		auto lease = nfx::string::StringBuilderPool::lease();
-		auto builder = lease.builder();
+		auto builder = lease.create();
 
 		builder.append( transport::ISO19848_ANNEX_C_NAMING_ENTITY );
-		builder.push_back( '/' );
+		builder.append( '/' );
 		builder.append( m_imoNumber->toString() );
 		builder.append( m_localIdBuilder->toString() );
 
@@ -73,15 +104,25 @@ namespace dnv::vista::sdk
 		return UniversalIdBuilder().withLocalId( LocalIdBuilder::create( version ) );
 	}
 
-	//----------------------------------------------
-	// Build methods (Immutable fluent interface)
-	//----------------------------------------------
-
 	//----------------------------
-	// Build
+	// Build (Immutable fluent interface)
 	//----------------------------
 
-	UniversalId UniversalIdBuilder::build() const { return UniversalId( *this ); }
+	UniversalId UniversalIdBuilder::build() const
+	{
+		if ( !m_imoNumber.has_value() )
+		{
+			throw std::invalid_argument{ "Cannot build UniversalId: Missing IMO Number" };
+		}
+		if ( !m_localIdBuilder.has_value() )
+		{
+			throw std::invalid_argument{ "Cannot build UniversalId: Missing LocalId" };
+		}
+
+		UniversalIdBuilder result( *this );
+
+		return UniversalId( result );
+	}
 
 	//----------------------------------------------
 	// Local id
@@ -115,8 +156,8 @@ namespace dnv::vista::sdk
 		succeeded = true;
 
 		UniversalIdBuilder result( *this );
-
 		result.m_localIdBuilder.emplace( localId.value() );
+		result.m_hashCode = internal::computeHash( result.m_imoNumber, result.m_localIdBuilder );
 
 		return result;
 	}
@@ -125,6 +166,8 @@ namespace dnv::vista::sdk
 	{
 		UniversalIdBuilder result( *this );
 		result.m_localIdBuilder = std::nullopt;
+		result.m_hashCode = internal::computeHash( result.m_imoNumber, result.m_localIdBuilder );
+
 		return result;
 	}
 
@@ -161,6 +204,7 @@ namespace dnv::vista::sdk
 
 		UniversalIdBuilder result( *this );
 		result.m_imoNumber = imoNumber;
+		result.m_hashCode = internal::computeHash( result.m_imoNumber, result.m_localIdBuilder );
 
 		return result;
 	}
@@ -169,6 +213,8 @@ namespace dnv::vista::sdk
 	{
 		UniversalIdBuilder result( *this );
 		result.m_imoNumber = std::nullopt;
+		result.m_hashCode = internal::computeHash( result.m_imoNumber, result.m_localIdBuilder );
+
 		return result;
 	}
 
@@ -183,11 +229,12 @@ namespace dnv::vista::sdk
 		if ( !tryParse( universalIdStr, errors, builder ) )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
-			auto stringBuilder = lease.builder();
+			auto stringBuilder = lease.create();
 			stringBuilder.append( "Couldn't parse universal ID from: '" );
 			stringBuilder.append( universalIdStr );
 			stringBuilder.append( "'. " );
 			stringBuilder.append( errors.toString() );
+
 			throw std::invalid_argument{ lease.toString() };
 		}
 		return builder.value();
@@ -282,8 +329,8 @@ namespace dnv::vista::sdk
 				}
 				case internal::LocalIdParsingState::IMONumber:
 				{
-					auto imoResult = ImoNumber::tryParse( segment );
-					if ( !imoResult.has_value() )
+					ImoNumber imoResult;
+					if ( !ImoNumber::tryParse( segment, imoResult ) )
 					{
 						errorBuilder.addError( state, std::string{ "Invalid IMO number segment" } );
 						break;
@@ -313,4 +360,4 @@ namespace dnv::vista::sdk
 
 		return true;
 	}
-}
+} // namespace dnv::vista::sdk

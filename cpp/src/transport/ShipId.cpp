@@ -51,14 +51,14 @@ namespace dnv::vista::sdk::transport
 		// In ISO-19848, IMO number as ShipID should be prefixed with "IMO"
 		if ( value.size() >= 3 && nfx::string::iequals( value.substr( 0, 3 ), "IMO" ) )
 		{
-			auto imoOpt = ImoNumber::tryParse( value );
-			if ( imoOpt.has_value() )
+			ImoNumber imo;
+			if ( ImoNumber::tryParse( value, imo ) )
 			{
-				return ShipId{ imoOpt.value() };
+				return ShipId{ imo };
 			}
 		}
 
 		// If not a valid IMO number, treat as other identifier
 		return ShipId{ value };
 	}
-}
+} // namespace dnv::vista::sdk::transport

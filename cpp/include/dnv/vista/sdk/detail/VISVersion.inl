@@ -5,8 +5,8 @@
 
 #include <stdexcept>
 
-#include <nfx/containers/StringMap.h>
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/Containers.h>
+#include <nfx/string/StringBuilder.h>
 
 namespace dnv::vista::sdk
 {
@@ -20,7 +20,7 @@ namespace dnv::vista::sdk
 		{
 			static const std::vector<VisVersion> versions = []() {
 				std::vector<VisVersion> result;
-				for ( VisVersion v = VisVersion::v3_4a; v <= VisVersion::LATEST; v = v + 1 )
+				for ( VisVersion v = VisVersion::v3_4a; v <= VisVersion::Latest; v = v + 1 )
 				{
 					result.push_back( v );
 				}
@@ -29,27 +29,29 @@ namespace dnv::vista::sdk
 			return versions;
 		}
 
-		inline const nfx::containers::StringMap<VisVersion>& versionMapImpl()
+		inline const nfx::containers::FastHashMap<std::string, VisVersion>& versionMapImpl()
 		{
-			static const nfx::containers::StringMap<VisVersion>
-				versionMap{
-					{ "3-4a", VisVersion::v3_4a },
-					{ "3-5a", VisVersion::v3_5a },
-					{ "3-6a", VisVersion::v3_6a },
-					{ "3-7a", VisVersion::v3_7a },
-					{ "3-8a", VisVersion::v3_8a },
-					{ "3-9a", VisVersion::v3_9a },
-
-					{ "vis-3-4a", VisVersion::v3_4a },
-					{ "vis-3-5a", VisVersion::v3_5a },
-					{ "vis-3-6a", VisVersion::v3_6a },
-					{ "vis-3-7a", VisVersion::v3_7a },
-					{ "vis-3-8a", VisVersion::v3_8a },
-					{ "vis-3-9a", VisVersion::v3_9a } };
+			static const auto versionMap = []() {
+				nfx::containers::FastHashMap<std::string, VisVersion> map;
+				map.reserve( 12 );
+				map.insertOrAssign( "3-4a", VisVersion::v3_4a );
+				map.insertOrAssign( "3-5a", VisVersion::v3_5a );
+				map.insertOrAssign( "3-6a", VisVersion::v3_6a );
+				map.insertOrAssign( "3-7a", VisVersion::v3_7a );
+				map.insertOrAssign( "3-8a", VisVersion::v3_8a );
+				map.insertOrAssign( "3-9a", VisVersion::v3_9a );
+				map.insertOrAssign( "vis-3-4a", VisVersion::v3_4a );
+				map.insertOrAssign( "vis-3-5a", VisVersion::v3_5a );
+				map.insertOrAssign( "vis-3-6a", VisVersion::v3_6a );
+				map.insertOrAssign( "vis-3-7a", VisVersion::v3_7a );
+				map.insertOrAssign( "vis-3-8a", VisVersion::v3_8a );
+				map.insertOrAssign( "vis-3-9a", VisVersion::v3_9a );
+				return map;
+			}();
 
 			return versionMap;
 		}
-	}
+	} // namespace
 
 	inline VisVersion operator++( VisVersion& version )
 	{
@@ -98,7 +100,7 @@ namespace dnv::vista::sdk
 
 	inline bool VisVersionExtensions::isValid( VisVersion version )
 	{
-		return version >= VisVersion::v3_4a && version <= VisVersion::LATEST;
+		return version >= VisVersion::v3_4a && version <= VisVersion::Latest;
 	}
 
 	inline const std::vector<VisVersion>& VisVersionExtensions::allVersions()
@@ -108,7 +110,7 @@ namespace dnv::vista::sdk
 
 	inline VisVersion VisVersionExtensions::latestVersion()
 	{
-		return VisVersion::LATEST;
+		return VisVersion::Latest;
 	}
 
 	inline std::string VisVersionExtensions::toVersionString( VisVersion version )
@@ -153,10 +155,10 @@ namespace dnv::vista::sdk
 	inline bool VisVersionExtensions::tryParse( std::string_view versionString, VisVersion& version )
 	{
 		const auto& versionMap = versionMapImpl();
-		auto it = versionMap.find( versionString );
-		if ( it != versionMap.end() )
+		const auto* ptr = versionMap.find( versionString );
+		if ( ptr != nullptr )
 		{
-			version = it->second;
+			version = *ptr;
 
 			return true;
 		}
@@ -169,7 +171,7 @@ namespace dnv::vista::sdk
 		if ( !tryParse( versionString, result ) )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
+			auto builder = lease.create();
 			builder.append( "Invalid VIS version string: " );
 			builder.append( versionString );
 			throw std::invalid_argument{ lease.toString() };
@@ -177,4 +179,4 @@ namespace dnv::vista::sdk
 
 		return result;
 	}
-}
+} // namespace dnv::vista::sdk

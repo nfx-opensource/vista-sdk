@@ -70,7 +70,7 @@ namespace dnv::vista::sdk::samples
 			std::cout << "Converted GmodNode: Source='" << sampleGmodNode << "' Target='(conversion failed)'" << std::endl;
 		}
 	}
-}
+} // namespace dnv::vista::sdk::samples
 
 /**
  * @brief Main function to run the GmodNode versioning examples

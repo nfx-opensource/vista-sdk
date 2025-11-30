@@ -64,7 +64,7 @@ namespace dnv::vista::sdk::samples
 			std::cout << "Converted GmodPath: Source='" << sampleGmodPath << "' Target='(conversion failed)'" << std::endl;
 		}
 	}
-}
+} // namespace dnv::vista::sdk::samples
 
 /**
  * @brief Main function to run the GmodPath versioning examples

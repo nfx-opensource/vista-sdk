@@ -10,7 +10,7 @@
 #include "dnv/vista/sdk/VISVersion.h"
 #include "dnv/vista/sdk/transport/ISO19848Constants.h"
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/StringBuilder.h>
 
 namespace dnv::vista::sdk::mqtt
 {
@@ -81,7 +81,7 @@ namespace dnv::vista::sdk::mqtt
 				tag.value().toString( builder );
 			}
 		}
-	}
+	} // namespace internal
 
 	//=====================================================================
 	// LocalId class
@@ -103,7 +103,7 @@ namespace dnv::vista::sdk::mqtt
 	std::string LocalId::toString() const
 	{
 		auto lease = nfx::string::StringBuilderPool::lease();
-		auto builder = lease.builder();
+		auto builder = lease.create();
 
 		// Naming rule (NO leading slash for MQTT): "dnv-v2/"
 		builder.append( transport::ISO19848_ANNEX_C_NAMING_RULE );
@@ -133,4 +133,4 @@ namespace dnv::vista::sdk::mqtt
 
 		return lease.toString();
 	}
-}
+} // namespace dnv::vista::sdk::mqtt

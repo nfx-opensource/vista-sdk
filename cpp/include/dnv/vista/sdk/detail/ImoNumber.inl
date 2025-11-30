@@ -27,4 +27,13 @@ namespace dnv::vista::sdk
 	{
 		return m_value;
 	}
-}
+
+	//----------------------------------------------
+	// Hashing
+	//----------------------------------------------
+
+	inline std::size_t ImoNumber::hashCode() const noexcept
+	{
+		return m_hashCode;
+	}
+} // namespace dnv::vista::sdk

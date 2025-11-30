@@ -4,8 +4,10 @@
  */
 
 #include <stdexcept>
+#include <string>
 
-#include <nfx/string/Utils.h>
+#include <nfx/Hashing.h>
+#include <nfx/StringUtils.h>
 
 #include "dnv/vista/sdk/ImoNumber.h"
 
@@ -19,6 +21,12 @@ namespace dnv::vista::sdk
 	// Construction
 	//----------------------------------------------
 
+	ImoNumber::ImoNumber()
+		: m_hashCode{ 0 },
+		  m_value{ 0 }
+	{
+	}
+
 	ImoNumber::ImoNumber( int value )
 	{
 		if ( !isValid( value ) )
@@ -27,20 +35,44 @@ namespace dnv::vista::sdk
 		}
 
 		m_value = value;
+
+		m_hashCode = nfx::hashing::hash<uint32_t, uint32_t, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS>( static_cast<uint32_t>( value ) );
 	}
 
 	ImoNumber::ImoNumber( std::string_view value )
 	{
-		auto result = tryParse( value );
-		if ( !result )
+		if ( nfx::string::isEmpty( value ) )
 		{
 			throw std::invalid_argument{ "Invalid IMO number: " + std::string{ value } };
 		}
 
-		m_value = result->m_value;
+		if ( nfx::string::isNullOrWhiteSpace( value ) )
+		{
+			throw std::invalid_argument{ "Invalid IMO number: " + std::string{ value } };
+		}
+
+		std::string_view sv = value;
+		if ( sv.length() >= 3 && nfx::string::iequals( sv.substr( 0, 3 ), "IMO" ) )
+		{
+			sv = sv.substr( 3 );
+		}
+
+		int num = 0;
+		if ( !nfx::string::fromString<int>( sv, num ) )
+		{
+			throw std::invalid_argument{ "Invalid IMO number: " + std::string{ value } };
+		}
+		if ( num == 0 || !isValid( num ) )
+		{
+			throw std::invalid_argument{ "Invalid IMO number: " + std::string{ value } };
+		}
+
+		m_value = num;
+		m_hashCode = nfx::hashing::hash<uint32_t, uint32_t, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS>( static_cast<uint32_t>( num ) );
 	}
 
 	//----------------------------------------------
+
 	// String conversion
 	//----------------------------------------------
 
@@ -54,17 +86,17 @@ namespace dnv::vista::sdk
 	//----------------------------------------------
 
 	/*
-		IMO number validation according to the standard:
-		https://en.wikipedia.org/wiki/IMO_number
-		An IMO number is made of the three letters "IMO" followed by a seven-digit number.
-		This consists of a six-digit sequential unique number followed by a check digit.
-		The integrity of an IMO number can be verified using its check digit.
-		This is done by multiplying each of the first six digits by a factor
-		of 2 to 7 corresponding to their position from right to left.
-		The rightmost digit of this sum is the check digit.
-		For example, for IMO 9074729: (9×7) + (0×6) + (7×5) + (4×4) + (7×3) + (2×2) = 139
-		The rightmost digit (9) must equal checksum mod 10 (139 % 10 = 9)
-	*/
+			IMO number validation according to the standard:
+			https://en.wikipedia.org/wiki/IMO_number
+			An IMO number is made of the three letters "IMO" followed by a seven-digit number.
+			This consists of a six-digit sequential unique number followed by a check digit.
+			The integrity of an IMO number can be verified using its check digit.
+			This is done by multiplying each of the first six digits by a factor
+			of 2 to 7 corresponding to their position from right to left.
+			The rightmost digit of this sum is the check digit.
+			For example, for IMO 9074729: (9×7) + (0×6) + (7×5) + (4×4) + (7×3) + (2×2) = 139
+			The rightmost digit (9) must equal checksum mod 10 (139 % 10 = 9)
+		*/
 	bool ImoNumber::isValid( int imoNumber ) noexcept
 	{
 		if ( imoNumber < 1000000 || imoNumber > 9999999 )
@@ -98,30 +130,24 @@ namespace dnv::vista::sdk
 
 	ImoNumber ImoNumber::parse( std::string_view value )
 	{
-		if ( nfx::string::isEmpty( value ) )
-		{
-			throw std::invalid_argument( "Empty IMO number string" );
-		}
-
-		auto result = tryParse( value );
-		if ( !result )
+		ImoNumber imo;
+		if ( !tryParse( value, imo ) )
 		{
 			throw std::invalid_argument( "Failed to parse ImoNumber: " + std::string{ value } );
 		}
-
-		return *result;
+		return imo;
 	}
 
-	std::optional<ImoNumber> ImoNumber::tryParse( std::string_view value )
+	bool ImoNumber::tryParse( std::string_view value, ImoNumber& imoNumber )
 	{
 		if ( nfx::string::isEmpty( value ) )
 		{
-			return std::nullopt;
+			return false;
 		}
 
 		if ( nfx::string::isNullOrWhiteSpace( value ) )
 		{
-			return std::nullopt;
+			return false;
 		}
 
 		std::string_view sv = value;
@@ -131,16 +157,18 @@ namespace dnv::vista::sdk
 		}
 
 		int num = 0;
-		if ( !nfx::string::tryParseInt( sv, num ) )
+		if ( !nfx::string::fromString<int>( sv, num ) )
 		{
-			return std::nullopt;
+			return false;
 		}
 
 		if ( num == 0 || !isValid( num ) )
 		{
-			return std::nullopt;
+			return false;
 		}
 
-		return ImoNumber{ num };
+		imoNumber = ImoNumber{ num };
+
+		return true;
 	}
-}
+} // namespace dnv::vista::sdk

@@ -9,8 +9,6 @@
 
 #include <unordered_map>
 
-#include <nfx/containers/StringMap.h>
-
 #include "LocalId.h"
 #include "MetadataTag.h"
 
@@ -188,6 +186,6 @@ namespace dnv::vista::sdk
 		std::unordered_map<CodebookName, MetadataTag> m_tags;
 		bool m_matchExact;
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/MetadataTagsQuery.inl"

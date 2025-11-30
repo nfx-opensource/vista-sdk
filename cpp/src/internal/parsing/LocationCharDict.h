@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <optional>
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/StringBuilder.h>
 
 #include "dnv/vista/sdk/Locations.h"
 
@@ -107,7 +107,7 @@ namespace dnv::vista::sdk::internal
 		if ( static_cast<int>( key ) <= 0 )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
+			auto builder = lease.create();
 			builder.append( "Unsupported code: " );
 			builder.append( std::to_string( static_cast<int>( key ) ) );
 
@@ -118,7 +118,7 @@ namespace dnv::vista::sdk::internal
 		if ( index >= m_table.size() )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
+			auto builder = lease.create();
 			builder.append( "Unsupported code: " );
 			builder.append( std::to_string( static_cast<int>( key ) ) );
 
@@ -147,4 +147,4 @@ namespace dnv::vista::sdk::internal
 
 		return true;
 	}
-}
+} // namespace dnv::vista::sdk::internal

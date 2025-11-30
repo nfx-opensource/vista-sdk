@@ -124,4 +124,13 @@ namespace dnv::vista::sdk
 	{
 		return !( *this == other );
 	}
-}
+
+	//----------------------------------------------
+	// Hashing
+	//----------------------------------------------
+
+	inline std::size_t ParsingErrors::hashCode() const noexcept
+	{
+		return m_hashCode;
+	}
+} // namespace dnv::vista::sdk

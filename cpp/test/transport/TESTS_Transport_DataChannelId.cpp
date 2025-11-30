@@ -1,5 +1,5 @@
 /**
- * @file TESTS_DataChannelId.cpp
+ * @file TESTS_Transport_DataChannelId.cpp
  * @brief Comprehensive tests for DataChannelId class
  */
 
@@ -28,7 +28,7 @@ namespace dnv::vista::sdk::tests
 		ASSERT_TRUE( localIdBuilderOpt.has_value() );
 
 		auto localId = localIdBuilderOpt->build();
-		transport::timeseries::DataChannelId dataChannelId{ localId };
+		auto dataChannelId = transport::timeseries::DataChannelId::parse( localId.toString() );
 		EXPECT_TRUE( dataChannelId.isLocalId() );
 		EXPECT_FALSE( dataChannelId.isShortId() );
 
@@ -43,7 +43,7 @@ namespace dnv::vista::sdk::tests
 	TEST( DataChannelId, ConstructFromStringView )
 	{
 		std::string_view testId = "CH001";
-		transport::timeseries::DataChannelId dataChannelId{ testId };
+		auto dataChannelId = transport::timeseries::DataChannelId::parse( testId );
 
 		EXPECT_FALSE( dataChannelId.isLocalId() );
 		EXPECT_TRUE( dataChannelId.isShortId() );
@@ -75,8 +75,8 @@ namespace dnv::vista::sdk::tests
 
 		auto localId1 = localIdBuilder1Opt->build();
 		auto localId2 = localIdBuilder2Opt->build();
-		transport::timeseries::DataChannelId dataChannelId1{ localId1 };
-		transport::timeseries::DataChannelId dataChannelId2{ localId2 };
+		auto dataChannelId1 = transport::timeseries::DataChannelId::parse( localId1.toString() );
+		auto dataChannelId2 = transport::timeseries::DataChannelId::parse( localId2.toString() );
 
 		EXPECT_EQ( dataChannelId1, dataChannelId2 );
 		EXPECT_FALSE( dataChannelId1 != dataChannelId2 );
@@ -84,8 +84,8 @@ namespace dnv::vista::sdk::tests
 
 	TEST( DataChannelId, EqualityShortIds )
 	{
-		transport::timeseries::DataChannelId dataChannelId1{ "CH001" };
-		transport::timeseries::DataChannelId dataChannelId2{ "CH001" };
+		auto dataChannelId1 = transport::timeseries::DataChannelId::parse( "CH001" );
+		auto dataChannelId2 = transport::timeseries::DataChannelId::parse( "CH001" );
 
 		EXPECT_EQ( dataChannelId1, dataChannelId2 );
 		EXPECT_FALSE( dataChannelId1 != dataChannelId2 );
@@ -101,16 +101,18 @@ namespace dnv::vista::sdk::tests
 		ASSERT_TRUE( localIdBuilderOpt.has_value() );
 
 		auto localId = localIdBuilderOpt->build();
-		transport::timeseries::DataChannelId localIdDataChannelId{ localId };
-		transport::timeseries::DataChannelId shortIdDataChannelId{ "CH001" };
+
+		auto localIdDataChannelId = transport::timeseries::DataChannelId::parse( localId.toString() );
+		auto shortIdDataChannelId = transport::timeseries::DataChannelId::parse( "CH001" );
+
 		EXPECT_NE( localIdDataChannelId, shortIdDataChannelId );
 		EXPECT_TRUE( localIdDataChannelId != shortIdDataChannelId );
 	}
 
 	TEST( DataChannelId, InequalityDifferentValues )
 	{
-		transport::timeseries::DataChannelId dataChannelId1{ "CH001" };
-		transport::timeseries::DataChannelId dataChannelId2{ "CH002" };
+		auto dataChannelId1 = transport::timeseries::DataChannelId::parse( "CH001" );
+		auto dataChannelId2 = transport::timeseries::DataChannelId::parse( "CH002" );
 
 		EXPECT_NE( dataChannelId1, dataChannelId2 );
 		EXPECT_TRUE( dataChannelId1 != dataChannelId2 );
@@ -130,14 +132,15 @@ namespace dnv::vista::sdk::tests
 		ASSERT_TRUE( localIdBuilderOpt.has_value() );
 
 		auto localId = localIdBuilderOpt->build();
-		transport::timeseries::DataChannelId dataChannelId{ localId };
+		auto dataChannelId = transport::timeseries::DataChannelId::parse( localId.toString() );
+
 		std::string result = dataChannelId.toString();
 		EXPECT_EQ( result, localId.toString() );
 	}
 
 	TEST( DataChannelId, ToStringShortId )
 	{
-		transport::timeseries::DataChannelId dataChannelId{ "CH001" };
+		auto dataChannelId = transport::timeseries::DataChannelId::parse( "CH001" );
 
 		std::string result = dataChannelId.toString();
 		EXPECT_EQ( result, "CH001" );
@@ -204,7 +207,9 @@ namespace dnv::vista::sdk::tests
 		ASSERT_TRUE( localIdBuilderOpt.has_value() );
 
 		auto localId = localIdBuilderOpt->build();
-		transport::timeseries::DataChannelId dataChannelId{ localId };
+
+		auto dataChannelId = transport::timeseries::DataChannelId::parse( localId.toString() );
+
 		std::string result = dataChannelId.matchOn<std::string>(
 			[]( const LocalId& id ) { return "LocalId: " + id.toString(); },
 			[]( std::string_view shortId ) { return "ShortId: " + std::string{ shortId }; } );
@@ -214,7 +219,7 @@ namespace dnv::vista::sdk::tests
 
 	TEST( DataChannelId, MatchOnShortId )
 	{
-		transport::timeseries::DataChannelId dataChannelId{ "CH001" };
+		auto dataChannelId = transport::timeseries::DataChannelId::parse( "CH001" );
 
 		std::string result = dataChannelId.matchOn<std::string>(
 			[]( const LocalId& localId ) { return "LocalId: " + localId.toString(); },
@@ -233,7 +238,9 @@ namespace dnv::vista::sdk::tests
 		ASSERT_TRUE( localIdBuilderOpt.has_value() );
 
 		auto localId = localIdBuilderOpt->build();
-		transport::timeseries::DataChannelId dataChannelId{ localId };
+
+		auto dataChannelId = transport::timeseries::DataChannelId::parse( localId.toString() );
+
 		std::string result;
 		dataChannelId.switchOn(
 			[&result]( const LocalId& id ) { result = "LocalId: " + id.toString(); },
@@ -244,7 +251,7 @@ namespace dnv::vista::sdk::tests
 
 	TEST( DataChannelId, SwitchOnShortId )
 	{
-		transport::timeseries::DataChannelId dataChannelId{ "CH001" };
+		auto dataChannelId = transport::timeseries::DataChannelId::parse( "CH001" );
 
 		std::string result;
 		dataChannelId.switchOn(
@@ -260,7 +267,8 @@ namespace dnv::vista::sdk::tests
 
 	TEST( DataChannelId, CopyConstructor )
 	{
-		transport::timeseries::DataChannelId original{ "CH001" };
+		auto original = transport::timeseries::DataChannelId::parse( "CH001" );
+
 		transport::timeseries::DataChannelId copy{ original };
 
 		EXPECT_EQ( original, copy );
@@ -269,7 +277,8 @@ namespace dnv::vista::sdk::tests
 
 	TEST( DataChannelId, MoveConstructor )
 	{
-		transport::timeseries::DataChannelId original{ "CH001" };
+		auto original = transport::timeseries::DataChannelId::parse( "CH001" );
+
 		transport::timeseries::DataChannelId moved{ std::move( original ) };
 
 		EXPECT_TRUE( moved.isShortId() );
@@ -280,7 +289,8 @@ namespace dnv::vista::sdk::tests
 
 	TEST( DataChannelId, MoveAssignment )
 	{
-		transport::timeseries::DataChannelId original{ "CH001" };
+		auto original = transport::timeseries::DataChannelId::parse( "CH001" );
+
 		std::string validLocalIdString = "/dnv-v2/vis-3-4a/511.11-2/C101/meta/qty-rotational.frequency";
 		std::optional<LocalIdBuilder> localIdBuilderOpt;
 		bool parsed = LocalIdBuilder::tryParse( validLocalIdString, localIdBuilderOpt );
@@ -289,7 +299,9 @@ namespace dnv::vista::sdk::tests
 		ASSERT_TRUE( localIdBuilderOpt.has_value() );
 
 		auto localId = localIdBuilderOpt->build();
-		transport::timeseries::DataChannelId target{ localId };
+
+		auto target = transport::timeseries::DataChannelId::parse( localId.toString() );
+
 		target = std::move( original );
 
 		EXPECT_TRUE( target.isShortId() );
@@ -312,11 +324,12 @@ namespace dnv::vista::sdk::tests
 		ASSERT_TRUE( localIdBuilderOpt.has_value() );
 
 		auto localId = localIdBuilderOpt->build();
-		transport::timeseries::DataChannelId dataChannelId{ localId };
+
+		auto dataChannelId = transport::timeseries::DataChannelId::parse( localId.toString() );
 
 		EXPECT_TRUE( dataChannelId.isLocalId() );
 		auto retrievedLocalId = dataChannelId.localId();
 		ASSERT_TRUE( retrievedLocalId.has_value() );
 		EXPECT_EQ( retrievedLocalId.value(), localId );
 	}
-}
+} // namespace dnv::vista::sdk::tests

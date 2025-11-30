@@ -61,7 +61,7 @@ namespace dnv::vista::sdk::samples
 			std::cout << "Converted LocalId: Source='" << sampleLocalId << "' Target='(conversion failed)'" << std::endl;
 		}
 	}
-}
+} // namespace dnv::vista::sdk::samples
 
 /**
  * @brief Main function to run the LocalId versioning examples

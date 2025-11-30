@@ -68,4 +68,4 @@ namespace dnv::vista::sdk
 	{
 		return m_codebooks[static_cast<size_t>( name ) - 1].createTag( value );
 	}
-}
+} // namespace dnv::vista::sdk

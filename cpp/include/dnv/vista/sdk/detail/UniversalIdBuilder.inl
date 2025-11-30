@@ -30,6 +30,15 @@ namespace dnv::vista::sdk
 	}
 
 	//----------------------------------------------
+	// Hashing
+	//----------------------------------------------
+
+	inline std::size_t UniversalIdBuilder::hashCode() const noexcept
+	{
+		return m_hashCode;
+	}
+
+	//----------------------------------------------
 	// Accessors
 	//----------------------------------------------
 
@@ -53,4 +62,4 @@ namespace dnv::vista::sdk
 			   m_localIdBuilder.has_value() &&
 			   m_localIdBuilder->isValid();
 	}
-}
+} // namespace dnv::vista::sdk

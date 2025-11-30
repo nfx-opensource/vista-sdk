@@ -11,11 +11,13 @@
  * ## System Purpose:
  *
  * The **VISTA Metadata Tag System** serves as the foundation for:
- * - **Data Classification**: Standardized tagging for maritime data categorization
- * - **Metadata Validation**: Ensuring tags conform to VIS codebook specifications
- * - **Tag Serialization**  : Converting tags to string representations for storage/transmission
- * - **Custom Extensions**  : Supporting custom tags while maintaining standard compliance
- * - **Query Integration**  : Enabling efficient metadata-based data queries and filtering
+ * - **Data Classification**: Standardized tagging for maritime data categorization and organization
+ * - **Metadata Validation**: Ensuring tags conform to VIS codebook specifications and vocabulary
+ * - **Tag Serialization**  : Converting tags to string representations for storage and transmission
+ * - **Custom Extensions**  : Supporting domain-specific custom tags while maintaining standard compliance
+ * - **Query Integration**  : Enabling efficient metadata-based data queries and filtering operations
+ * - **Type-Safe Creation** : Enum-based tag names prevent invalid metadata construction
+ * - **Immutable Design**   : Thread-safe tag objects with guaranteed consistency after creation
  *
  * ## Core Architecture:
  *
@@ -26,20 +28,24 @@
  * - **String Conversion**: Flexible serialization with prefix and separator support
  *
  * ### Tag Structure
- * - **Name Component** : Codebook-based standardized name (e.g., Position, Detail)
- * - **Value Component**: String value conforming to codebook vocabulary
- * - **Custom Flag**    : Indicates standard vs. custom tag classification
- * - **Prefix System**  : Visual differentiation between standard (-) and custom (~) tags
+ * - **Name Component** : CodebookName enum-based standardized name (e.g., Position, Detail, Quantity)
+ * - **Value Component**: String value conforming to codebook vocabulary and validation rules
+ * - **Custom Flag**    : Boolean flag indicating standard (false) vs. custom (true) tag classification
+ * - **Prefix System**  : Visual differentiation with '-' for standard and '~' for custom tags
+ * - **Immutable State**: All components fixed after construction ensuring thread safety
+ * - **Compact Storage**: Efficient memory layout with enum name and string value
  *
  * ## Data Flow Architecture:
  *
  * ```
- * Codebook Validation
- *         ↓
- * MetadataTag Creation
- *         ↓
+ *         Codebook Validation
+ *                  ↓
+ *        MetadataTag Creation
+ *                  ↓
  * ┌─────────────────────────────────────┐
  * │           MetadataTag               │
+ * ├─────────────────────────────────────┤
+ * │      std::size_t m_hashCode         │ ← Cached hash (8 bytes, O(1) access)
  * ├─────────────────────────────────────┤
  * │ ┌─────────────────────────────────┐ │
  * │ │      CodebookName               │ │ ← Standardized name enum
@@ -54,9 +60,20 @@
  * │ │     (m_custom)                  │ │
  * │ └─────────────────────────────────┘ │
  * └─────────────────────────────────────┘
- *         ↓
- * String Serialization & Usage
- * ```
+ *                  ↓
+ *      String Serialization & Usage
+ *                  ↓
+ * ┌─────────────────────────────────────┐
+ * │    Tag Output & Formatting          │
+ * ├─────────────────────────────────────┤
+ * │ - Prefix-based tag identification   │
+ * │ - Standard (-) vs. custom (~) tags  │
+ * │ - Flexible separator configuration  │
+ * │ - StringBuilder-based serialization │
+ * │ - Query format generation           │
+ * │ - URI-compatible string encoding    │
+ * └─────────────────────────────────────┘
+ *```
  *
  * ## Usage Patterns:
  *
@@ -76,25 +93,29 @@
  *
  * ## Performance Characteristics:
  *
- * - **Immutable Design**  : Thread-safe operations with no post-construction changes
- * - **Zero-Copy Access**  : `string_view` interfaces minimize memory allocation
- * - **Efficient Storage** : Compact representation with enum-based names
- * - **Fast Comparison**   : Optimized equality operations for tag matching
- * - **Lazy Serialization**: String conversion only when explicitly requested
+ * - **Immutable Design**   : Thread-safe operations with no post-construction changes
+ * - **Zero-Copy Access**   : `string_view` interfaces minimize memory allocation overhead
+ * - **Efficient Storage**  : Compact representation with CodebookName enum and std::string
+ * - **Fast Comparison**    : Optimized equality operations for tag matching and filtering
+ * - **Lazy Serialization** : String conversion only when explicitly requested via toString()
+ * - **Enum-Based Names**   : O(1) name comparison using CodebookName enum values
+ * - **Memory Optimization**: Minimal footprint with three-member structure design
  *
  * ## Tag Classification System:
  *
  * ### Standard Tags
- * - **Validation Required**: Must conform to codebook vocabulary standards
- * - **Prefix Character**   : '-' (hyphen) for visual identification
- * - **Name Validation**    : CodebookName must exist in VIS standards
- * - **Value Validation**   : Value must be valid according to codebook rules
+ * - **Validation Required**: Must conform to VIS codebook vocabulary standards and rules
+ * - **Prefix Character**   : '-' (hyphen) for visual identification in serialized form
+ * - **Name Validation**    : CodebookName must exist in official VIS standards enumeration
+ * - **Value Validation**   : Value must be valid according to specific codebook validation rules
+ * - **Interoperability**   : Guaranteed compatibility across all VIS-compliant systems
  *
  * ### Custom Tags
- * - **Extended Vocabulary**: Support for domain-specific or custom values
- * - **Prefix Character**   : '~' (tilde) for visual identification
- * - **Relaxed Validation** : Value validation may be less strict
- * - **Compatibility**      : Maintains interoperability with standard systems
+ * - **Extended Vocabulary**  : Support for domain-specific, proprietary, or experimental values
+ * - **Prefix Character**     : '~' (tilde) for visual identification in serialized form
+ * - **Relaxed Validation**   : Value validation may be less strict or domain-specific
+ * - **Forward Compatibility**: Maintains interoperability with standard VIS systems
+ * - **Custom Extensions**    : Enables innovation while preserving core standard compliance
  *
  * ## String Representation Format:
  *
@@ -110,12 +131,13 @@
  *
  * ## Design Philosophy:
  *
- * - **Standards Compliance**: Full adherence to VIS metadata specifications
- * - **Type Safety**         : Strong typing prevents invalid tag construction
- * - **Performance Focus**   : Optimized for high-frequency maritime data operations
- * - **Immutability**        : Thread-safe design with immutable tag objects
- * - **Extensibility**       : Support for custom tags while maintaining compatibility
- * - **Usability**           : Clear, intuitive API for common metadata operations
+ * - **Standards Compliance**: Full adherence to VIS metadata specifications and codebook validation
+ * - **Type Safety**         : CodebookName enum typing prevents invalid tag name construction
+ * - **Performance Focus**   : Optimized for high-frequency maritime data processing operations
+ * - **Immutable Objects**   : Thread-safe design with guaranteed immutable tag state
+ * - **Extensibility**       : Custom tag support while maintaining standard system compatibility
+ * - **Intuitive API**       : Clear, discoverable interfaces for common metadata operations
+ * - **Memory Efficiency**   : Compact three-member design with minimal memory overhead
  */
 
 #pragma once
@@ -124,7 +146,7 @@
 #include <string>
 #include <string_view>
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/StringBuilder.h>
 
 #include "config/config.h"
 
@@ -303,10 +325,35 @@ namespace dnv::vista::sdk
 		 */
 		void toString( nfx::string::StringBuilder& builder, char separator = '/' ) const;
 
+		//----------------------------------------------
+		// Hashing
+		//----------------------------------------------
+
+		/**
+		 * @brief Gets the cached hash value for this MetadataTag instance
+		 * @details **Purpose**: Enables MetadataTag instances to be used efficiently as keys in hash-based
+		 *          collections (std::unordered_map, nfx::HashMap, etc.) without performance penalties.
+		 *
+		 *          **Performance Critical**: Hash is pre-computed during construction using optimized
+		 *          NFX FNV-1a algorithms and cached to avoid expensive recomputation. This transforms
+		 *          hash lookups from O(n) tag component processing to O(1) cached access.
+		 *
+		 *          **Implementation**: Combines hash codes of the CodebookName enum, string value,
+		 *          and custom flag using NFX hash combination algorithms for consistent, high-quality
+		 *          distribution across different tag configurations.
+		 *
+		 * @return The pre-computed hash value for this MetadataTag's complete tag state
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		[[nodiscard]] inline std::size_t hashCode() const noexcept;
+
 	private:
 		//-------------------------------------------------------------------------
 		// Private member variables
 		//-------------------------------------------------------------------------
+
+		/** @brief Cached hash value computed during construction for O(1) hash access */
+		std::size_t m_hashCode;
 
 		/** @brief The name of the metadata tag, represented by a CodebookName enum value. */
 		CodebookName m_name;
@@ -317,6 +364,29 @@ namespace dnv::vista::sdk
 		/** @brief The string value associated with the metadata tag. */
 		std::string m_value;
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/MetadataTag.inl"
+
+namespace std
+{
+	/**
+	 * @brief Hash specialization for dnv::vista::sdk::MetadataTag
+	 * @details Enables MetadataTag instances to be used as keys in all hash-based STL containers.
+	 *          This specialization provides seamless integration with std::unordered_map,
+	 *          std::unordered_set, and other standard library hash containers.
+	 */
+	template <>
+	struct hash<dnv::vista::sdk::MetadataTag>
+	{
+		/**
+		 * @brief Returns the cached hash value for optimal performance
+		 * @param[in] tag The MetadataTag instance to hash
+		 * @return Pre-computed hash value (O(1) access) combining name, value, and custom flag
+		 */
+		std::size_t operator()( const dnv::vista::sdk::MetadataTag& tag ) const noexcept
+		{
+			return tag.hashCode();
+		}
+	};
+} // namespace std

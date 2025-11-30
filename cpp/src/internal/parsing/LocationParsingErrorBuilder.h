@@ -145,4 +145,4 @@ namespace dnv::vista::sdk::internal
 		 */
 		std::vector<std::pair<LocationValidationResult, std::string>> m_errors;
 	};
-}
+} // namespace dnv::vista::sdk::internal

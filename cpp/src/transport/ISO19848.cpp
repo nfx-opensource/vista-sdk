@@ -3,15 +3,13 @@
  * @brief Implementation of ISO 19848 standard data access
  */
 
-#include <nfx/containers/HashMap.h>
-#include <nfx/memory/LruCache.h>
-#include <nfx/string/Utils.h>
+#include <nfx/cache/LruCache.h>
+#include <nfx/StringUtils.h>
 
 #include "dnv/vista/sdk/transport/ISO19848.h"
 #include "dnv/vista/sdk/transport/ISO19848Constants.h"
 
 #include "internal/core/EmbeddedResource.h"
-#include "internal/transport/ISO19848.h"
 #include "internal/transport/dto/ISO19848Dtos.h"
 
 namespace dnv::vista::sdk
@@ -31,18 +29,18 @@ namespace dnv::vista::sdk
 		//-----------------------------
 
 		static auto dataChannelTypeNamesDtoCache{
-			nfx::memory::LruCache<sdk::transport::ISO19848Version, internal::transport::DataChannelTypeNamesDto>{ nfx::memory::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::cache::LruCache<sdk::transport::ISO19848Version, internal::transport::DataChannelTypeNamesDto>{ nfx::cache::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 		static auto formatDataTypesDtoCache{
-			nfx::memory::LruCache<sdk::transport::ISO19848Version, internal::transport::FormatDataTypesDto>{ nfx::memory::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::cache::LruCache<sdk::transport::ISO19848Version, internal::transport::FormatDataTypesDto>{ nfx::cache::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 
 		//-----------------------------
 		// Domain objects
 		//-----------------------------
 
 		static auto dataChannelTypeNamesCache{
-			nfx::memory::LruCache<sdk::transport::ISO19848Version, sdk::transport::DataChannelTypeNames>{ nfx::memory::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::cache::LruCache<sdk::transport::ISO19848Version, sdk::transport::DataChannelTypeNames>{ nfx::cache::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 		static auto formatDataTypesCache{
-			nfx::memory::LruCache<sdk::transport::ISO19848Version, sdk::transport::FormatDataTypes>{ nfx::memory::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
+			nfx::cache::LruCache<sdk::transport::ISO19848Version, sdk::transport::FormatDataTypes>{ nfx::cache::LruCacheOptions{ 10, std::chrono::hours{ 1 } } } };
 
 		//----------------------------------------------
 		// Resource loading
@@ -81,9 +79,9 @@ namespace dnv::vista::sdk
 		// DTO access
 		//----------------------------------------------
 
-		static const internal::transport::DataChannelTypeNamesDto& dataChannelTypeNamesDto( nfx::memory::LruCache<sdk::transport::ISO19848Version, internal::transport::DataChannelTypeNamesDto>& dtoCache, sdk::transport::ISO19848Version version )
+		static const internal::transport::DataChannelTypeNamesDto& dataChannelTypeNamesDto( nfx::cache::LruCache<sdk::transport::ISO19848Version, internal::transport::DataChannelTypeNamesDto>& dtoCache, sdk::transport::ISO19848Version version )
 		{
-			return dtoCache.getOrCreate(
+			return *dtoCache.get(
 				version,
 				[version]() -> internal::transport::DataChannelTypeNamesDto {
 					const auto dto = loadDataChannelTypeNamesDto( version );
@@ -94,15 +92,15 @@ namespace dnv::vista::sdk
 
 					return dto.value();
 				},
-				[]( nfx::memory::CacheEntry& entry ) {
+				[]( nfx::cache::CacheEntry& entry ) {
 					entry.size = 1;
 					entry.slidingExpiration = std::chrono::hours( 1 );
 				} );
 		}
 
-		static const internal::transport::FormatDataTypesDto& formatDataTypesDto( nfx::memory::LruCache<sdk::transport::ISO19848Version, internal::transport::FormatDataTypesDto>& dtoCache, sdk::transport::ISO19848Version version )
+		static const internal::transport::FormatDataTypesDto& formatDataTypesDto( nfx::cache::LruCache<sdk::transport::ISO19848Version, internal::transport::FormatDataTypesDto>& dtoCache, sdk::transport::ISO19848Version version )
 		{
-			return dtoCache.getOrCreate(
+			return *dtoCache.get(
 				version,
 				[version]() -> internal::transport::FormatDataTypesDto {
 					const auto dto = loadFormatDataTypesDto( version );
@@ -113,12 +111,12 @@ namespace dnv::vista::sdk
 
 					return dto.value();
 				},
-				[]( nfx::memory::CacheEntry& entry ) {
+				[]( nfx::cache::CacheEntry& entry ) {
 					entry.size = 1;
 					entry.slidingExpiration = std::chrono::hours( 1 );
 				} );
 		}
-	}
+	} // namespace internal::iso19848
 
 	namespace transport
 	{
@@ -150,22 +148,22 @@ namespace dnv::vista::sdk
 
 		const DataChannelTypeNames& ISO19848::dataChannelTypeNames( ISO19848Version version )
 		{
-			return internal::iso19848::dataChannelTypeNamesCache.getOrCreate(
+			return *internal::iso19848::dataChannelTypeNamesCache.get(
 				version,
 				[version]() -> DataChannelTypeNames {
 					const auto dto = internal::iso19848::dataChannelTypeNamesDto( internal::iso19848::dataChannelTypeNamesDtoCache, version );
 
 					std::vector<DataChannelTypeName> values;
-					values.reserve( dto.values().size() );
+					values.reserve( dto.values.size() );
 
-					for ( const auto& x : dto.values() )
+					for ( const auto& x : dto.values )
 					{
-						values.emplace_back( x.type(), x.description() );
+						values.emplace_back( x.type, x.description );
 					}
 
 					return DataChannelTypeNames{ std::move( values ) };
 				},
-				[]( nfx::memory::CacheEntry& entry ) {
+				[]( nfx::cache::CacheEntry& entry ) {
 					entry.size = 1;
 					entry.slidingExpiration = std::chrono::hours( 1 );
 				} );
@@ -173,22 +171,22 @@ namespace dnv::vista::sdk
 
 		const FormatDataTypes& ISO19848::formatDataTypes( ISO19848Version version )
 		{
-			return internal::iso19848::formatDataTypesCache.getOrCreate(
+		return *internal::iso19848::formatDataTypesCache.get(
 				version,
 				[version]() -> FormatDataTypes {
 					const auto dto = internal::iso19848::formatDataTypesDto( internal::iso19848::formatDataTypesDtoCache, version );
 
 					std::vector<FormatDataType> values;
-					values.reserve( dto.values().size() );
+					values.reserve( dto.values.size() );
 
-					for ( const auto& x : dto.values() )
+					for ( const auto& x : dto.values )
 					{
-						values.emplace_back( x.type(), x.description() );
+						values.emplace_back( x.type, x.description );
 					}
 
 					return FormatDataTypes{ std::move( values ) };
 				},
-				[]( nfx::memory::CacheEntry& entry ) {
+				[]( nfx::cache::CacheEntry& entry ) {
 					entry.size = 1;
 					entry.slidingExpiration = std::chrono::hours( 1 );
 				} );
@@ -236,102 +234,51 @@ namespace dnv::vista::sdk
 
 		ValidateResult FormatDataType::validate( std::string_view value, Value& outValue ) const
 		{
-			if ( !nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_STRING ) &&
-				 nfx::string::isNullOrWhiteSpace( value ) )
-			{
-				return ValidateResult{ ValidateResult::Invalid{ { "Value cannot be null, empty, or whitespace for non-string types - Value='" + std::string{ value } + "'" } } };
-			}
+			outValue = Value{ Value::String{ value } };
 
-			const auto trimmedValue = nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_STRING ) ? value : nfx::string::trim( value );
-
-			outValue = Value{ Value::String{ trimmedValue } };
-
-			if ( nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_DECIMAL ) )
+			if ( nfx::string::iequals( m_type, iso19848::formatdatatypes::DECIMAL ) )
 			{
 				nfx::datatypes::Decimal d;
-				if ( !nfx::datatypes::Decimal::tryParse( trimmedValue, d ) )
+				if ( !nfx::datatypes::Decimal::fromString( value, d ) )
 				{
-					return ValidateResult{ ValidateResult::Invalid{ { "Invalid decimal value - Value='" + std::string{ trimmedValue } + "'" } } };
+					return ValidateResult{ ValidateResult::Invalid{ { "Invalid decimal value - Value='" + std::string{ value } + "'" } } };
 				}
 
 				outValue = Value{ Value::Decimal{ d } };
 				return ValidateResult{ ValidateResult::Ok{} };
 			}
-			else if ( nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_DOUBLE ) )
-			{
-				double d;
-				if ( !nfx::string::tryParseDouble( trimmedValue, d ) )
-				{
-					return ValidateResult{ ValidateResult::Invalid{ { "Invalid double value - Value='" + std::string{ trimmedValue } + "'" } } };
-				}
-
-				outValue = Value{ Value::Double{ d } };
-				return ValidateResult{ ValidateResult::Ok{} };
-			}
-			else if ( nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_INTEGER ) )
+			else if ( nfx::string::iequals( m_type, iso19848::formatdatatypes::INTEGER ) )
 			{
 				int i;
-				if ( !nfx::string::tryParseInt( trimmedValue, i ) )
+				if ( !nfx::string::fromString<int>( value, i ) )
 				{
-					return ValidateResult{ ValidateResult::Invalid{ { "Invalid integer value - Value='" + std::string{ trimmedValue } + "'" } } };
+					return ValidateResult{ ValidateResult::Invalid{ { "Invalid integer value - Value='" + std::string{ value } + "'" } } };
 				}
 
 				outValue = Value{ Value::Integer{ i } };
 				return ValidateResult{ ValidateResult::Ok{} };
 			}
-			else if ( nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_BOOLEAN ) )
+			else if ( nfx::string::iequals( m_type, iso19848::formatdatatypes::BOOLEAN ) )
 			{
 				bool b;
-				if ( !nfx::string::tryParseBool( trimmedValue, b ) )
+				if ( !nfx::string::fromString<bool>( value, b ) )
 				{
-					return ValidateResult{ ValidateResult::Invalid{ { "Invalid boolean value - Value='" + std::string{ trimmedValue } + "'" } } };
+					return ValidateResult{ ValidateResult::Invalid{ { "Invalid boolean value - Value='" + std::string{ value } + "'" } } };
 				}
 
 				outValue = Value{ Value::Boolean{ b } };
 				return ValidateResult{ ValidateResult::Ok{} };
 			}
-			else if ( nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_CHAR ) )
-			{
-				if ( !nfx::string::hasExactLength( trimmedValue, 1 ) )
-				{
-					return ValidateResult{ ValidateResult::Invalid{ { "Invalid char value - Value='" + std::string{ trimmedValue } + "'" } } };
-				}
-
-				outValue = Value{ Value::Char{ trimmedValue[0] } };
-				return ValidateResult{ ValidateResult::Ok{} };
-			}
-			else if ( nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_UNSIGNED_INTEGER ) )
-			{
-				std::uint32_t ui;
-				if ( !nfx::string::tryParseUInt( trimmedValue, ui ) )
-				{
-					return ValidateResult{ ValidateResult::Invalid{ { "Invalid unsigned integer value - Value='" + std::string{ trimmedValue } + "'" } } };
-				}
-
-				outValue = Value{ Value::UnsignedInteger{ ui } };
-				return ValidateResult{ ValidateResult::Ok{} };
-			}
-			else if ( nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_LONG ) )
-			{
-				std::int64_t l;
-				if ( !nfx::string::tryParseLong( trimmedValue, l ) )
-				{
-					return ValidateResult{ ValidateResult::Invalid{ { "Invalid long value - Value='" + std::string{ trimmedValue } + "'" } } };
-				}
-
-				outValue = Value{ Value::Long{ l } };
-				return ValidateResult{ ValidateResult::Ok{} };
-			}
-			else if ( nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_STRING ) )
+			else if ( nfx::string::iequals( m_type, iso19848::formatdatatypes::STRING ) )
 			{
 				return ValidateResult{ ValidateResult::Ok{} };
 			}
-			else if ( nfx::string::iequals( m_type, internal::iso19848::FORMAT_TYPE_DATETIME ) )
+			else if ( nfx::string::iequals( m_type, iso19848::formatdatatypes::DATETIME ) )
 			{
 				nfx::time::DateTimeOffset dt;
-				if ( !nfx::time::DateTimeOffset::tryParse( trimmedValue, dt ) )
+				if ( !nfx::time::DateTimeOffset::fromString( value, dt ) )
 				{
-					return ValidateResult{ ValidateResult::Invalid{ { "Invalid datetime value - Value='" + std::string{ trimmedValue } + "'" } } };
+					return ValidateResult{ ValidateResult::Invalid{ { "Invalid datetime value - Value='" + std::string{ value } + "'" } } };
 				}
 
 				outValue = Value{ Value::DateTime{ std::move( dt ) } };
@@ -374,5 +321,5 @@ namespace dnv::vista::sdk
 
 			return ParseResult{ ParseResult::Invalid{} };
 		}
-	}
-}
+	} // namespace transport
+} // namespace dnv::vista::sdk

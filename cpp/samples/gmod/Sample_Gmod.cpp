@@ -1,5 +1,5 @@
 /**
- * @file Sample_GMOD.cpp
+ * @file Sample_Gmod.cpp
  * @brief GMOD Operations - Vista SDK C++
  *
 This example demonstrates working with GMOD (Generic Product Model):

@@ -5,10 +5,45 @@
 
 #include <stdexcept>
 
+#include <nfx/Hashing.h>
+
 #include "dnv/vista/sdk/ParsingErrors.h"
+#include "dnv/vista/sdk/config/config.h"
 
 namespace dnv::vista::sdk
 {
+	namespace internal
+	{
+		//----------------------------------------------
+		// Hashing
+		//----------------------------------------------
+
+		/**
+		 * @brief Computes hash value for ParsingErrors by combining all error entries
+		 * @details Combines hash codes of all ErrorEntry type and message strings using
+		 *          NFX optimized hash combination for consistent results across
+		 *          different error collections and diagnostic scenarios.
+		 */
+		static size_t computeHash( const std::vector<ParsingErrors::ErrorEntry>& errors ) noexcept
+		{
+			uint32_t hashCode = VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS;
+
+			// Hash each error entry (type + message)
+			for ( const auto& error : errors )
+			{
+				// Hash the error type
+				uint32_t typeHash = nfx::hashing::hash<std::string_view, uint32_t, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS>( error.type );
+				hashCode = nfx::hashing::combine<uint32_t>( hashCode, typeHash );
+
+				// Hash the error message
+				uint32_t messageHash = nfx::hashing::hash<std::string_view, uint32_t, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS>( error.message );
+				hashCode = nfx::hashing::combine<uint32_t>( hashCode, messageHash );
+			}
+
+			return static_cast<size_t>( hashCode );
+		}
+	} // namespace internal
+
 	//=====================================================================
 	// ParsingErrors class
 	//=====================================================================
@@ -17,23 +52,15 @@ namespace dnv::vista::sdk
 	// Construction
 	//----------------------------------------------
 
-	ParsingErrors::ParsingErrors( const std::vector<ErrorEntry>& errors )
-		: m_errors{ errors }
-	{
-	}
-
 	ParsingErrors::ParsingErrors( std::vector<ErrorEntry>&& errors ) noexcept
-		: m_errors{ std::move( errors ) }
+		: m_hashCode{ internal::computeHash( errors ) },
+		  m_errors{ std::move( errors ) }
 	{
 	}
 
 	ParsingErrors::ParsingErrors()
-		: m_errors{}
-	{
-	}
-
-	ParsingErrors::ParsingErrors( ParsingErrors&& errors ) noexcept
-		: m_errors{ std::move( errors.m_errors ) }
+		: m_hashCode{ VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS },
+		  m_errors{}
 	{
 	}
 
@@ -93,7 +120,8 @@ namespace dnv::vista::sdk
 	//----------------------------
 
 	ParsingErrors::Enumerator::Enumerator( const std::vector<ErrorEntry>* data )
-		: m_data{ data }, m_index{ 0 }
+		: m_data{ data },
+		  m_index{ 0 }
 	{
 	}
 
@@ -126,4 +154,4 @@ namespace dnv::vista::sdk
 		  message{ std::move( errorMessage ) }
 	{
 	}
-}
+} // namespace dnv::vista::sdk

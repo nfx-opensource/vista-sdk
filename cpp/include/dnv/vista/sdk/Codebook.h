@@ -33,10 +33,10 @@
  * ## Data Flow Architecture:
  *
  * ```
- * CodebookDto (External Data)
- *         ↓
- * Codebook Construction
- *         ↓
+ *       CodebookDto (External Data)
+ *                  ↓
+ *         Codebook Construction
+ *                  ↓
  * ┌─────────────────────────────────────┐
  * │            Codebook                 │
  * ├─────────────────────────────────────┤
@@ -53,9 +53,19 @@
  * │ │   (StringMap<vector<string>>)   │ │
  * │ └─────────────────────────────────┘ │
  * └─────────────────────────────────────┘
- *         ↓
- * Validation & Metadata Creation
- * ```
+ *                  ↓
+ *      Validation & Metadata Creation
+ *                  ↓
+ * ┌─────────────────────────────────────┐
+ * │      Validation Operations          │
+ * ├─────────────────────────────────────┤
+ * │ - O(1) Value lookup validation      │
+ * │ - O(1) Group membership testing     │
+ * │ - Position format validation        │
+ * │ - MetadataTag creation              │
+ * │ - ISO string compliance checks      │
+ * └─────────────────────────────────────┘
+ *```
  *
  * ## Usage Examples:
  *
@@ -89,16 +99,12 @@
  *
  * ## Design Philosophy:
  *
- * - **Standards Compliance** : Full adherence to VISTA codebook specifications
- * - **Performance Focus**    : Optimized for high-frequency validation operations
- * - **Type Safety**          : Strong typing with comprehensive error handling
- * - **Extensibility**        : Support for custom codebooks and validation rules
- * - **Usability**            : Clear, intuitive API for common validation scenarios
- * - **Immutability**         : Thread-safe design with immutable data structures
- *
- * @note This system is designed for high-performance maritime data validation
- *       with full VISTA standard compliance. All validation operations are
- *       optimized for frequent use in data processing pipelines.
+ * - **Standards Compliance**: Full adherence to VISTA codebook specifications
+ * - **Performance Focus**   : Optimized for high-frequency validation operations
+ * - **Type Safety**         : Strong typing with comprehensive error handling
+ * - **Extensibility**       : Support for custom codebooks and validation rules
+ * - **Usability**           : Clear, intuitive API for common validation scenarios
+ * - **Immutability**        : Thread-safe design with immutable data structures
  */
 
 #pragma once
@@ -108,8 +114,7 @@
 #include <string_view>
 #include <vector>
 
-#include <nfx/containers/StringMap.h>
-#include <nfx/containers/StringSet.h>
+#include <nfx/Containers.h>
 
 #include "CodebookName.h"
 
@@ -119,7 +124,7 @@ namespace dnv::vista::sdk
 	// Forward declarations
 	//=====================================================================
 
-	class CodebookDto;
+	struct CodebookDto;
 	class MetadataTag;
 
 	//=====================================================================
@@ -217,7 +222,7 @@ namespace dnv::vista::sdk
 		/**
 		 * @brief Iterator type for traversing standard values
 		 */
-		using Iterator = nfx::containers::StringSet::const_iterator;
+		using Iterator = decltype( std::declval<const nfx::containers::FastHashSet<std::string>>().begin() );
 
 		//----------------------------------------------
 		// Construction
@@ -228,7 +233,7 @@ namespace dnv::vista::sdk
 		 * @param name The codebook name
 		 * @param standardValues The set of standard values with zero-copy string_view access
 		 */
-		inline explicit CodebookStandardValues( CodebookName name, nfx::containers::StringSet&& standardValues ) noexcept;
+		inline explicit CodebookStandardValues( CodebookName name, nfx::containers::FastHashSet<std::string>&& standardValues ) noexcept;
 
 		/** @brief Default constructor. */
 		CodebookStandardValues() = default;
@@ -315,7 +320,7 @@ namespace dnv::vista::sdk
 		CodebookName m_name;
 
 		/** @brief The set of standard values */
-		nfx::containers::StringSet m_standardValues;
+		nfx::containers::FastHashSet<std::string> m_standardValues;
 	};
 
 	//=====================================================================
@@ -337,7 +342,7 @@ namespace dnv::vista::sdk
 		/**
 		 * @brief Iterator type for traversing groups
 		 */
-		using Iterator = nfx::containers::StringSet::const_iterator;
+		using Iterator = nfx::containers::FastHashSet<std::string>::const_iterator;
 
 		//----------------------------------------------
 		// Construction
@@ -347,7 +352,7 @@ namespace dnv::vista::sdk
 		 * @brief Construct with groups
 		 * @param groups The set of groups with zero-copy string_view access
 		 */
-		inline explicit CodebookGroups( nfx::containers::StringSet&& groups ) noexcept;
+		inline explicit CodebookGroups( nfx::containers::FastHashSet<std::string>&& groups ) noexcept;
 
 		/** @brief Default constructor. */
 		CodebookGroups() = default;
@@ -431,7 +436,7 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 
 		/** @brief The set of groups */
-		nfx::containers::StringSet m_groups;
+		nfx::containers::FastHashSet<std::string> m_groups;
 	};
 
 	//=====================================================================
@@ -537,7 +542,7 @@ namespace dnv::vista::sdk
 		 * @return Map of groups to their values with zero-copy string_view access
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] inline const nfx::containers::StringMap<std::vector<std::string>>& rawData() const noexcept;
+		[[nodiscard]] inline const nfx::containers::FastHashMap<std::string, std::vector<std::string>>& rawData() const noexcept;
 
 		//----------------------------------------------
 		// State inspection methods
@@ -604,7 +609,7 @@ namespace dnv::vista::sdk
 		CodebookName m_name;
 
 		/** @brief Mapping from values to their group names */
-		nfx::containers::StringMap<std::string> m_groupMap;
+		nfx::containers::FastHashMap<std::string, std::string> m_groupMap;
 
 		/** @brief Container for standard values */
 		CodebookStandardValues m_standardValues;
@@ -613,8 +618,8 @@ namespace dnv::vista::sdk
 		CodebookGroups m_groups;
 
 		/** @brief Raw mapping of groups to their values */
-		nfx::containers::StringMap<std::vector<std::string>> m_rawData;
+		nfx::containers::FastHashMap<std::string, std::vector<std::string>> m_rawData;
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/Codebook.inl"

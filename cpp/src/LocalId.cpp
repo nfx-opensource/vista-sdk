@@ -36,7 +36,7 @@ namespace dnv::vista::sdk
 
 	LocalId LocalId::parse( std::string_view localIdStr )
 	{
-		return LocalId( LocalIdBuilder::parse( localIdStr ) );
+		return LocalId{ LocalIdBuilder::parse( localIdStr ) };
 	}
 
 	bool LocalId::tryParse( std::string_view localIdStr, ParsingErrors& errors, std::optional<LocalId>& localId )
@@ -45,7 +45,7 @@ namespace dnv::vista::sdk
 		bool success = LocalIdBuilder::tryParse( localIdStr, errors, builder );
 		if ( success && builder.has_value() )
 		{
-			localId = LocalId( std::move( builder.value() ) );
+			localId = LocalId{ std::move( builder.value() ) };
 		}
 
 		return success;
@@ -57,9 +57,9 @@ namespace dnv::vista::sdk
 		bool success = LocalIdBuilder::tryParse( localIdStr, builder );
 		if ( success && builder.has_value() )
 		{
-			localId = LocalId( std::move( builder.value() ) );
+			localId = LocalId{ std::move( builder.value() ) };
 		}
 
 		return success;
 	}
-}
+} // namespace dnv::vista::sdk

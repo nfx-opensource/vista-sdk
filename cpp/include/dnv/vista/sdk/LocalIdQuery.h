@@ -400,6 +400,6 @@ namespace dnv::vista::sdk
 		 */
 		[[nodiscard]] bool match( const LocalId& localId ) const;
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/LocalIdQuery.inl"

@@ -188,7 +188,7 @@ namespace dnv::vista::sdk::samples
 			}
 		}
 	};
-}
+} // namespace dnv::vista::sdk::samples
 
 int main()
 {

@@ -39,4 +39,4 @@ namespace dnv::vista::sdk
 		}
 		return std::nullopt;
 	}
-}
+} // namespace dnv::vista::sdk

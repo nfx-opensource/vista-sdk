@@ -11,26 +11,30 @@
  * ## System Purpose:
  *
  * The **VISTA Local ID Builder System** serves as the foundation for:
- * - **Fluent Construction**        : Step-by-step Local ID building with method chaining
- * - **Validation Integration**     : Built-in validation at each construction step
- * - **Immutable Pattern**          : Each builder operation returns a new instance
- * - **Move Semantics Optimization**: Efficient ownership transfer for GMOD paths
- * - **String Parsing Support**     : Complete Local ID string-to-builder conversion
- * - **Error Handling**             : Comprehensive validation with detailed error reporting
+ * - **Immutable Fluent Construction**: Step-by-step Local ID building with copy-on-write semantics
+ * - **Comprehensive Validation**     : Built-in validation at each construction step with fail-fast design
+ * - **Pure Functional Pattern**      : Each builder operation returns a new immutable instance
+ * - **Move Semantics Optimization**  : Efficient ownership transfer for expensive GMOD path objects
+ * - **Bidirectional Conversion**     : Complete Local ID string parsing and builder creation
+ * - **Type-Safe Construction**       : Metadata tag validation using codebook integration
+ * - **Memory Efficient Design**      : Stack allocation with minimal overhead for small builders
  *
  * ## Core Architecture:
  *
  * ### Builder Pattern Implementation
- * - **LocalIdBuilder**   : Main fluent interface for constructing Local IDs
- * - **Immutable Design** : Each method returns new builder instance (no mutation)
- * - **Validation Gates** : State validation at construction boundaries
- * - **Move Optimization**: Efficient transfer of expensive GMOD path objects
+ * - **LocalIdBuilder**      : Immutable fluent interface with comprehensive validation
+ * - **Copy-on-Write Design**: Each method returns new builder instance preserving immutability
+ * - **Validation Gates**    : State validation at construction boundaries with early error detection
+ * - **Move Optimization**   : Efficient transfer of expensive GMOD path objects
+ * - **Direct Value Storage**: All metadata stored directly in builder for zero-indirection access
  *
  * ### Construction Flow
- * - **Factory Methods**  : Static creation methods with initial state
- * - **Fluent Interface** : Method chaining for readable construction
- * - **Build Validation** : Final validation before LocalId creation
- * - **Error Propagation**: Clear error messages for invalid configurations
+ * - **Factory Methods**     : Static creation methods with clean initial state
+ * - **Fluent Interface**    : Method chaining for readable, declarative construction
+ * - **Incremental Building**: Step-by-step property assignment with validation
+ * - **Build Validation**    : Final comprehensive validation before LocalId creation
+ * - **Error Propagation**   : Clear error messages with detailed failure information
+ * - **Move Finalization**   : Efficient builder-to-LocalId transfer ownership
  *
  * ## Memory Layout & Performance:
  *
@@ -38,6 +42,8 @@
  * LocalIdBuilder Structure:
  * ┌─────────────────────────────────────┐
  * │           LocalIdBuilder            │
+ * ├─────────────────────────────────────┤
+ * │      std::size_t m_hashCode         │ ← Cached hash (8 bytes, O(1) access)
  * ├─────────────────────────────────────┤
  * │ std::optional<VisVersion>           │ ← 3 bytes (2 + padding)
  * │ bool m_verboseMode                  │ ← 1 byte
@@ -49,13 +55,19 @@
  * │ std::optional<MetadataTag> x8       │ ← Metadata tags array
  * │   - quantity, content, calc, etc.   │
  * └─────────────────────────────────────┘
- *
- * Key Performance Features:
- * - Copy-on-write semantics for immutability
- * - Move optimization for GMOD path transfers
- * - Inline validation for early error detection
- * - Stack allocation for small builders
- * ```
+ *                  ↓
+ * Immutable Fluent Operations
+ *                  ↓
+ * ┌─────────────────────────────────────┐
+ * │      Builder Method Operations      │
+ * ├─────────────────────────────────────┤
+ * │ - Copy-on-write instance creation   │
+ * │ - Method chaining with validation   │
+ * │ - Move optimization for paths       │
+ * │ - Early error detection             │
+ * │ - Factory method construction       │
+ * └─────────────────────────────────────┘
+ *```
  *
  * ## Usage Examples:
  *
@@ -82,21 +94,25 @@
  *
  * ## Performance Characteristics:
  *
- * - **Builder Creation** : O(1) static factory method with minimal allocation
- * - **Method Chaining**  : O(1) per operation with copy-on-write optimization
- * - **Validation**       : O(1) state checks with early failure detection
- * - **Build Operation**  : O(1) move construction to LocalId
- * - **String Parsing**   : O(n) where n is input string length
- * - **Memory Efficiency**: Minimal overhead with move semantics for large objects
+ * - **Builder Creation** : O(1) static factory method with stack allocation
+ * - **Method Chaining**  : O(1) per operation with immutable copy-on-write semantics
+ * - **Validation**       : O(1) incremental state checks with fail-fast detection
+ * - **Build Operation**  : O(1) move construction to immutable LocalId
+ * - **String Parsing**   : O(n) where n is input string length with optimized tokenization
+ * - **Memory Efficiency**: Direct value storage with move semantics for GMOD path objects
+ * - **Copy Operations**  : Efficient due to small builder footprint and move optimization
+ * - **Stack Allocation** : No heap allocation for typical builder usage patterns
  *
  * ## Design Philosophy:
  *
- * - **Immutability First**  : No builder mutation, always return new instances
- * - **Fail Fast Validation**: Early error detection during construction
- * - **Move Semantics**      : Efficient handling of expensive GMOD path objects
- * - **Type Safety**         : Strong typing prevents invalid metadata combinations
- * - **Fluent Interface**    : Readable, chainable method calls for construction
- * - **Standards Compliance**: Full adherence to VIS Local ID specification (ISO 19848)
+ * - **Immutability First**      : Pure functional design with no builder mutation
+ * - **Fail Fast Validation**    : Early error detection with comprehensive validation feedback
+ * - **Move Semantics**          : Efficient handling of expensive GMOD path and string objects
+ * - **Type Safety**             : Strong typing with codebook integration prevents invalid combinations
+ * - **Fluent Interface**        : Readable, declarative method chaining for intuitive construction
+ * - **Standards Compliance**    : Full adherence to VIS Local ID specification (ISO 19848)
+ * - **Zero-Cost Abstractions**  : High-level interface with optimal performance characteristics
+ * - **Copy-on-Write Efficiency**: Immutable semantics without performance penalties
  */
 
 #pragma once
@@ -105,7 +121,7 @@
 #include <string>
 #include <string_view>
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/StringBuilder.h>
 
 #include "LocalIdItems.h"
 #include "MetadataTag.h"
@@ -149,7 +165,7 @@ namespace dnv::vista::sdk
 
 	protected:
 		/** @brief Default constructor. */
-		LocalIdBuilder() = default;
+		LocalIdBuilder();
 
 	public:
 		/**
@@ -175,8 +191,12 @@ namespace dnv::vista::sdk
 		// Assignment operators
 		//----------------------------------------------
 
-		/** @brief Copy assignment operator */
-		LocalIdBuilder& operator=( const LocalIdBuilder& ) = delete;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The LocalIdBuilder to copy from
+		 * @return Reference to this LocalIdBuilder after assignment
+		 */
+		LocalIdBuilder& operator=( const LocalIdBuilder& other ) = default;
 
 		/**
 		 * @brief Move assignment operator
@@ -382,6 +402,28 @@ namespace dnv::vista::sdk
 		void toString( nfx::string::StringBuilder& builder ) const;
 
 		//----------------------------------------------
+		// Hashing
+		//----------------------------------------------
+
+		/**
+		 * @brief Gets the cached hash value for this LocalIdBuilder instance
+		 * @details **Purpose**: Enables LocalIdBuilder instances to be used efficiently as keys in hash-based
+		 *          collections (std::unordered_map, nfx::HashMap, etc.) without performance penalties.
+		 *
+		 *          **Performance Critical**: Hash is pre-computed during construction using optimized
+		 *          NFX FNV-1a algorithms and cached to avoid expensive recomputation. This transforms
+		 *          hash lookups from O(n) builder state traversal to O(1) cached access.
+		 *
+		 *          **Implementation**: Combines hash codes of VIS version, primary/secondary items,
+		 *          all metadata tags, and verbose mode using NFX hash combination algorithms for
+		 *          consistent, high-quality distribution across builder configurations.
+		 *
+		 * @return The pre-computed hash value for this LocalIdBuilder's complete configuration state
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		[[nodiscard]] inline std::size_t hashCode() const noexcept;
+
+		//----------------------------------------------
 		// Static factory methods
 		//----------------------------------------------
 
@@ -415,7 +457,6 @@ namespace dnv::vista::sdk
 		 * @brief Creates an MQTT-compatible LocalId object from the current builder state.
 		 * @details Constructs and returns an MQTT LocalId object that formats output with
 		 *          underscores instead of forward slashes, making it suitable for MQTT topic names.
-		 *          This method is equivalent to the C# BuildMqtt() extension method.
 		 * @return A new instance of `mqtt::LocalId` with MQTT-compatible formatting.
 		 * @throws std::invalid_argument If the builder state is invalid (`isValid()` returns false).
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
@@ -872,6 +913,9 @@ namespace dnv::vista::sdk
 		// Private member variables
 		//----------------------------------------------
 
+		/** @brief Cached hash value computed during construction for O(1) hash access */
+		std::size_t m_hashCode;
+
 		/** @brief The VIS version, if set. */
 		std::optional<VisVersion> m_visVersion;
 
@@ -905,6 +949,27 @@ namespace dnv::vista::sdk
 		/** @brief Detail metadata tag, if set. */
 		std::optional<MetadataTag> m_detail;
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/LocalIdBuilder.inl"
+
+namespace std
+{
+	/**
+	 * @brief Hash specialization for dnv::vista::sdk::LocalIdBuilder.
+	 * @details Enables LocalIdBuilder instances to be used as keys in all hash-based STL containers.
+	 */
+	template <>
+	struct hash<dnv::vista::sdk::LocalIdBuilder>
+	{
+		/**
+		 * @brief Returns the cached hash value for optimal performance.
+		 * @param[in] localIdBuilder The LocalIdBuilder instance to hash.
+		 * @return Pre-computed hash value (O(1) access) using hardware-accelerated algorithms.
+		 */
+		std::size_t operator()( const dnv::vista::sdk::LocalIdBuilder& localIdBuilder ) const noexcept
+		{
+			return localIdBuilder.hashCode();
+		}
+	};
+} // namespace std

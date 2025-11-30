@@ -26,6 +26,6 @@ namespace dnv::vista::sdk::benchmarks
 	}
 
 	BENCHMARK( BM_gmodCacheAccess )->Unit( benchmark::kNanosecond );
-}
+} // namespace dnv::vista::sdk::benchmarks
 
 BENCHMARK_MAIN();

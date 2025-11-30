@@ -3,6 +3,7 @@
  * @brief Implementation of the GmodNode and GmodNodeMetadata classes
  */
 
+#include <nfx/Hashing.h>
 #include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/GmodNode.h"
@@ -16,47 +17,27 @@
 
 namespace dnv::vista::sdk
 {
-	namespace internal::gmodnode
+	namespace internal
 	{
 		//=====================================================================
-		// Relationship utility
+		// Hash computation
 		//=====================================================================
 
-		static constexpr size_t estimateChildrenCount( std::string_view category, std::string_view type ) noexcept
+		/**
+		 * @brief Updates the cached hash code based on current code and location values.
+		 */
+		static std::size_t updateHashCode( std::size_t codeHash, const std::optional<Location>& location ) noexcept
 		{
-			if ( nfx::string::equals( category, CATEGORY_PRODUCT ) && nfx::string::equals( type, TYPE_TYPE ) )
+			if ( !location.has_value() )
 			{
-				return 0;
-			}
-			if ( nfx::string::contains( category, CATEGORY_FUNCTION ) )
-			{
-				return 16;
-			}
-			if ( nfx::string::equals( category, CATEGORY_ASSET ) )
-			{
-				return 4;
-			}
-			return 8;
-		}
-
-		static constexpr size_t estimateParentsCount( std::string_view category, std::string_view type ) noexcept
-		{
-			if ( nfx::string::equals( category, CATEGORY_PRODUCT ) && nfx::string::equals( type, TYPE_TYPE ) )
-			{
-				return 1;
-			}
-			if ( nfx::string::contains( category, CATEGORY_FUNCTION ) )
-			{
-				return 2;
-			}
-			if ( nfx::string::equals( category, CATEGORY_ASSET ) )
-			{
-				return 1;
+				return codeHash;
 			}
 
-			return 1;
+			auto locationHash = location.value().hashCode();
+
+			return nfx::hashing::combine( codeHash, locationHash );
 		}
-	}
+	} // namespace internal
 
 	//=====================================================================
 	// GmodNode class
@@ -67,28 +48,25 @@ namespace dnv::vista::sdk
 	//----------------------------------------------
 
 	GmodNode::GmodNode( VisVersion version, const GmodNodeDto& dto ) noexcept
-		: m_code{ dto.code() },
+		: m_code{ std::string{ dto.code },
+			  static_cast<std::size_t>( nfx::hashing::hash<std::string_view, uint32_t>( dto.code ) ) },
 		  m_location{ std::nullopt },
 		  m_visVersion{ version },
 		  m_metadata{
-			  dto.category(),
-			  dto.type(), dto.name(),
-			  dto.commonName(),
-			  dto.definition(),
-			  dto.commonDefinition(),
-			  dto.installSubstructure(),
-			  dto.normalAssignmentNames().has_value() ? *dto.normalAssignmentNames()
-													  : nfx::containers::StringMap<std::string>() },
+			  dto.category,
+			  dto.type,
+			  dto.name,
+			  dto.commonName,
+			  dto.definition,
+			  dto.commonDefinition,
+			  dto.installSubstructure,
+			  dto.normalAssignmentNames.has_value() ? *dto.normalAssignmentNames
+													: nfx::containers::FastHashMap<std::string, std::string>() },
 		  m_children{ std::make_shared<std::vector<GmodNode*>>() },
 		  m_parents{ std::make_shared<std::vector<GmodNode*>>() },
-		  m_childrenSet{ std::make_shared<nfx::containers::StringSet>() }
+		  m_childrenSet{ std::make_shared<nfx::containers::FastHashSet<std::string>>() }
 	{
-		size_t expectedChildren = internal::gmodnode::estimateChildrenCount( dto.category(), dto.type() );
-		size_t expectedParents = internal::gmodnode::estimateParentsCount( dto.category(), dto.type() );
-
-		m_children->reserve( expectedChildren );
-		m_parents->reserve( expectedParents );
-		m_childrenSet->reserve( expectedChildren );
+		m_hashCode = internal::updateHashCode( m_code.hash, m_location );
 	}
 
 	//----------------------------------------------
@@ -105,6 +83,8 @@ namespace dnv::vista::sdk
 		GmodNode result = *this;
 		result.m_location = std::nullopt;
 
+		result.m_hashCode = internal::updateHashCode( m_code.hash, result.m_location );
+
 		return result;
 	}
 
@@ -114,6 +94,16 @@ namespace dnv::vista::sdk
 		Location location = locations.parse( locationStr );
 
 		return withLocation( location );
+	}
+
+	GmodNode GmodNode::withLocation( const Location& location ) const
+	{
+		GmodNode result = *this;
+		result.m_location = location;
+
+		result.m_hashCode = internal::updateHashCode( m_code.hash, result.m_location );
+
+		return result;
 	}
 
 	GmodNode GmodNode::tryWithLocation( std::string_view locationStr ) const
@@ -248,12 +238,12 @@ namespace dnv::vista::sdk
 		}
 		if ( isFunctionComposition() )
 		{
-			if ( nfx::string::isEmpty( m_code ) )
+			if ( nfx::string::isEmpty( m_code.code ) )
 			{
 				return false;
 			}
 
-			return m_code.back() == 'i' || isInSet || isTargetNode;
+			return m_code.code.back() == 'i' || isInSet || isTargetNode;
 		}
 
 		return true;
@@ -292,12 +282,12 @@ namespace dnv::vista::sdk
 			return false;
 		}
 
-		if ( nfx::string::isEmpty( m_code ) )
+		if ( nfx::string::isEmpty( m_code.code ) )
 		{
 			return false;
 		}
 
-		char lastChar = m_code.back();
+		char lastChar = m_code.code.back();
 		return lastChar != 'a' && lastChar != 's';
 	}
 
@@ -330,4 +320,4 @@ namespace dnv::vista::sdk
 	{
 		return Gmod::isAssetFunctionNode( m_metadata );
 	}
-}
+} // namespace dnv::vista::sdk

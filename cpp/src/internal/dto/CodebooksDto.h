@@ -1,301 +1,96 @@
-/**
- * @file CodebooksDto.h
- * @brief Data transfer objects for ISO 19848 codebook serialization
- * @details Provides data transfer objects used for serializing and deserializing
- *          codebook information according to the ISO 19848 standard.
- *          These DTOs serve as an intermediate representation when loading or saving codebook data.
- * @see ISO 19848 - Ships and marine technology - Standard data for shipboard machinery and equipment
- */
-
 #pragma once
 
-#include <nfx/containers/StringMap.h>
-#include <nlohmann/json.hpp>
+#include <string>
+#include <vector>
+
+#include <nfx/Containers.h>
+#include <nfx/serialization/json/Serializer.h>
+#include <nfx/serialization/json/SerializationTraits.h>
+#include <nfx/serialization/json/extensions/ContainersTraits.h>
 
 namespace dnv::vista::sdk
 {
-	//=====================================================================
-	// CodebookDto class
-	//=====================================================================
-
-	/**
-	 * @brief Data transfer object for a single codebook
-	 * @details Represents serialized information about a codebook from the ISO 19848 standard.
-	 *          Each codebook contains a name identifier and a collection of values organized by groups.
-	 */
-	class CodebookDto final
+	struct CodebookDto final
 	{
-	public:
-		//----------------------------------------------
-		// Types and aliases
-		//----------------------------------------------
-
-		/** @brief Type representing a collection of values within a group */
 		using ValueGroup = std::vector<std::string>;
+		using ValuesMap = nfx::containers::FastHashMap<std::string, ValueGroup>;
 
-		/** @brief Type representing a mapping of group names to their values with heterogeneous lookup */
-		using ValuesMap = nfx::containers::StringMap<ValueGroup>;
-
-		//----------------------------------------------
-		// Construction
-		//----------------------------------------------
-
-		/**
-		 * @brief Constructor with parameters
-		 * @param name The codebook name
-		 * @param values The map of group names to values
-		 */
-		explicit CodebookDto( std::string name, ValuesMap values ) noexcept;
-
-		/** @brief Default constructor. */
-		CodebookDto() = default;
-
-		/** @brief Copy constructor */
-		CodebookDto( const CodebookDto& other ) = default;
-
-		/** @brief Move constructor */
-		CodebookDto( CodebookDto&& other ) noexcept = default;
-
-		//----------------------------------------------
-		// Destruction
-		//----------------------------------------------
-
-		/** @brief Destructor */
-		~CodebookDto() = default;
-
-		//----------------------------------------------
-		// Assignment operators
-		//----------------------------------------------
-
-		/** @brief Copy assignment operator */
-		CodebookDto& operator=( const CodebookDto& other ) = default;
-
-		/** @brief Move assignment operator */
-		CodebookDto& operator=( CodebookDto&& other ) noexcept = default;
-
-		//----------------------------------------------
-		// Accessors
-		//----------------------------------------------
-
-		/**
-		 * @brief Get the name of this codebook
-		 * @return The codebook name
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::string_view name() const noexcept;
-
-		/**
-		 * @brief Get the values map of this codebook
-		 * @return The map of group names to their corresponding values
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] const ValuesMap& values() const noexcept;
-
-		//----------------------------------------------
-		// Serialization
-		//----------------------------------------------
-
-		/**
-		 * @brief Try to deserialize a CodebookDto from a nlohmann::json object
-		 * @param json The nlohmann::json object to deserialize
-		 * @return Optional containing the deserialized object if successful, empty optional otherwise
-		 */
-		static std::optional<CodebookDto> tryFromJson( const nlohmann::json& json );
-
-		/**
-		 * @brief Deserialize a CodebookDto from a nlohmann::json object
-		 * @param json The nlohmann::json object to deserialize
-		 * @return The deserialized CodebookDto
-		 * @throws std::invalid_argument If required fields are missing or invalid
-		 * @throws nlohmann::json::exception If JSON parsing/access errors occur
-		 */
-		static CodebookDto fromJson( const nlohmann::json& json );
-
-		/**
-		 * @brief Serialize this CodebookDto to a nlohmann::json object
-		 * @return The serialized nlohmann::json object
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] nlohmann::json toJson() const;
-
-	private:
-		//-------------------------------------------------------------------
-		// Private serialization methods
-		//-------------------------------------------------------------------
-
-		/**
-		 * @brief ADL hook for nlohmann::json deserialization
-		 * @details Friend function that enables automatic deserialization via nlohmann::json.
-		 *          This function is found through Argument-Dependent Lookup (ADL) and allows
-		 *          nlohmann::json to automatically convert JSON to CodebookDto objects.
-		 * @param j The JSON object to deserialize from
-		 * @param dto The CodebookDto object to deserialize into
-		 * @throws nlohmann::json::parse_error If required fields are missing or have wrong types
-		 * @note This function accesses private members and is called automatically by nlohmann::json
-		 */
-		friend void from_json( const nlohmann::json& j, CodebookDto& dto );
-
-		/**
-		 * @brief ADL hook for nlohmann::json serialization
-		 * @details Friend function that enables automatic serialization via nlohmann::json.
-		 *          This function is found through Argument-Dependent Lookup (ADL) and allows
-		 *          nlohmann::json to automatically convert CodebookDto objects to JSON.
-		 * @param j The JSON object to serialize into
-		 * @param dto The CodebookDto object to serialize from
-		 * @note This function accesses private members and is called automatically by nlohmann::json
-		 */
-		friend void to_json( nlohmann::json& j, const CodebookDto& dto );
-
-	private:
-		//----------------------------------------------
-		// Private member variables
-		//----------------------------------------------
-
-		/** @brief Name identifier of the codebook (e.g., "positions", "quantities") */
-		std::string m_name;
-
-		/** @brief Map of group names to their corresponding values */
-		ValuesMap m_values;
+		std::string name;
+		ValuesMap values;
 	};
 
-	//=====================================================================
-	// CodebooksDto class
-	//=====================================================================
-
-	/**
-	 * @brief Data transfer object for a collection of codebooks
-	 * @details Represents a complete set of codebooks for a specific VIS version,
-	 *          used for serialization to and from JSON format.
-	 */
-	class CodebooksDto final
+	struct CodebooksDto final
 	{
-	public:
-		//----------------------------------------------
-		// Types and aliases
-		//----------------------------------------------
-
-		/** @brief Type representing a collection of codebook DTOs */
 		using Items = std::vector<CodebookDto>;
 
-		//----------------------------------------------
-		// Construction
-		//----------------------------------------------
+		std::string visVersion;
+		Items items;
 
-		/**
-		 * @brief Constructor with parameters
-		 * @param visVersion The VIS version
-		 * @param items The collection of codebook DTOs
-		 */
-		explicit CodebooksDto( std::string visVersion, Items items ) noexcept;
-
-		/** @brief Default constructor. */
-		CodebooksDto() = default;
-
-		/** @brief Copy constructor */
-		CodebooksDto( const CodebooksDto& other ) = default;
-
-		/** @brief Move constructor */
-		CodebooksDto( CodebooksDto&& other ) noexcept = default;
-
-		//----------------------------------------------
-		// Destruction
-		//----------------------------------------------
-
-		/** @brief Destructor */
-		~CodebooksDto() = default;
-
-		//----------------------------------------------
-		// Assignment operators
-		//----------------------------------------------
-
-		/** @brief Copy assignment operator */
-		CodebooksDto& operator=( const CodebooksDto& other ) = default;
-
-		/** @brief Move assignment operator */
-		CodebooksDto& operator=( CodebooksDto&& other ) noexcept = default;
-
-		//----------------------------------------------
-		// Accessors
-		//----------------------------------------------
-
-		/**
-		 * @brief Get the VIS version string
-		 * @return The VIS version string
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::string_view visVersion() const noexcept;
-
-		/**
-		 * @brief Get the collection of codebooks
-		 * @return The vector of codebook DTOs
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] const Items& items() const noexcept;
-
-		//----------------------------------------------
-		// Serialization
-		//----------------------------------------------
-
-		/**
-		 * @brief Try to deserialize a CodebooksDto from a nlohmann::json object
-		 * @param json The nlohmann::json object to deserialize
-		 * @return Optional containing the deserialized object if successful, empty optional otherwise
-		 */
-		static std::optional<CodebooksDto> tryFromJson( const nlohmann::json& json );
-
-		/**
-		 * @brief Deserialize a CodebooksDto from a nlohmann::json object
-		 * @param json The nlohmann::json object to deserialize
-		 * @return The deserialized CodebooksDto
-		 * @throws std::invalid_argument If required fields are missing or invalid
-		 * @throws nlohmann::json::exception If JSON parsing/access errors occur
-		 */
-		static CodebooksDto fromJson( const nlohmann::json& json );
-
-		/**
-		 * @brief Serialize this CodebooksDto to a nlohmann::json object
-		 * @return The serialized nlohmann::json object
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] nlohmann::json toJson() const;
-
-	private:
-		//-------------------------------------------------------------------
-		// Private serialization methods
-		//-------------------------------------------------------------------
-
-		/**
-		 * @brief ADL hook for nlohmann::json deserialization
-		 * @details Friend function that enables automatic deserialization via nlohmann::json.
-		 *          This function is found through Argument-Dependent Lookup (ADL) and allows
-		 *          nlohmann::json to automatically convert JSON to CodebooksDto objects.
-		 * @param j The JSON object to deserialize from
-		 * @param dto The CodebooksDto object to deserialize into
-		 * @throws nlohmann::json::parse_error If required fields are missing or have wrong types
-		 * @note This function accesses private members and is called automatically by nlohmann::json
-		 */
-		friend void from_json( const nlohmann::json& j, CodebooksDto& dto );
-
-		/**
-		 * @brief ADL hook for nlohmann::json serialization
-		 * @details Friend function that enables automatic serialization via nlohmann::json.
-		 *          This function is found through Argument-Dependent Lookup (ADL) and allows
-		 *          nlohmann::json to automatically convert CodebooksDto objects to JSON.
-		 * @param j The JSON object to serialize into
-		 * @param dto The CodebooksDto object to serialize from
-		 * @note This function accesses private members and is called automatically by nlohmann::json
-		 */
-		friend void to_json( nlohmann::json& j, const CodebooksDto& dto );
-
-	private:
-		//----------------------------------------------
-		// Private member variables
-		//----------------------------------------------
-
-		/** @brief VIS version string (e.g., "3.8a") */
-		std::string m_visVersion;
-
-		/** @brief Collection of codebook DTOs contained in this version */
-		Items m_items;
+		static CodebooksDto fromJsonString( std::string_view jsonStr )
+		{
+			nfx::serialization::json::Serializer<CodebooksDto> serializer;
+			return serializer.deserializeFromString( jsonStr );
+		}
 	};
-}
+} // namespace dnv::vista::sdk
+
+//=====================================================================
+// nfx SerializationTraits specializations - required for custom types
+//=====================================================================
+
+namespace nfx::serialization::json
+{
+	template <>
+	struct SerializationTraits<dnv::vista::sdk::CodebookDto>
+	{
+		static void serialize( const dnv::vista::sdk::CodebookDto& obj, Document& doc )
+		{
+			doc.set( "/name", obj.name );
+
+			Serializer<dnv::vista::sdk::CodebookDto::ValuesMap> valuesSerializer;
+			Document valuesDoc = valuesSerializer.serialize( obj.values );
+			doc.set( "/values", valuesDoc );
+		}
+
+		static void deserialize( dnv::vista::sdk::CodebookDto& obj, const Document& doc )
+		{
+			if ( auto val = doc.get<std::string>( "/name" ) )
+			{
+				obj.name = *val;
+			}
+
+			if ( auto valuesDoc = doc.get<Document>( "/values" ) )
+			{
+				Serializer<dnv::vista::sdk::CodebookDto::ValuesMap> valuesSerializer;
+				obj.values = valuesSerializer.deserialize( *valuesDoc );
+			}
+		}
+	};
+
+	template <>
+	struct SerializationTraits<dnv::vista::sdk::CodebooksDto>
+	{
+		static void serialize( const dnv::vista::sdk::CodebooksDto& obj, Document& doc )
+		{
+			doc.set( "/visVersion", obj.visVersion );
+
+			Serializer<dnv::vista::sdk::CodebooksDto::Items> itemsSerializer;
+			Document itemsDoc = itemsSerializer.serialize( obj.items );
+			doc.set( "/items", itemsDoc );
+		}
+
+		static void deserialize( dnv::vista::sdk::CodebooksDto& obj, const Document& doc )
+		{
+			if ( auto val = doc.get<std::string>( "/visVersion" ) )
+			{
+				obj.visVersion = *val;
+			}
+
+			if ( auto itemsDoc = doc.get<Document>( "/items" ) )
+			{
+				Serializer<dnv::vista::sdk::CodebooksDto::Items> itemsSerializer;
+				obj.items = itemsSerializer.deserialize( *itemsDoc );
+			}
+		}
+	};
+} // namespace nfx::serialization::json

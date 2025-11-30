@@ -1,11 +1,11 @@
 /**
- * @file TESTS_ISO19848.cpp
+ * @file TESTS_Transport_ISO19848.cpp
  * @brief ISO 19848 standard tests
  */
 
 #include <algorithm>
 
-#include <nfx/time/DateTime.h>
+#include <nfx/DateTime.h>
 #include <gtest/gtest.h>
 
 #include <dnv/vista/sdk/transport/ISO19848.h>
@@ -1159,6 +1159,7 @@ namespace dnv::vista::sdk::tests
 		{
 			nfx::datatypes::Decimal value;
 			bool isNegative;
+
 			std::string toString() const { return isNegative
 													  ? "negative:" + value.toString()
 													  : "positive:" + value.toString(); }
@@ -1301,10 +1302,6 @@ namespace dnv::vista::sdk::tests
 			ASSERT_FALSE( value.isInteger() );
 			ASSERT_FALSE( value.isBoolean() );
 			ASSERT_FALSE( value.isDateTime() );
-			ASSERT_FALSE( value.isChar() );
-			ASSERT_FALSE( value.isUnsignedInteger() );
-			ASSERT_FALSE( value.isLong() );
-			ASSERT_FALSE( value.isDouble() );
 			ASSERT_EQ( value.string().value(), "test" );
 		}
 
@@ -1319,10 +1316,6 @@ namespace dnv::vista::sdk::tests
 			ASSERT_FALSE( value.isInteger() );
 			ASSERT_FALSE( value.isBoolean() );
 			ASSERT_FALSE( value.isDateTime() );
-			ASSERT_FALSE( value.isChar() );
-			ASSERT_FALSE( value.isUnsignedInteger() );
-			ASSERT_FALSE( value.isLong() );
-			ASSERT_FALSE( value.isDouble() );
 			ASSERT_EQ( value.decimal().value(), nfx::datatypes::Decimal( 3.14 ) );
 		}
 
@@ -1337,10 +1330,6 @@ namespace dnv::vista::sdk::tests
 			ASSERT_TRUE( value.isInteger() );
 			ASSERT_FALSE( value.isBoolean() );
 			ASSERT_FALSE( value.isDateTime() );
-			ASSERT_FALSE( value.isChar() );
-			ASSERT_FALSE( value.isUnsignedInteger() );
-			ASSERT_FALSE( value.isLong() );
-			ASSERT_FALSE( value.isDouble() );
 			ASSERT_EQ( value.integer().value(), 42 );
 		}
 
@@ -1355,10 +1344,6 @@ namespace dnv::vista::sdk::tests
 			ASSERT_FALSE( value.isInteger() );
 			ASSERT_TRUE( value.isBoolean() );
 			ASSERT_FALSE( value.isDateTime() );
-			ASSERT_FALSE( value.isChar() );
-			ASSERT_FALSE( value.isUnsignedInteger() );
-			ASSERT_FALSE( value.isLong() );
-			ASSERT_FALSE( value.isDouble() );
 			ASSERT_EQ( value.boolean().value(), true );
 		}
 
@@ -1374,83 +1359,7 @@ namespace dnv::vista::sdk::tests
 			ASSERT_FALSE( value.isInteger() );
 			ASSERT_FALSE( value.isBoolean() );
 			ASSERT_TRUE( value.isDateTime() );
-			ASSERT_FALSE( value.isChar() );
-			ASSERT_FALSE( value.isUnsignedInteger() );
-			ASSERT_FALSE( value.isLong() );
-			ASSERT_FALSE( value.isDouble() );
 			ASSERT_EQ( value.dateTime().value(), dateTimeOffset );
 		}
-
-		// Test Char Value
-		{
-			transport::Value::Char charVal{ 'X' };
-			ASSERT_EQ( charVal.value(), 'X' );
-
-			transport::Value value{ charVal };
-			ASSERT_FALSE( value.isString() );
-			ASSERT_FALSE( value.isDecimal() );
-			ASSERT_FALSE( value.isInteger() );
-			ASSERT_FALSE( value.isBoolean() );
-			ASSERT_FALSE( value.isDateTime() );
-			ASSERT_TRUE( value.isChar() );
-			ASSERT_FALSE( value.isUnsignedInteger() );
-			ASSERT_FALSE( value.isLong() );
-			ASSERT_FALSE( value.isDouble() );
-			ASSERT_EQ( value.charValue().value(), 'X' );
-		}
-
-		// Test UnsignedInteger Value
-		{
-			transport::Value::UnsignedInteger uintVal{ 42u };
-			ASSERT_EQ( uintVal.value(), 42u );
-
-			transport::Value value{ uintVal };
-			ASSERT_FALSE( value.isString() );
-			ASSERT_FALSE( value.isDecimal() );
-			ASSERT_FALSE( value.isInteger() );
-			ASSERT_FALSE( value.isBoolean() );
-			ASSERT_FALSE( value.isDateTime() );
-			ASSERT_FALSE( value.isChar() );
-			ASSERT_TRUE( value.isUnsignedInteger() );
-			ASSERT_FALSE( value.isLong() );
-			ASSERT_FALSE( value.isDouble() );
-			ASSERT_EQ( value.unsignedInteger().value(), 42u );
-		}
-
-		// Test Long Value
-		{
-			transport::Value::Long longVal{ 9223372036854775807LL };
-			ASSERT_EQ( longVal.value(), 9223372036854775807LL );
-
-			transport::Value value{ longVal };
-			ASSERT_FALSE( value.isString() );
-			ASSERT_FALSE( value.isDecimal() );
-			ASSERT_FALSE( value.isInteger() );
-			ASSERT_FALSE( value.isBoolean() );
-			ASSERT_FALSE( value.isDateTime() );
-			ASSERT_FALSE( value.isChar() );
-			ASSERT_FALSE( value.isUnsignedInteger() );
-			ASSERT_TRUE( value.isLong() );
-			ASSERT_FALSE( value.isDouble() );
-			ASSERT_EQ( value.longValue().value(), 9223372036854775807LL );
-		}
-
-		// Test Double Value
-		{
-			transport::Value::Double doubleVal{ 2.71828 };
-			ASSERT_EQ( doubleVal.value(), 2.71828 );
-
-			transport::Value value{ doubleVal };
-			ASSERT_FALSE( value.isString() );
-			ASSERT_FALSE( value.isDecimal() );
-			ASSERT_FALSE( value.isInteger() );
-			ASSERT_FALSE( value.isBoolean() );
-			ASSERT_FALSE( value.isDateTime() );
-			ASSERT_FALSE( value.isChar() );
-			ASSERT_FALSE( value.isUnsignedInteger() );
-			ASSERT_FALSE( value.isLong() );
-			ASSERT_TRUE( value.isDouble() );
-			ASSERT_EQ( value.doubleValue().value(), 2.71828 );
-		}
 	}
-}
+} // namespace dnv::vista::sdk::tests

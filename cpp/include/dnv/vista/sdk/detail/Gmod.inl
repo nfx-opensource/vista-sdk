@@ -17,9 +17,8 @@ namespace dnv::vista::sdk
 
 	inline const GmodNode& Gmod::operator[]( std::string_view key ) const
 	{
-		GmodNode* nodePtr = nullptr;
-		bool found = const_cast<nfx::containers::ChdHashMap<GmodNode>&>( m_nodeMap ).tryGetValue( key, nodePtr );
-		if ( found && nodePtr != nullptr )
+		const auto* nodePtr = m_nodeMap.find( key );
+		if ( nodePtr != nullptr )
 		{
 			return *nodePtr;
 		}
@@ -31,12 +30,12 @@ namespace dnv::vista::sdk
 	// Accessors
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_INLINE VisVersion Gmod::visVersion() const
+	inline VisVersion Gmod::visVersion() const
 	{
 		return m_visVersion;
 	}
 
-	VISTA_SDK_CPP_INLINE const GmodNode& Gmod::rootNode() const
+	inline const GmodNode& Gmod::rootNode() const
 	{
 		if ( !m_rootNode )
 		{
@@ -50,9 +49,15 @@ namespace dnv::vista::sdk
 	// Node query methods
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_INLINE bool Gmod::tryGetNode( std::string_view code, GmodNode*& node ) const noexcept
+	inline bool Gmod::tryGetNode( std::string_view code, GmodNode*& node ) const noexcept
 	{
-		return const_cast<nfx::containers::ChdHashMap<GmodNode>&>( m_nodeMap ).tryGetValue( code, node );
+		const auto* ptr = m_nodeMap.find( code );
+		if ( ptr != nullptr )
+		{
+			node = const_cast<GmodNode*>( ptr );
+			return true;
+		}
+		return false;
 	}
 
 	//----------------------------------------------
@@ -72,21 +77,18 @@ namespace dnv::vista::sdk
 	// Construction
 	//-----------------------------
 
-	VISTA_SDK_CPP_INLINE Gmod::Enumerator::Enumerator( const nfx::containers::ChdHashMap<GmodNode>* map ) noexcept
+	inline Gmod::Enumerator::Enumerator( const nfx::containers::PerfectHashMap<std::string, GmodNode, uint32_t, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS>* map ) noexcept
 		: m_sourceMapPtr{ map },
+		  m_currentMapIterator{ map->begin() },
 		  m_isInitialState{ true }
 	{
-		if ( m_sourceMapPtr )
-		{
-			m_currentMapIterator = m_sourceMapPtr->begin();
-		}
 	}
 
 	//-----------------------------
 	// Iteration interface
 	//-----------------------------
 
-	VISTA_SDK_CPP_INLINE const GmodNode& Gmod::Enumerator::current() const
+	inline const GmodNode& Gmod::Enumerator::current() const
 	{
 		if ( !m_sourceMapPtr || m_isInitialState || m_currentMapIterator == m_sourceMapPtr->end() )
 		{
@@ -96,7 +98,7 @@ namespace dnv::vista::sdk
 		return m_currentMapIterator->second;
 	}
 
-	VISTA_SDK_CPP_INLINE bool Gmod::Enumerator::next() noexcept
+	inline bool Gmod::Enumerator::next() noexcept
 	{
 		if ( !m_sourceMapPtr || m_sourceMapPtr->isEmpty() )
 		{
@@ -122,7 +124,7 @@ namespace dnv::vista::sdk
 		return false;
 	}
 
-	VISTA_SDK_CPP_INLINE void Gmod::Enumerator::reset() noexcept
+	inline void Gmod::Enumerator::reset() noexcept
 	{
 		m_isInitialState = true;
 
@@ -140,17 +142,17 @@ namespace dnv::vista::sdk
 	// Parents class implementation
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_INLINE Gmod::Parents::Parents()
+	inline Gmod::Parents::Parents()
 	{
 		m_parents.reserve( 64 );
 		m_occurrences.reserve( 4 );
 	}
 
-	VISTA_SDK_CPP_INLINE void Gmod::Parents::push( const GmodNode* parent )
+	inline void Gmod::Parents::push( const GmodNode* parent )
 	{
 		m_parents.push_back( parent );
-		size_t* countPtr = nullptr;
-		if ( m_occurrences.tryGetValue( parent->code(), countPtr ) )
+		const size_t* countPtr = m_occurrences.find( parent->code() );
+		if ( countPtr != nullptr )
 		{
 			m_occurrences.insertOrAssign( std::string{ parent->code() }, *countPtr + 1 );
 		}
@@ -160,7 +162,7 @@ namespace dnv::vista::sdk
 		}
 	}
 
-	VISTA_SDK_CPP_INLINE void Gmod::Parents::pop()
+	inline void Gmod::Parents::pop()
 	{
 		if ( m_parents.empty() )
 		{
@@ -170,8 +172,8 @@ namespace dnv::vista::sdk
 		const GmodNode* parent = m_parents.back();
 		m_parents.pop_back();
 
-		size_t* countPtr = nullptr;
-		if ( m_occurrences.tryGetValue( parent->code(), countPtr ) )
+		const size_t* countPtr = m_occurrences.find( parent->code() );
+		if ( countPtr != nullptr )
 		{
 			if ( *countPtr == 1 )
 			{
@@ -186,8 +188,8 @@ namespace dnv::vista::sdk
 
 	inline size_t Gmod::Parents::occurrences( const GmodNode& node ) const noexcept
 	{
-		size_t* countPtr = nullptr;
-		if ( const_cast<nfx::containers::HashMap<std::string, size_t>&>( m_occurrences ).tryGetValue( node.code(), countPtr ) )
+		const size_t* countPtr = m_occurrences.find( node.code() );
+		if ( countPtr != nullptr )
 		{
 			return *countPtr;
 		}
@@ -262,7 +264,7 @@ namespace dnv::vista::sdk
 	// Public traverse method implementations
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_INLINE bool Gmod::traverse( TraverseHandler handler, const TraversalOptions& options ) const
+	inline bool Gmod::traverse( TraverseHandler handler, const TraversalOptions& options ) const
 	{
 		TraverseHandler capturedHandler = handler;
 		TraverseHandlerWithState<TraverseHandler> wrapperHandler =
@@ -273,7 +275,7 @@ namespace dnv::vista::sdk
 	}
 
 	template <typename TState>
-	VISTA_SDK_CPP_INLINE bool Gmod::traverse(
+	inline bool Gmod::traverse(
 		TState& state,
 		TraverseHandlerWithState<TState> handler,
 		const TraversalOptions& options ) const
@@ -284,7 +286,7 @@ namespace dnv::vista::sdk
 		return traverseNode( context, *m_rootNode ) == TraversalHandlerResult::Continue;
 	}
 
-	VISTA_SDK_CPP_INLINE bool Gmod::traverse( const GmodNode& rootNode, TraverseHandler handler, const TraversalOptions& options ) const
+	inline bool Gmod::traverse( const GmodNode& rootNode, TraverseHandler handler, const TraversalOptions& options ) const
 	{
 		TraverseHandler capturedHandler = handler;
 		TraverseHandlerWithState<TraverseHandler> wrapperHandler =
@@ -298,7 +300,7 @@ namespace dnv::vista::sdk
 	}
 
 	template <typename TState>
-	VISTA_SDK_CPP_INLINE bool Gmod::traverse(
+	inline bool Gmod::traverse(
 		TState& state, const GmodNode& rootNode, TraverseHandlerWithState<TState> handler, const TraversalOptions& options ) const
 	{
 		Parents parentsStack;
@@ -306,4 +308,4 @@ namespace dnv::vista::sdk
 
 		return traverseNode( context, rootNode ) == TraversalHandlerResult::Continue;
 	}
-}
+} // namespace dnv::vista::sdk

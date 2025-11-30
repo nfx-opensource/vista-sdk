@@ -101,7 +101,7 @@ namespace dnv::vista::sdk::samples
 			std::cerr << "Error: " << e.what() << std::endl;
 		}
 	}
-}
+} // namespace dnv::vista::sdk::samples
 
 /**
  * @brief Main function to run the MetadataTag parsing examples

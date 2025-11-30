@@ -11,12 +11,12 @@
  * ## System Purpose:
  *
  * The **VISTA GmodNode System** serves as the foundation for:
- * - **Component Representation**: Individual vessel components with metadata and relationships
- * - **Hierarchical Navigation** : Parent-child relationship management for vessel structures
- * - **Location Assignment**     : Individualization of components with specific vessel locations
+ * - **Component Representation**: Individual vessel components with metadata and shared relationships
+ * - **Hierarchical Navigation** : Parent-child relationship management via shared container architecture
+ * - **Location Assignment**     : Individualization of components with copy-efficient shared references
  * - **Type Classification**     : Product types, selections, assets, and function categorization
  * - **Metadata Management**     : Rich descriptive information for each component
- * - **Performance Optimization**: Efficient relationship queries and memory management
+ * - **Performance Optimization**: Copy-efficient shared containers and optimized memory management
  *
  * ## Core Architecture:
  *
@@ -27,44 +27,57 @@
  * - **VisVersion**      : Version-specific validation and compatibility
  *
  * ### Relationship Framework
- * - **Parent-Child Links**     : Hierarchical containment relationships
- * - **Product Type Assignment**: Equipment type classification relationships
- * - **Product Selection**      : Specific equipment choice relationships
- * - **Function Assignment**    : Functional role and composition relationships
+ * - **Shared Container Links**   : Hierarchical relationships via shared_ptr containers
+ * - **Copy-Efficient References**: Lightweight node copying through shared relationship storage
+ * - **Product Type Assignment**  : Equipment type classification with shared reference efficiency
+ * - **Product Selection**        : Specific equipment choice relationships with minimal memory overhead
+ * - **Function Assignment**      : Functional role and composition relationships via shared containers
  *
  * ## Data Flow Architecture:
  *
  * ```
- * GmodNodeDto (External Data)
- *         ↓
+ *      GmodNodeDto (External Data)
+ *                  ↓
  * GmodNode Construction (Gmod/VIS Factory)
- *         ↓
+ *                  ↓
  * ┌─────────────────────────────────────┐
  * │            GmodNode                 │
+ * ├─────────────────────────────────────┤
+ * │      std::size_t m_hashCode         │ ← Cached hash (8 bytes, O(1) access)
  * ├─────────────────────────────────────┤
  * │ ┌─────────────────────────────────┐ │
  * │ │      GmodNodeMetadata           │ │ ← Descriptive information
  * │ │   (category, type, name, etc)   │ │
  * │ └─────────────────────────────────┘ │
  * │ ┌─────────────────────────────────┐ │
- * │ │    std::vector<GmodNode*>       │ │ ← Parent relationships
- * │ │       (m_parents)               │ │
+ * │ │ std::shared_ptr<std::vector<    │ │ ← Shared parent relationships
+ * │ │        GmodNode*>> (m_parents)  │ │   (Copy-efficient references)
  * │ └─────────────────────────────────┘ │
  * │ ┌─────────────────────────────────┐ │
- * │ │    std::vector<GmodNode*>       │ │ ← Child relationships
- * │ │       (m_children)              │ │
+ * │ │ std::shared_ptr<std::vector<    │ │ ← Shared child relationships
+ * │ │       GmodNode*>> (m_children)  │ │   (Copy-efficient references)
  * │ └─────────────────────────────────┘ │
  * │ ┌─────────────────────────────────┐ │
- * │ │      StringSet                  │ │ ← O(1) child code lookup
- * │ │    (m_childrenSet)              │ │
+ * │ │ std::shared_ptr<StringSet>      │ │ ← Shared O(1) child code lookup
+ * │ │         (m_childrenSet)         │ │   (Copy-efficient caching)
  * │ └─────────────────────────────────┘ │
  * │ ┌─────────────────────────────────┐ │
  * │ │    std::optional<Location>      │ │ ← Individual instance data
- * │ │      (m_location)               │ │
+ * │ │         (m_location)            │ │
  * │ └─────────────────────────────────┘ │
  * └─────────────────────────────────────┘
- *         ↓
- * Relationship Navigation & Location Assignment
+ *                  ↓
+ *  Shared Reference & Location Assignment
+ *                  ↓
+ * ┌─────────────────────────────────────┐
+ * │     Shared Reference Benefits       │
+ * ├─────────────────────────────────────┤
+ * │ - Efficient node copying            │
+ * │ - Reduced memory overhead           │
+ * │ - Copy-on-write semantics           │
+ * │ - Safe concurrent access            │
+ * │ - Automatic lifetime management     │
+ * └─────────────────────────────────────┘
  * ```
  *
  * ## Node Classification System:
@@ -103,12 +116,14 @@
  *
  * ## Performance Characteristics:
  *
- * - **O(1) Child Lookups**   : StringSet-based child code verification
- * - **Memory Efficient**     : Optimized relationship storage with pointer vectors
- * - **Zero-Copy Access**     : string_view interfaces for metadata access
- * - **Thread Safe Reads**    : Immutable design safe for concurrent navigation
- * - **Relationship Caching** : Efficient parent-child relationship queries
- * - **Location Optimization**: Optional location data minimizes memory overhead
+ * - **O(1) Child Lookups**     : Shared StringSet-based child code verification
+ * - **Copy-Efficient Design**  : shared_ptr containers enable lightweight node copying
+ * - **Memory Shared Storage**  : Multiple nodes share relationship containers reducing overhead
+ * - **Zero-Copy Access**       : string_view interfaces for metadata access
+ * - **Thread Safe Reads**      : Shared immutable containers safe for concurrent navigation
+ * - **Relationship Caching**   : Shared parent-child relationship queries with minimal duplication
+ * - **Location Optimization**  : Optional location data minimizes per-instance memory overhead
+ * - **Copy-on-Write Semantics**: Automatic container sharing until modification required
  *
  * ## Relationship Management:
  *
@@ -136,32 +151,29 @@
  * ## Design Philosophy:
  *
  * - **Standards Compliance**  : Full adherence to ISO 19848 maritime equipment standards
- * - **Performance Focus**     : Optimized for high-frequency navigation and queries
+ * - **Performance Focus**     : Optimized for high-frequency navigation with shared container efficiency
+ * - **Copy-Efficient Design** : shared_ptr containers enable lightweight node duplication
  * - **Type Safety**           : Strong typing with comprehensive error handling
- * - **Immutable Core**        : Thread-safe design with controlled mutation patterns
- * - **Memory Efficiency**     : Minimal overhead with optional data structures
- * - **Relationship Integrity**: Consistent parent-child relationship management
- * - **STL Compatibility**     : Public constructors for container compatibility
+ * - **Immutable Core**        : Thread-safe design with shared immutable containers
+ * - **Memory Efficiency**     : Shared relationship storage minimizes memory overhead
+ * - **Relationship Integrity**: Consistent parent-child management via shared container architecture
+ * - **STL Compatibility**     : Public constructors for container compatibility with shared semantics
  *
  * ## Memory Management:
  *
  * ### Ownership Model
- * - **Container Ownership**  : Gmod owns all GmodNode instances
- * - **Pointer Relationships**: Non-owning pointers for parent-child links
- * - **Value Semantics**      : Copyable nodes for individualization operations
- * - **Memory Optimization**  : shrink_to_fit() and efficient container usage
+ * - **Container Ownership**     : Gmod owns all GmodNode instances
+ * - **Shared Container Model**  : Relationship containers use shared_ptr for efficient sharing
+ * - **Non-Owning Pointers**     : Parent-child links use raw pointers (nodes owned by Gmod)
+ * - **Copy-Efficient Semantics**: Shared containers enable lightweight node copying for individualization
+ * - **Memory Optimization**     : shrink_to_fit() on shared containers and efficient storage usage
  *
  * ### Lifecycle Management
  * - **Construction**         : DTO-based factory construction through Gmod
- * - **Relationship Building**: Post-construction relationship establishment
- * - **Trimming**             : Memory optimization after relationship finalization
- * - **Copy Operations**      : Deep copying for individualization with locations
- *
- * @note This system is designed for high-performance maritime vessel component
- *       management with full ISO 19848 standard compliance. All node operations
- *       are optimized for frequent use in vessel structure navigation and analysis.
- *
- * @see ISO 19848 - Ships and marine technology - Standard data for shipboard machinery and equipment
+ * - **Relationship Building**: Post-construction shared container establishment
+ * - **Trimming**             : Memory optimization with shrink_to_fit() on shared containers
+ * - **Copy Operations**      : Efficient copying via shared container references for individualization
+ * - **Container Sharing**    : Automatic shared_ptr reference counting for relationship containers
  */
 
 #pragma once
@@ -173,9 +185,8 @@
 #include <utility>
 #include <vector>
 
-#include <nfx/containers/StringMap.h>
-#include <nfx/containers/StringSet.h>
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/Containers.h>
+#include <nfx/string/StringBuilder.h>
 
 #include "Locations.h"
 
@@ -189,7 +200,7 @@ namespace dnv::vista::sdk
 
 	class ParsingErrors;
 	class Gmod;
-	class GmodNodeDto;
+	struct GmodNodeDto;
 
 	//=====================================================================
 	// GmodNodeMetadata class
@@ -226,7 +237,7 @@ namespace dnv::vista::sdk
 			const std::optional<std::string>& definition = std::nullopt,
 			const std::optional<std::string>& commonDefinition = std::nullopt,
 			const std::optional<bool>& installSubstructure = std::nullopt,
-			const nfx::containers::StringMap<std::string>& normalAssignmentNames = {} ) noexcept;
+			const nfx::containers::FastHashMap<std::string, std::string>& normalAssignmentNames = {} ) noexcept;
 
 		/** @brief Default constructor. */
 		GmodNodeMetadata() = default;
@@ -351,7 +362,7 @@ namespace dnv::vista::sdk
 		 * @return Reference to the map of normal assignment names
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] inline const nfx::containers::StringMap<std::string>& normalAssignmentNames() const noexcept;
+		[[nodiscard]] inline const nfx::containers::FastHashMap<std::string, std::string>& normalAssignmentNames() const noexcept;
 
 	private:
 		//----------------------------------------------
@@ -380,7 +391,7 @@ namespace dnv::vista::sdk
 		std::optional<bool> m_installSubstructure;
 
 		/** @brief Optional mapping of normal assignment names. */
-		nfx::containers::StringMap<std::string> m_normalAssignmentNames;
+		nfx::containers::FastHashMap<std::string, std::string> m_normalAssignmentNames;
 
 		/** @brief Combined category and type string, e.g., "PRODUCT TYPE", generated at construction. */
 		std::string m_fullType;
@@ -395,8 +406,6 @@ namespace dnv::vista::sdk
 	 * @details Represents a single node in the hierarchical structure of the Generic Product Model
 	 *          as defined by ISO 19848. Contains metadata, relationships to parent/child
 	 *          nodes, and optional location information.
-	 *          This class is designed to be non-copyable and movable. Its relationships
-	 *          (children, parents) are managed by the `Gmod` class.
 	 */
 	class GmodNode final
 	{
@@ -568,7 +577,7 @@ namespace dnv::vista::sdk
 		 * @return A new `GmodNode` instance with the given location.
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] inline GmodNode withLocation( const Location& location ) const;
+		[[nodiscard]] GmodNode withLocation( const Location& location ) const;
 
 		/**
 		 * @brief Creates a new GmodNode instance identical to this one but with the specified location string.
@@ -732,6 +741,26 @@ namespace dnv::vista::sdk
 		 */
 		inline void toString( nfx::string::StringBuilder& builder ) const noexcept;
 
+		//----------------------------------------------
+		// Hashing
+		//----------------------------------------------
+
+		/**
+		 * @brief Gets the cached hash value for this GmodNode instance
+		 * @details **Purpose**: Enables GmodNode instances to be used efficiently as keys in hash-based
+		 *          collections (std::unordered_map, nfx::HashMap, etc.) without performance penalties.
+		 *
+		 *          **Performance Critical**: Hash is computed combining the node code and location (if present)
+		 *          using optimized SSE4.2/FNV-1a algorithms and cached to avoid expensive recomputation.
+		 *          This transforms hash lookups from O(n) string processing to O(1) cached access.
+		 *
+		 *          **Hash Strategy**: Combines node code hash with location hash (0 if no location).
+		 *
+		 * @return The pre-computed hash value combining this GmodNode's code and location
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		[[nodiscard]] inline std::size_t hashCode() const noexcept;
+
 	private:
 		//----------------------------------------------
 		// Relationship management methods
@@ -767,8 +796,18 @@ namespace dnv::vista::sdk
 		// Private member variables
 		//----------------------------------------------
 
-		/** @brief Unique identifier code of the node. */
-		std::string m_code;
+		/** @brief Cached hash value computed during construction for O(1) hash access */
+		std::size_t m_hashCode;
+
+		/** @brief Unique identifier code of the node with precomputed hash for performance. */
+		struct Code
+		{
+			/** @brief The node's unique identifier string. */
+			std::string code;
+
+			/** @brief Precomputed hash of the code string for O(1) hash operations. */
+			std::size_t hash;
+		} m_code;
 
 		/** @brief Optional location information for this specific node instance. */
 		std::optional<Location> m_location;
@@ -786,8 +825,29 @@ namespace dnv::vista::sdk
 		std::shared_ptr<std::vector<GmodNode*>> m_parents;
 
 		/** @brief Shared set of child codes for efficient `isChild(std::string_view)` lookups. */
-		std::shared_ptr<nfx::containers::StringSet> m_childrenSet;
+		std::shared_ptr<nfx::containers::FastHashSet<std::string>> m_childrenSet;
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/GmodNode.inl"
+
+namespace std
+{
+	/**
+	 * @brief Hash specialization for dnv::vista::sdk::GmodNode
+	 * @details Enables GmodNode instances to be used as keys in all hash-based STL containers.
+	 */
+	template <>
+	struct hash<dnv::vista::sdk::GmodNode>
+	{
+		/**
+		 * @brief Returns the cached hash value for optimal performance
+		 * @param[in] node The GmodNode instance to hash
+		 * @return Pre-computed hash value (O(1) access) combining code and location using hardware-accelerated algorithms
+		 */
+		std::size_t operator()( const dnv::vista::sdk::GmodNode& node ) const noexcept
+		{
+			return node.hashCode();
+		}
+	};
+} // namespace std

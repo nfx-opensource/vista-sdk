@@ -3,9 +3,9 @@
  * @brief Implementation of TimeSeriesData validation and complex methods
  */
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/StringBuilder.h>
 #include <nfx/string/Utils.h>
-#include <nfx/time/DateTime.h>
+#include <nfx/DateTime.h>
 
 #include "dnv/vista/sdk/transport/timeseries/TimeSeriesData.h"
 
@@ -51,11 +51,6 @@ namespace dnv::vista::sdk::transport::timeseries
 	// Validation
 	//----------------------------------------------
 
-	ValidateResult TabularData::validate() const
-	{
-		return Validate( *this );
-	}
-
 	ValidateResult TabularData::Validate( const TabularData& table )
 	{
 		// Ensure data channels are provided
@@ -78,7 +73,7 @@ namespace dnv::vista::sdk::transport::timeseries
 			if ( dataSet.value().size() != expectedChannelCount )
 			{
 				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
+				auto builder = lease.create();
 				builder.append( "Tabular data set " );
 				builder.append( std::to_string( i ) );
 				builder.append( " expects " );
@@ -172,7 +167,7 @@ namespace dnv::vista::sdk::transport::timeseries
 						if ( !dataChannel )
 						{
 							auto lease = nfx::string::StringBuilderPool::lease();
-							auto builder = lease.builder();
+							auto builder = lease.create();
 							builder.append( "Data channel not found: " );
 							builder.append( dataChannelId.toString() );
 							errors.push_back( lease.toString() );
@@ -185,7 +180,7 @@ namespace dnv::vista::sdk::transport::timeseries
 						if ( formatResult.isInvalid() )
 						{
 							auto lease = nfx::string::StringBuilderPool::lease();
-							auto builder = lease.builder();
+							auto builder = lease.create();
 							builder.append( "Invalid value format: " );
 							builder.append( dataSet.value()[j] );
 							errors.push_back( lease.toString() );
@@ -240,7 +235,7 @@ namespace dnv::vista::sdk::transport::timeseries
 				if ( !dataChannel )
 				{
 					auto lease = nfx::string::StringBuilderPool::lease();
-					auto builder = lease.builder();
+					auto builder = lease.create();
 					builder.append( "Data channel not found: " );
 					builder.append( eventDataSet.dataChannelId().toString() );
 					errors.push_back( lease.toString() );
@@ -253,7 +248,7 @@ namespace dnv::vista::sdk::transport::timeseries
 				if ( formatResult.isInvalid() )
 				{
 					auto lease = nfx::string::StringBuilderPool::lease();
-					auto builder = lease.builder();
+					auto builder = lease.create();
 					builder.append( "Invalid value format: " );
 					builder.append( eventDataSet.value() );
 					errors.push_back( lease.toString() );
@@ -277,4 +272,4 @@ namespace dnv::vista::sdk::transport::timeseries
 
 		return ValidateResult::Ok{};
 	}
-}
+} // namespace dnv::vista::sdk::transport::timeseries

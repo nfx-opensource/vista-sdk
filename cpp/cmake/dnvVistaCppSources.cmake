@@ -9,6 +9,10 @@ set(PUBLIC_HEADERS
 	# --- Mqtt layer headers ---
 	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/mqtt/LocalId.h
 
+	# --- serialization layer headers ---
+	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/serialization/json/DataChannelListSerializationTraits.h
+	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/serialization/json/TimeSeriesDataSerializationTraits.h
+
 	# --- Transport layer headers ---
 	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/transport/datachannel/DataChannel.h
 	${VISTA_SDK_CPP_INCLUDE_DIR}/dnv/vista/sdk/transport/timeseries/DataChannelId.h
@@ -98,7 +102,6 @@ set(PRIVATE_HEADERS
 
 	# --- Internal transport utilities ---
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/transport/dto/ISO19848Dtos.h
-	${VISTA_SDK_CPP_SOURCE_DIR}/internal/transport/ISO19848.h
 )
 
 set(PRIVATE_SOURCES
@@ -107,18 +110,9 @@ set(PRIVATE_SOURCES
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/core/GmodVersioning.cpp
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/core/GmodVersioningNode.cpp
 
-	# --- Internal DTO implementations ---
-	${VISTA_SDK_CPP_SOURCE_DIR}/internal/dto/CodebooksDto.cpp
-	${VISTA_SDK_CPP_SOURCE_DIR}/internal/dto/GmodDto.cpp
-	${VISTA_SDK_CPP_SOURCE_DIR}/internal/dto/GmodVersioningDto.cpp
-	${VISTA_SDK_CPP_SOURCE_DIR}/internal/dto/LocationsDto.cpp
-
 	# --- Internal parsing implementations ---
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/parsing/LocalIdParsingErrorBuilder.cpp
 	${VISTA_SDK_CPP_SOURCE_DIR}/internal/parsing/LocationParsingErrorBuilder.cpp
-
-	# --- Internal transport implementations ---
-	${VISTA_SDK_CPP_SOURCE_DIR}/internal/transport/dto/ISO19848Dtos.cpp
 
 	# --- Mqtt layer implementations ---
 	${VISTA_SDK_CPP_SOURCE_DIR}/mqtt/LocalId.cpp
@@ -153,3 +147,116 @@ set(PRIVATE_SOURCES
 	${VISTA_SDK_CPP_SOURCE_DIR}/UniversalIdBuilder.cpp
 	${VISTA_SDK_CPP_SOURCE_DIR}/VIS.cpp
 )
+
+#----------------------------------------------
+# Library definition
+#----------------------------------------------
+
+# --- Create shared library if requested ---
+if(VISTA_SDK_CPP_BUILD_SHARED)
+	add_library(${PROJECT_NAME} SHARED)
+	target_sources(${PROJECT_NAME}
+		PRIVATE
+			${PUBLIC_HEADERS}
+			${PRIVATE_HEADERS}
+			${PRIVATE_SOURCES}
+	)
+
+	set_target_properties(${PROJECT_NAME} PROPERTIES
+		LIBRARY_OUTPUT_DIRECTORY ${VISTA_SDK_CPP_BUILD_DIR}/lib
+		ARCHIVE_OUTPUT_DIRECTORY ${VISTA_SDK_CPP_BUILD_DIR}/lib
+	)
+
+	add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+endif()
+
+# --- Create static library if requested ---
+if(VISTA_SDK_CPP_BUILD_STATIC)
+	add_library(${PROJECT_NAME}-static STATIC)
+	target_sources(${PROJECT_NAME}-static
+		PRIVATE
+			${PUBLIC_HEADERS}
+			${PRIVATE_HEADERS}
+			${PRIVATE_SOURCES}
+	)
+
+	set_target_properties(${PROJECT_NAME}-static PROPERTIES
+		OUTPUT_NAME ${PROJECT_NAME}-static
+		ARCHIVE_OUTPUT_DIRECTORY ${VISTA_SDK_CPP_BUILD_DIR}/lib
+	)
+
+	add_library(${PROJECT_NAME}::static ALIAS ${PROJECT_NAME}-static)
+endif()
+
+#----------------------------------------------
+# Target properties
+#----------------------------------------------
+
+function(configure_vista_target target_name)
+	# --- Include directories---
+	target_include_directories(${target_name}
+		PUBLIC
+			$<BUILD_INTERFACE:${VISTA_SDK_CPP_INCLUDE_DIR}>
+			$<INSTALL_INTERFACE:include>
+		PRIVATE
+			${VISTA_SDK_CPP_SOURCE_DIR}
+	)
+
+	# --- Link libraries---
+	get_target_property(target_type ${target_name} TYPE)
+	if(target_type STREQUAL "SHARED_LIBRARY")
+		if(TARGET nfx-meta::nfx-meta)
+			target_link_libraries(${target_name} PRIVATE $<BUILD_INTERFACE:nfx-meta::nfx-meta>
+		)
+		endif()
+	else()
+		if(TARGET nfx-meta::nfx-meta)
+			target_link_libraries(${target_name} PRIVATE $<BUILD_INTERFACE:nfx-meta::nfx-meta>
+		)
+		endif()
+	endif()
+
+	if(TARGET zlib-ng::zlib-ng)
+		target_link_libraries(${target_name} PRIVATE $<BUILD_INTERFACE:zlib-ng::zlib-ng>)
+	elseif(TARGET zlibstatic)
+		target_link_libraries(${target_name} PRIVATE $<BUILD_INTERFACE:zlibstatic>)
+	elseif(TARGET zlib)
+		target_link_libraries(${target_name} PRIVATE $<BUILD_INTERFACE:zlib>)
+	endif()
+
+	set_target_properties(${target_name} PROPERTIES
+		CXX_STANDARD 20
+		CXX_STANDARD_REQUIRED ON
+		CXX_EXTENSIONS OFF
+		VERSION ${PROJECT_VERSION}
+		SOVERSION ${PROJECT_VERSION_MAJOR}
+		POSITION_INDEPENDENT_CODE ON
+		DEBUG_POSTFIX "-d"
+	)
+
+	# --- Configure resource ---
+	target_compile_definitions(${target_name} PRIVATE
+		VISTA_SDK_RESOURCES_DIR="${VISTA_SDK_RESOURCES_DIR}"
+	)
+endfunction()
+
+# --- Apply configuration to both targets ---
+if(VISTA_SDK_CPP_BUILD_SHARED)
+	configure_vista_target(${PROJECT_NAME})
+	if(WIN32)
+		set_target_properties(${PROJECT_NAME} PROPERTIES
+			WINDOWS_EXPORT_ALL_SYMBOLS TRUE
+		)
+
+		configure_file(
+			${CMAKE_CURRENT_SOURCE_DIR}/cmake/dnvVistaCppVersion.rc.in
+			${CMAKE_BINARY_DIR}/version.rc
+			@ONLY
+		)
+		target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/version.rc)
+	endif()
+endif()
+
+if(VISTA_SDK_CPP_BUILD_STATIC)
+	configure_vista_target(${PROJECT_NAME}-static)
+endif()

@@ -129,6 +129,6 @@ namespace dnv::vista::sdk::benchmarks
 	BENCHMARK_REGISTER_F( GmodPathParseFixture, TryParseFullPath )->MinTime( 10.0 )->Unit( benchmark::kMicrosecond );
 	BENCHMARK_REGISTER_F( GmodPathParseFixture, TryParseIndividualized )->MinTime( 10.0 )->Unit( benchmark::kMicrosecond );
 	BENCHMARK_REGISTER_F( GmodPathParseFixture, TryParseFullPathIndividualized )->MinTime( 10.0 )->Unit( benchmark::kMicrosecond );
-}
+} // namespace dnv::vista::sdk::benchmarks
 
 BENCHMARK_MAIN();

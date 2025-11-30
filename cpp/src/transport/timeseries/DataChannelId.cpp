@@ -3,7 +3,7 @@
  * @brief Implementation of DataChannelId class
  */
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/StringBuilder.h>
 #include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/transport/timeseries/DataChannelId.h"
@@ -47,11 +47,7 @@ namespace dnv::vista::sdk::transport::timeseries
 	{
 		if ( nfx::string::isEmpty( value ) )
 		{
-			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
-			builder.append( "DataChannelId::parse: value cannot be empty" );
-
-			throw std::invalid_argument{ lease.toString() };
+			throw std::invalid_argument{ "DataChannelId::parse: value cannot be empty" };
 		}
 
 		// Try to parse as LocalId first
@@ -64,4 +60,4 @@ namespace dnv::vista::sdk::transport::timeseries
 		// If not a valid LocalId, treat as short identifier
 		return DataChannelId{ value };
 	}
-}
+} // namespace dnv::vista::sdk::transport::timeseries

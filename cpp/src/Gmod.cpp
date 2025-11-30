@@ -27,34 +27,36 @@ namespace dnv::vista::sdk
 		: m_visVersion{ version },
 		  m_rootNode{ nullptr }
 	{
-		const auto& items = dto.items();
+		const auto& items = dto.items;
 		std::vector<std::pair<std::string, GmodNode>> nodePairs;
 		nodePairs.reserve( items.size() );
 
 		for ( const auto& nodeDto : items )
 		{
-			nodePairs.emplace_back( std::string{ nodeDto.code() }, GmodNode{ version, nodeDto } );
+			nodePairs.emplace_back( std::string{ nodeDto.code }, GmodNode{ version, nodeDto } );
 		}
 
-		m_nodeMap = nfx::containers::ChdHashMap<GmodNode>( std::move( nodePairs ) );
+		m_nodeMap = nfx::containers::PerfectHashMap<std::string, GmodNode, uint32_t, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS>( std::move( nodePairs ) );
 
-		for ( const auto& relation : dto.relations() )
+		for ( const auto& relation : dto.relations )
 		{
-			if ( relation.size() >= 2 )
-			{
-				/*
-				 * Each relation defines a parent-child relationship and must contain at least 2 elements:
-				 * relation[0] = parent node code (e.g., "VE", "400", "410")
-				 * relation[1] = child node code (e.g., "400", "410", "411")
-				 * We need both parent and child codes to establish the bidirectional relationship.
-				 * Relations with < 2 elements are malformed and would cause array access errors.
-				 */
-				auto& parentNode = const_cast<GmodNode&>( m_nodeMap[relation[0]] );
-				auto& childNode = const_cast<GmodNode&>( m_nodeMap[relation[1]] );
-
-				parentNode.addChild( &childNode );
-				childNode.addParent( &parentNode );
-			}
+			/*
+			 * Each relation defines a parent-child relationship and must contain at least 2 elements:
+			 * relation[0] = parent node code (e.g., "VE", "400", "410")
+			 * relation[1] = child node code (e.g., "400", "410", "411")
+			 * We need both parent and child codes to establish the bidirectional relationship.
+			 * Relations with < 2 elements are malformed and would cause array access errors.
+			 */
+			const auto* parentNodePtr = m_nodeMap.find( relation[0] );
+			if ( !parentNodePtr )
+				throw std::runtime_error( "Parent node not found in GMOD" );
+			const auto* childNodePtr = m_nodeMap.find( relation[1] );
+			if ( !childNodePtr )
+				throw std::runtime_error( "Child node not found in GMOD" );
+			auto& parentNode = const_cast<GmodNode&>( *parentNodePtr );
+			auto& childNode = const_cast<GmodNode&>( *childNodePtr );
+			parentNode.addChild( &childNode );
+			childNode.addParent( &parentNode );
 		}
 
 		for ( auto& [key, node] : m_nodeMap )
@@ -62,7 +64,12 @@ namespace dnv::vista::sdk
 			const_cast<GmodNode&>( node ).trim();
 		}
 
-		m_rootNode = const_cast<GmodNode*>( &m_nodeMap["VE"] );
+		const auto* rootPtr = m_nodeMap.find( "VE" );
+		if ( !rootPtr )
+		{
+			throw std::runtime_error( "Root node 'VE' not found in GMOD" );
+		}
+		m_rootNode = const_cast<GmodNode*>( rootPtr );
 	}
 
 	Gmod::Gmod( VisVersion version, const std::unordered_map<std::string, GmodNode>& nodeMap )
@@ -74,21 +81,31 @@ namespace dnv::vista::sdk
 		{
 			pairs.emplace_back( code, node );
 		}
-		m_nodeMap = nfx::containers::ChdHashMap<GmodNode>( std::move( pairs ) );
+		m_nodeMap = nfx::containers::PerfectHashMap<std::string, GmodNode, uint32_t, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS>( std::move( pairs ) );
 
 		for ( auto& [key, node] : m_nodeMap )
 		{
 			const_cast<GmodNode&>( node ).trim();
 		}
 
-		m_rootNode = const_cast<GmodNode*>( &m_nodeMap["VE"] );
+		const auto* rootPtr = m_nodeMap.find( "VE" );
+		if ( !rootPtr )
+		{
+			throw std::runtime_error( "Root node 'VE' not found in GMOD" );
+		}
+		m_rootNode = const_cast<GmodNode*>( rootPtr );
 	}
 
 	Gmod::Gmod( const Gmod& other )
 		: m_visVersion{ other.m_visVersion },
 		  m_nodeMap{ other.m_nodeMap }
 	{
-		m_rootNode = const_cast<GmodNode*>( &m_nodeMap["VE"] );
+		const auto* rootPtr = m_nodeMap.find( "VE" );
+		if ( !rootPtr )
+		{
+			throw std::runtime_error( "Root node 'VE' not found in GMOD" );
+		}
+		m_rootNode = const_cast<GmodNode*>( rootPtr );
 	}
 
 	Gmod::Gmod( Gmod&& other ) noexcept
@@ -97,7 +114,11 @@ namespace dnv::vista::sdk
 	{
 		if ( other.m_rootNode != nullptr )
 		{
-			m_rootNode = &m_nodeMap["VE"];
+			const auto* rootPtr = m_nodeMap.find( "VE" );
+			if ( rootPtr )
+			{
+				m_rootNode = const_cast<GmodNode*>( rootPtr );
+			}
 			other.m_rootNode = nullptr;
 		}
 		else
@@ -366,4 +387,4 @@ namespace dnv::vista::sdk
 
 		return state.found;
 	}
-}
+} // namespace dnv::vista::sdk

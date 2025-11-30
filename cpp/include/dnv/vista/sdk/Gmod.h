@@ -35,16 +35,16 @@
  * ## Data Flow Architecture:
  *
  * ```
- * GmodDto (External Data)
- *         ↓
- * Gmod Construction (VIS Factory)
- *         ↓
+ *       GmodDto (External Data)
+ *                  ↓
+ *     Gmod Construction (VIS Factory)
+ *                  ↓
  * ┌─────────────────────────────────────┐
  * │              Gmod                   │
  * ├─────────────────────────────────────┤
  * │ ┌─────────────────────────────────┐ │
- * │ │      ChdHashMap<GmodNode>       │ │ ← O(1) node lookup by code
- * │ │    (Perfect hash for nodes)     │ │
+ * │ │   nfx::containers::PerfectHashMap   │ │ ← O(1) node lookup by code
+ * │ │         <GmodNode>              │ │   (Compressed hash dictionary)
  * │ └─────────────────────────────────┘ │
  * │ ┌─────────────────────────────────┐ │
  * │ │        GmodNode* rootNode       │ │ ← Tree root ("VE" vessel entry)
@@ -55,8 +55,18 @@
  * │ │    (Standards compliance)       │ │
  * │ └─────────────────────────────────┘ │
  * └─────────────────────────────────────┘
- *         ↓
- * Path Parsing & Tree Navigation
+ *                  ↓
+ *      Path Parsing & Tree Navigation
+ *                  ↓
+ * ┌─────────────────────────────────────┐
+ * │          GmodNode Network           │
+ * ├─────────────────────────────────────┤
+ * │ Shared Reference Architecture:      │
+ * │ - std::shared_ptr collections       │
+ * │ - Efficient copy semantics          │
+ * │ - Memory-safe relationships         │
+ * │ - Direct value processing           │
+ * └─────────────────────────────────────┘
  * ```
  *
  * ## Traversal Patterns:
@@ -77,12 +87,14 @@
  *
  * ## Performance Characteristics:
  *
- * - **O(1) Node Lookup** : Perfect hash-based node access by component codes
- * - **Memory Efficient** : Optimized tree structure with minimal pointer overhead
- * - **Zero-Copy Access** : `string_view` interfaces for path and metadata access
- * - **Thread Safe Reads**: Immutable design safe for concurrent navigation
- * - **Cycle Prevention** : Occurrence tracking prevents infinite loops in traversal
- * - **Path Caching**     : Efficient path parsing with validation caching
+ * - **O(1) Node Lookup**           : Compressed hash dictionary access by component codes using nfx::containers::PerfectHashMap
+ * - **Shared Reference Efficiency**: `std::shared_ptr` collections provide optimal copy performance
+ * - **Zero-Copy Access**           : `string_view` interfaces for path and metadata access
+ * - **Thread Safe Reads**          : Immutable design with shared ownership safe for concurrent navigation
+ * - **Direct Value Processing**    : Path validation uses value semantics instead of pointer conversions
+ * - **Memory-Safe Relations**      : Shared references eliminate dangling pointer risks
+ * - **Cycle Prevention**           : Occurrence tracking prevents infinite loops in traversal
+ * - **Optimized Allocations**      : Reduced temporary vector allocations in path processing
  *
  * ## Node Classification System:
  *
@@ -96,24 +108,19 @@
  * - **Asset Nodes**       : Physical assets with lifecycle management
  *
  * ### Relationship Patterns
- * - **Parent-Child Links**     : Hierarchical containment relationships
- * - **Product Type Assignment**: Equipment type classification relationships
- * - **Product Selection**      : Specific equipment selection relationships
- * - **Function Assignment**    : Functional role assignments
+ * - **Shared Reference Collections**: All relationships use `std::shared_ptr` for efficient copying
+ * - **Parent-Child Links**          : Hierarchical containment with shared ownership semantics
+ * - **Product Type Assignment**     : Equipment type classification with memory-safe references
+ * - **Product Selection**           : Specific equipment selection with shared reference tracking
+ * - **Function Assignment**         : Functional role assignments with optimal copy performance
  *
  * ## Path Resolution System:
  *
- * ### Path Format Support
- * - **Relative Paths**  :
- * - **Absolute Paths**  :
- * - **Bracket Notation**:
- * - **Code-Only Paths** :
- *
  * ### Validation Levels
  * - **Syntax Validation**      : Correct path format and bracket matching
- * - **Component Existence**    : Verify all path components exist in GMOD
- * - **Relationship Validation**: Confirm parent-child relationships are valid
- * - **Standards Compliance**   : Adherence to ISO 19848 naming conventions
+ * - **Component Existence**    : Verify all path components exist in GMOD using direct value processing
+ * - **Relationship Validation**: Confirm parent-child relationships through shared reference collections
+ * - **Standards Compliance**   : Adherence to ISO 19848 naming conventions with value semantics
  *
  * ## Design Philosophy:
  *
@@ -124,12 +131,6 @@
  * - **Usability**           : Intuitive API for common vessel structure operations
  * - **Immutability**        : Thread-safe design with controlled mutation patterns
  * - **Factory Pattern**     : Controlled construction through VIS factory class
- *
- * @note This system is designed for high-performance maritime vessel structure
- *       navigation with full ISO 19848 standard compliance. All traversal and
- *       lookup operations are optimized for frequent use in vessel data processing.
- *
- * @see ISO 19848 - Ships and marine technology - Standard data for shipboard machinery and equipment
  */
 
 #pragma once
@@ -139,8 +140,7 @@
 #include <string_view>
 #include <vector>
 
-#include <nfx/containers/ChdHashMap.h>
-#include <nfx/containers/HashMap.h>
+#include <nfx/Containers.h>
 
 #include "GmodNode.h"
 
@@ -154,7 +154,7 @@ namespace dnv::vista::sdk
 
 	enum class VisVersion : std::uint16_t;
 
-	class GmodDto;
+	struct GmodDto;
 	class GmodNodeMetadata;
 	class GmodPath;
 	class VIS;
@@ -348,7 +348,7 @@ namespace dnv::vista::sdk
 		 * @return The VisVersion enum value.
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] VISTA_SDK_CPP_INLINE VisVersion visVersion() const;
+		[[nodiscard]] inline VisVersion visVersion() const;
 
 		/**
 		 * @brief Gets the root node of the GMOD hierarchy.
@@ -358,7 +358,7 @@ namespace dnv::vista::sdk
 		 * @throws std::runtime_error If the GMOD is not properly initialized or has no root node.
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] VISTA_SDK_CPP_INLINE const GmodNode& rootNode() const;
+		[[nodiscard]] inline const GmodNode& rootNode() const;
 
 		//----------------------------------------------
 		// Node query methods
@@ -370,7 +370,7 @@ namespace dnv::vista::sdk
 		 * @param[out] node Output parameter; set to a pointer to the GmodNode if found, otherwise nullptr.
 		 * @return True if the node was found, false otherwise.
 		 */
-		VISTA_SDK_CPP_INLINE bool tryGetNode( std::string_view code, GmodNode*& node ) const noexcept;
+		inline bool tryGetNode( std::string_view code, GmodNode*& node ) const noexcept;
 
 		//----------------------------------------------
 		// Path parsing & navigation
@@ -418,7 +418,7 @@ namespace dnv::vista::sdk
 		 * @param options Traversal configuration
 		 * @return true if completed, false if stopped early
 		 */
-		VISTA_SDK_CPP_INLINE bool traverse( TraverseHandler handler, const TraversalOptions& options = {} ) const;
+		inline bool traverse( TraverseHandler handler, const TraversalOptions& options = {} ) const;
 
 		/**
 		 * @brief Traverse GMOD tree with stateful handler
@@ -429,7 +429,7 @@ namespace dnv::vista::sdk
 		 * @return true if completed, false if stopped early
 		 */
 		template <typename TState>
-		VISTA_SDK_CPP_INLINE bool traverse( TState& state, TraverseHandlerWithState<TState> handler, const TraversalOptions& options = {} ) const;
+		inline bool traverse( TState& state, TraverseHandlerWithState<TState> handler, const TraversalOptions& options = {} ) const;
 
 		/**
 		 * @brief Traverse from specific root node
@@ -438,7 +438,7 @@ namespace dnv::vista::sdk
 		 * @param options Traversal configuration
 		 * @return true if completed, false if stopped early
 		 */
-		VISTA_SDK_CPP_INLINE bool traverse( const GmodNode& rootNode, TraverseHandler handler, const TraversalOptions& options = {} ) const;
+		inline bool traverse( const GmodNode& rootNode, TraverseHandler handler, const TraversalOptions& options = {} ) const;
 
 		/**
 		 * @brief Traverse from specific root with stateful handler
@@ -450,7 +450,7 @@ namespace dnv::vista::sdk
 		 * @return true if completed, false if stopped early
 		 */
 		template <typename TState>
-		VISTA_SDK_CPP_INLINE bool traverse(
+		inline bool traverse(
 			TState& state, const GmodNode& rootNode, TraverseHandlerWithState<TState> handler, const TraversalOptions& options = {} ) const;
 
 		/**
@@ -548,7 +548,7 @@ namespace dnv::vista::sdk
 		/**
 		 * @brief An enumerator for iterating over all nodes within a Gmod instance.
 		 * @details Provides a way to access each GmodNode in the GMOD's internal collection.
-		 *          The order of iteration depends on the underlying ChdHashMap.
+		 *          The order of iteration depends on the underlying PerfectHashMap.
 		 */
 		class Enumerator final
 		{
@@ -558,12 +558,11 @@ namespace dnv::vista::sdk
 			// Construction
 			//-----------------------------
 
-		private:
-			/**
-			 * @brief Private constructor, typically called by Gmod::enumerator().
-			 * @param map Pointer to the ChdHashMap of GmodNodes to iterate over.
-			 */
-			VISTA_SDK_CPP_INLINE Enumerator( const nfx::containers::ChdHashMap<GmodNode>* map ) noexcept;
+		private: /**
+				  * @brief Private constructor, typically called by Gmod::enumerator().
+				  * @param map Pointer to the PerfectHashMap of GmodNodes to iterate over.
+				  */
+			inline Enumerator( const nfx::containers::PerfectHashMap<std::string, GmodNode, uint32_t, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS>* map ) noexcept;
 
 		public:
 			/** @brief Default constructor. */
@@ -596,34 +595,33 @@ namespace dnv::vista::sdk
 			 *                            (e.g., before the first moveNext() or after iteration has ended).
 			 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 			 */
-			[[nodiscard]] VISTA_SDK_CPP_INLINE const GmodNode& current() const;
+			[[nodiscard]] inline const GmodNode& current() const;
 
 			/**
 			 * @brief Advances the enumerator to the next GmodNode in the collection.
 			 * @return True if the enumerator was successfully advanced to the next node;
 			 *         false if the end of the collection has been passed.
 			 */
-			bool VISTA_SDK_CPP_INLINE next() noexcept;
+			bool inline next() noexcept;
 
 			/**
 			 * @brief Resets the enumerator to its initial state, positioned before the first node.
 			 * @details After calling reset, next() must be called to access the first node.
 			 */
-			void VISTA_SDK_CPP_INLINE reset() noexcept;
+			void inline reset() noexcept;
 
 			//-----------------------------
 			// Private member variables
 			//-----------------------------
+			/**
+			 * @brief Pointer to the source PerfectHashMap of GmodNodes being enumerated.
+			 */
+			const nfx::containers::PerfectHashMap<std::string, GmodNode, uint32_t, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS>* m_sourceMapPtr;
 
 			/**
-			 * @brief Pointer to the source ChdHashMap of GmodNodes being enumerated.
+			 * @brief Iterator to the current position in the PerfectHashMap.
 			 */
-			const nfx::containers::ChdHashMap<GmodNode>* m_sourceMapPtr;
-
-			/**
-			 * @brief Iterator to the current position in the ChdHashMap.
-			 */
-			nfx::containers::ChdHashMap<GmodNode>::Iterator m_currentMapIterator;
+			nfx::containers::PerfectHashMap<std::string, GmodNode, uint32_t, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS>::iterator m_currentMapIterator;
 
 			/**
 			 * @brief Indicates if the enumerator is in its initial state (before first next()).
@@ -647,18 +645,18 @@ namespace dnv::vista::sdk
 			 * @brief Constructor for parent stack
 			 * @details Initializes an empty parent stack for traversal operations
 			 */
-			VISTA_SDK_CPP_INLINE Parents();
+			inline Parents();
 
 			/**
 			 * @brief Pushes a parent node onto the stack
 			 * @param parent Pointer to the parent node to add
 			 */
-			VISTA_SDK_CPP_INLINE void push( const GmodNode* parent );
+			inline void push( const GmodNode* parent );
 
 			/**
 			 * @brief Pops the last parent node from the stack
 			 */
-			VISTA_SDK_CPP_INLINE void pop();
+			inline void pop();
 
 			/**
 			 * @brief Gets the number of times a node appears in the parent stack
@@ -683,7 +681,7 @@ namespace dnv::vista::sdk
 			[[nodiscard]] inline const std::vector<const GmodNode*>& asList() const noexcept;
 
 		private:
-			nfx::containers::HashMap<std::string, size_t> m_occurrences;
+			nfx::containers::FastHashMap<std::string, size_t> m_occurrences;
 			std::vector<const GmodNode*> m_parents;
 		};
 
@@ -767,8 +765,8 @@ namespace dnv::vista::sdk
 		 * @details This dictionary maps node codes (strings) to GmodNode objects.
 		 *          It owns the GmodNode instances.
 		 */
-		nfx::containers::ChdHashMap<GmodNode> m_nodeMap;
+		nfx::containers::PerfectHashMap<std::string, GmodNode, uint32_t, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS> m_nodeMap;
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/Gmod.inl"

@@ -80,6 +80,6 @@ namespace dnv::vista::sdk::benchmarks
 	//=====================================================================
 
 	BENCHMARK_REGISTER_F( GmodTraversalFixture, FullTraversal )->MinTime( 10.0 )->Unit( benchmark::kMillisecond );
-}
+} // namespace dnv::vista::sdk::benchmarks
 
 BENCHMARK_MAIN();

@@ -35,10 +35,10 @@
  * ## Data Flow Architecture:
  *
  * ```
- * Specialized Parsing Operation
- *         ↓
- * Domain-Specific Error Builder
- *         ↓
+ *      Specialized Parsing Operation
+ *                  ↓
+ *      Domain-Specific Error Builder
+ *                  ↓
  * ┌─────────────────────────────────────┐
  * │    LocalId/LocationErrorBuilder     │
  * ├─────────────────────────────────────┤
@@ -47,9 +47,13 @@
  * │ │        + Error Messages         │ │
  * │ └─────────────────────────────────┘ │
  * └─────────────────────────────────────┘
- *         ↓ build()
+ *                   ↓
+ *                build()
+ *                   ↓
  * ┌─────────────────────────────────────┐
  * │          ParsingErrors              │
+ * ├─────────────────────────────────────┤
+ * │      std::size_t m_hashCode         │ ← Cached hash (8 bytes, O(1) access)
  * ├─────────────────────────────────────┤
  * │ ┌─────────────────────────────────┐ │
  * │ │    vector<ErrorEntry>           │ │ ← Immutable error storage
@@ -64,9 +68,18 @@
  * │ │  └───────────────────────────┘  │ │
  * │ └─────────────────────────────────┘ │
  * └─────────────────────────────────────┘
- *         ↓
- * Error Analysis & Reporting
- * ```
+ *                  ↓
+ *      Error Analysis & Reporting
+ *                  ↓
+ * ┌─────────────────────────────────────┐
+ * │    Diagnostic Output System         │
+ * ├─────────────────────────────────────┤
+ * │ - Formatted Error Messages          │
+ * │ - String Representation             │
+ * │ - Classification-Based Reporting    │
+ * │ - Debug Information Export          │
+ * └─────────────────────────────────────┘
+ *```
  *
  * ## Usage Patterns:
  *
@@ -146,7 +159,7 @@ namespace dnv::vista::sdk
 	{
 		class LocalIdParsingErrorBuilder;
 		class LocationParsingErrorBuilder;
-	}
+	} // namespace internal
 
 	//=====================================================================
 	// ParsingErrors class
@@ -170,16 +183,10 @@ namespace dnv::vista::sdk
 		class Enumerator;
 		struct ErrorEntry;
 
+	private:
 		//----------------------------------------------
 		// Construction
 		//----------------------------------------------
-	private:
-		/**
-		 * @brief Internal constructor for creating ParsingErrors with error entries.
-		 * @param errors A vector of error entries to copy.
-		 */
-		explicit ParsingErrors( const std::vector<ErrorEntry>& errors );
-
 		/**
 		 * @brief Internal constructor for creating ParsingErrors with error entries.
 		 * @param errors A vector of error entries to move from.
@@ -203,7 +210,7 @@ namespace dnv::vista::sdk
 		 * @brief Move constructor.
 		 * @param other The object to move from
 		 */
-		ParsingErrors( ParsingErrors&& other ) noexcept;
+		ParsingErrors( ParsingErrors&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -308,6 +315,28 @@ namespace dnv::vista::sdk
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] std::string toString() const;
+
+		//----------------------------------------------
+		// Hashing
+		//----------------------------------------------
+
+		/**
+		 * @brief Gets the cached hash value for this ParsingErrors instance
+		 * @details **Purpose**: Enables ParsingErrors instances to be used efficiently as keys in hash-based
+		 *          collections (std::unordered_map, nfx::HashMap, etc.) without performance penalties.
+		 *
+		 *          **Performance Critical**: Hash is pre-computed during construction using optimized
+		 *          NFX FNV-1a algorithms and cached to avoid expensive recomputation. This transforms
+		 *          hash lookups from O(n) error collection traversal to O(1) cached access.
+		 *
+		 *          **Implementation**: Combines hash codes of all error entries (type and message pairs)
+		 *          using NFX hash combination algorithms for consistent, high-quality distribution
+		 *          across different error collections and diagnostic scenarios.
+		 *
+		 * @return The pre-computed hash value for this ParsingErrors' complete error collection
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		[[nodiscard]] inline std::size_t hashCode() const noexcept;
 
 		//----------------------------------------------
 		// Enumeration
@@ -419,6 +448,10 @@ namespace dnv::vista::sdk
 		// Private member variables
 		//----------------------------------------------
 
+		/** @brief Cached hash value computed during construction for O(1) hash access */
+		std::size_t m_hashCode;
+
+		/** @brief Vector of error entries with type and message information for each parsing error */
 		std::vector<ErrorEntry> m_errors;
 
 	public:
@@ -489,6 +522,29 @@ namespace dnv::vista::sdk
 			[[nodiscard]] inline bool operator!=( const ErrorEntry& other ) const noexcept;
 		};
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/ParsingErrors.inl"
+
+namespace std
+{
+	/**
+	 * @brief Hash specialization for dnv::vista::sdk::ParsingErrors
+	 * @details Enables ParsingErrors instances to be used as keys in all hash-based STL containers.
+	 *          This specialization provides seamless integration with std::unordered_map,
+	 *          std::unordered_set, and other standard library hash containers.
+	 */
+	template <>
+	struct hash<dnv::vista::sdk::ParsingErrors>
+	{
+		/**
+		 * @brief Returns the cached hash value for optimal performance
+		 * @param[in] parsingErrors The ParsingErrors instance to hash
+		 * @return Pre-computed hash value (O(1) access) combining all error entries
+		 */
+		std::size_t operator()( const dnv::vista::sdk::ParsingErrors& parsingErrors ) const noexcept
+		{
+			return parsingErrors.hashCode();
+		}
+	};
+} // namespace std

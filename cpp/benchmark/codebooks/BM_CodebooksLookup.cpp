@@ -151,6 +151,6 @@ namespace dnv::vista::sdk::benchmarks
 	BENCHMARK_REGISTER_F( CodebooksLookupFixture, std_map )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
 	BENCHMARK_REGISTER_F( CodebooksLookupFixture, sdk_codebooks )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
 	BENCHMARK_REGISTER_F( CodebooksLookupFixture, sdk_lookup_operator )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
-}
+} // namespace dnv::vista::sdk::benchmarks
 
 BENCHMARK_MAIN();

@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include <nlohmann/json.hpp>
+#include <nfx/serialization/json/Document.h>
 
 namespace dnv::vista::sdk::test
 {
-	const nlohmann::json& loadTestData( const char* testDataPath );
+	const nfx::serialization::json::Document& loadTestData( const char* testDataPath );
 }

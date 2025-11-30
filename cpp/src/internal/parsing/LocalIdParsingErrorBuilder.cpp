@@ -229,7 +229,7 @@ namespace dnv::vista::sdk::internal
 				}
 			}
 		}
-	}
+	} // namespace
 
 	//=====================================================================
 	// LocalIdParsingErrorBuilder class
@@ -322,4 +322,4 @@ namespace dnv::vista::sdk::internal
 
 		return *this;
 	}
-}
+} // namespace dnv::vista::sdk::internal

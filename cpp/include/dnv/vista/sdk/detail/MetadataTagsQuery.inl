@@ -50,4 +50,4 @@ namespace dnv::vista::sdk
 	{
 		return m_tags.empty();
 	}
-}
+} // namespace dnv::vista::sdk

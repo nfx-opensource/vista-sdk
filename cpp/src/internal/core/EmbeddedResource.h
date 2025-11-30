@@ -10,7 +10,7 @@
 #include <string_view>
 #include <vector>
 
-#include <nfx/containers/StringMap.h>
+#include <nfx/Containers.h>
 
 namespace dnv::vista::sdk
 {
@@ -18,18 +18,18 @@ namespace dnv::vista::sdk
 	// Forward declarations
 	//=====================================================================
 
-	class GmodDto;
-	class GmodVersioningDto;
-	class CodebooksDto;
-	class LocationsDto;
+	struct GmodDto;
+	struct GmodVersioningDto;
+	struct CodebooksDto;
+	struct LocationsDto;
 
 	namespace internal
 	{
 		namespace transport
 		{
-			class DataChannelTypeNamesDto;
-			class FormatDataTypesDto;
-		}
+			struct DataChannelTypeNamesDto;
+			struct FormatDataTypesDto;
+		} // namespace transport
 
 		//=====================================================================
 		// EmbeddedResource class
@@ -58,7 +58,7 @@ namespace dnv::vista::sdk
 			 * @brief Get all GMOD versioning data
 			 * @return Dictionary of versioning DTOs by version string with heterogeneous lookup if found, std::nullopt otherwise
 			 */
-			static std::optional<nfx::containers::StringMap<GmodVersioningDto>> gmodVersioning();
+			static std::optional<nfx::containers::FastHashMap<std::string, GmodVersioningDto>> gmodVersioning();
 
 			/**
 			 * @brief Get GMOD for specific VIS version
@@ -130,5 +130,5 @@ namespace dnv::vista::sdk
 			 */
 			static std::shared_ptr<std::istream> stream( std::string_view resourceName );
 		};
-	}
-}
+	} // namespace internal
+} // namespace dnv::vista::sdk

@@ -18,13 +18,14 @@ endif()
 set(SAMPLE_SOURCES
 	basic/Sample_BasicUsage.cpp
 	basic/Sample_Codebooks.cpp
-	basic/Sample_GMOD.cpp
 	basic/Sample_LocalId.cpp
 	basic/Sample_LocalId_Validator.cpp
 	builders/Sample_Builders_LocalId.cpp
 	builders/Sample_Builders_LocalIdQuery.cpp
 	gmod/Sample_Gmod_Tree.cpp
-	iso19848/Sample_TimeSeriesDataPackage.cpp
+	gmod/Sample_Gmod.cpp
+	iso19848/Sample_ISO19848_AdvancedDataChannelList.cpp
+	iso19848/Sample_ISO19848_SimpleDataChannelList.cpp
 	parse/Sample_Parse_GmodPath.cpp
 	parse/Sample_Parse_LocalId.cpp
 	parse/Sample_Parse_MetadataTag.cpp
@@ -67,7 +68,10 @@ foreach(sample_source ${SAMPLE_SOURCES})
 			$<$<CXX_COMPILER_ID:MSVC>:/Zc:preprocessor>                        # Conforming preprocessor
 			$<$<CXX_COMPILER_ID:MSVC>:/external:anglebrackets>                 # Treat angle bracket includes as external
 			$<$<CXX_COMPILER_ID:MSVC>:/external:W0>                            # No warnings for external headers
-			$<$<CXX_COMPILER_ID:MSVC>:/arch:AVX2>                              # Enable AVX2 (covers AVX, SSE4.2, etc.)
+
+			# --- CPU Architecture Support ---
+			$<$<AND:$<CXX_COMPILER_ID:MSVC>,$<BOOL:${VISTA_SDK_CPP_ENABLE_AVX2}>>:/arch:AVX2>        # AVX2 if supported
+			$<$<AND:$<CXX_COMPILER_ID:MSVC>,$<NOT:$<BOOL:${VISTA_SDK_CPP_ENABLE_AVX2}>>>:/arch:SSE2> # SSE2 fallback
 
 			# --- Optimization ---
 			$<$<AND:$<CXX_COMPILER_ID:MSVC>,$<CONFIG:Release>>:/O2>            # Maximum speed optimization
@@ -99,8 +103,12 @@ foreach(sample_source ${SAMPLE_SOURCES})
 			$<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-Wextra>      # Extra warnings
 			$<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-msse4.2>     # SSE4.2 support (includes CRC32)
 			$<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-mavx>        # AVX support
-			$<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-mavx2>       # AVX2 support
-			$<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-mfma>        # Fused multiply-add
+
+			# --- Conditional advanced instruction sets ---
+			$<$<AND:$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>,$<BOOL:${VISTA_SDK_CPP_ENABLE_AVX2}>>:-mavx2>  # AVX2 if supported
+			$<$<AND:$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>,$<BOOL:${VISTA_SDK_CPP_ENABLE_AVX2}>>:-mfma>   # FMA if AVX2 supported
+
+
 
 			# --- Clang-specific settings ---
 			$<$<CXX_COMPILER_ID:Clang>:-mcrc32>                                   # Explicit CRC32 support for Clang
@@ -152,7 +160,7 @@ foreach(sample_source ${SAMPLE_SOURCES})
 
 		target_link_libraries(${sample_target_name} PRIVATE
 			vista-sdk-cpp::static
-			nfx-core::static
+			nfx-meta::nfx-meta
 		)
 
 		#----------------------------------------------
@@ -172,3 +180,21 @@ foreach(sample_source ${SAMPLE_SOURCES})
 	endif()
 endforeach()
 
+#----------------------------------------------
+# Copy samples/resources folder
+#----------------------------------------------
+
+add_custom_target(copy_samples_resources
+	COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/samples"
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+		"${CMAKE_CURRENT_SOURCE_DIR}/resources"
+		"${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/samples/resources"
+	COMMENT "Copying samples/resources folder to output directory"
+)
+
+foreach(sample_source ${SAMPLE_SOURCES})
+	get_filename_component(sample_target_name ${sample_source} NAME_WE)
+	if(TARGET ${sample_target_name})
+		add_dependencies(${sample_target_name} copy_samples_resources)
+	endif()
+endforeach()

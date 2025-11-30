@@ -68,7 +68,7 @@ namespace dnv::vista::sdk::internal
 				}
 			}
 		}
-	}
+	} // namespace
 
 	//=====================================================================
 	// LocationParsingErrorBuilder class
@@ -140,4 +140,4 @@ namespace dnv::vista::sdk::internal
 
 		return *this;
 	}
-}
+} // namespace dnv::vista::sdk::internal

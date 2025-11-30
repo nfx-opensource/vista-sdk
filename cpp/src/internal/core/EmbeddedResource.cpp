@@ -8,7 +8,9 @@
 #include <sstream>
 #include <string>
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/serialization/json/Document.h>
+#include <nfx/serialization/json/Serializer.h>
+#include <nfx/string/StringBuilder.h>
 #include <nfx/string/Utils.h>
 #include <zlib-ng.h>
 
@@ -89,7 +91,7 @@ namespace dnv::vista::sdk::internal
 		{
 			return nfx::string::contains( filename, "format-data-types" ) && nfx::string::contains( filename, "iso19848" ) && nfx::string::endsWith( filename, ".json.gz" );
 		}
-	}
+	} // namespace
 
 	//=====================================================================
 	// EmbeddedResource class
@@ -112,11 +114,28 @@ namespace dnv::vista::sdk::internal
 				try
 				{
 					const auto stream = decompressedStream( resourceName );
-					const nlohmann::json gmodJson = nlohmann::json::parse( *stream );
 
-					if ( gmodJson.contains( dto::KEY_VIS_RELEASE ) && gmodJson.at( dto::KEY_VIS_RELEASE ).is_string() )
+					std::string jsonContent;
+					std::string line;
+					while ( std::getline( *stream, line ) )
 					{
-						std::string version = gmodJson.at( dto::KEY_VIS_RELEASE ).get<std::string>();
+						jsonContent += line;
+					}
+
+					auto docOpt = nfx::serialization::json::Document::fromString( jsonContent );
+					if ( !docOpt.has_value() )
+					{
+						std::fprintf(
+							stderr,
+							"ERROR: Failed to parse JSON in GMOD resource %s\n",
+							resourceName.data() );
+						continue;
+					}
+
+					auto versionOpt = docOpt->get<std::string>( "/" + std::string{ dto::KEY_VIS_RELEASE } );
+					if ( versionOpt.has_value() )
+					{
+						std::string version = *versionOpt;
 						visVersions.push_back( version );
 					}
 					else
@@ -128,19 +147,11 @@ namespace dnv::vista::sdk::internal
 							static_cast<int>( dto::KEY_VIS_RELEASE.size() ), dto::KEY_VIS_RELEASE.data() );
 					}
 				}
-				catch ( [[maybe_unused]] const nlohmann::json::parse_error& ex )
+				catch ( [[maybe_unused]] const std::runtime_error& ex )
 				{
 					std::fprintf(
 						stderr,
 						"ERROR: JSON parse error in resource %s: %s\n",
-						resourceName.data(),
-						ex.what() );
-				}
-				catch ( [[maybe_unused]] const nlohmann::json::exception& ex )
-				{
-					std::fprintf(
-						stderr,
-						"ERROR: JSON error processing resource %s: %s\n",
 						resourceName.data(),
 						ex.what() );
 				}
@@ -174,7 +185,7 @@ namespace dnv::vista::sdk::internal
 		return visVersions;
 	}
 
-	std::optional<nfx::containers::StringMap<GmodVersioningDto>> EmbeddedResource::gmodVersioning()
+	std::optional<nfx::containers::FastHashMap<std::string, GmodVersioningDto>> EmbeddedResource::gmodVersioning()
 	{
 		auto names = resourceNames();
 
@@ -189,7 +200,7 @@ namespace dnv::vista::sdk::internal
 			}
 		}
 
-		nfx::containers::StringMap<GmodVersioningDto> resultMap;
+		nfx::containers::FastHashMap<std::string, GmodVersioningDto> resultMap;
 		bool foundAnyResource = false;
 
 		for ( const auto& resourceName : matchingResources )
@@ -197,39 +208,54 @@ namespace dnv::vista::sdk::internal
 			try
 			{
 				const auto stream = decompressedStream( resourceName );
-				const nlohmann::json versioningJson = nlohmann::json::parse( *stream );
 
-				if ( versioningJson.contains( dto::KEY_VIS_RELEASE ) && versioningJson.at( dto::KEY_VIS_RELEASE ).is_string() )
+				std::string jsonContent;
+				std::string line;
+				while ( std::getline( *stream, line ) )
 				{
-					std::string visVersion = versioningJson.at( dto::KEY_VIS_RELEASE ).get<std::string>();
-
-					auto dto = GmodVersioningDto::fromJson( versioningJson );
-
-					resultMap.emplace( visVersion, std::move( dto ) );
-					foundAnyResource = true;
+					jsonContent += line;
 				}
-				else
+
+				auto docOpt = nfx::serialization::json::Document::fromString( jsonContent );
+				if ( !docOpt.has_value() )
+				{
+					std::fprintf(
+						stderr,
+						"ERROR: Failed to parse JSON in GMOD Versioning resource %s\n",
+						resourceName.data() );
+					continue;
+				}
+
+				auto visVersionOpt = docOpt->get<std::string>( "/" + std::string{ dto::KEY_VIS_RELEASE } );
+				if ( !visVersionOpt.has_value() )
 				{
 					std::fprintf(
 						stderr,
 						"WARN: GMOD Versioning resource %s missing or has invalid '%.*s' field.\n",
 						resourceName.data(),
 						static_cast<int>( dto::KEY_VIS_RELEASE.size() ), dto::KEY_VIS_RELEASE.data() );
+					continue;
 				}
+
+				std::string visVersion = *visVersionOpt;
+				auto dto = GmodVersioningDto::fromJsonString( jsonContent );
+
+				resultMap.insertOrAssign( visVersion, std::move( dto ) );
+				foundAnyResource = true;
 			}
-			catch ( [[maybe_unused]] const nlohmann::json::parse_error& ex )
-			{
-				std::fprintf(
-					stderr,
-					"ERROR: JSON parse error in GMOD Versioning resource %s: %s\n",
-					resourceName.data(),
-					ex.what() );
-			}
-			catch ( [[maybe_unused]] const nlohmann::json::exception& ex )
+			catch ( [[maybe_unused]] const std::invalid_argument& ex )
 			{
 				std::fprintf(
 					stderr,
 					"ERROR: JSON validation/deserialization error in GMOD Versioning resource %s: %s\n",
+					resourceName.data(),
+					ex.what() );
+			}
+			catch ( [[maybe_unused]] const std::runtime_error& ex )
+			{
+				std::fprintf(
+					stderr,
+					"ERROR: JSON parse error in GMOD Versioning resource %s: %s\n",
 					resourceName.data(),
 					ex.what() );
 			}
@@ -273,25 +299,31 @@ namespace dnv::vista::sdk::internal
 		try
 		{
 			auto stream = decompressedStream( *it );
-			nlohmann::json gmodJson = nlohmann::json::parse( *stream );
 
-			GmodDto loadedDto = GmodDto::fromJson( gmodJson );
+			std::string jsonContent;
+			std::string line;
+			while ( std::getline( *stream, line ) )
+			{
+				jsonContent += line;
+			}
+
+			GmodDto loadedDto = GmodDto::fromJsonString( jsonContent );
 
 			return std::make_optional( std::move( loadedDto ) );
 		}
-		catch ( [[maybe_unused]] const nlohmann::json::parse_error& ex )
-		{
-			std::fprintf(
-				stderr,
-				"ERROR: JSON parse error in GMOD resource %s: %s\n",
-				it->c_str(),
-				ex.what() );
-		}
-		catch ( [[maybe_unused]] const nlohmann::json::exception& ex )
+		catch ( [[maybe_unused]] const std::invalid_argument& ex )
 		{
 			std::fprintf(
 				stderr,
 				"ERROR: JSON validation/deserialization error in GMOD resource %s: %s\n",
+				it->c_str(),
+				ex.what() );
+		}
+		catch ( [[maybe_unused]] const std::runtime_error& ex )
+		{
+			std::fprintf(
+				stderr,
+				"ERROR: JSON parse error in GMOD resource %s: %s\n",
 				it->c_str(),
 				ex.what() );
 		}
@@ -326,25 +358,31 @@ namespace dnv::vista::sdk::internal
 		try
 		{
 			auto stream = decompressedStream( *it );
-			nlohmann::json codebooksJson = nlohmann::json::parse( *stream );
 
-			CodebooksDto loadedDto = CodebooksDto::fromJson( codebooksJson );
+			std::string jsonContent;
+			std::string line;
+			while ( std::getline( *stream, line ) )
+			{
+				jsonContent += line;
+			}
+
+			CodebooksDto loadedDto = CodebooksDto::fromJsonString( jsonContent );
 
 			return std::make_optional( std::move( loadedDto ) );
 		}
-		catch ( [[maybe_unused]] const nlohmann::json::parse_error& ex )
-		{
-			std::fprintf(
-				stderr,
-				"ERROR: JSON parse error in Codebooks resource %s: %s\n",
-				it->c_str(),
-				ex.what() );
-		}
-		catch ( [[maybe_unused]] const nlohmann::json::exception& ex )
+		catch ( [[maybe_unused]] const std::invalid_argument& ex )
 		{
 			std::fprintf(
 				stderr,
 				"ERROR: JSON validation/deserialization error in Codebooks resource %s: %s\n",
+				it->c_str(),
+				ex.what() );
+		}
+		catch ( [[maybe_unused]] const std::runtime_error& ex )
+		{
+			std::fprintf(
+				stderr,
+				"ERROR: JSON parse error in Codebooks resource %s: %s\n",
 				it->c_str(),
 				ex.what() );
 		}
@@ -378,25 +416,31 @@ namespace dnv::vista::sdk::internal
 		try
 		{
 			auto stream = decompressedStream( *it );
-			nlohmann::json locationsJson = nlohmann::json::parse( *stream );
 
-			LocationsDto loadedDto = LocationsDto::fromJson( locationsJson );
+			std::string jsonContent;
+			std::string line;
+			while ( std::getline( *stream, line ) )
+			{
+				jsonContent += line;
+			}
+
+			LocationsDto loadedDto = LocationsDto::fromJsonString( jsonContent );
 
 			return std::make_optional( std::move( loadedDto ) );
 		}
-		catch ( [[maybe_unused]] const nlohmann::json::parse_error& ex )
-		{
-			std::fprintf(
-				stderr,
-				"ERROR: JSON parse error in Locations resource %s: %s\n",
-				it->c_str(),
-				ex.what() );
-		}
-		catch ( [[maybe_unused]] const nlohmann::json::exception& ex )
+		catch ( [[maybe_unused]] const std::invalid_argument& ex )
 		{
 			std::fprintf(
 				stderr,
 				"ERROR: JSON validation/deserialization error in Locations resource %s: %s\n",
+				it->c_str(),
+				ex.what() );
+		}
+		catch ( [[maybe_unused]] const std::runtime_error& ex )
+		{
+			std::fprintf(
+				stderr,
+				"ERROR: JSON parse error in Locations resource %s: %s\n",
 				it->c_str(),
 				ex.what() );
 		}
@@ -430,25 +474,31 @@ namespace dnv::vista::sdk::internal
 		try
 		{
 			auto stream = decompressedStream( *it );
-			nlohmann::json dtNamesJson = nlohmann::json::parse( *stream );
 
-			auto loadedDto = transport::DataChannelTypeNamesDto::fromJson( dtNamesJson );
+			std::string jsonContent;
+			std::string line;
+			while ( std::getline( *stream, line ) )
+			{
+				jsonContent += line;
+			}
+
+			transport::DataChannelTypeNamesDto loadedDto = transport::DataChannelTypeNamesDto::fromJsonString( jsonContent );
 
 			return std::make_optional( std::move( loadedDto ) );
 		}
-		catch ( [[maybe_unused]] const nlohmann::json::parse_error& ex )
-		{
-			std::fprintf(
-				stderr,
-				"ERROR : JSON parse error in DataChannelTypeNames resource %s : %s\n ",
-				it->c_str(),
-				ex.what() );
-		}
-		catch ( [[maybe_unused]] const nlohmann::json::exception& ex )
+		catch ( [[maybe_unused]] const std::invalid_argument& ex )
 		{
 			std::fprintf(
 				stderr,
 				"ERROR: JSON validation/deserialization error in DataChannelTypeNames resource %s: %s\n",
+				it->c_str(),
+				ex.what() );
+		}
+		catch ( [[maybe_unused]] const std::runtime_error& ex )
+		{
+			std::fprintf(
+				stderr,
+				"ERROR: JSON parse error in DataChannelTypeNames resource %s: %s\n",
 				it->c_str(),
 				ex.what() );
 		}
@@ -482,25 +532,31 @@ namespace dnv::vista::sdk::internal
 		try
 		{
 			auto stream = decompressedStream( *it );
-			nlohmann::json fdTypesJson = nlohmann::json::parse( *stream );
 
-			auto loadedDto = transport::FormatDataTypesDto::fromJson( fdTypesJson );
+			std::string jsonContent;
+			std::string line;
+			while ( std::getline( *stream, line ) )
+			{
+				jsonContent += line;
+			}
+
+			transport::FormatDataTypesDto loadedDto = transport::FormatDataTypesDto::fromJsonString( jsonContent );
 
 			return std::make_optional( std::move( loadedDto ) );
 		}
-		catch ( [[maybe_unused]] const nlohmann::json::parse_error& ex )
-		{
-			std::fprintf(
-				stderr,
-				"ERROR: JSON parse error in FormatDataTypes resource %s: %s\n",
-				it->c_str(),
-				ex.what() );
-		}
-		catch ( [[maybe_unused]] const nlohmann::json::exception& ex )
+		catch ( [[maybe_unused]] const std::invalid_argument& ex )
 		{
 			std::fprintf(
 				stderr,
 				"ERROR: JSON validation/deserialization error in FormatDataTypes resource %s: %s\n",
+				it->c_str(),
+				ex.what() );
+		}
+		catch ( [[maybe_unused]] const std::runtime_error& ex )
+		{
+			std::fprintf(
+				stderr,
+				"ERROR: JSON parse error in FormatDataTypes resource %s: %s\n",
 				it->c_str(),
 				ex.what() );
 		}
@@ -674,4 +730,4 @@ namespace dnv::vista::sdk::internal
 
 		throw std::runtime_error( "Resource file not found: " + resourcePath.string() );
 	}
-}
+} // namespace dnv::vista::sdk::internal

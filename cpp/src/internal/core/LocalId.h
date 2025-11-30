@@ -99,5 +99,5 @@ namespace dnv::vista::sdk::internal
 		inline constexpr std::string_view META_DETAIL_SHORT = "d";
 		/** @brief Long detail prefix */
 		inline constexpr std::string_view META_DETAIL_LONG = "detail";
-	}
-}
+	} // namespace localId
+} // namespace dnv::vista::sdk::internal

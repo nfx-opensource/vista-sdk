@@ -42,4 +42,4 @@ namespace dnv::vista::sdk
 	{
 		return m_longitudinal;
 	}
-}
+} // namespace dnv::vista::sdk

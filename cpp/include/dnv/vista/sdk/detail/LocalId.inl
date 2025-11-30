@@ -125,6 +125,15 @@ namespace dnv::vista::sdk
 	}
 
 	//----------------------------------------------
+	// Hashing
+	//----------------------------------------------
+
+	inline std::size_t LocalId::hashCode() const noexcept
+	{
+		return m_builder.hashCode();
+	}
+
+	//----------------------------------------------
 	// String conversion
 	//----------------------------------------------
 
@@ -132,4 +141,4 @@ namespace dnv::vista::sdk
 	{
 		return m_builder.toString();
 	}
-}
+} // namespace dnv::vista::sdk

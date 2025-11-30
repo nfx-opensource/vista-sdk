@@ -38,7 +38,7 @@ namespace dnv::vista::sdk::internal
 
 			/** @brief Values array key for codebook JSON parsing. */
 			inline constexpr std::string_view KEY_VALUES = "values";
-		}
+		} // namespace codebook
 
 		namespace gmod
 		{
@@ -82,7 +82,7 @@ namespace dnv::vista::sdk::internal
 
 			/** @brief Relations key for GMOD JSON parsing. */
 			inline constexpr std::string_view KEY_RELATIONS = "relations";
-		}
+		} // namespace gmod
 
 		namespace gmodversioning
 		{
@@ -113,7 +113,7 @@ namespace dnv::vista::sdk::internal
 
 			/** @brief Target key for GMOD versioning JSON parsing. */
 			inline constexpr std::string_view KEY_TARGET = "target";
-		}
+		} // namespace gmodversioning
 
 		namespace iso19848
 		{
@@ -129,7 +129,7 @@ namespace dnv::vista::sdk::internal
 
 			/** @brief Description key for ISO19848 JSON parsing. */
 			inline constexpr std::string_view KEY_DESCRIPTION = "description";
-		}
+		} // namespace iso19848
 
 		namespace locations
 		{
@@ -148,7 +148,7 @@ namespace dnv::vista::sdk::internal
 
 			/** @brief Items array key for locations JSON parsing. */
 			inline constexpr std::string_view KEY_ITEMS = "items";
-		}
+		} // namespace locations
 
 		namespace error
 		{
@@ -169,6 +169,6 @@ namespace dnv::vista::sdk::internal
 
 			/** @brief Unknown ISO19848 type fallback constant. */
 			inline constexpr std::string_view UNKNOWN_TYPE = "[unknown type]";
-		}
-	}
-}
+		} // namespace error
+	} // namespace dto
+} // namespace dnv::vista::sdk::internal

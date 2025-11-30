@@ -2,7 +2,17 @@
 # VISTA-SDK-CPP - C++ Library dependencies configuration
 #==============================================================================
 
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "Force static libraries for dependencies" FORCE)
+#----------------------------
+# Output configuration
+#----------------------------
+
+set(_SAVED_CMAKE_REQUIRED_QUIET     ${CMAKE_REQUIRED_QUIET})
+set(_SAVED_CMAKE_MESSAGE_LOG_LEVEL  ${CMAKE_MESSAGE_LOG_LEVEL})
+set(_SAVED_CMAKE_FIND_QUIETLY       ${CMAKE_FIND_QUIETLY})
+
+set(CMAKE_REQUIRED_QUIET    ON         )
+set(CMAKE_MESSAGE_LOG_LEVEL VERBOSE    ) # [ERROR, WARNING, NOTICE, STATUS, VERBOSE, DEBUG]
+set(CMAKE_FIND_QUIETLY      ON         )
 
 #----------------------------------------------
 # FetchContent dependencies
@@ -10,51 +20,64 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "Force static libraries for dependencies" F
 
 include(FetchContent)
 
-set(FETCHCONTENT_BASE_DIR "${VISTA_SDK_ROOT_DIR}/.deps/${COMPILER_DIR_NAME}")
+set(FETCHCONTENT_BASE_DIR "${CMAKE_BINARY_DIR}/.deps/${COMPILER_DIR_NAME}")
 
-set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+if(DEFINED ENV{CI})
+	set(FETCHCONTENT_UPDATES_DISCONNECTED OFF)
+else()
+	set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+endif()
 set(FETCHCONTENT_QUIET OFF)
+
+#----------------------------
+# Dependency version requirements
+#----------------------------
+
+set(VISTA_SDK_CPP_NFX_META_MIN_VERSION   "0.7.0" )
+set(VISTA_SDK_CPP_ZLIB_NG_VERSION        "2.2.0" )
+set(VISTA_SDK_CPP_GTEST_MIN_VERSION      "1.12.1")
+set(VISTA_SDK_CPP_BENCHMARK_MIN_VERSION  "1.9.1" )
 
 #----------------------------
 # Dependency declarations
 #----------------------------
 
-# --- nlohmann/json ---
-find_package(nlohmann_json 3.12.0 QUIET)
-if(NOT nlohmann_json_FOUND)
-	FetchContent_Declare(nlohmann_json
-		URL https://github.com/nlohmann/json/releases/download/v3.12.0/include.zip
-		URL_HASH SHA256=b8cb0ef2dd7f57f18933997c9934bb1fa962594f701cd5a8d3c2c80541559372
-		DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-	)
-endif()
-
-# --- nfx-core ---
-find_package(nfx-core 0.1.2 QUIET)
-if(NOT nfx-core_FOUND)
-	set(NFX_CORE_BUILD_STATIC      ON   CACHE BOOL  "Build static library"                FORCE)
-	set(NFX_CORE_BUILD_SHARED      OFF  CACHE BOOL  "Build shared library"                FORCE)
-	set(NFX_CORE_WITH_CONTAINERS   ON   CACHE BOOL  "Enable container utilities"          FORCE)
-	set(NFX_CORE_WITH_DATATYPES    ON   CACHE BOOL  "Enable mathematical datatypes"       FORCE)
-	set(NFX_CORE_WITH_MEMORY       ON   CACHE BOOL  "Enable memory management utilities"  FORCE)
-	set(NFX_CORE_WITH_STRING       ON   CACHE BOOL  "Enable string utilities"             FORCE)
-	set(NFX_CORE_WITH_TIME         ON   CACHE BOOL  "Enable temporal classes"             FORCE)
-	set(NFX_CORE_BUILD_TESTS       OFF  CACHE BOOL  "Build tests"                         FORCE)
-	set(NFX_CORE_BUILD_SAMPLES     OFF  CACHE BOOL  "Build samples"                       FORCE)
-	set(NFX_CORE_BUILD_BENCHMARKS  OFF  CACHE BOOL  "Build benchmarks"                    FORCE)
+# --- nfx-meta ---
+find_package(nfx-meta ${VISTA_SDK_CPP_NFX_META_MIN_VERSION} QUIET)
+if(NOT nfx-meta_FOUND)
+	set(NFX_META_BUILD_STATIC         ON   CACHE BOOL  "Build static library"                FORCE)
+	set(NFX_META_BUILD_SHARED         OFF  CACHE BOOL  "Build shared library"                FORCE)
+	set(NFX_META_WITH_CONTAINERS      ON   CACHE BOOL  "Enable container utilities"          FORCE)
+	set(NFX_META_WITH_DATATYPES       ON   CACHE BOOL  "Enable mathematical datatypes"       FORCE)
+	set(NFX_META_WITH_MEMORY          ON   CACHE BOOL  "Enable memory management utilities"  FORCE)
+	set(NFX_META_WITH_JSON            ON   CACHE BOOL  "Enable JSON serialization support"   FORCE)
+	set(NFX_META_WITH_STRING          ON   CACHE BOOL  "Enable string utilities"             FORCE)
+	set(NFX_META_WITH_TIME            ON   CACHE BOOL  "Enable temporal classes"             FORCE)
+	set(NFX_META_BUILD_TESTS          OFF  CACHE BOOL  "Build tests"                         FORCE)
+	set(NFX_META_BUILD_SAMPLES        OFF  CACHE BOOL  "Build samples"                       FORCE)
+	set(NFX_META_BUILD_BENCHMARKS     OFF  CACHE BOOL  "Build benchmarks"                    FORCE)
+	set(NFX_META_BUILD_DOCUMENTATION  OFF  CACHE BOOL  "Build Doxygen documentation"         FORCE)
+	set(NFX_META_INSTALL_PROJECT      OFF  CACHE BOOL  "Install project"                     FORCE)
+	set(NFX_META_PACKAGE_SOURCE       OFF  CACHE BOOL  "Enable source package generation"    FORCE)
+	set(NFX_META_PACKAGE_ARCHIVE      OFF  CACHE BOOL  "Enable TGZ/ZIP package generation"   FORCE)
+	set(NFX_META_PACKAGE_DEB          OFF  CACHE BOOL  "Enable DEB package generation"       FORCE)
+	set(NFX_META_PACKAGE_RPM          OFF  CACHE BOOL  "Enable RPM package generation"       FORCE)
+	set(NFX_META_PACKAGE_NSIS         OFF  CACHE BOOL  "Enable NSIS Windows installer"       FORCE)
 
 	FetchContent_Declare(
-		nfx-core
-		GIT_REPOSITORY https://github.com/ronan-fdev/nfx-core.git
-		GIT_TAG        0.1.2
+		nfx-meta
+		GIT_REPOSITORY https://github.com/ronan-fdev/____nfx-meta.git
+		GIT_TAG        main
 		GIT_SHALLOW    TRUE
 	)
 endif()
 
 # --- zlib-ng ---
-# Vista SDK requires zlib-ng specifically, so always fetch it if not found
-find_package(zlib-ng 2.2.0 QUIET)
-if(NOT TARGET zlib-ng::zlib-ng)
+find_package(zlib-ng ${VISTA_SDK_CPP_ZLIB_NG_VERSION} QUIET)
+if(NOT zlib-ng_FOUND)
+	set(_SAVED_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+	set(BUILD_SHARED_LIBS           OFF  CACHE BOOL  "Build shared libraries"                 FORCE)
+
 	set(ZLIB_COMPAT                 OFF  CACHE BOOL  "Compile with zlib compatible API"       FORCE)
 	set(ZLIB_ENABLE_TESTS           OFF  CACHE BOOL  "Build zlib-ng test binaries"            FORCE)
 	set(ZLIBNG_ENABLE_TESTS         OFF  CACHE BOOL  "Build zlib-ng test binaries"            FORCE)
@@ -76,11 +99,13 @@ if(NOT TARGET zlib-ng::zlib-ng)
 		GIT_TAG        2.2.5
 		GIT_SHALLOW    TRUE
 	)
+
+	set(BUILD_SHARED_LIBS ${_SAVED_BUILD_SHARED_LIBS} CACHE BOOL "Build shared libraries" FORCE)
 endif()
 
 # --- Google test ---
 if(VISTA_SDK_CPP_BUILD_TESTS)
-	find_package(GTest 1.17.0 QUIET)
+	find_package(GTest ${VISTA_SDK_CPP_GTEST_MIN_VERSION}  QUIET)
 	if(NOT GTest_FOUND)
 		set(BUILD_GMOCK                     OFF  CACHE BOOL  "Build GoogleMock library"              FORCE)
 		set(INSTALL_GTEST                   OFF  CACHE BOOL  "Install GoogleTest targets"            FORCE)
@@ -98,7 +123,7 @@ endif()
 
 # --- Google benchmark ---
 if(VISTA_SDK_CPP_BUILD_BENCHMARKS)
-	find_package(benchmark 1.9.0 QUIET)
+	find_package(benchmark ${VISTA_SDK_CPP_BENCHMARK_MIN_VERSION} QUIET)
 	if(NOT benchmark_FOUND)
 		set(BENCHMARK_ENABLE_TESTING         OFF  CACHE BOOL  "Build benchmark tests"                          FORCE)
 		set(BENCHMARK_ENABLE_EXCEPTIONS      ON   CACHE BOOL  "Enable exceptions in benchmark library"         FORCE)
@@ -132,15 +157,11 @@ endif()
 message(STATUS "Fetching dependencies...")
 
 # Fetch only dependencies not found on system
-if(NOT nfx-core_FOUND)
-	FetchContent_MakeAvailable(nfx-core)
+if(NOT nfx-meta_FOUND)
+	FetchContent_MakeAvailable(nfx-meta)
 endif()
 
-if(NOT nlohmann_json_FOUND)
-	FetchContent_MakeAvailable(nlohmann_json)
-endif()
-
-if(NOT TARGET zlib-ng::zlib-ng)
+if(NOT zlib-ng_FOUND)
 	FetchContent_MakeAvailable(zlib-ng)
 endif()
 
@@ -157,47 +178,25 @@ endif()
 #----------------------------------------------
 
 #----------------------------
-# nlohmann_json configuration
-#----------------------------
-
-if(NOT TARGET nlohmann_json)
-	add_library(nlohmann_json INTERFACE)
-	target_include_directories(nlohmann_json SYSTEM INTERFACE ${nlohmann_json_SOURCE_DIR}/include)
-	add_library(nlohmann_json::nlohmann_json ALIAS nlohmann_json)
-endif()
-
-if(nlohmann_json_SOURCE_DIR AND EXISTS "${nlohmann_json_SOURCE_DIR}/single_include/nlohmann/json.hpp")
-	file(STRINGS "${nlohmann_json_SOURCE_DIR}/single_include/nlohmann/json.hpp" NLOHMANN_JSON_VER_LINES
-		REGEX "^#define[ \t]+NLOHMANN_JSON_VERSION_")
-	if(NLOHMANN_JSON_VER_LINES)
-		string(REGEX MATCHALL "[0-9]+" NLOHMANN_JSON_VER_NUMBERS "${NLOHMANN_JSON_VER_LINES}")
-		list(GET NLOHMANN_JSON_VER_NUMBERS 0 NLOHMANN_JSON_VERSION_MAJOR)
-		list(GET NLOHMANN_JSON_VER_NUMBERS 1 NLOHMANN_JSON_VERSION_MINOR)
-		list(GET NLOHMANN_JSON_VER_NUMBERS 2 NLOHMANN_JSON_VERSION_PATCH)
-		set(NLOHMANN_VERSION "${NLOHMANN_JSON_VERSION_MAJOR}.${NLOHMANN_JSON_VERSION_MINOR}.${NLOHMANN_JSON_VERSION_PATCH}")
-	endif()
-endif()
-
-#----------------------------
 # zlib-ng configuration
 #----------------------------
 
-if(TARGET zlib)
-	set_target_properties(zlib PROPERTIES
-		EXCLUDE_FROM_ALL TRUE
-		EXCLUDE_FROM_DEFAULT_BUILD TRUE
-		POSITION_INDEPENDENT_CODE TRUE
-	)
-endif()
+get_directory_property(_zlib_targets DIRECTORY ${zlib-ng_SOURCE_DIR} BUILDSYSTEM_TARGETS)
+foreach(_target ${_zlib_targets})
+	if(TARGET ${_target})
+		set_target_properties(${_target} PROPERTIES
+			EXCLUDE_FROM_ALL TRUE
+			EXCLUDE_FROM_DEFAULT_BUILD TRUE
+			POSITION_INDEPENDENT_CODE TRUE
+		)
 
-if(zlib-ng_BINARY_DIR AND EXISTS "${zlib-ng_BINARY_DIR}/zlib.h")
-	file(STRINGS "${zlib-ng_BINARY_DIR}/zlib.h" ZLIBNG_VER_LINES
-		REGEX "^#define[ \t]+ZLIBNG_VERSION[ \t]+\"[^\"]*\"")
-	if(ZLIBNG_VER_LINES)
-		string(REGEX REPLACE "^#define[ \t]+ZLIBNG_VERSION[ \t]+\"([^\"]*)\".*" "\\1"
-			ZLIBNG_HEADER_VERSION "${ZLIBNG_VER_LINES}")
+		set_property(TARGET ${_target} PROPERTY EXCLUDE_FROM_ALL TRUE)
+		get_target_property(_target_type ${_target} TYPE)
+		if(NOT _target_type STREQUAL "INTERFACE_LIBRARY")
+			install(TARGETS ${_target} EXCLUDE_FROM_ALL)
+		endif()
 	endif()
-endif()
+endforeach()
 
 #----------------------------
 # googletest configuration
@@ -214,3 +213,11 @@ endif()
 if(TARGET benchmark::benchmark)
 	get_target_property(BENCHMARK_VERSION benchmark::benchmark VERSION)
 endif()
+
+#----------------------------
+# Cleanup
+#----------------------------
+
+set(CMAKE_REQUIRED_QUIET ${_SAVED_CMAKE_REQUIRED_QUIET})
+set(CMAKE_MESSAGE_LOG_LEVEL ${_SAVED_CMAKE_MESSAGE_LOG_LEVEL})
+set(CMAKE_FIND_QUIETLY ${_SAVED_CMAKE_FIND_QUIETLY})

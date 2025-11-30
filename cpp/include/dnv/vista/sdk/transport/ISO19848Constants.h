@@ -79,4 +79,43 @@ namespace dnv::vista::sdk::transport
 
 	// static_assert( ISO19848_ANNEX_C_NAMING_RULE ==
 	//			   std::string{ ISO19848_ANNEX_C_NAMING_RULE_PREFIX } + "-" + std::string{ ISO19848_ANNEX_C_NAMING_SCHEME_VERSION } );
-}
+} // namespace dnv::vista::sdk::transport
+
+namespace dnv::vista::sdk::iso19848::formatdatatypes
+{
+	//=====================================================================
+	// Format type constants
+	//=====================================================================
+
+	/** @brief Decimal format type identifier */
+	inline constexpr std::string_view DECIMAL = "Decimal";
+
+	/** @brief Integer format type identifier */
+	inline constexpr std::string_view INTEGER = "Integer";
+
+	/** @brief Boolean format type identifier */
+	inline constexpr std::string_view BOOLEAN = "Boolean";
+
+	/** @brief String format type identifier */
+	inline constexpr std::string_view STRING = "String";
+
+	/** @brief DateTime format type identifier */
+	inline constexpr std::string_view DATETIME = "DateTime";
+
+	//=====================================================================
+	// Boolean value constants
+	//=====================================================================
+
+	/** @brief Boolean true value string */
+	inline constexpr std::string_view BOOLEAN_TRUE_VALUE = "true";
+
+	/** @brief Boolean false value string */
+	inline constexpr std::string_view BOOLEAN_FALSE_VALUE = "false";
+
+	//=====================================================================
+	// DateTime format constants
+	//=====================================================================
+
+	/** @brief ISO 8601 datetime format pattern */
+	inline constexpr std::string_view DATETIME_FORMAT_PATTERN = "%Y-%m-%dT%H:%M:%SZ";
+} // namespace dnv::vista::sdk::iso19848::formatdatatypes

@@ -59,4 +59,4 @@ namespace dnv::vista::sdk
 	{
 		return m_secondaryItem;
 	}
-}
+} // namespace dnv::vista::sdk

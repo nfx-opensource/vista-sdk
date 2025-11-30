@@ -83,6 +83,10 @@ namespace dnv::vista::sdk::transport::timeseries
 		// Construction
 		//----------------------------------------------
 
+		/** @brief Default constructor */
+		DataChannelId() = delete;
+
+	private:
 		/**
 		 * @brief Constructs DataChannelId from LocalId
 		 * @param localId Valid LocalId
@@ -95,20 +99,18 @@ namespace dnv::vista::sdk::transport::timeseries
 		 */
 		inline explicit DataChannelId( std::string_view shortId ) noexcept;
 
-		/** @brief Default constructor */
-		DataChannelId() = delete;
+	public:
+		/**
+		 * @brief Copy constructor
+		 * @param other The object to copy from
+		 */
+		DataChannelId( const DataChannelId& other ) = default;
 
-	/**
-	 * @brief Copy constructor
-	 * @param other The object to copy from
-	 */
-	DataChannelId( const DataChannelId& other ) = default;
-
-	/**
-	 * @brief Move constructor
-	 * @param other The object to move from
-	 */
-	DataChannelId( DataChannelId&& other ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The object to move from
+		 */
+		DataChannelId( DataChannelId&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -124,12 +126,12 @@ namespace dnv::vista::sdk::transport::timeseries
 		/** @brief Copy assignment operator */
 		DataChannelId& operator=( const DataChannelId& ) = delete;
 
-	/**
-	 * @brief Move assignment operator
-	 * @param other The object to move from
-	 * @return Reference to this DataChannelId after assignment
-	 */
-	DataChannelId& operator=( DataChannelId&& other ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The object to move from
+		 * @return Reference to this DataChannelId after assignment
+		 */
+		DataChannelId& operator=( DataChannelId&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Equality operators
@@ -259,6 +261,6 @@ namespace dnv::vista::sdk::transport::timeseries
 		/** @brief Short identifier storage (active when m_tag == Tag::ShortId) */
 		std::optional<std::string> m_shortId;
 	};
-}
+} // namespace dnv::vista::sdk::transport::timeseries
 
 #include "dnv/vista/sdk/detail/transport/timeseries/DataChannelId.inl"

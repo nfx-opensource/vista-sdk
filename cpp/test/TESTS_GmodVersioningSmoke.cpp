@@ -104,6 +104,7 @@ namespace dnv::vista::sdk::tests
 		};
 
 		Writer writer() { return Writer( this ); }
+
 		Reader reader() { return Reader( this ); }
 	};
 
@@ -290,4 +291,4 @@ namespace dnv::vista::sdk::tests
 
 		ASSERT_TRUE( context.failedConversions.empty() ) << "Found " << context.failedConversions.size() << " failed conversions";
 	}
-}
+} // namespace dnv::vista::sdk::tests

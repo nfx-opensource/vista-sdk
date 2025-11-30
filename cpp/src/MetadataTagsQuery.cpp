@@ -105,4 +105,4 @@ namespace dnv::vista::sdk
 			return !m_matchExact;
 		}
 	}
-}
+} // namespace dnv::vista::sdk

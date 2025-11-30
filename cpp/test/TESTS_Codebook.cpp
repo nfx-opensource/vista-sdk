@@ -5,6 +5,10 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
+
+#include <nfx/serialization/json/Document.h>
+
 #include "TestDataLoader.h"
 
 #include <dnv/vista/sdk/Codebooks.h>
@@ -31,7 +35,7 @@ namespace dnv::vista::sdk::test
 				return vis.codebooks( VisVersion::v3_4a );
 			}
 
-			const nlohmann::json& m_jsonData;
+			const nfx::serialization::json::Document& m_jsonData;
 		};
 
 		TEST_F( CodebookTest, Test_Standard_Values )
@@ -42,12 +46,12 @@ namespace dnv::vista::sdk::test
 			EXPECT_TRUE( positions.hasStandardValue( "upper" ) );
 
 			const auto& rawData = positions.rawData();
-			EXPECT_TRUE( rawData.find( "Vertical" ) != rawData.end() );
+			EXPECT_TRUE( rawData.find( "Vertical" ) != nullptr );
 
-			auto it = rawData.find( "Vertical" );
-			ASSERT_NE( it, rawData.end() ) << "Group 'Vertical' not found in raw data.";
+			const auto* verticalGroupValuesPtr = rawData.find( "Vertical" );
+			ASSERT_NE( verticalGroupValuesPtr, nullptr ) << "Group 'Vertical' not found in raw data.";
 
-			const auto& verticalGroupValues = it->second;
+			const auto& verticalGroupValues = *verticalGroupValuesPtr;
 			EXPECT_NE( std::find( verticalGroupValues.begin(), verticalGroupValues.end(), "upper" ), verticalGroupValues.end() );
 		}
 
@@ -62,7 +66,7 @@ namespace dnv::vista::sdk::test
 			const auto& rawData = codebooks.codebook( CodebookName::Position ).rawData();
 
 			EXPECT_EQ( groups.count(), rawData.size() - 1 );
-			EXPECT_TRUE( rawData.find( "Vertical" ) != rawData.end() );
+			EXPECT_TRUE( rawData.find( "Vertical" ) != nullptr );
 		}
 
 		TEST_F( CodebookTest, Test_Iterate_Groups )
@@ -90,7 +94,7 @@ namespace dnv::vista::sdk::test
 			}
 			EXPECT_EQ( iterated_count, 28 );
 		}
-	}
+	} // namespace CodebookTestFixture
 
 	namespace CodebookTestParametrized
 	{
@@ -117,15 +121,28 @@ namespace dnv::vista::sdk::test
 		static std::vector<PositionValidationParam> positionValidationData()
 		{
 			std::vector<PositionValidationParam> data;
-			const nlohmann::json& jsonDataFromFile = loadTestData( TEST_DATA_FILE );
+			const nfx::serialization::json::Document& jsonDataFromFile = loadTestData( TEST_DATA_FILE );
 
-			if ( jsonDataFromFile.contains( "ValidPosition" ) && jsonDataFromFile["ValidPosition"].is_array() )
+			auto validPositionDocOpt = jsonDataFromFile.get<nfx::serialization::json::Document>( "/ValidPosition" );
+			if ( validPositionDocOpt.has_value() )
 			{
-				for ( const auto& item : jsonDataFromFile["ValidPosition"] )
+				const auto& validPositionDoc = validPositionDocOpt.value();
+
+				auto arrayOpt = validPositionDoc.get<nfx::serialization::json::Document::Array>( "" );
+				if ( arrayOpt )
 				{
-					if ( item.is_array() && item.size() == 2 && item[0].is_string() && item[1].is_string() )
+					for ( const auto& item : arrayOpt.value() )
 					{
-						data.push_back( { item[0].get<std::string>(), item[1].get<std::string>() } );
+						if ( item.contains( "/0" ) && item.contains( "/1" ) )
+						{
+							auto firstStrOpt = item.get<std::string>( "/0" );
+							auto secondStrOpt = item.get<std::string>( "/1" );
+
+							if ( firstStrOpt.has_value() && secondStrOpt.has_value() )
+							{
+								data.push_back( { firstStrOpt.value(), secondStrOpt.value() } );
+							}
+						}
 					}
 				}
 			}
@@ -186,15 +203,34 @@ namespace dnv::vista::sdk::test
 		static std::vector<PositionsParam> positionsData()
 		{
 			std::vector<PositionsParam> data;
-			const nlohmann::json& jsonDataFromFile = loadTestData( TEST_DATA_FILE );
+			const nfx::serialization::json::Document& jsonDataFromFile = loadTestData( TEST_DATA_FILE );
 
-			if ( jsonDataFromFile.contains( "Positions" ) && jsonDataFromFile["Positions"].is_array() )
+			if ( jsonDataFromFile.contains( "/Positions" ) )
 			{
-				for ( const auto& item : jsonDataFromFile["Positions"] )
+				auto positionsDocOpt = jsonDataFromFile.get<nfx::serialization::json::Document>( "/Positions" );
+				if ( !positionsDocOpt.has_value() )
 				{
-					if ( item.is_array() && item.size() == 2 && item[0].is_string() && item[1].is_string() )
+					return data;
+				}
+				const auto& positionsDoc = positionsDocOpt.value();
+
+				auto arrayOpt = positionsDoc.get<nfx::serialization::json::Document::Array>( "" );
+				if ( !arrayOpt )
+				{
+					return data;
+				}
+
+				for ( const auto& item : arrayOpt.value() )
+				{
+					if ( item.contains( "/0" ) && item.contains( "/1" ) )
 					{
-						data.push_back( { item[0].get<std::string>(), item[1].get<std::string>() } );
+						auto firstStrOpt = item.get<std::string>( "/0" );
+						auto secondStrOpt = item.get<std::string>( "/1" );
+
+						if ( firstStrOpt.has_value() && secondStrOpt.has_value() )
+						{
+							data.push_back( { firstStrOpt.value(), secondStrOpt.value() } );
+						}
 					}
 				}
 			}
@@ -229,15 +265,36 @@ namespace dnv::vista::sdk::test
 		static std::vector<StatesParam> statesData()
 		{
 			std::vector<StatesParam> data;
-			const nlohmann::json& jsonDataFromFile = loadTestData( TEST_DATA_FILE );
+			const nfx::serialization::json::Document& jsonDataFromFile = loadTestData( TEST_DATA_FILE );
 
-			if ( jsonDataFromFile.contains( "States" ) && jsonDataFromFile["States"].is_array() )
+			if ( jsonDataFromFile.contains( "/States" ) )
 			{
-				for ( const auto& item : jsonDataFromFile["States"] )
+				auto statesDocOpt = jsonDataFromFile.get<nfx::serialization::json::Document>( "/States" );
+				if ( !statesDocOpt.has_value() )
 				{
-					if ( item.is_array() && item.size() == 4 && item[0].is_string() && item[1].is_string() && item[2].is_string() && item[3].is_string() )
+					return data;
+				}
+				const auto& statesDoc = statesDocOpt.value();
+
+				auto statesArrayOpt = statesDoc.get<nfx::serialization::json::Document::Array>( "" );
+				if ( !statesArrayOpt.has_value() )
+				{
+					return data;
+				}
+
+				for ( const auto& item : statesArrayOpt.value() )
+				{
+					if ( item.contains( "/0" ) && item.contains( "/1" ) && item.contains( "/2" ) && item.contains( "/3" ) )
 					{
-						data.push_back( { item[0].get<std::string>(), item[1].get<std::string>(), item[2].get<std::string>(), item[3].get<std::string>() } );
+						auto str0Opt = item.get<std::string>( "/0" );
+						auto str1Opt = item.get<std::string>( "/1" );
+						auto str2Opt = item.get<std::string>( "/2" );
+						auto str3Opt = item.get<std::string>( "/3" );
+
+						if ( str0Opt.has_value() && str1Opt.has_value() && str2Opt.has_value() && str3Opt.has_value() )
+						{
+							data.push_back( { str0Opt.value(), str1Opt.value(), str2Opt.value(), str3Opt.value() } );
+						}
 					}
 				}
 			}
@@ -278,18 +335,44 @@ namespace dnv::vista::sdk::test
 		static std::vector<TagParam> tagData()
 		{
 			std::vector<TagParam> data;
-			const nlohmann::json& jsonDataFromFile = loadTestData( TEST_DATA_FILE );
+			const nfx::serialization::json::Document& jsonDataFromFile = loadTestData( TEST_DATA_FILE );
 
-			if ( jsonDataFromFile.contains( "Tag" ) && jsonDataFromFile["Tag"].is_array() )
+			if ( jsonDataFromFile.contains( "/Tag" ) )
 			{
-				for ( const auto& item : jsonDataFromFile["Tag"] )
+				auto tagDocOpt = jsonDataFromFile.get<nfx::serialization::json::Document>( "/Tag" );
+				if ( !tagDocOpt.has_value() )
 				{
-					if ( item.is_array() && item.size() == 8 && item[0].is_string() && item[1].is_string() && item[2].is_string() && item[3].is_string() &&
-						 !item[3].get<std::string>().empty() && item[4].is_string() && item[5].is_string() && !item[5].get<std::string>().empty() &&
-						 item[6].is_string() && item[7].is_string() )
+					return data;
+				}
+				const auto& tagDoc = tagDocOpt.value();
+
+				auto tagArrayOpt = tagDoc.get<nfx::serialization::json::Document::Array>( "" );
+				if ( !tagArrayOpt.has_value() )
+				{
+					return data;
+				}
+
+				for ( const auto& item : tagArrayOpt.value() )
+				{
+					if ( item.contains( "/0" ) && item.contains( "/1" ) && item.contains( "/2" ) &&
+						 item.contains( "/3" ) && item.contains( "/4" ) && item.contains( "/5" ) &&
+						 item.contains( "/6" ) && item.contains( "/7" ) )
 					{
-						data.push_back( { item[0].get<std::string>(), item[1].get<std::string>(), item[2].get<std::string>(), item[3].get<std::string>()[0],
-							item[4].get<std::string>(), item[5].get<std::string>()[0], item[6].get<std::string>(), item[7].get<std::string>() } );
+						auto str0Opt = item.get<std::string>( "/0" );
+						auto str1Opt = item.get<std::string>( "/1" );
+						auto str2Opt = item.get<std::string>( "/2" );
+						auto str3Opt = item.get<std::string>( "/3" );
+						auto str4Opt = item.get<std::string>( "/4" );
+						auto str5Opt = item.get<std::string>( "/5" );
+						auto str6Opt = item.get<std::string>( "/6" );
+						auto str7Opt = item.get<std::string>( "/7" );
+
+						if ( str0Opt.has_value() && str1Opt.has_value() && str2Opt.has_value() && str3Opt.has_value() && !str3Opt.value().empty() &&
+							 str4Opt.has_value() && str5Opt.has_value() && !str5Opt.value().empty() && str6Opt.has_value() && str7Opt.has_value() )
+						{
+							data.push_back( { str0Opt.value(), str1Opt.value(), str2Opt.value(), ( str3Opt.value() )[0],
+								str4Opt.value(), ( str5Opt.value() )[0], str6Opt.value(), str7Opt.value() } );
+						}
 					}
 				}
 			}
@@ -344,15 +427,33 @@ namespace dnv::vista::sdk::test
 		static std::vector<DetailTagParam> detailTagData()
 		{
 			std::vector<DetailTagParam> data;
-			const nlohmann::json& jsonDataFromFile = loadTestData( TEST_DATA_FILE );
+			const nfx::serialization::json::Document& jsonDataFromFile = loadTestData( TEST_DATA_FILE );
 
-			if ( jsonDataFromFile.contains( "DetailTag" ) && jsonDataFromFile["DetailTag"].is_array() )
+			auto detailTagDocOpt = jsonDataFromFile.get<nfx::serialization::json::Document>( "/DetailTag" );
+			if ( detailTagDocOpt.has_value() )
 			{
-				for ( const auto& item : jsonDataFromFile["DetailTag"] )
+				const auto& detailTagDoc = detailTagDocOpt.value();
+
+				auto detailTagArrayOpt = detailTagDoc.get<nfx::serialization::json::Document::Array>( "" );
+				if ( detailTagArrayOpt.has_value() )
 				{
-					if ( item.is_array() && item.size() == 3 && item[0].is_string() && item[1].is_string() && item[2].is_string() )
+					for ( const auto& item : detailTagArrayOpt.value() )
 					{
-						data.push_back( { item[0].get<std::string>(), item[1].get<std::string>(), item[2].get<std::string>() } );
+						if ( item.get<nfx::serialization::json::Document>( "" ).has_value() )
+						{
+							auto itemDoc = item.get<nfx::serialization::json::Document>( "" ).value();
+							if ( itemDoc.contains( "/0" ) && itemDoc.contains( "/1" ) && itemDoc.contains( "/2" ) )
+							{
+								auto str0Opt = itemDoc.get<std::string>( "/0" );
+								auto str1Opt = itemDoc.get<std::string>( "/1" );
+								auto str2Opt = itemDoc.get<std::string>( "/2" );
+
+								if ( str0Opt.has_value() && str1Opt.has_value() && str2Opt.has_value() )
+								{
+									data.push_back( { str0Opt.value(), str1Opt.value(), str2Opt.value() } );
+								}
+							}
+						}
 					}
 				}
 			}
@@ -375,7 +476,7 @@ namespace dnv::vista::sdk::test
 		}
 
 		INSTANTIATE_TEST_SUITE_P( CodebookDetailTagSuite, DetailTagTest, ::testing::ValuesIn( detailTagData() ) );
-	}
+	} // namespace CodebookTestParametrized
 
 	namespace CodebooksTests
 	{
@@ -415,5 +516,5 @@ namespace dnv::vista::sdk::test
 			const auto invalidCbName = static_cast<dnv::vista::sdk::CodebookName>( 999 );
 			ASSERT_THROW( (void)dnv::vista::sdk::CodebookNames::toPrefix( invalidCbName ), std::invalid_argument );
 		}
-	}
-}
+	} // namespace CodebooksTests
+} // namespace dnv::vista::sdk::test

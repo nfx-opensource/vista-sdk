@@ -23,7 +23,7 @@ namespace dnv::vista::sdk
 		: m_visVersion{ version },
 		  m_codebooks{}
 	{
-		const auto& items = dto.items();
+		const auto& items = dto.items;
 
 		for ( auto typeDto : items )
 		{
@@ -45,4 +45,4 @@ namespace dnv::vista::sdk
 			m_codebooks[i] = other.m_codebooks[i];
 		}
 	}
-}
+} // namespace dnv::vista::sdk

@@ -47,13 +47,19 @@
  * │ │ - Direct enum-based indexing    │ │
  * │ └─────────────────────────────────┘ │
  * └─────────────────────────────────────┘
- *
- * Key Performance Features:
- * - Stack allocation (no heap overhead)
- * - Contiguous memory layout (cache-friendly)
- * - Direct indexing: codebooks[CodebookName::Position]
- * - Compile-time size determination
- * ```
+ *                  ↓
+ *     High-Performance Access Patterns
+ *                  ↓
+ * ┌─────────────────────────────────────┐
+ * │    Container Access Operations      │
+ * ├─────────────────────────────────────┤
+ * │ - O(1) enum-based indexing          │
+ * │ - Direct array element access       │
+ * │ - Zero-overhead pointer iteration   │
+ * │ - Cache-friendly contiguous layout  │
+ * │ - Compile-time bounds optimization  │
+ * └─────────────────────────────────────┘
+ *```
  *
  * ## Usage Examples:
  *
@@ -114,7 +120,7 @@ namespace dnv::vista::sdk
 	// Forward declarations
 	//=====================================================================
 
-	class CodebooksDto;
+	struct CodebooksDto;
 	enum class VisVersion : std::uint16_t;
 
 	//=====================================================================
@@ -294,6 +300,6 @@ namespace dnv::vista::sdk
 		/** @brief Fixed-size array holding all codebooks */
 		std::array<Codebook, static_cast<size_t>( CodebookName::Detail )> m_codebooks{};
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/Codebooks.inl"

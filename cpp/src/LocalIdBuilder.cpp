@@ -3,13 +3,15 @@
  * @brief Implementation of the LocalIdBuilder class
  */
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/Hashing.h>
+#include <nfx/string/StringBuilder.h>
 #include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/LocalIdBuilder.h"
 
 #include "internal/core/LocalId.h"
 #include "internal/parsing/LocalIdParsingErrorBuilder.h"
+#include "dnv/vista/sdk/config/config.h"
 #include "dnv/vista/sdk/mqtt/LocalId.h"
 #include "dnv/vista/sdk/CodebookName.h"
 #include "dnv/vista/sdk/Codebooks.h"
@@ -23,6 +25,144 @@ namespace dnv::vista::sdk
 {
 	namespace internal::localId
 	{
+		//----------------------------------------------
+		// Hashing
+		//----------------------------------------------
+
+		/**
+		 * @brief Computes hash value for LocalIdBuilder combining all components
+		 * @details Combines hash codes of LocalIdItems and all MetadataTag components using
+		 *          NFX optimized FNV-1a hash combination for consistent results
+		 */
+		static size_t computeHash(
+			// const std::optional<VisVersion>& visVersion,
+			const LocalIdItems& items,
+			const std::optional<MetadataTag>& quantityTag,
+			const std::optional<MetadataTag>& calculationTag,
+			const std::optional<MetadataTag>& contentTag,
+			const std::optional<MetadataTag>& positionTag,
+			const std::optional<MetadataTag>& stateTag,
+			const std::optional<MetadataTag>& commandTag,
+			const std::optional<MetadataTag>& typeTag,
+			const std::optional<MetadataTag>& detailTag ) noexcept
+		{
+			uint32_t hashCode = VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS;
+
+			// VIS Version
+			// if ( visVersion.has_value() )
+			// {
+			// 	hashCode = nfx::hashing::combine( hashCode, static_cast<uint32_t>( *visVersion ) );
+			// }
+			// else
+			// {
+			// 	hashCode = nfx::hashing::combine( hashCode, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS );
+			// }
+
+			// PrimaryItem
+			const auto& primaryItem = items.primaryItem();
+			if ( primaryItem.has_value() )
+			{
+				hashCode = nfx::hashing::combine( hashCode, static_cast<uint32_t>( primaryItem->hashCode() ) );
+			}
+			else
+			{
+				hashCode = nfx::hashing::combine( hashCode, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS );
+			}
+
+			// SecondaryItem
+			const auto& secondaryItem = items.secondaryItem();
+			if ( secondaryItem.has_value() )
+			{
+				hashCode = nfx::hashing::combine( hashCode, static_cast<uint32_t>( secondaryItem->hashCode() ) );
+			}
+			else
+			{
+				hashCode = nfx::hashing::combine( hashCode, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS );
+			}
+
+			// Quantity
+			if ( quantityTag.has_value() )
+			{
+				hashCode = nfx::hashing::combine( hashCode, static_cast<uint32_t>( quantityTag->hashCode() ) );
+			}
+			else
+			{
+				hashCode = nfx::hashing::combine( hashCode, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS );
+			}
+
+			// Calculation
+			if ( calculationTag.has_value() )
+			{
+				hashCode = nfx::hashing::combine( hashCode, static_cast<uint32_t>( calculationTag->hashCode() ) );
+			}
+			else
+			{
+				hashCode = nfx::hashing::combine( hashCode, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS );
+			}
+
+			// Content
+			if ( contentTag.has_value() )
+			{
+				hashCode = nfx::hashing::combine( hashCode, static_cast<uint32_t>( contentTag->hashCode() ) );
+			}
+			else
+			{
+				hashCode = nfx::hashing::combine( hashCode, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS );
+			}
+
+			// Position
+			if ( positionTag.has_value() )
+			{
+				hashCode = nfx::hashing::combine( hashCode, static_cast<uint32_t>( positionTag->hashCode() ) );
+			}
+			else
+			{
+				hashCode = nfx::hashing::combine( hashCode, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS );
+			}
+
+			// State
+			if ( stateTag.has_value() )
+			{
+				hashCode = nfx::hashing::combine( hashCode, static_cast<uint32_t>( stateTag->hashCode() ) );
+			}
+			else
+			{
+				hashCode = nfx::hashing::combine( hashCode, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS );
+			}
+
+			// Command
+			if ( commandTag.has_value() )
+			{
+				hashCode = nfx::hashing::combine( hashCode, static_cast<uint32_t>( commandTag->hashCode() ) );
+			}
+			else
+			{
+				hashCode = nfx::hashing::combine( hashCode, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS );
+			}
+
+			// Type
+			if ( typeTag.has_value() )
+			{
+				hashCode = nfx::hashing::combine( hashCode, static_cast<uint32_t>( typeTag->hashCode() ) );
+			}
+			else
+			{
+				hashCode = nfx::hashing::combine( hashCode, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS );
+			}
+
+			// Detail
+			if ( detailTag.has_value() )
+			{
+				hashCode = nfx::hashing::combine( hashCode, static_cast<uint32_t>( detailTag->hashCode() ) );
+			}
+			else
+			{
+				hashCode = nfx::hashing::combine( hashCode, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS );
+			}
+
+			return static_cast<size_t>( hashCode );
+		}
+
 		//=====================================================================
 		// Static lookup tables
 		//=====================================================================
@@ -273,7 +413,7 @@ namespace dnv::vista::sdk
 			if ( prefixIndex == std::string_view::npos )
 			{
 				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
+				auto builder = lease.create();
 
 				builder.append( "Invalid metadata tag: missing prefix '" );
 				builder.append( localId::PREFIX_DASH );
@@ -294,7 +434,7 @@ namespace dnv::vista::sdk
 			if ( !actualState.has_value() || actualState.value() < state )
 			{
 				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
+				auto builder = lease.create();
 				builder.append( "Invalid metadata tag: unknown prefix " );
 				builder.append( actualPrefix );
 				errorBuilder.addError( state, lease.toString() );
@@ -325,7 +465,7 @@ namespace dnv::vista::sdk
 			{
 				auto codebookStr = CodebookNames::toString( codebookName );
 				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
+				auto builder = lease.create();
 
 				if ( prefixIndex == tildeIndex )
 				{
@@ -353,7 +493,7 @@ namespace dnv::vista::sdk
 			{
 				auto codebookStr = CodebookNames::toString( codebookName );
 				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
+				auto builder = lease.create();
 				builder.append( "Invalid " );
 				builder.append( codebookStr );
 				builder.append( " metadata tag: '" );
@@ -508,7 +648,7 @@ namespace dnv::vista::sdk
 								if ( !parsedPath )
 								{
 									auto lease = nfx::string::StringBuilderPool::lease();
-									auto builder = lease.builder();
+									auto builder = lease.create();
 									builder.append( "Invalid GmodPath in Primary item: " );
 									builder.append( path );
 									errorBuilder.addError( LocalIdParsingState::PrimaryItem, lease.toString() );
@@ -542,7 +682,7 @@ namespace dnv::vista::sdk
 							if ( !gmod->tryGetNode( code, nodePtr ) )
 							{
 								auto lease = nfx::string::StringBuilderPool::lease();
-								auto builder = lease.builder();
+								auto builder = lease.create();
 								builder.append( "Invalid start GmodNode in Primary item: " );
 								builder.append( code );
 								errorBuilder.addError( LocalIdParsingState::PrimaryItem, lease.toString() );
@@ -579,7 +719,7 @@ namespace dnv::vista::sdk
 								if ( !parsedPath )
 								{
 									auto lease = nfx::string::StringBuilderPool::lease();
-									auto builder = lease.builder();
+									auto builder = lease.create();
 									builder.append( "Invalid GmodPath in Primary item: " );
 									builder.append( path );
 									errorBuilder.addError( LocalIdParsingState::PrimaryItem, lease.toString() );
@@ -609,7 +749,7 @@ namespace dnv::vista::sdk
 							if ( !gmod->tryGetNode( code, nodePtr ) )
 							{
 								auto lease = nfx::string::StringBuilderPool::lease();
-								auto builder = lease.builder();
+								auto builder = lease.create();
 								builder.append( "Invalid GmodNode in Primary item: " );
 								builder.append( code );
 								errorBuilder.addError( LocalIdParsingState::PrimaryItem, lease.toString() );
@@ -642,7 +782,7 @@ namespace dnv::vista::sdk
 
 								std::string_view invalidPrimaryItemPath = span.substr( i, nextStateIndex - i );
 								auto lease2 = nfx::string::StringBuilderPool::lease();
-								auto builder2 = lease2.builder();
+								auto builder2 = lease2.create();
 								builder2.append( "Invalid GmodPath: Last part in Primary item: " );
 								builder2.append( invalidPrimaryItemPath );
 								errorBuilder.addError( LocalIdParsingState::PrimaryItem, lease2.toString() );
@@ -674,7 +814,7 @@ namespace dnv::vista::sdk
 							if ( !gmod->tryGetNode( code, nodePtr ) )
 							{
 								auto lease = nfx::string::StringBuilderPool::lease();
-								auto builder = lease.builder();
+								auto builder = lease.create();
 								builder.append( "Invalid start GmodNode in Secondary item: " );
 								builder.append( code );
 								errorBuilder.addError( LocalIdParsingState::SecondaryItem, lease.toString() );
@@ -708,7 +848,7 @@ namespace dnv::vista::sdk
 								{
 									invalidSecondaryItem = true;
 									auto lease = nfx::string::StringBuilderPool::lease();
-									auto builder = lease.builder();
+									auto builder = lease.create();
 									builder.append( "Invalid GmodPath in Secondary item: " );
 									builder.append( path );
 									errorBuilder.addError( LocalIdParsingState::SecondaryItem, lease.toString() );
@@ -740,7 +880,7 @@ namespace dnv::vista::sdk
 							{
 								invalidSecondaryItem = true;
 								auto lease = nfx::string::StringBuilderPool::lease();
-								auto builder = lease.builder();
+								auto builder = lease.create();
 								builder.append( "Invalid GmodNode in Secondary item: " );
 								builder.append( code );
 								errorBuilder.addError( LocalIdParsingState::SecondaryItem, lease.toString() );
@@ -766,7 +906,7 @@ namespace dnv::vista::sdk
 
 								std::string_view invalidSecondaryItemPath = span.substr( i, nextStateIndex - i );
 								auto lease2 = nfx::string::StringBuilderPool::lease();
-								auto builder2 = lease2.builder();
+								auto builder2 = lease2.create();
 								builder2.append( "Invalid GmodPath: Last part in Secondary item: " );
 								builder2.append( invalidSecondaryItemPath );
 								errorBuilder.addError( LocalIdParsingState::SecondaryItem, lease2.toString() );
@@ -1028,11 +1168,20 @@ namespace dnv::vista::sdk
 				tag.value().toString( builder );
 			}
 		}
-	}
+	} // namespace internal::localId
 
 	//=====================================================================
 	// LocalIdBuilder class
 	//=====================================================================
+
+	//----------------------------------------------
+	// Construction
+	//----------------------------------------------
+
+	LocalIdBuilder::LocalIdBuilder()
+		: m_hashCode{ VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS }
+	{
+	}
 
 	//----------------------------------------------
 	// Static factory methods
@@ -1062,7 +1211,9 @@ namespace dnv::vista::sdk
 			throw std::invalid_argument{ "Cannot build LocalId: builder state is invalid." };
 		}
 
-		return LocalId( *this );
+		LocalIdBuilder result( *this );
+
+		return LocalId( result );
 	}
 
 	mqtt::LocalId LocalIdBuilder::buildMqtt() const
@@ -1078,6 +1229,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_verboseMode = verboseMode;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1124,6 +1278,9 @@ namespace dnv::vista::sdk
 		succeeded = true;
 		LocalIdBuilder result( *this );
 		result.m_visVersion = version;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1150,6 +1307,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_visVersion = std::nullopt;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1190,6 +1350,9 @@ namespace dnv::vista::sdk
 		succeeded = true;
 		LocalIdBuilder result( *this );
 		result.m_items = LocalIdItems( std::move( result.m_items ), std::move( item ) );
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1213,6 +1376,9 @@ namespace dnv::vista::sdk
 		succeeded = true;
 		LocalIdBuilder result( *this );
 		result.m_items = LocalIdItems( std::move( result.m_items ), std::move( *item ) );
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1221,6 +1387,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_items = LocalIdItems{};
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1261,6 +1430,9 @@ namespace dnv::vista::sdk
 		succeeded = true;
 		LocalIdBuilder result( *this );
 		result.m_items = LocalIdItems( std::move( result.m_items ), std::make_optional( std::move( item ) ) );
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1284,6 +1456,9 @@ namespace dnv::vista::sdk
 		succeeded = true;
 		LocalIdBuilder result( *this );
 		result.m_items = LocalIdItems( std::move( result.m_items ), std::move( item ) );
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1293,6 +1468,9 @@ namespace dnv::vista::sdk
 		LocalIdBuilder result( *this );
 
 		result.m_items = LocalIdItems( std::move( result.m_items ), std::nullopt );
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1442,6 +1620,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_quantity = quantity;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1450,6 +1631,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_quantity = std::nullopt;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1462,6 +1646,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_content = content;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1470,6 +1657,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_content = std::nullopt;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1482,6 +1672,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_calculation = calculation;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1490,6 +1683,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_calculation = std::nullopt;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1502,6 +1698,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_state = state;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1510,6 +1709,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_state = std::nullopt;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1522,6 +1724,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_command = command;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1530,6 +1735,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_command = std::nullopt;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1542,6 +1750,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_type = type;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1550,6 +1761,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_type = std::nullopt;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1562,6 +1776,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_position = position;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1570,6 +1787,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_position = std::nullopt;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1582,6 +1802,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_detail = detail;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1590,6 +1813,9 @@ namespace dnv::vista::sdk
 	{
 		LocalIdBuilder result( *this );
 		result.m_detail = std::nullopt;
+		result.m_hashCode = internal::localId::computeHash(
+			result.m_items, result.m_quantity, result.m_calculation, result.m_content,
+			result.m_position, result.m_state, result.m_command, result.m_type, result.m_detail );
 
 		return result;
 	}
@@ -1649,7 +1875,7 @@ namespace dnv::vista::sdk
 		if ( !tryParse( localIdStr, errors, localId ) )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
+			auto builder = lease.create();
 			builder.append( "Couldn't parse local ID from: '" );
 			builder.append( localIdStr );
 			builder.append( "'.\n" );
@@ -1678,4 +1904,4 @@ namespace dnv::vista::sdk
 
 		return success;
 	}
-}
+} // namespace dnv::vista::sdk

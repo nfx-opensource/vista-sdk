@@ -8,7 +8,8 @@
 #include "TestDataLoader.h"
 
 #include <gtest/gtest.h>
-#include <nlohmann/json.hpp>
+
+#include <nfx/serialization/json/Document.h>
 
 #include <dnv/vista/sdk/ImoNumber.h>
 
@@ -33,28 +34,48 @@ namespace dnv::vista::sdk::test
 
 		virtual void SetUp() override
 		{
-			const nlohmann::json& data = loadTestData( TEST_DATA_FILE );
+			const nfx::serialization::json::Document& data = loadTestData( TEST_DATA_FILE );
 
-			ASSERT_TRUE( data.is_object() || data.is_array() ) << "JSON data is not a valid object or array";
+			ASSERT_TRUE( data.is<nfx::serialization::json::Document::Object>( "" ) || data.is<nfx::serialization::json::Document::Array>( "" ) ) << "JSON data is not a valid object or array";
 
-			const nlohmann::json& testCases = data.is_array()
-												  ? data
-												  : ( data.contains( "imoNumbers" ) ? data.at( "imoNumbers" ) : data );
-
-			ASSERT_TRUE( testCases.is_array() ) << "Test cases must be an array";
-
-			for ( const auto& item : testCases )
+			// Determine the test cases array
+			nfx::serialization::json::Document testCases;
+			if ( data.is<nfx::serialization::json::Document::Array>( "" ) )
 			{
-				ASSERT_TRUE( item.contains( "value" ) && item.at( "value" ).is_string() ) << "Item missing 'value' field or not a string";
-				ASSERT_TRUE( item.contains( "success" ) && item.at( "success" ).is_boolean() ) << "Item missing 'success' field or not a boolean";
+				testCases = data;
+			}
+			else if ( data.contains( "/imoNumbers" ) )
+			{
+				auto testCasesOpt = data.get<nfx::serialization::json::Document>( "/imoNumbers" );
+				ASSERT_TRUE( testCasesOpt.has_value() ) << "Failed to get 'imoNumbers' field";
+				testCases = testCasesOpt.value();
+			}
+			else
+			{
+				testCases = data;
+			}
+
+			ASSERT_TRUE( testCases.is<nfx::serialization::json::Document::Array>( "" ) ) << "Test cases must be an array";
+
+			// Enumerate the array
+			auto arrayOpt = testCases.get<nfx::serialization::json::Document::Array>( "" );
+			ASSERT_TRUE( arrayOpt.has_value() );
+
+			for ( const auto& elem : arrayOpt.value() )
+			{
+				auto valueOpt = elem.get<std::string>( "/value" );
+				auto successOpt = elem.get<bool>( "/success" );
+
+				ASSERT_TRUE( valueOpt.has_value() ) << "Item missing 'value' field or not a string";
+				ASSERT_TRUE( successOpt.has_value() ) << "Item missing 'success' field or not a boolean";
 
 				std::optional<std::string> output;
-				if ( item.contains( "output" ) && item.at( "output" ).is_string() )
+				if ( auto outputOpt = elem.get<std::string>( "/output" ) )
 				{
-					output = item.at( "output" ).get<std::string>();
+					output = outputOpt.value();
 				}
 
-				testData.push_back( { item.at( "value" ).get<std::string>(), item.at( "success" ).get<bool>(), output } );
+				testData.push_back( { valueOpt.value(), successOpt.value(), output } );
 			}
 		}
 	};
@@ -63,8 +84,8 @@ namespace dnv::vista::sdk::test
 	{
 		for ( const auto& item : testData )
 		{
-			auto parsedImo = ImoNumber::tryParse( item.value );
-			bool parsedOk = parsedImo.has_value();
+			ImoNumber parsedImo;
+			bool parsedOk = ImoNumber::tryParse( item.value, parsedImo );
 
 			if ( item.success )
 			{
@@ -77,7 +98,7 @@ namespace dnv::vista::sdk::test
 
 			if ( item.output.has_value() && parsedOk )
 			{
-				EXPECT_EQ( parsedImo->toString(), item.output.value() );
+				EXPECT_EQ( parsedImo.toString(), item.output.value() );
 			}
 		}
 	}
@@ -88,16 +109,16 @@ namespace dnv::vista::sdk::test
 		const char* invalidImo = "IMO123";
 		const char* numericOnly = "9074729";
 
-		auto parsed1 = ImoNumber::tryParse( validImo );
-		EXPECT_TRUE( parsed1.has_value() );
-		EXPECT_EQ( parsed1->toString(), "IMO9074729" );
+		ImoNumber parsed1;
+		EXPECT_TRUE( ImoNumber::tryParse( validImo, parsed1 ) );
+		EXPECT_EQ( parsed1.toString(), "IMO9074729" );
 
-		auto parsed2 = ImoNumber::tryParse( invalidImo );
-		EXPECT_FALSE( parsed2.has_value() );
+		ImoNumber parsed2;
+		EXPECT_FALSE( ImoNumber::tryParse( invalidImo, parsed2 ) );
 
-		auto parsed3 = ImoNumber::tryParse( numericOnly );
-		EXPECT_TRUE( parsed3.has_value() );
-		EXPECT_EQ( parsed3->toString(), "IMO9074729" );
+		ImoNumber parsed3;
+		EXPECT_TRUE( ImoNumber::tryParse( numericOnly, parsed3 ) );
+		EXPECT_EQ( parsed3.toString(), "IMO9074729" );
 
 		EXPECT_NO_THROW( ImoNumber{ validImo } );
 		EXPECT_THROW( ImoNumber{ invalidImo }, std::invalid_argument );
@@ -115,20 +136,20 @@ namespace dnv::vista::sdk::test
 		std::string numericOnly = "9074729";
 		std::string caseVariant = "imo9074729";
 
-		auto parsed1 = ImoNumber::tryParse( validImo );
-		EXPECT_TRUE( parsed1.has_value() );
-		EXPECT_EQ( parsed1->toString(), "IMO9074729" );
+		ImoNumber parsed1;
+		EXPECT_TRUE( ImoNumber::tryParse( validImo, parsed1 ) );
+		EXPECT_EQ( parsed1.toString(), "IMO9074729" );
 
-		auto parsed2 = ImoNumber::tryParse( invalidImo );
-		EXPECT_FALSE( parsed2.has_value() );
+		ImoNumber parsed2;
+		EXPECT_FALSE( ImoNumber::tryParse( invalidImo, parsed2 ) );
 
-		auto parsed3 = ImoNumber::tryParse( numericOnly );
-		EXPECT_TRUE( parsed3.has_value() );
-		EXPECT_EQ( parsed3->toString(), "IMO9074729" );
+		ImoNumber parsed3;
+		EXPECT_TRUE( ImoNumber::tryParse( numericOnly, parsed3 ) );
+		EXPECT_EQ( parsed3.toString(), "IMO9074729" );
 
-		auto parsed4 = ImoNumber::tryParse( caseVariant );
-		EXPECT_TRUE( parsed4.has_value() );
-		EXPECT_EQ( parsed4->toString(), "IMO9074729" );
+		ImoNumber parsed4;
+		EXPECT_TRUE( ImoNumber::tryParse( caseVariant, parsed4 ) );
+		EXPECT_EQ( parsed4.toString(), "IMO9074729" );
 
 		EXPECT_NO_THROW( ImoNumber{ validImo } );
 		EXPECT_THROW( ImoNumber{ invalidImo }, std::invalid_argument );
@@ -141,13 +162,13 @@ namespace dnv::vista::sdk::test
 
 	TEST_F( ImoNumberTests, Test_StringLiteralInputs )
 	{
-		auto parsed1 = ImoNumber::tryParse( "IMO9074729" );
-		EXPECT_TRUE( parsed1.has_value() );
-		EXPECT_EQ( parsed1->toString(), "IMO9074729" );
+		ImoNumber parsed1;
+		EXPECT_TRUE( ImoNumber::tryParse( "IMO9074729", parsed1 ) );
+		EXPECT_EQ( parsed1.toString(), "IMO9074729" );
 
-		auto parsed2 = ImoNumber::tryParse( "9074729" );
-		EXPECT_TRUE( parsed2.has_value() );
-		EXPECT_EQ( parsed2->toString(), "IMO9074729" );
+		ImoNumber parsed2;
+		EXPECT_TRUE( ImoNumber::tryParse( "9074729", parsed2 ) );
+		EXPECT_EQ( parsed2.toString(), "IMO9074729" );
 
 		EXPECT_NO_THROW( ImoNumber{ "IMO9074729" } );
 		EXPECT_THROW( ImoNumber{ "invalid" }, std::invalid_argument );
@@ -155,4 +176,4 @@ namespace dnv::vista::sdk::test
 		auto parsed3 = ImoNumber::parse( "IMO9074729" );
 		EXPECT_EQ( parsed3.toString(), "IMO9074729" );
 	}
-}
+} // namespace dnv::vista::sdk::test

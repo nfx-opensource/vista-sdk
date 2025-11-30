@@ -12,10 +12,8 @@
 #include <unordered_set>
 #include <vector>
 
-#include <nfx/containers/ChdHashMap.h>
-#include <nfx/containers/HashMap.h>
-#include <nfx/containers/StringMap.h>
-#include <nfx/containers/StringSet.h>
+#include <nfx/containers/PerfectHashMap.h>
+#include <nfx/Containers.h>
 
 #include <dnv/vista/sdk/Gmod.h>
 #include <dnv/vista/sdk/GmodNode.h>
@@ -33,11 +31,10 @@ namespace dnv::vista::sdk::benchmarks
 		std::vector<std::pair<std::string, GmodNode>> m_vector;
 
 		// nfx containers
-		nfx::containers::HashMap<std::string, GmodNode> m_nfx_hashmap;
-		nfx::containers::StringMap<GmodNode> m_nfx_stringmap;
-		nfx::containers::StringSet m_nfx_stringset;
-		nfx::containers::ChdHashMap<GmodNode> m_nfx_chd_hashmap;
-
+		nfx::containers::FastHashMap<std::string, GmodNode> m_nfx_hashmap;
+		nfx::containers::FastHashMap<std::string, GmodNode> m_nfx_stringmap;
+		nfx::containers::FastHashSet<std::string> m_nfx_stringset;
+		nfx::containers::PerfectHashMap<std::string, GmodNode, uint32_t, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS> m_nfx_CHD_hashmap;
 		const Gmod* m_sdk_gmod;
 
 	public:
@@ -87,11 +84,11 @@ namespace dnv::vista::sdk::benchmarks
 				}
 
 				// Construct CHD HashMap
-				m_nfx_chd_hashmap = nfx::containers::ChdHashMap<GmodNode>( std::move( gmodPairs ) );
+				m_nfx_CHD_hashmap = nfx::containers::PerfectHashMap<std::string, GmodNode, uint32_t, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS>( std::move( gmodPairs ) );
 			}
 
 			{ // Populate all other containers - iterate through CHD map since gmod_pairs was moved
-				for ( const auto& [code, node] : m_nfx_chd_hashmap )
+				for ( const auto& [code, node] : m_nfx_CHD_hashmap )
 				{
 					m_unordered_map.emplace( code, node );
 					m_map.emplace( code, node );
@@ -154,37 +151,34 @@ namespace dnv::vista::sdk::benchmarks
 
 		bool nfx_hashmap()
 		{
-			GmodNode* nodePtr = nullptr;
-			return m_nfx_hashmap.tryGetValue( "VE", nodePtr ) &&
-				   m_nfx_hashmap.tryGetValue( "400a", nodePtr ) &&
-				   m_nfx_hashmap.tryGetValue( "400", nodePtr ) &&
-				   m_nfx_hashmap.tryGetValue( "H346.11112", nodePtr );
+			return m_nfx_hashmap.find( "VE" ) != nullptr &&
+				   m_nfx_hashmap.find( "400a" ) != nullptr &&
+				   m_nfx_hashmap.find( "400" ) != nullptr &&
+				   m_nfx_hashmap.find( "H346.11112" ) != nullptr;
 		}
 
 		bool nfx_stringmap()
 		{
-			return m_nfx_stringmap.find( "VE" ) != m_nfx_stringmap.end() &&
-				   m_nfx_stringmap.find( "400a" ) != m_nfx_stringmap.end() &&
-				   m_nfx_stringmap.find( "400" ) != m_nfx_stringmap.end() &&
-				   m_nfx_stringmap.find( "H346.11112" ) != m_nfx_stringmap.end();
+			return m_nfx_stringmap.find( "VE" ) != nullptr &&
+				   m_nfx_stringmap.find( "400a" ) != nullptr &&
+				   m_nfx_stringmap.find( "400" ) != nullptr &&
+				   m_nfx_stringmap.find( "H346.11112" ) != nullptr;
 		}
 
 		bool nfx_stringset()
 		{
-			return m_nfx_stringset.find( "VE" ) != m_nfx_stringset.end() &&
-				   m_nfx_stringset.find( "400a" ) != m_nfx_stringset.end() &&
-				   m_nfx_stringset.find( "400" ) != m_nfx_stringset.end() &&
-				   m_nfx_stringset.find( "H346.11112" ) != m_nfx_stringset.end();
+			return m_nfx_stringset.find( "VE" ) != nullptr &&
+				   m_nfx_stringset.find( "400a" ) != nullptr &&
+				   m_nfx_stringset.find( "400" ) != nullptr &&
+				   m_nfx_stringset.find( "H346.11112" ) != nullptr;
 		}
 
-		bool nfx_chd_hashmap()
+		bool nfx_CHD_hashmap()
 		{
-			GmodNode* nodePtr = nullptr;
-
-			return m_nfx_chd_hashmap.tryGetValue( "VE", nodePtr ) &&
-				   m_nfx_chd_hashmap.tryGetValue( "400a", nodePtr ) &&
-				   m_nfx_chd_hashmap.tryGetValue( "400", nodePtr ) &&
-				   m_nfx_chd_hashmap.tryGetValue( "H346.11112", nodePtr );
+			return m_nfx_CHD_hashmap.find( "VE" ) != nullptr &&
+				   m_nfx_CHD_hashmap.find( "400a" ) != nullptr &&
+				   m_nfx_CHD_hashmap.find( "400" ) != nullptr &&
+				   m_nfx_CHD_hashmap.find( "H346.11112" ) != nullptr;
 		}
 
 		bool sdk_gmod()
@@ -300,12 +294,12 @@ namespace dnv::vista::sdk::benchmarks
 		}
 	}
 
-	/** @brief nfx::containers::ChdHashMap lookup benchmark */
-	BENCHMARK_F( GmodLookupFixture, nfx_chd_hashmap )( benchmark::State& state )
+	/** @brief nfx::containers::PerfectHashMap lookup benchmark */
+	BENCHMARK_F( GmodLookupFixture, nfx_CHD_hashmap )( benchmark::State& state )
 	{
 		for ( auto _ : state )
 		{
-			bool result = g_benchmarkInstance.nfx_chd_hashmap();
+			bool result = g_benchmarkInstance.nfx_CHD_hashmap();
 			benchmark::DoNotOptimize( result );
 		}
 	}
@@ -332,8 +326,8 @@ namespace dnv::vista::sdk::benchmarks
 	BENCHMARK_REGISTER_F( GmodLookupFixture, nfx_hashmap )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
 	BENCHMARK_REGISTER_F( GmodLookupFixture, nfx_stringmap )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
 	BENCHMARK_REGISTER_F( GmodLookupFixture, nfx_stringset )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
-	BENCHMARK_REGISTER_F( GmodLookupFixture, nfx_chd_hashmap )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
+	BENCHMARK_REGISTER_F( GmodLookupFixture, nfx_CHD_hashmap )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
 	BENCHMARK_REGISTER_F( GmodLookupFixture, sdk_gmod )->MinTime( 10.0 )->Unit( benchmark::kNanosecond );
-}
+} // namespace dnv::vista::sdk::benchmarks
 
 BENCHMARK_MAIN();

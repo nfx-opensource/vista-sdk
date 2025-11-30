@@ -12,6 +12,7 @@ namespace dnv::vista::sdk
 	namespace internal
 	{
 	}
+
 	//=====================================================================
 	// LocalIdQuery class
 	//=====================================================================
@@ -324,4 +325,4 @@ namespace dnv::vista::sdk
 	{
 		return build().match( localId );
 	}
-}
+} // namespace dnv::vista::sdk

@@ -88,5 +88,5 @@ namespace dnv::vista::sdk::test
 				ASSERT_EQ( static_cast<int>( i + 1 ), sortedValues[i] );
 			}
 		}
-	}
-}
+	} // namespace tests
+} // namespace dnv::vista::sdk::test

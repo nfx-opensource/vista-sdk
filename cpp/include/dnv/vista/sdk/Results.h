@@ -34,29 +34,38 @@
  * ## Data Flow Architecture:
  *
  * ```
- * Validation Operation
- *         ↓
- * Result Classification
- *         ↓
+ *         Validation Operation
+ *                   ↓
+ *        Result Classification
+ *                   ↓
  * ┌─────────────────────────────────────┐
- * │        ValidateResult               │
+ * │            ValidateResult           │
  * ├─────────────────────────────────────┤
- * │         std::variant                │
- * │  ┌─────────────────────────────────┐│
- * │  │             Ok                  ││ ← Success state
- * │  │    (no additional data)         ││   (empty class)
- * │  └─────────────────────────────────┘│
- * │              OR                     │
- * │  ┌─────────────────────────────────┐│
- * │  │           Invalid               ││ ← Failure state
- * │  │  ┌───────────────────────────┐  ││
- * │  │  │ vector<string> m_errors   │  ││ ← Error messages
- * │  │  └───────────────────────────┘  ││
- * │  └─────────────────────────────────┘│
+ * │             std::variant            │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │                Ok               │ │ ← Success state
+ * │ │       (no additional data)      │ │   (empty class)
+ * │ └─────────────────────────────────┘ │
+ * │                  OR                 │
+ * │ ┌─────────────────────────────────┐ │
+ * │ │             Invalid             │ │ ← Failure state
+ * │ │  ┌────────────────────────────┐ │ │
+ * │ │  │  vector<string> m_errors   │ │ │ ← Error messages
+ * │ │  └────────────────────────────┘ │ │
+ * │ └─────────────────────────────────┘ │
  * └─────────────────────────────────────┘
- *         ↓
- * Type-Safe Result Handling
- * ```
+ *                   ↓
+ *       Type-Safe Result Handling
+ *                   ↓
+ * ┌─────────────────────────────────────┐
+ * │    Application Response System      │
+ * ├─────────────────────────────────────┤
+ * │ - Success Path Execution            │
+ * │ - Error Message Processing          │
+ * │ - Validation Feedback Generation    │
+ * │ - Functional Composition Chains     │
+ * └─────────────────────────────────────┘
+ *```
  *
  * ## Usage Patterns:
  *
@@ -240,6 +249,6 @@ namespace dnv::vista::sdk
 	private:
 		std::variant<Ok, Invalid> m_value;
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/Results.inl"

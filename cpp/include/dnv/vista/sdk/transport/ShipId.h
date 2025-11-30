@@ -115,17 +115,17 @@ namespace dnv::vista::sdk::transport
 		/** @brief Default constructor */
 		ShipId() = delete;
 
-	/**
-	 * @brief Copy constructor
-	 * @param other The object to copy from
-	 */
-	ShipId( const ShipId& other ) = default;
+		/**
+		 * @brief Copy constructor
+		 * @param other The object to copy from
+		 */
+		ShipId( const ShipId& other ) = default;
 
-	/**
-	 * @brief Move constructor
-	 * @param other The object to move from
-	 */
-	ShipId( ShipId&& other ) noexcept = default;
+		/**
+		 * @brief Move constructor
+		 * @param other The object to move from
+		 */
+		ShipId( ShipId&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Destruction
@@ -138,19 +138,19 @@ namespace dnv::vista::sdk::transport
 		// Assignment operators
 		//----------------------------------------------
 
-	/**
-	 * @brief Copy assignment operator
-	 * @param other The object to copy from
-	 * @return Reference to this ShipId after assignment
-	 */
-	ShipId& operator=( const ShipId& other ) = default;
+		/**
+		 * @brief Copy assignment operator
+		 * @param other The object to copy from
+		 * @return Reference to this ShipId after assignment
+		 */
+		ShipId& operator=( const ShipId& other ) = default;
 
-	/**
-	 * @brief Move assignment operator
-	 * @param other The object to move from
-	 * @return Reference to this ShipId after assignment
-	 */
-	ShipId& operator=( ShipId&& other ) noexcept = default;
+		/**
+		 * @brief Move assignment operator
+		 * @param other The object to move from
+		 * @return Reference to this ShipId after assignment
+		 */
+		ShipId& operator=( ShipId&& other ) noexcept = default;
 
 		//----------------------------------------------
 		// Equality operators
@@ -281,6 +281,6 @@ namespace dnv::vista::sdk::transport
 		/** @brief Other identifier storage (active when m_tag == Tag::Other) */
 		std::optional<std::string> m_otherId;
 	};
-}
+} // namespace dnv::vista::sdk::transport
 
 #include "dnv/vista/sdk/detail/transport/ShipId.inl"

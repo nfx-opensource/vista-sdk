@@ -5,7 +5,7 @@
 
 #include <stdexcept>
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/StringBuilder.h>
 
 namespace dnv::vista::sdk::transport::timeseries
 {
@@ -164,4 +164,4 @@ namespace dnv::vista::sdk::transport::timeseries
 			}
 		}
 	}
-}
+} // namespace dnv::vista::sdk::transport::timeseries

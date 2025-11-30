@@ -11,12 +11,13 @@
  * ## System Purpose:
  *
  * The **VISTA Local ID System** serves as the foundation for:
- * - **VIS Standard Compliance**  : Full ISO 19848 Local ID specification support
- * - **Immutable Value Semantics**: Thread-safe Local ID instances with value ownership
- * - **High-Performance Access**  : Zero-overhead property accessors via direct storage
- * - **Comprehensive Validation** : Builder-based construction with validation guarantees
- * - **Parsing and Serialization**: String-to-LocalId conversion with error handling
- * - **Metadata Management**      : Complete support for all VIS metadata tag types
+ * - **VIS Standard Compliance**   : Full ISO 19848 Local ID specification support
+ * - **Immutable Value Semantics** : Thread-safe Local ID instances with direct value ownership
+ * - **Zero-Overhead Architecture**: Direct property access via LocalIdBuilder delegation
+ * - **Builder Pattern Validation**: Fluent construction with comprehensive validation guarantees
+ * - **High-Performance Parsing**  : Optimized string-to-LocalId conversion with detailed error handling
+ * - **Metadata Management**       : Complete support for all 8 VIS metadata tag types
+ * - **Memory Efficiency**         : Direct value storage eliminating heap indirection overhead
  *
  * ## Core Architecture:
  *
@@ -27,10 +28,12 @@
  * - **MetadataTag**   : Individual metadata components (quantity, content, etc.)
  *
  * ### Construction Pattern
- * - **Builder Pattern** : Fluent interface for step-by-step Local ID construction
- * - **Move Semantics**  : Efficient ownership transfer from builder to LocalId
- * - **Validation Gates**: Builder validation before LocalId construction
- * - **Immutable Result**: LocalId instances cannot be modified after creation
+ * - **Builder Pattern**       : Fluent interface for step-by-step Local ID construction and validation
+ * - **Move Semantics**        : Efficient ownership transfer from mutable builder to immutable LocalId
+ * - **Validation Gates**      : Comprehensive builder validation before LocalId construction
+ * - **Direct Value Storage**  : LocalId wraps LocalIdBuilder for zero-overhead property access
+ * - **Immutable Result**      : LocalId instances cannot be modified after creation
+ * - **Protected Construction**: Only LocalIdBuilder and parsing methods can create LocalId instances
  *
  * ## Memory Layout & Performance:
  *
@@ -38,7 +41,6 @@
  * LocalId Structure:
  * ┌─────────────────────────────────────┐
  * │              LocalId                │
- * ├─────────────────────────────────────┤
  * │ ┌─────────────────────────────────┐ │
  * │ │        LocalIdBuilder           │ │ ← Direct value storage
  * │ │         m_builder               │ │
@@ -52,13 +54,20 @@
  * │ │ └─────────────────────────────┘ │ │
  * │ └─────────────────────────────────┘ │
  * └─────────────────────────────────────┘
- *
- * Key Performance Features:
- * - Value storage (no heap indirection)
- * - Inline property access (zero overhead)
- * - Move semantics for construction
- * - Thread-safe read operations
- * ```
+ *                  ↓
+ *    Zero-Overhead Property + Hash Access
+ *                  ↓
+ * ┌─────────────────────────────────────┐
+ * │       Direct Access Operations      │
+ * ├─────────────────────────────────────┤
+ * │ - Inline property accessors         │
+ * │ - Builder delegation (zero-copy)    │
+ * │ - Cached hash access (O(1))         │
+ * │ - Direct member access patterns     │
+ * │ - No heap indirection overhead      │
+ * │ - Thread-safe immutable reads       │
+ * └─────────────────────────────────────┘
+ *```
  *
  * ## Usage Examples:
  *
@@ -85,12 +94,15 @@
  *
  * ## Performance Characteristics:
  *
- * - **Property Access**    : O(1) inline accessors with no indirection overhead
- * - **Construction**       : O(1) move from validated builder to LocalId
+ * - **Property Access**    : O(1) inline accessors with zero indirection overhead
+ * - **Construction**       : O(1) move from validated LocalIdBuilder to immutable LocalId
  * - **String Conversion**  : O(n) where n is total string length of all components
- * - **Equality Comparison**: O(1) builder equality delegation
- * - **Memory Footprint**   : Minimal overhead with direct value storage
+ * - **Parsing Operations** : O(m) where m is input string length with optimized tokenization
+ * - **Equality Comparison**: O(1) builder equality delegation with short-circuit optimization
+ * - **Memory Footprint**   : Minimal overhead with direct LocalIdBuilder value storage
+ * - **Hash Computation**   : O(n) using nfx optimized SSE4.2/FNV-1a string hashing
  * - **Thread Safety**      : Lock-free concurrent read access to immutable data
+ * - **Copy Operations**    : Efficient copying due to direct value semantics
  *
  * ## Design Philosophy:
  *
@@ -109,8 +121,9 @@
 #include <string_view>
 #include <vector>
 
-#include <nfx/core/hashing/Hash.h>
+#include <nfx/Hashing.h>
 
+#include "config/config.h"
 #include "LocalIdBuilder.h"
 
 namespace dnv::vista::sdk
@@ -193,8 +206,10 @@ namespace dnv::vista::sdk
 
 		/**
 		 * @brief Copy assignment operator
+		 * @param other The LocalId to copy from
+		 * @return Reference to this LocalId after assignment
 		 */
-		LocalId& operator=( const LocalId& other ) = delete;
+		LocalId& operator=( const LocalId& other ) = default;
 
 		/**
 		 * @brief Move assignment operator
@@ -353,6 +368,32 @@ namespace dnv::vista::sdk
 		[[nodiscard]] inline bool hasCustomTag() const noexcept;
 
 		//----------------------------------------------
+		// Hashing
+		//----------------------------------------------
+
+		/**
+		 * @brief Gets the cached hash value for this LocalId.
+		 * @details **Purpose**: Enables LocalId instances to be used efficiently as keys in hash-based
+		 *          collections (std::unordered_map, nfx::HashMap, etc.) without performance penalties.
+		 *
+		 *          **Performance Critical**: Hash is pre-computed during construction using optimized
+		 *          SSE4.2/FNV-1a algorithms and cached to avoid expensive recomputation. This transforms
+		 *          hash lookups from O(n) string processing to O(1) cached access.
+		 *
+		 *          **VIS Version Hash Behavior**: LocalIds with identical content but different VIS
+		 *          versions (e.g., vis-3-6a vs vis-3-7a) intentionally (?) produce the same hash value.
+		 *          This design ensures hash consistency across VIS version upgrades, allowing
+		 *          data systems to maintain stable hash-based indexes when transitioning between VIS
+		 *          versions. The VIS version is excluded from hash computation by design to preserve
+		 *          semantic equivalence across specification versions.
+		 *
+		 * @return The cached hash value computed using hardware-accelerated algorithms.
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 * @note LocalIds with different VIS versions but identical content will have the same hash
+		 */
+		[[nodiscard]] inline std::size_t hashCode() const noexcept;
+
+		//----------------------------------------------
 		// String conversion
 		//----------------------------------------------
 
@@ -401,42 +442,30 @@ namespace dnv::vista::sdk
 		// Private members variables
 		//----------------------------------------------
 
+		/** @brief Immutable LocalIdBuilder instance containing all LocalId data and validation state */
 		LocalIdBuilder m_builder;
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/LocalId.inl"
 
-/**
- * @brief Hash specialization required for nfx::HashMap compatibility.
- * @details This specialization is necessary for LocalId to work with nfx::HashMap.
- *
- * @note Hash computation has O(n) complexity where n is the length of the string representation.
- */
 namespace std
 {
 	/**
 	 * @brief Hash specialization for dnv::vista::sdk::LocalId.
-	 * @details Enables LocalId instances to be used as keys in nfx::HashMap.
+	 * @details Enables LocalId instances to be used as keys in all hash-based STL containers.
 	 */
 	template <>
 	struct hash<dnv::vista::sdk::LocalId>
 	{
-		/** @brief Default constructor */
-		hash() = default;
-
 		/**
-		 * @brief Computes hash value for a LocalId instance.
+		 * @brief Returns the cached hash value for optimal performance.
 		 * @param[in] localId The LocalId instance to hash.
-		 * @return Hash value computed from the string representation.
-		 * @note Uses nfx::core::hashing::hashStringView for optimal performance with SSE4.2/FNV-1a.
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 * @return Pre-computed hash value (O(1) access) using hardware-accelerated algorithms.
 		 */
-		[[nodiscard]] std::size_t operator()( const dnv::vista::sdk::LocalId& localId ) const noexcept
+		std::size_t operator()( const dnv::vista::sdk::LocalId& localId ) const noexcept
 		{
-			// Use nfx optimized string hashing (SSE4.2/FNV-1a) for better performance
-			const std::string localIdStr = localId.toString();
-			return static_cast<std::size_t>( nfx::core::hashing::hashStringView( localIdStr ) );
+			return localId.hashCode();
 		}
 	};
-}
+} // namespace std

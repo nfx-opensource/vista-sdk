@@ -3,8 +3,10 @@
  * @brief Unit tests for the GmodVersioning class.
  */
 
-#include <nfx/string/Utils.h>
 #include <gtest/gtest.h>
+
+#include <nfx/serialization/json/Document.h>
+#include <nfx/string/Utils.h>
 
 #include "TestDataLoader.h"
 
@@ -125,7 +127,7 @@ namespace dnv::vista::sdk::tests
 
 			return node.parents().size() == 1 && onePathToRoot( *node.parents()[0] );
 		}
-	}
+	} // namespace
 
 	TEST( GmodVersioningTest, Test_One_Path_To_Root_For_Asset_Functions )
 	{
@@ -158,12 +160,24 @@ namespace dnv::vista::sdk::tests
 	TEST( GmodVersioningTest, Test_Valid_GmodPath_To_Latest )
 	{
 		const auto& testData = test::loadTestData( "GmodPaths.json" );
-		const auto& validPaths = testData["Valid"];
 
-		for ( const auto& item : validPaths )
+		auto validPathsDoc = testData.get<nfx::serialization::json::Document>( "/Valid" );
+		ASSERT_TRUE( validPathsDoc.has_value() );
+		ASSERT_TRUE( validPathsDoc->is<nfx::serialization::json::Document::Array>( "" ) );
+
+		auto arrayOpt = validPathsDoc->get<nfx::serialization::json::Document::Array>( "" );
+		ASSERT_TRUE( arrayOpt.has_value() );
+
+		for ( const auto& elem : arrayOpt.value() )
 		{
-			std::string path = item["path"];
-			std::string visVersionStr = item["visVersion"];
+			auto pathOpt = elem.get<std::string>( "/path" );
+			auto visVersionStrOpt = elem.get<std::string>( "/visVersion" );
+
+			ASSERT_TRUE( pathOpt.has_value() );
+			ASSERT_TRUE( visVersionStrOpt.has_value() );
+
+			std::string path = *pathOpt;
+			std::string visVersionStr = *visVersionStrOpt;
 
 			auto& vis = VIS::instance();
 
@@ -259,8 +273,10 @@ namespace dnv::vista::sdk::tests
 	std::vector<PathTestData> validPathTestData()
 	{
 		return {
-			PathTestData( "411.1/C101.72/I101", "411.1/C101.72/I101" ), PathTestData( "323.51/H362.1", "323.61/H362.1" ),
-			PathTestData( "321.38/C906", "321.39/C906" ), PathTestData( "511.331/C221", "511.31/C121.31/C221" ),
+			PathTestData( "411.1/C101.72/I101", "411.1/C101.72/I101" ),
+			PathTestData( "323.51/H362.1", "323.61/H362.1" ),
+			PathTestData( "321.38/C906", "321.39/C906" ),
+			PathTestData( "511.331/C221", "511.31/C121.31/C221" ),
 			PathTestData( "511.11/C101.663i/C663.5/CS6d", "511.11/C101.663i/C663.6/CS6d" ),
 			PathTestData( "511.11-1/C101.663i/C663.5/CS6d", "511.11-1/C101.663i/C663.6/CS6d" ),
 			PathTestData( "1012.21/C1147.221/C1051.7/C101.22", "1012.21/C1147.221/C1051.7/C101.93" ),
@@ -534,4 +550,4 @@ namespace dnv::vista::sdk::tests
 	}
 
 	INSTANTIATE_TEST_SUITE_P( ValidNodeTests, NodeConversionTest, ::testing::ValuesIn( validNodeTestData() ) );
-}
+} // namespace dnv::vista::sdk::tests

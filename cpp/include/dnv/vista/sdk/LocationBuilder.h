@@ -1,19 +1,165 @@
 /**
  * @file LocationBuilder.h
- * @brief Defines the LocationBuilder class for constructing Location objects with validation.
+ * @brief VISTA Location Builder System for Fluent VIS Location Construction with Validation
  *
- * @details This file provides the LocationBuilder class, which implements a fluent builder
- * pattern for constructing Location objects with component-wise validation against
- * the VIS standard. The builder supports setting numeric, side, vertical, transverse,
- * and longitudinal components with immutable operations.
+ * @details
+ * This file implements the **VISTA Location Builder System** for constructing and validating
+ * Location instances through an immutable fluent interface pattern. It provides comprehensive
+ * builder capabilities with component-wise validation against VIS standard location specifications,
+ * ensuring maritime equipment location identifiers comply with ISO 19848 requirements for
+ * vessel coordinate systems and spatial positioning.
+ *
+ * ## System Purpose:
+ *
+ * The **VISTA Location Builder System** serves as the foundation for:
+ * - **VIS Location Construction**: Step-by-step location building with component validation
+ * - **Spatial Coordinate System**: Maritime vessel coordinate system compliance (ISO 19848)
+ * - **Component Validation**     : Real-time validation against VIS location group specifications
+ * - **Immutable Pattern**        : Each builder operation returns a new validated instance
+ * - **Equipment Positioning**    : Precise maritime equipment location identification
+ *
+ * ## Core Architecture:
+ *
+ * ### Location Component System
+ * - **LocationBuilder**     : Main fluent interface for constructing VIS-compliant locations
+ * - **Component Validation**: Real-time validation against LocationGroup mappings
+ * - **Immutable Design**    : Each method returns new builder instance (no mutation)
+ * - **VIS Version Support** : Version-specific validation rules and component sets
+ * - **Factory Pattern**     : Controlled creation through Locations context
+ *
+ * ### VIS Location Components
+ * - **Number Component**     : Numeric identifier (1-based, e.g., 1, 2, 100)
+ * - **Side Component**       : Port/Center/Starboard positioning ('P', 'C', 'S')
+ * - **Vertical Component**   : Upper/Middle/Lower positioning ('U', 'M', 'L')
+ * - **Transverse Component** : Inner/Outer positioning ('I', 'O')
+ * - **Longitudinal Component**: Forward/Aft positioning ('F', 'A')
+ *
+ * ## Data Flow Architecture:
+ *
+ * ```
+ *       Location Construction Request
+ *                  ↓
+ *        VIS Version & Context Setup
+ *                  ↓
+ * ┌─────────────────────────────────────┐
+ * │          LocationBuilder            │
+ * ├─────────────────────────────────────┤
+ * │    std::optional<int> m_number      │ ← Numeric component (1+)
+ * │    std::optional<char> m_side       │ ← Side: P/C/S
+ * │    std::optional<char> m_vertical   │ ← Vertical: U/M/L
+ * │    std::optional<char> m_transverse │ ← Transverse: I/O
+ * │    std::optional<char> longitudinal │ ← Longitudinal: F/A
+ * │    VisVersion m_visVersion          │ ← VIS standard version
+ * │    const std::map* m_reversedGroups │ ← Validation mapping
+ * └─────────────────────────────────────┘
+ *                  ↓
+ *       Component-wise Validation
+ *                  ↓
+ * ┌─────────────────────────────────────┐
+ * │      Fluent Builder Operations      │
+ * ├─────────────────────────────────────┤
+ * │ - withNumber(int) validation        │
+ * │ - withSide(char) group checking     │
+ * │ - withVertical(char) validation     │
+ * │ - withTransverse(char) checking     │
+ * │ - withLongitudinal(char) validation │
+ * │ - Immutable copy-on-write pattern   │
+ * └─────────────────────────────────────┘
+ *                  ↓
+ *               build()
+ *                  ↓
+ * ┌─────────────────────────────────────┐
+ * │        VIS Location Output          │
+ * ├─────────────────────────────────────┤
+ * │ - VIS Standard Compliance           │
+ * │ - Maritime Equipment Positioning    │
+ * │ - Thread-Safe Immutable Object      │
+ * └─────────────────────────────────────┘
+ *```
+ *
+ * ## Usage Patterns:
+ *
+ * ### Basic Location Construction
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Advanced Component Validation
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Location Parsing and Analysis
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ### Maritime Equipment Positioning
+ * ```cpp
+ *
+ * TODO
+ *
+ * ```
+ *
+ * ## Performance Characteristics:
+ *
+ * - **Builder Creation** : O(1) factory method with VIS context initialization
+ * - **Component Setting**: O(1) per operation with immediate validation
+ * - **Validation Lookup**: O(1) hash map lookup for component group checking
+ * - **String Generation**: O(n) where n is total character count in components
+ * - **Memory Efficiency**: Optional wrapping minimizes overhead for unset components
+ * - **Copy Operations**  : Efficient due to small builder footprint and optional optimization
+ * - **Immutable Safety** : Thread-safe operations with no shared mutable state
+ *
+ * ## VIS Standard Compliance:
+ *
+ * ### Component Validation Rules
+ * - **Number Range**         : Must be >= 1 (VIS specification requirement)
+ * - **Character Groups**     : Each component validated against LocationGroup mappings
+ * - **Version Compatibility**: Component sets vary by VIS version (3-4a, 3-5a, etc.)
+ *
+ * ### Maritime Coordinate System
+ * - **Side Components**        : Port (P), Center (C), Starboard (S) - vessel width axis
+ * - **Vertical Components**    : Upper (U), Middle (M), Lower (L) - vessel height axis
+ * - **Transverse Components**  : Inner (I), Outer (O) - inboard/outboard positioning
+ * - **Longitudinal Components**: Forward (F), Aft (A) - vessel length axis
+ *
+ * ## Integration with VIS Ecosystem:
+ *
+ * ### Location System Integration
+ * - **Locations Context**    : Builder factory requires Locations instance for validation
+ * - **GMOD Path Integration**: Locations used within Local ID GMOD path structures
+ * - **Equipment Mapping**    : Precise positioning for maritime equipment and sensors
+ * - **Standards Compliance** : Full adherence to ISO 19848 vessel coordinate specifications
+ *
+ * ### Builder Pattern Benefits
+ * - **Incremental Construction**: Step-by-step building with validation at each stage
+ * - **Immutable Safety**        : Thread-safe operations with no builder mutation
+ * - **Component Flexibility**   : Optional components support various location specificity levels
+ * - **Fluent Interface**        : Readable, self-documenting construction code
+ *
+ * ## Design Philosophy:
+ *
+ * - **VIS Standard Fidelity**   : Exact compliance with ISO 19848 location specifications
+ * - **Immutability First**      : No builder mutation, always return new instances
+ * - **Component Validation**    : Real-time validation prevents invalid location construction
+ * - **Maritime Domain Focus**   : Tailored for vessel coordinate systems and equipment positioning
+ * - **Performance Optimization**: Efficient optional storage and validation lookup patterns
+ * - **Type Safety**             : Strong typing with enum-based validation prevents invalid combinations
+ * - **Thread Safety**           : Immutable design enables safe concurrent usage
  */
 
 #pragma once
 
 #include <map>
 #include <optional>
-
-#include <nfx/containers/HashMap.h>
+#include <string>
 
 namespace dnv::vista::sdk
 {
@@ -346,6 +492,6 @@ namespace dnv::vista::sdk
 		/** @brief Pointer to map from character codes to their LocationGroup for validation. */
 		const std::map<char, LocationGroup>* m_reversedGroups;
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/LocationBuilder.inl"

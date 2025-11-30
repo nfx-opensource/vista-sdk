@@ -79,5 +79,5 @@ namespace dnv::vista::sdk::internal
 		inline constexpr std::string_view GROUP_NAME_TRANSVERSE = "Transverse";
 		inline constexpr std::string_view GROUP_NAME_LONGITUDINAL = "Longitudinal";
 		inline constexpr std::string_view GROUP_NAME_UNKNOWN = "Unknown";
-	}
-}
+	} // namespace locations
+} // namespace dnv::vista::sdk::internal

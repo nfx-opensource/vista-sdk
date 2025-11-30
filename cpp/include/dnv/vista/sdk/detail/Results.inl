@@ -61,4 +61,4 @@ namespace dnv::vista::sdk
 	{
 		return std::get<Invalid>( m_value );
 	}
-}
+} // namespace dnv::vista::sdk

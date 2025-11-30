@@ -1,304 +1,95 @@
-/**
- * @file LocationsDto.h
- * @brief Data transfer objects for locations in the VIS standard
- */
-
 #pragma once
 
 #include <optional>
 #include <string>
 #include <vector>
 
-#include <nlohmann/json.hpp>
+#include <nfx/serialization/json/Serializer.h>
+#include <nfx/serialization/json/SerializationTraits.h>
 
 namespace dnv::vista::sdk
 {
-	//=====================================================================
-	// Relative Location data transfer objects
-	//=====================================================================
-
-	/**
-	 * @brief Data transfer object (DTO) for a relative location.
-	 *
-	 * Represents a relative location with a code, name, and optional definition.
-	 * This class is immutable - all properties are set during construction.
-	 */
-	class RelativeLocationsDto final
+	struct RelativeLocationsDto final
 	{
-	public:
-		//----------------------------------------------
-		// Construction
-		//----------------------------------------------
-
-		/**
-		 * @brief Constructor with parameters
-		 *
-		 * @param code The character code representing the location
-		 * @param name The name of the location
-		 * @param definition An optional definition of the location
-		 */
-		explicit RelativeLocationsDto(
-			char code,
-			std::string name,
-			std::optional<std::string> definition = std::nullopt ) noexcept;
-
-		/** @brief Default constructor. */
-		RelativeLocationsDto() = default;
-
-		/** @brief Copy constructor */
-		RelativeLocationsDto( const RelativeLocationsDto& other ) = default;
-
-		/** @brief Move constructor */
-		RelativeLocationsDto( RelativeLocationsDto&& other ) noexcept = default;
-
-		//----------------------------------------------
-		// Destruction
-		//----------------------------------------------
-
-		/** @brief Destructor */
-		~RelativeLocationsDto() = default;
-
-		//----------------------------------------------
-		// Assignment operators
-		//----------------------------------------------
-
-		/** @brief Copy assignment operator */
-		RelativeLocationsDto& operator=( const RelativeLocationsDto& other ) = default;
-
-		/** @brief Move assignment operator */
-		RelativeLocationsDto& operator=( RelativeLocationsDto&& other ) noexcept = default;
-
-		//----------------------------------------------
-		// Accessors
-		//----------------------------------------------
-
-		/**
-		 * @brief Get the location code
-		 * @return The character code representing the location
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] char code() const noexcept;
-
-		/**
-		 * @brief Get the location name
-		 * @return The name of the location
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::string_view name() const noexcept;
-
-		/**
-		 * @brief Get the location definition
-		 * @return The optional definition of the location
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] const std::optional<std::string>& definition() const noexcept;
-
-		//----------------------------------------------
-		// Serialization
-		//----------------------------------------------
-
-		/**
-		 * @brief Try to deserialize a RelativeLocationsDto from an nlohmann::json object.
-		 *
-		 * @param json The nlohmann::json object to deserialize.
-		 * @return An optional containing the deserialized DTO if successful, or std::nullopt if parsing failed
-		 */
-		static std::optional<RelativeLocationsDto> tryFromJson( const nlohmann::json& json );
-
-		/**
-		 * @brief Deserialize a RelativeLocationsDto from an nlohmann::json object.
-		 *
-		 * @param json The nlohmann::json object to deserialize.
-		 * @return The deserialized RelativeLocationsDto.
-		 * @throws std::invalid_argument If deserialization fails (e.g., missing fields, type errors)
-		 * @throws nlohmann::json::exception If JSON parsing/access errors occur
-		 */
-		static RelativeLocationsDto fromJson( const nlohmann::json& json );
-
-		/**
-		 * @brief Serialize this RelativeLocationsDto to an nlohmann::json object
-		 *
-		 * @return The serialized nlohmann::json object
-		 */
-		nlohmann::json toJson() const;
-
-	private:
-		//----------------------------------------------
-		// Private serialization methods
-		//---------------------------------------------
-
-		/**
-		 * @brief ADL hook for nlohmann::json deserialization
-		 * @details Friend function that enables automatic deserialization via nlohmann::json.
-		 *          This function is found through Argument-Dependent Lookup (ADL) and allows
-		 *          nlohmann::json to automatically convert JSON to RelativeLocationsDto objects.
-		 * @param j The JSON object to deserialize from
-		 * @param dto The RelativeLocationsDto object to deserialize into
-		 * @throws nlohmann::json::parse_error If required fields are missing or have wrong types
-		 * @note This function accesses private members and is called automatically by nlohmann::json
-		 */
-		friend void from_json( const nlohmann::json& j, RelativeLocationsDto& dto );
-
-		/**
-		 * @brief ADL hook for nlohmann::json serialization
-		 * @details Friend function that enables automatic serialization via nlohmann::json.
-		 *          This function is found through Argument-Dependent Lookup (ADL) and allows
-		 *          nlohmann::json to automatically convert RelativeLocationsDto objects to JSON.
-		 * @param j The JSON object to serialize into
-		 * @param dto The RelativeLocationsDto object to serialize from
-		 * @note This function accesses private members and is called automatically by nlohmann::json
-		 */
-		friend void to_json( nlohmann::json& j, const RelativeLocationsDto& dto );
-
-	private:
-		//----------------------------------------------
-		// Private member variables
-		//----------------------------------------------
-
-		/** @brief The character code representing the location (JSON: "code"). */
-		char m_code;
-
-		/** @brief The name of the location (JSON: "name"). */
-		std::string m_name;
-
-		/** @brief An optional definition of the location (JSON: "definition"). */
-		std::optional<std::string> m_definition;
+		char code;
+		std::string name;
+		std::optional<std::string> definition;
 	};
 
-	//=====================================================================
-	// Location data transfer objects
-	//=====================================================================
-
-	/**
-	 * @brief Data transfer object (DTO) for a collection of locations.
-	 *
-	 * Represents a collection of relative locations and the VIS version they belong to.
-	 * This class is immutable - all properties are set during construction.
-	 */
-	class LocationsDto final
+	struct LocationsDto final
 	{
-	public:
-		//----------------------------------------------
-		// Construction
-		//----------------------------------------------
+		std::string visVersion;
+		std::vector<RelativeLocationsDto> items;
 
-		/**
-		 * @brief Constructor with parameters
-		 *
-		 * @param visVersion The VIS version string
-		 * @param items A collection of relative locations
-		 */
-		explicit LocationsDto( std::string visVersion, std::vector<RelativeLocationsDto> items ) noexcept;
-
-		/** @brief Default constructor. */
-		LocationsDto() = default;
-
-		/** @brief Copy constructor */
-		LocationsDto( const LocationsDto& other ) = default;
-
-		/** @brief Move constructor */
-		LocationsDto( LocationsDto&& other ) noexcept = default;
-
-		//----------------------------------------------
-		// Destruction
-		//----------------------------------------------
-
-		/** @brief Destructor */
-		~LocationsDto() = default;
-
-		//----------------------------------------------
-		// Assignment operators
-		//----------------------------------------------
-
-		/** @brief Copy assignment operator */
-		LocationsDto& operator=( const LocationsDto& other ) = default;
-
-		/** @brief Move assignment operator */
-		LocationsDto& operator=( LocationsDto&& other ) noexcept = default;
-
-		//----------------------------------------------
-		// Accessors
-		//----------------------------------------------
-
-		/**
-		 * @brief Get the VIS version string
-		 * @return The VIS version string
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] std::string_view visVersion() const noexcept;
-
-		/**
-		 * @brief Get the collection of relative locations
-		 * @return A vector of relative locations
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] const std::vector<RelativeLocationsDto>& items() const noexcept;
-
-		//----------------------------------------------
-		// Serialization
-		//----------------------------------------------
-
-		/**
-		 * @brief Try to deserialize a LocationsDto from an nlohmann::json object.
-		 *
-		 * @param json The nlohmann::json object to deserialize.
-		 * @return An optional containing the deserialized DTO if successful, or std::nullopt if parsing failed
-		 */
-		static std::optional<LocationsDto> tryFromJson( const nlohmann::json& json );
-
-		/**
-		 * @brief Deserialize a LocationsDto from an nlohmann::json object.
-		 *
-		 * @param json The nlohmann::json object to deserialize.
-		 * @return The deserialized LocationsDto.
-		 * @throws std::invalid_argument If deserialization fails (e.g., missing fields, type errors)
-		 * @throws nlohmann::json::exception If JSON parsing/access errors occur
-		 */
-		static LocationsDto fromJson( const nlohmann::json& json );
-
-		/**
-		 * @brief Serialize this LocationsDto to an nlohmann::json object
-		 * @return The serialized nlohmann::json object
-		 */
-		nlohmann::json toJson() const;
-
-	private:
-		//----------------------------------------------
-		// Private serialization methods
-		//----------------------------------------------
-
-		/**
-		 * @brief ADL hook for nlohmann::json deserialization
-		 * @details Friend function that enables automatic deserialization via nlohmann::json.
-		 *          This function is found through Argument-Dependent Lookup (ADL) and allows
-		 *          nlohmann::json to automatically convert JSON to LocationsDto objects.
-		 * @param j The JSON object to deserialize from
-		 * @param dto The LocationsDto object to deserialize into
-		 * @throws nlohmann::json::parse_error If required fields are missing or have wrong types
-		 * @note This function accesses private members and is called automatically by nlohmann::json
-		 */
-		friend void from_json( const nlohmann::json& j, LocationsDto& dto );
-
-		/**
-		 * @brief ADL hook for nlohmann::json serialization
-		 * @details Friend function that enables automatic serialization via nlohmann::json.
-		 *          This function is found through Argument-Dependent Lookup (ADL) and allows
-		 *          nlohmann::json to automatically convert LocationsDto objects to JSON.
-		 * @param j The JSON object to serialize into
-		 * @param dto The LocationsDto object to serialize from
-		 * @note This function accesses private members and is called automatically by nlohmann::json
-		 */
-		friend void to_json( nlohmann::json& j, const LocationsDto& dto );
-
-	private:
-		//----------------------------------------------
-		// Private member variables
-		//--------------------------------------------
-
-		/** @brief The VIS version string (JSON: "visRelease"). */
-		std::string m_visVersion;
-
-		/** @brief A vector of relative locations (JSON: "items"). */
-		std::vector<RelativeLocationsDto> m_items;
+		static LocationsDto fromJsonString( std::string_view jsonStr )
+		{
+			nfx::serialization::json::Serializer<LocationsDto> serializer;
+			return serializer.deserializeFromString( jsonStr );
+		}
 	};
-}
+} // namespace dnv::vista::sdk
+
+//=====================================================================
+// nfx SerializationTraits specializations - required for custom types
+//=====================================================================
+
+namespace nfx::serialization::json
+{
+	template <>
+	struct SerializationTraits<dnv::vista::sdk::RelativeLocationsDto>
+	{
+		static void serialize( const dnv::vista::sdk::RelativeLocationsDto& obj, Document& doc )
+		{
+			doc.set( "/code", obj.code );
+			doc.set( "/name", obj.name );
+
+			if ( obj.definition )
+			{
+				doc.set( "/definition", *obj.definition );
+			}
+		}
+
+		static void deserialize( dnv::vista::sdk::RelativeLocationsDto& obj, const Document& doc )
+		{
+			if ( auto val = doc.get<char>( "/code" ) )
+			{
+				obj.code = *val;
+			}
+			if ( auto val = doc.get<std::string>( "/name" ) )
+			{
+				obj.name = *val;
+			}
+			if ( auto val = doc.get<std::string>( "/definition" ) )
+			{
+				obj.definition = *val;
+			}
+		}
+	};
+
+	template <>
+	struct SerializationTraits<dnv::vista::sdk::LocationsDto>
+	{
+		static void serialize( const dnv::vista::sdk::LocationsDto& obj, Document& doc )
+		{
+			doc.set( "/visVersion", obj.visVersion );
+
+			Serializer<std::vector<dnv::vista::sdk::RelativeLocationsDto>> itemsSerializer;
+			Document itemsDoc = itemsSerializer.serialize( obj.items );
+			doc.set( "/items", itemsDoc );
+		}
+
+		static void deserialize( dnv::vista::sdk::LocationsDto& obj, const Document& doc )
+		{
+			if ( auto val = doc.get<std::string>( "/visVersion" ) )
+			{
+				obj.visVersion = *val;
+			}
+
+			if ( auto itemsDoc = doc.get<Document>( "/items" ) )
+			{
+				Serializer<std::vector<dnv::vista::sdk::RelativeLocationsDto>> itemsSerializer;
+				obj.items = itemsSerializer.deserialize( *itemsDoc );
+			}
+		}
+	};
+} // namespace nfx::serialization::json

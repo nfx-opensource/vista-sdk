@@ -22,18 +22,8 @@ namespace dnv::vista::sdk::transport
 	// Converting constructors
 	//-----------------------------
 
-	inline Value::Value( String string ) noexcept
-		: m_value{ std::move( string ) }
-	{
-	}
-
-	inline Value::Value( Char charValue ) noexcept
-		: m_value{ std::move( charValue ) }
-	{
-	}
-
-	inline Value::Value( Boolean boolean ) noexcept
-		: m_value{ std::move( boolean ) }
+	inline Value::Value( Decimal decimal ) noexcept
+		: m_value{ std::move( decimal ) }
 	{
 	}
 
@@ -42,23 +32,13 @@ namespace dnv::vista::sdk::transport
 	{
 	}
 
-	inline Value::Value( UnsignedInteger unsignedInteger ) noexcept
-		: m_value{ std::move( unsignedInteger ) }
+	inline Value::Value( Boolean boolean ) noexcept
+		: m_value{ std::move( boolean ) }
 	{
 	}
 
-	inline Value::Value( Long longValue ) noexcept
-		: m_value{ std::move( longValue ) }
-	{
-	}
-
-	inline Value::Value( Double doubleValue ) noexcept
-		: m_value{ std::move( doubleValue ) }
-	{
-	}
-
-	inline Value::Value( Decimal decimal ) noexcept
-		: m_value{ std::move( decimal ) }
+	inline Value::Value( String string ) noexcept
+		: m_value{ std::move( string ) }
 	{
 	}
 
@@ -71,41 +51,6 @@ namespace dnv::vista::sdk::transport
 	// Value type constructors
 	//----------------------------------------------
 
-	inline Value::String::String( std::string_view value ) noexcept
-		: m_value{ value }
-	{
-	}
-
-	inline Value::Char::Char( char value ) noexcept
-		: m_value{ value }
-	{
-	}
-
-	inline Value::Boolean::Boolean( bool value ) noexcept
-		: m_value{ value }
-	{
-	}
-
-	inline Value::Integer::Integer( int value ) noexcept
-		: m_value{ value }
-	{
-	}
-
-	inline Value::UnsignedInteger::UnsignedInteger( std::uint32_t value ) noexcept
-		: m_value{ value }
-	{
-	}
-
-	inline Value::Long::Long( std::int64_t value ) noexcept
-		: m_value{ value }
-	{
-	}
-
-	inline Value::Double::Double( double value ) noexcept
-		: m_value{ value }
-	{
-	}
-
 	inline Value::Decimal::Decimal( const nfx::datatypes::Decimal& value ) noexcept
 		: m_value{ value }
 	{
@@ -116,8 +61,38 @@ namespace dnv::vista::sdk::transport
 	{
 	}
 
+	inline Value::Integer::Integer( int value ) noexcept
+		: m_value{ value }
+	{
+	}
+
+	inline Value::Integer::Integer( int64_t value ) noexcept
+		: m_value{ value }
+	{
+	}
+
+	inline Value::Boolean::Boolean( bool value ) noexcept
+		: m_value{ value }
+	{
+	}
+
+	inline Value::String::String( std::string_view value ) noexcept
+		: m_value{ value }
+	{
+	}
+
+	inline Value::DateTime::DateTime( const nfx::time::DateTime& value ) noexcept
+		: m_value{ nfx::time::DateTimeOffset{ value, nfx::time::TimeSpan() } }
+	{
+	}
+
 	inline Value::DateTime::DateTime( const nfx::time::DateTimeOffset& value ) noexcept
 		: m_value{ value }
+	{
+	}
+
+	inline Value::DateTime::DateTime( std::string_view value )
+		: m_value{ nfx::time::DateTimeOffset{ value } }
 	{
 	}
 
@@ -125,19 +100,9 @@ namespace dnv::vista::sdk::transport
 	// Type checking
 	//----------------------------------------------
 
-	inline bool Value::isString() const noexcept
+	inline bool Value::isDecimal() const noexcept
 	{
-		return std::holds_alternative<String>( m_value );
-	}
-
-	inline bool Value::isChar() const noexcept
-	{
-		return std::holds_alternative<Char>( m_value );
-	}
-
-	inline bool Value::isBoolean() const noexcept
-	{
-		return std::holds_alternative<Boolean>( m_value );
+		return std::holds_alternative<Decimal>( m_value );
 	}
 
 	inline bool Value::isInteger() const noexcept
@@ -145,24 +110,14 @@ namespace dnv::vista::sdk::transport
 		return std::holds_alternative<Integer>( m_value );
 	}
 
-	inline bool Value::isUnsignedInteger() const noexcept
+	inline bool Value::isBoolean() const noexcept
 	{
-		return std::holds_alternative<UnsignedInteger>( m_value );
+		return std::holds_alternative<Boolean>( m_value );
 	}
 
-	inline bool Value::isLong() const noexcept
+	inline bool Value::isString() const noexcept
 	{
-		return std::holds_alternative<Long>( m_value );
-	}
-
-	inline bool Value::isDouble() const noexcept
-	{
-		return std::holds_alternative<Double>( m_value );
-	}
-
-	inline bool Value::isDecimal() const noexcept
-	{
-		return std::holds_alternative<Decimal>( m_value );
+		return std::holds_alternative<String>( m_value );
 	}
 
 	inline bool Value::isDateTime() const noexcept
@@ -174,12 +129,12 @@ namespace dnv::vista::sdk::transport
 	// Value access
 	//----------------------------------------------
 
-	inline const std::string& Value::String::value() const noexcept
+	inline const nfx::datatypes::Decimal& Value::Decimal::value() const noexcept
 	{
 		return m_value;
 	}
 
-	inline char Value::Char::value() const noexcept
+	inline int64_t Value::Integer::value() const noexcept
 	{
 		return m_value;
 	}
@@ -189,27 +144,7 @@ namespace dnv::vista::sdk::transport
 		return m_value;
 	}
 
-	inline int Value::Integer::value() const noexcept
-	{
-		return m_value;
-	}
-
-	inline std::uint32_t Value::UnsignedInteger::value() const noexcept
-	{
-		return m_value;
-	}
-
-	inline std::int64_t Value::Long::value() const noexcept
-	{
-		return m_value;
-	}
-
-	inline double Value::Double::value() const noexcept
-	{
-		return m_value;
-	}
-
-	inline const nfx::datatypes::Decimal& Value::Decimal::value() const noexcept
+	inline const std::string& Value::String::value() const noexcept
 	{
 		return m_value;
 	}
@@ -223,14 +158,9 @@ namespace dnv::vista::sdk::transport
 	// Value access
 	//----------------------------------------------
 
-	inline const Value::String& Value::string() const
+	inline const Value::Decimal& Value::decimal() const
 	{
-		return std::get<String>( m_value );
-	}
-
-	inline const Value::Char& Value::charValue() const
-	{
-		return std::get<Char>( m_value );
+		return std::get<Decimal>( m_value );
 	}
 
 	inline const Value::Boolean& Value::boolean() const
@@ -243,24 +173,9 @@ namespace dnv::vista::sdk::transport
 		return std::get<Integer>( m_value );
 	}
 
-	inline const Value::UnsignedInteger& Value::unsignedInteger() const
+	inline const Value::String& Value::string() const
 	{
-		return std::get<UnsignedInteger>( m_value );
-	}
-
-	inline const Value::Decimal& Value::decimal() const
-	{
-		return std::get<Decimal>( m_value );
-	}
-
-	inline const Value::Long& Value::longValue() const
-	{
-		return std::get<Long>( m_value );
-	}
-
-	inline const Value::Double& Value::doubleValue() const
-	{
-		return std::get<Double>( m_value );
+		return std::get<String>( m_value );
 	}
 
 	inline const Value::DateTime& Value::dateTime() const
@@ -531,14 +446,9 @@ namespace dnv::vista::sdk::transport
 
 		switch ( typedValue.type() )
 		{
-			case Value::Type::String:
+			case Value::Type::Decimal:
 			{
-				onString( typedValue.string().value() );
-				break;
-			}
-			case Value::Type::Boolean:
-			{
-				onBoolean( typedValue.boolean().value() );
+				onDecimal( typedValue.decimal().value() );
 				break;
 			}
 			case Value::Type::Integer:
@@ -546,9 +456,14 @@ namespace dnv::vista::sdk::transport
 				onInteger( typedValue.integer().value() );
 				break;
 			}
-			case Value::Type::Decimal:
+			case Value::Type::Boolean:
 			{
-				onDecimal( typedValue.decimal().value() );
+				onBoolean( typedValue.boolean().value() );
+				break;
+			}
+			case Value::Type::String:
+			{
+				onString( typedValue.string().value() );
 				break;
 			}
 			case Value::Type::DateTime:
@@ -556,10 +471,6 @@ namespace dnv::vista::sdk::transport
 				onDateTime( typedValue.dateTime().value() );
 				break;
 			}
-			case Value::Type::Char:
-			case Value::Type::UnsignedInteger:
-			case Value::Type::Long:
-			case Value::Type::Double:
 			default:
 			{
 				throw std::logic_error{ "Should never happen" };
@@ -582,10 +493,6 @@ namespace dnv::vista::sdk::transport
 
 		switch ( typedValue.type() )
 		{
-			case Value::Type::String:
-			{
-				return onString( typedValue.string().value() );
-			}
 			case Value::Type::Boolean:
 			{
 				return onBoolean( typedValue.boolean().value() );
@@ -598,18 +505,18 @@ namespace dnv::vista::sdk::transport
 			{
 				return onDecimal( typedValue.decimal().value() );
 			}
+			case Value::Type::String:
+			{
+				return onString( typedValue.string().value() );
+			}
 			case Value::Type::DateTime:
 			{
 				return onDateTime( typedValue.dateTime().value() );
 			}
-			case Value::Type::Char:
-			case Value::Type::UnsignedInteger:
-			case Value::Type::Long:
-			case Value::Type::Double:
 			default:
 			{
 				throw std::logic_error{ "Should never happen" };
 			}
 		}
 	}
-}
+} // namespace dnv::vista::sdk::transport

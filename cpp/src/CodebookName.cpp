@@ -306,4 +306,4 @@ namespace dnv::vista::sdk
 
 		return std::string{ result };
 	}
-}
+} // namespace dnv::vista::sdk

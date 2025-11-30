@@ -16,6 +16,7 @@
  * - Show paths: gmodprint --paths
  * - JSON format: gmodprint --json
  * - Filter leaf nodes only: gmodprint --leaf-only
+ * - .\Sample_Gmod_Tree.exe --paths --depth 10 --no-stats -o all_gmod_paths.txt
  */
 
 #include <algorithm>

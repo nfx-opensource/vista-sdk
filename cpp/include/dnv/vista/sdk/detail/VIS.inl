@@ -38,11 +38,11 @@ namespace dnv::vista::sdk
 
 	inline VisVersion VIS::latestVisVersion() const noexcept
 	{
-		return VisVersion::LATEST;
+		return VisVersion::Latest;
 	}
 
 	inline const std::vector<VisVersion>& VIS::visVersions() const noexcept
 	{
 		return VisVersionExtensions::allVersions();
 	}
-}
+} // namespace dnv::vista::sdk

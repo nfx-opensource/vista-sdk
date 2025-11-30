@@ -135,7 +135,7 @@ namespace dnv::vista::sdk::internal
 				throw std::invalid_argument{ "Source version must be earlier than target version" };
 			}
 		}
-	}
+	} // namespace
 
 	//=====================================================================
 	// GmodVersioning class
@@ -145,7 +145,7 @@ namespace dnv::vista::sdk::internal
 	// Construction
 	//----------------------------------------------
 
-	GmodVersioning::GmodVersioning( const nfx::containers::StringMap<GmodVersioningDto>& dto )
+	GmodVersioning::GmodVersioning( const nfx::containers::FastHashMap<std::string, GmodVersioningDto>& dto )
 	{
 		m_versioningsMap.reserve( dto.size() );
 
@@ -153,7 +153,7 @@ namespace dnv::vista::sdk::internal
 		{
 			VisVersion version = VisVersionExtensions::parse( versionStr );
 
-			m_versioningsMap.insertOrAssign( version, GmodVersioningNode( version, versioningDto.items() ) );
+			m_versioningsMap.insertOrAssign( version, GmodVersioningNode( version, versioningDto.items ) );
 		}
 	}
 
@@ -198,12 +198,10 @@ namespace dnv::vista::sdk::internal
 		VisVersion nextVersion = static_cast<VisVersion>( static_cast<std::uint16_t>( sourceVersion ) + 100 );
 		std::string_view nextCodeView = sourceNode.code();
 
-		auto& versioningsMapRef = const_cast<nfx::containers::HashMap<VisVersion, GmodVersioningNode>&>( m_versioningsMap );
-
 		while ( nextVersion <= targetVersion )
 		{
-			GmodVersioningNode* versioningNodePtr = nullptr;
-			if ( versioningsMapRef.tryGetValue( nextVersion, versioningNodePtr ) )
+			const GmodVersioningNode* versioningNodePtr = m_versioningsMap.find( nextVersion );
+			if ( versioningNodePtr != nullptr )
 			{
 				const GmodNodeConversion* change = nullptr;
 				if ( versioningNodePtr->tryGetCodeChanges( nextCodeView, change ) && change && change->target.has_value() )
@@ -563,4 +561,4 @@ namespace dnv::vista::sdk::internal
 				   ? std::make_optional( builder->build() )
 				   : std::nullopt;
 	}
-}
+} // namespace dnv::vista::sdk::internal

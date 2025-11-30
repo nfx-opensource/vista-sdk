@@ -5,7 +5,7 @@
 
 #include <variant>
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/StringBuilder.h>
 #include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/config/config.h"
@@ -24,22 +24,17 @@ namespace dnv::vista::sdk
 	// Construction
 	//----------------------------------------------
 
-	inline GmodPath::GmodPath()
-		: m_visVersion{ VisVersion::Unknown },
-		  m_parents{},
-		  m_node{ std::nullopt }
-	{
-	}
-
 	inline GmodPath::GmodPath( const GmodPath& other )
-		: m_visVersion{ other.m_visVersion },
+		: m_hashCode{ other.m_hashCode },
+		  m_visVersion{ other.m_visVersion },
 		  m_parents{ other.m_parents },
 		  m_node{ other.m_node }
 	{
 	}
 
 	inline GmodPath::GmodPath( GmodPath&& other ) noexcept
-		: m_visVersion{ other.m_visVersion },
+		: m_hashCode{ std::move( other.m_hashCode ) },
+		  m_visVersion{ other.m_visVersion },
 		  m_parents{ std::move( other.m_parents ) },
 		  m_node{ std::move( other.m_node ) }
 	{
@@ -57,6 +52,7 @@ namespace dnv::vista::sdk
 			return *this;
 		}
 
+		m_hashCode = other.m_hashCode;
 		m_visVersion = other.m_visVersion;
 		m_node = other.m_node;
 		m_parents = other.m_parents;
@@ -71,6 +67,7 @@ namespace dnv::vista::sdk
 			return *this;
 		}
 
+		m_hashCode = std::move( other.m_hashCode );
 		m_visVersion = other.m_visVersion;
 		m_node = std::move( other.m_node );
 		m_parents = std::move( other.m_parents );
@@ -220,9 +217,9 @@ namespace dnv::vista::sdk
 			}
 			if ( !first )
 			{
-				lease.builder().push_back( '/' );
+				lease.create().append( '/' );
 			}
-			lease.builder().append( parent.toString() );
+			lease.create().append( parent.toString() );
 			first = false;
 		}
 
@@ -230,9 +227,9 @@ namespace dnv::vista::sdk
 		{
 			if ( !first )
 			{
-				lease.builder().push_back( '/' );
+				lease.create().append( '/' );
 			}
-			lease.builder().append( m_node->toString() );
+			lease.create().append( m_node->toString() );
 		}
 
 		return lease.toString();
@@ -245,10 +242,10 @@ namespace dnv::vista::sdk
 		while ( enumerator.next() )
 		{
 			const auto& [depth, pathNode] = enumerator.current();
-			lease.builder().append( pathNode->toString() );
+			lease.create().append( pathNode->toString() );
 			if ( depth != ( length() - 1 ) )
 			{
-				lease.builder().push_back( '/' );
+				lease.create().append( '/' );
 			}
 		}
 
@@ -270,30 +267,30 @@ namespace dnv::vista::sdk
 
 			if ( depth != 1 )
 			{
-				lease.builder().append( " | " );
+				lease.create().append( " | " );
 			}
 
-			lease.builder().append( pathNode->code() );
+			lease.create().append( pathNode->code() );
 
 			const auto& name = pathNode->metadata().name();
 			if ( !nfx::string::isEmpty( name ) )
 			{
-				lease.builder().append( "/N:" );
-				lease.builder().append( name );
+				lease.create().append( "/N:" );
+				lease.create().append( name );
 			}
 
 			const auto& commonName = pathNode->metadata().commonName();
 			if ( commonName.has_value() && !nfx::string::isEmpty( *commonName ) )
 			{
-				lease.builder().append( "/CN:" );
-				lease.builder().append( *commonName );
+				lease.create().append( "/CN:" );
+				lease.create().append( *commonName );
 			}
 
 			auto normalAssignment = normalAssignmentName( depth );
 			if ( normalAssignment && !nfx::string::isEmpty( *normalAssignment ) )
 			{
-				lease.builder().append( "/NAN:" );
-				lease.builder().append( *normalAssignment );
+				lease.create().append( "/NAN:" );
+				lease.create().append( *normalAssignment );
 			}
 		}
 
@@ -311,7 +308,7 @@ namespace dnv::vista::sdk
 			}
 			if ( !first )
 			{
-				builder.push_back( separator );
+				builder.append( separator );
 			}
 			parent.toString( builder );
 			first = false;
@@ -321,7 +318,7 @@ namespace dnv::vista::sdk
 		{
 			if ( !first )
 			{
-				builder.push_back( separator );
+				builder.append( separator );
 			}
 			m_node->toString( builder );
 		}
@@ -336,7 +333,7 @@ namespace dnv::vista::sdk
 			pathNode->toString( builder );
 			if ( depth != ( length() - 1 ) )
 			{
-				builder.push_back( '/' );
+				builder.append( '/' );
 			}
 		}
 	}
@@ -384,6 +381,15 @@ namespace dnv::vista::sdk
 	}
 
 	//----------------------------------------------
+	// Hashing
+	//----------------------------------------------
+
+	inline std::size_t GmodPath::hashCode() const noexcept
+	{
+		return m_hashCode;
+	}
+
+	//----------------------------------------------
 	// Path enumeration methods
 	//----------------------------------------------
 
@@ -410,7 +416,7 @@ namespace dnv::vista::sdk
 	// Parsing methods
 	//----------------------------------------------
 
-	VISTA_SDK_CPP_INLINE GmodPath GmodPath::parse( std::string_view item, VisVersion visVersion )
+	inline GmodPath GmodPath::parse( std::string_view item, VisVersion visVersion )
 	{
 		std::optional<GmodPath> path{ std::nullopt };
 
@@ -422,7 +428,7 @@ namespace dnv::vista::sdk
 		return std::move( path.value() );
 	}
 
-	VISTA_SDK_CPP_INLINE bool GmodPath::tryParse(
+	inline bool GmodPath::tryParse(
 		std::string_view item, VisVersion visVersion,
 		std::optional<GmodPath>& outPath )
 	{
@@ -435,7 +441,7 @@ namespace dnv::vista::sdk
 		return tryParse( item, gmod, locations, outPath );
 	}
 
-	VISTA_SDK_CPP_INLINE bool GmodPath::tryParseFullPath(
+	inline bool GmodPath::tryParseFullPath(
 		std::string_view item, VisVersion visVersion,
 		std::optional<GmodPath>& outPath )
 	{
@@ -580,4 +586,4 @@ namespace dnv::vista::sdk
 	{
 		return std::get<Error>( result );
 	}
-}
+} // namespace dnv::vista::sdk

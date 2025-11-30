@@ -5,7 +5,7 @@
 
 #include <vector>
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/StringBuilder.h>
 
 #include "dnv/vista/sdk/Exceptions.h"
 
@@ -29,7 +29,7 @@ namespace dnv::vista::sdk
 			}
 
 			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
+			auto builder = lease.create();
 
 			builder << errors[0];
 			for ( size_t i = 1; i < errors.size(); ++i )
@@ -39,7 +39,7 @@ namespace dnv::vista::sdk
 
 			return lease.toString();
 		}
-	}
+	} // namespace internal
 
 	//=====================================================================
 	// Base Vista exception
@@ -63,4 +63,4 @@ namespace dnv::vista::sdk
 		: VistaException{ "Validation failed - Message='[" + internal::joinErrors( result.errors() ) + "]'" }
 	{
 	}
-}
+} // namespace dnv::vista::sdk

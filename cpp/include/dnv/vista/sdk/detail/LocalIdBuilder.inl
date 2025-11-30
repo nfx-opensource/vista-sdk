@@ -5,7 +5,7 @@
 
 #include <vector>
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/StringBuilder.h>
 
 #include "dnv/vista/sdk/transport/ISO19848Constants.h"
 #include "dnv/vista/sdk/CodebookName.h"
@@ -24,6 +24,7 @@ namespace dnv::vista::sdk
 	{
 		if ( this != &other )
 		{
+			m_hashCode = std::move( other.m_hashCode );
 			m_visVersion = std::move( other.m_visVersion );
 			m_verboseMode = other.m_verboseMode;
 			m_items = std::move( other.m_items );
@@ -260,10 +261,19 @@ namespace dnv::vista::sdk
 	{
 		// LocalId format: /dnv-v2/vis-{version}/{primary-item}[/sec/{secondary-item}][~{description}]/meta/{metadata-tags}
 		auto lease = nfx::string::StringBuilderPool::lease();
-		auto builder = lease.builder();
+		auto builder = lease.create();
 
 		toString( builder );
 
 		return lease.toString();
 	}
-}
+
+	//----------------------------------------------
+	// Hashing
+	//----------------------------------------------
+
+	inline std::size_t LocalIdBuilder::hashCode() const noexcept
+	{
+		return m_hashCode;
+	}
+} // namespace dnv::vista::sdk

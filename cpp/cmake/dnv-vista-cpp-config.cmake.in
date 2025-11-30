@@ -1,0 +1,22 @@
+#==============================================================================
+# VISTA-SDK-CPP CMake Package Configuration
+#==============================================================================
+
+@PACKAGE_INIT@
+
+# Version information
+set(vista-sdk-cpp_VERSION_MAJOR @VISTA_SDK_CPP_VERSION_MAJOR@)
+set(vista-sdk-cpp_VERSION_MINOR @VISTA_SDK_CPP_VERSION_MINOR@)
+set(vista-sdk-cpp_VERSION_PATCH @VISTA_SDK_CPP_VERSION_PATCH@)
+set(vista-sdk-cpp_VERSION       @VISTA_SDK_CPP_VERSION@)
+
+include(CMakeFindDependencyMacro)
+
+# Find required dependencies
+find_dependency(nfx-meta REQUIRED)
+find_dependency(nfx-datetime-static REQUIRED)
+
+# Include the targets file
+include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")
+
+check_required_components(@PROJECT_NAME@)

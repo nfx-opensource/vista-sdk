@@ -135,4 +135,4 @@ namespace dnv::vista::sdk
 
 		virtual ~ValidationException() override = default;
 	};
-}
+} // namespace dnv::vista::sdk

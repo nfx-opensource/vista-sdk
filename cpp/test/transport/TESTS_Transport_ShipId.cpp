@@ -1,5 +1,5 @@
 /**
- * @file TESTS_ShipId.cpp
+ * @file TESTS_Transport_ShipId.cpp
  * @brief Comprehensive tests for ShipId class
  */
 
@@ -274,4 +274,4 @@ namespace dnv::vista::sdk::tests
 		ASSERT_TRUE( otherId.has_value() );
 		EXPECT_EQ( otherId.value(), "ABC123" );
 	}
-}
+} // namespace dnv::vista::sdk::tests

@@ -3,7 +3,8 @@
  * @brief Implements the Locations, Location, RelativeLocation, and related helper classes.
  */
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/Hashing.h>
+#include <nfx/string/StringBuilder.h>
 #include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/Locations.h"
@@ -12,6 +13,7 @@
 #include "internal/dto/LocationsDto.h"
 #include "internal/parsing/LocationCharDict.h"
 #include "internal/parsing/LocationParsingErrorBuilder.h"
+#include "dnv/vista/sdk/config/config.h"
 #include "dnv/vista/sdk/ParsingErrors.h"
 #include "dnv/vista/sdk/VISVersion.h"
 
@@ -105,7 +107,7 @@ namespace dnv::vista::sdk
 					if ( prevDigitIndex != -1 && prevDigitIndex != static_cast<int>( i ) - 1 )
 					{
 						auto lease = nfx::string::StringBuilderPool::lease();
-						auto builder = lease.builder();
+						auto builder = lease.create();
 						builder.append( "Invalid location: cannot have multiple separated digits in location: '" );
 						builder.append( displayString() );
 						builder.append( "'" );
@@ -118,7 +120,7 @@ namespace dnv::vista::sdk
 					if ( charsStartIndex != -1 )
 					{
 						auto lease = nfx::string::StringBuilderPool::lease();
-						auto builder = lease.builder();
+						auto builder = lease.create();
 						builder.append( "Invalid location: numeric location should start before location code(s) in location: '" );
 						builder.append( displayString() );
 						builder.append( "'" );
@@ -150,7 +152,7 @@ namespace dnv::vista::sdk
 				if ( !valid )
 				{
 					auto lease = nfx::string::StringBuilderPool::lease();
-					auto builder = lease.builder();
+					auto builder = lease.create();
 					const std::string& source = displayString();
 					bool first = true;
 
@@ -171,7 +173,7 @@ namespace dnv::vista::sdk
 					}
 
 					auto errorLease = nfx::string::StringBuilderPool::lease();
-					auto errorMsgBuilder = errorLease.builder();
+					auto errorMsgBuilder = errorLease.create();
 					errorMsgBuilder.append( "Invalid location code: '" );
 					errorMsgBuilder.append( displayString() );
 					errorMsgBuilder.append( "' with invalid location code(s): " );
@@ -191,7 +193,7 @@ namespace dnv::vista::sdk
 					{
 						const std::string_view groupName = groupNameToString( group );
 						auto lease = nfx::string::StringBuilderPool::lease();
-						auto builder = lease.builder();
+						auto builder = lease.create();
 						builder.append( "Invalid location: Multiple '" );
 						builder.append( groupName );
 						builder.append( "' values. Got both '" );
@@ -214,7 +216,7 @@ namespace dnv::vista::sdk
 					if ( !nfx::string::isDigit( prevCh ) && ch < prevCh )
 					{
 						auto lease = nfx::string::StringBuilderPool::lease();
-						auto builder = lease.builder();
+						auto builder = lease.create();
 						builder.append( "Invalid location: '" );
 						builder.append( displayString() );
 						builder.append( "' not alphabetically sorted" );
@@ -234,7 +236,7 @@ namespace dnv::vista::sdk
 
 			return true;
 		}
-	}
+	} // namespace internal::locations
 
 	//=====================================================================
 	// Location Class
@@ -245,7 +247,11 @@ namespace dnv::vista::sdk
 	//----------------------------------------------
 
 	Location::Location( std::string_view value )
-		: m_value{ value } {}
+		: m_hashCode{ static_cast<std::size_t>(
+			  nfx::hashing::hash<std::string_view, uint32_t, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS>( value ) ) },
+		  m_value{ value }
+	{
+	}
 
 	//=====================================================================
 	// RelativeLocation Class
@@ -267,19 +273,19 @@ namespace dnv::vista::sdk
 	Locations::Locations( VisVersion version, const LocationsDto& dto )
 		: m_visVersion{ version }
 	{
-		m_locationCodes.reserve( dto.items().size() );
-		for ( const auto& item : dto.items() )
+		m_locationCodes.reserve( dto.items.size() );
+		for ( const auto& item : dto.items )
 		{
-			m_locationCodes.emplace( item.code() );
+			m_locationCodes.emplace( item.code );
 		}
 
-		m_relativeLocations.reserve( dto.items().size() );
-		for ( const auto& relLocDto : dto.items() )
+		m_relativeLocations.reserve( dto.items.size() );
+		for ( const auto& relLocDto : dto.items )
 		{
-			auto code = relLocDto.code();
+			auto code = relLocDto.code;
 			Location loc{ std::string{ 1, code } };
 
-			m_relativeLocations.push_back( RelativeLocation{ code, relLocDto.name(), loc, relLocDto.definition() } );
+			m_relativeLocations.push_back( RelativeLocation{ code, relLocDto.name, loc, relLocDto.definition } );
 
 			if ( code == internal::locations::CHAR_HORIZONTAL ||
 				 code == internal::locations::CHAR_VERTICAL )
@@ -317,7 +323,7 @@ namespace dnv::vista::sdk
 			else
 			{
 				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
+				auto builder = lease.create();
 				builder.append( "Unsupported code: " );
 				builder.append( std::string_view{ &code, 1 } );
 
@@ -335,7 +341,7 @@ namespace dnv::vista::sdk
 			}
 
 			m_reversedGroups[code] = key;
-			m_groups[key].push_back( RelativeLocation{ code, relLocDto.name(), loc, relLocDto.definition() } );
+			m_groups[key].push_back( RelativeLocation{ code, relLocDto.name, loc, relLocDto.definition } );
 		}
 	}
 
@@ -373,38 +379,13 @@ namespace dnv::vista::sdk
 		if ( !tryParse( locationStr, location ) )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
+			auto builder = lease.create();
 			builder.append( "Invalid location: " );
 			builder.append( locationStr );
 			throw std::invalid_argument{ lease.toString() };
 		}
 
 		return location;
-	}
-
-	bool Locations::tryParse( const std::string& value, Location& location ) const
-	{
-		return tryParse( std::string_view( value ), location );
-	}
-
-	bool Locations::tryParse( const std::optional<std::string>& value, Location& location ) const
-	{
-		if ( !value.has_value() )
-		{
-			return false;
-		}
-
-		internal::LocationParsingErrorBuilder errorBuilder;
-		std::string parsedLocationString;
-
-		if ( !internal::locations::tryParse( m_locationCodes, m_reversedGroups, value.value(), value, parsedLocationString, errorBuilder ) )
-		{
-			return false;
-		}
-
-		location = Location{ parsedLocationString };
-
-		return true;
 	}
 
 	bool Locations::tryParse( const std::optional<std::string>& value, Location& location, ParsingErrors& errors ) const
@@ -452,19 +433,17 @@ namespace dnv::vista::sdk
 
 	bool Locations::tryParse( std::string_view value, Location& location, ParsingErrors& errors ) const
 	{
-		internal::LocationParsingErrorBuilder errorBuilder;
+		internal::LocationParsingErrorBuilder errorBuilder = internal::LocationParsingErrorBuilder::create();
 		std::string parsedLocationString;
 
 		bool result = internal::locations::tryParse( m_locationCodes, m_reversedGroups, value, std::nullopt, parsedLocationString, errorBuilder );
-		if ( !result )
-		{
-			errors = errorBuilder.build();
-		}
-		else
+		errors = errorBuilder.build();
+
+		if ( result )
 		{
 			location = Location{ parsedLocationString };
 		}
 
 		return result;
 	}
-}
+} // namespace dnv::vista::sdk

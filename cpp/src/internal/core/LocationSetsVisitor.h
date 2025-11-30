@@ -155,4 +155,4 @@ namespace dnv::vista::sdk::internal
 	private:
 		size_t m_currentParentStart;
 	};
-}
+} // namespace dnv::vista::sdk::internal

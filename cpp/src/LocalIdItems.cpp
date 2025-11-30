@@ -8,7 +8,7 @@
 #include <string>
 #include <string_view>
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/StringBuilder.h>
 #include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/LocalIdItems.h"
@@ -55,17 +55,17 @@ namespace dnv::vista::sdk
 					continue;
 				}
 
-				builder.push_back( current );
+				builder.append( current );
 				prev = current;
 			}
 
 			if ( location.has_value() && !nfx::string::isEmpty( *location ) )
 			{
-				builder.push_back( '.' );
+				builder.append( '.' );
 				builder.append( *location );
 			}
 		}
-	}
+	} // namespace internal
 
 	//=====================================================================
 	// LocalIdItems class
@@ -87,15 +87,15 @@ namespace dnv::vista::sdk
 		if ( m_primaryItem )
 		{
 			m_primaryItem->toString( builder );
-			builder.push_back( '/' );
+			builder.append( '/' );
 		}
 
 		if ( m_secondaryItem )
 		{
 			builder.append( internal::localId::PREFIX_SEC );
-			builder.push_back( '/' );
+			builder.append( '/' );
 			m_secondaryItem->toString( builder );
-			builder.push_back( '/' );
+			builder.append( '/' );
 		}
 
 		if ( verboseMode )
@@ -104,7 +104,7 @@ namespace dnv::vista::sdk
 			{
 				for ( const auto& [depth, name] : m_primaryItem->commonNames() )
 				{
-					builder.push_back( '~' );
+					builder.append( '~' );
 					const GmodNode& nodeRef = ( *m_primaryItem )[depth];
 					if ( nodeRef.location().has_value() )
 					{
@@ -115,7 +115,7 @@ namespace dnv::vista::sdk
 					{
 						internal::appendCommonName( builder, name, std::nullopt );
 					}
-					builder.push_back( '/' );
+					builder.append( '/' );
 				}
 			}
 
@@ -144,9 +144,9 @@ namespace dnv::vista::sdk
 					{
 						internal::appendCommonName( builder, name, std::nullopt );
 					}
-					builder.push_back( '/' );
+					builder.append( '/' );
 				}
 			}
 		}
 	}
-}
+} // namespace dnv::vista::sdk

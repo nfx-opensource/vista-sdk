@@ -74,6 +74,6 @@ namespace dnv::vista::sdk::benchmarks
 	//=====================================================================
 
 	BENCHMARK_REGISTER_F( GmodVersioningConvertPathFixture, ConvertPath )->MinTime( 10.0 )->Unit( benchmark::kMicrosecond );
-}
+} // namespace dnv::vista::sdk::benchmarks
 
 BENCHMARK_MAIN();

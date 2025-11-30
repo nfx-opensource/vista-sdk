@@ -3,6 +3,15 @@
 #==============================================================================
 
 #----------------------------------------------
+# User override options
+#----------------------------------------------
+
+if(VISTA_SDK_CPP_USE_CUSTOM_COMPILER_FLAGS)
+	message(STATUS "Using custom compiler flags - skipping automatic configuration")
+	return()
+endif()
+
+#----------------------------------------------
 # Target collection
 #----------------------------------------------
 
@@ -43,7 +52,10 @@ foreach(target_name ${TARGETS_TO_CONFIGURE})
 		$<$<CXX_COMPILER_ID:MSVC>:/Zc:preprocessor>                        # Conforming preprocessor
 		$<$<CXX_COMPILER_ID:MSVC>:/external:anglebrackets>                 # Treat angle bracket includes as external
 		$<$<CXX_COMPILER_ID:MSVC>:/external:W0>                            # No warnings for external headers
-		$<$<CXX_COMPILER_ID:MSVC>:/arch:AVX2>                              # Enable AVX2 (covers AVX, SSE4.2, etc.)
+
+		# --- CPU Architecture Support ---
+		$<$<AND:$<CXX_COMPILER_ID:MSVC>,$<BOOL:${VISTA_SDK_CPP_ENABLE_AVX2}>>:/arch:AVX2>        # AVX2 if supported
+		$<$<AND:$<CXX_COMPILER_ID:MSVC>,$<NOT:$<BOOL:${VISTA_SDK_CPP_ENABLE_AVX2}>>>:/arch:SSE2> # SSE2 fallback
 
 		# --- Code Analysis ---
 		$<$<CXX_COMPILER_ID:MSVC>:/analyze:WX->                            # Static analysis warnings not as errors
@@ -92,8 +104,10 @@ foreach(target_name ${TARGETS_TO_CONFIGURE})
 		$<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-Wpedantic>   # Pedantic warnings
 		$<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-msse4.2>     # SSE4.2 support
 		$<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-mavx>        # AVX support
-		$<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-mavx2>       # AVX2 support
-		$<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-mfma>        # Fused multiply-add
+
+		# --- Conditional advanced instruction sets ---
+		$<$<AND:$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>,$<BOOL:${VISTA_SDK_CPP_ENABLE_AVX2}>>:-mavx2>  # AVX2 if supported
+		$<$<AND:$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>,$<BOOL:${VISTA_SDK_CPP_ENABLE_AVX2}>>:-mfma>   # FMA if AVX2 supported
 
 		# --- GCC-specific Settings ---
 		$<$<CXX_COMPILER_ID:GNU>:-fdiagnostics-color=always>                  # Colored diagnostics

@@ -157,7 +157,7 @@ namespace dnv::vista::sdk::tests
 
 		TEST_F( GmodTests, Test_Full_Traversal )
 		{
-			auto visVersionForPath = VisVersion::LATEST;
+			auto visVersionForPath = VisVersion::Latest;
 			auto [vis, gmod] = visAndGmod( visVersionForPath );
 
 			struct FullTraversalState
@@ -316,7 +316,7 @@ namespace dnv::vista::sdk::tests
 
 			EXPECT_TRUE( completed );
 		}
-	}
+	} // namespace GmodTestsFixture
 
 	namespace GmodTestsParametrized
 	{
@@ -560,5 +560,5 @@ namespace dnv::vista::sdk::tests
 				MappabilityTestData{ "924.2", true }, MappabilityTestData{ "411.1", false }, MappabilityTestData{ "C101", true },
 				MappabilityTestData{ "CS1", false }, MappabilityTestData{ "C101.663", true }, MappabilityTestData{ "C101.4", true },
 				MappabilityTestData{ "C101.21s", false }, MappabilityTestData{ "F201.11", true }, MappabilityTestData{ "C101.211", false } ) );
-	}
-}
+	} // namespace GmodTestsParametrized
+} // namespace dnv::vista::sdk::tests

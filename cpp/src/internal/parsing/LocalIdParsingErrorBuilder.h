@@ -172,4 +172,4 @@ namespace dnv::vista::sdk::internal
 		 */
 		std::vector<std::pair<LocalIdParsingState, std::string>> m_errors;
 	};
-}
+} // namespace dnv::vista::sdk::internal

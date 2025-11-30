@@ -5,6 +5,8 @@
 
 #include <gtest/gtest.h>
 
+#include <nfx/serialization/json/Document.h>
+
 #include "TestDataLoader.h"
 
 #include <dnv/vista/sdk/Gmod.h>
@@ -17,11 +19,7 @@ namespace dnv::vista::sdk::tests
 	{
 		constexpr const char* GMOD_PATH_TEST_DATA_FILE = "GmodPaths.json";
 		constexpr const char* INDIVIDUALIZABLE_SETS_TEST_DATA_FILE = "IndividualizableSets.json";
-	}
-
-	namespace GmodTestsFixture
-	{
-	}
+	} // namespace
 
 	namespace GmodPathTestsParametrized
 	{
@@ -42,19 +40,31 @@ namespace dnv::vista::sdk::tests
 		static std::vector<GmodPathParseValidParam> loadValidGmodPathData()
 		{
 			std::vector<GmodPathParseValidParam> params;
-			const nlohmann::json& jsonData = test::loadTestData( GMOD_PATH_TEST_DATA_FILE );
+			const nfx::serialization::json::Document& jsonData = test::loadTestData( GMOD_PATH_TEST_DATA_FILE );
 			const std::string dataKey = "Valid";
 
-			if ( jsonData.contains( dataKey ) && jsonData[dataKey].is_array() )
+			if ( jsonData.is<nfx::serialization::json::Document::Array>( "/" + dataKey ) )
 			{
-				for ( const auto& item : jsonData[dataKey] )
+				auto validDoc = jsonData.get<nfx::serialization::json::Document>( "/" + dataKey );
+				if ( !validDoc )
 				{
-					if ( item.is_object() && item.contains( "visVersion" ) && item["visVersion"].is_string() && item.contains( "path" ) &&
-						 item["path"].is_string() )
+					return params;
+				}
+
+				auto arrayOpt = validDoc->get<nfx::serialization::json::Document::Array>( "" );
+				if ( !arrayOpt )
+				{
+					return params;
+				}
+
+				for ( const auto& elem : arrayOpt.value() )
+				{
+					auto visVersionOpt = elem.get<std::string>( "/visVersion" );
+					auto pathOpt = elem.get<std::string>( "/path" );
+
+					if ( visVersionOpt && pathOpt )
 					{
-						std::string visVersionStr = item["visVersion"].get<std::string>();
-						std::string pathStr = item["path"].get<std::string>();
-						params.push_back( { visVersionStr, pathStr } );
+						params.push_back( { visVersionOpt.value(), pathOpt.value() } );
 					}
 				}
 			}
@@ -74,22 +84,35 @@ namespace dnv::vista::sdk::tests
 		static std::vector<GmodPathParseInvalidParam> loadInvalidGmodPathData()
 		{
 			std::vector<GmodPathParseInvalidParam> params;
-			const nlohmann::json& jsonData = test::loadTestData( GMOD_PATH_TEST_DATA_FILE );
+			const nfx::serialization::json::Document& jsonData = test::loadTestData( GMOD_PATH_TEST_DATA_FILE );
 			const std::string dataKey = "Invalid";
 
-			if ( jsonData.contains( dataKey ) && jsonData[dataKey].is_array() )
+			if ( jsonData.is<nfx::serialization::json::Document::Array>( "/" + dataKey ) )
 			{
-				for ( const auto& item : jsonData[dataKey] )
+				auto invalidDoc = jsonData.get<nfx::serialization::json::Document>( "/" + dataKey );
+				if ( !invalidDoc )
 				{
-					if ( item.is_object() && item.contains( "visVersion" ) && item["visVersion"].is_string() && item.contains( "path" ) &&
-						 item["path"].is_string() )
+					return params;
+				}
+
+				auto arrayOpt = invalidDoc->get<nfx::serialization::json::Document::Array>( "" );
+				if ( !arrayOpt )
+				{
+					return params;
+				}
+
+				for ( const auto& elem : arrayOpt.value() )
+				{
+					auto visVersionOpt = elem.get<std::string>( "/visVersion" );
+					auto pathOpt = elem.get<std::string>( "/path" );
+
+					if ( visVersionOpt && pathOpt )
 					{
-						std::string visVersionStr = item["visVersion"].get<std::string>();
-						std::string pathStr = item["path"].get<std::string>();
-						params.push_back( { visVersionStr, pathStr } );
+						params.push_back( { visVersionOpt.value(), pathOpt.value() } );
 					}
 				}
 			}
+
 			return params;
 		}
 
@@ -105,52 +128,76 @@ namespace dnv::vista::sdk::tests
 			std::optional<std::vector<std::vector<std::string>>> expected;
 		};
 
-		static std::vector<IndividualizableSetsTestData> LoadIndividualizableSetsData()
+		static std::vector<IndividualizableSetsTestData> loadIndividualizableSetsData()
 		{
 			std::vector<IndividualizableSetsTestData> params;
-			const nlohmann::json& jsonData = test::loadTestData( INDIVIDUALIZABLE_SETS_TEST_DATA_FILE );
+			const nfx::serialization::json::Document& jsonData = test::loadTestData( INDIVIDUALIZABLE_SETS_TEST_DATA_FILE );
 
-			if ( jsonData.is_array() )
+			if ( jsonData.is<nfx::serialization::json::Document::Array>( "" ) )
 			{
-				for ( const auto& item : jsonData )
+				auto arrayOpt = jsonData.get<nfx::serialization::json::Document::Array>( "" );
+				if ( !arrayOpt )
 				{
-					if ( item.is_object() && item.contains( "isFullPath" ) && item["isFullPath"].is_boolean() && item.contains( "visVersion" ) &&
-						 item["visVersion"].is_string() && item.contains( "path" ) && item["path"].is_string() && item.contains( "expected" ) )
+					return params;
+				}
+
+				for ( const auto& item : arrayOpt.value() )
+				{
+					auto isFullPathOpt = item.get<bool>( "/isFullPath" );
+					auto visVersionOpt = item.get<std::string>( "/visVersion" );
+					auto pathOpt = item.get<std::string>( "/path" );
+
+					if ( isFullPathOpt && visVersionOpt && pathOpt )
 					{
-						bool isFullPath = item["isFullPath"].get<bool>();
-						std::string visVersionStr = item["visVersion"].get<std::string>();
-						std::string pathStr = item["path"].get<std::string>();
+						bool isFullPath = isFullPathOpt.value();
+						std::string visVersionStr = visVersionOpt.value();
+						std::string pathStr = pathOpt.value();
 						std::optional<std::vector<std::vector<std::string>>> expectedSetsOpt;
 
-						const auto& expectedJson = item["expected"];
-						if ( expectedJson.is_null() )
+						// Check if expected is null
+						auto expectedDoc = item.get<nfx::serialization::json::Document>( "/expected" );
+						if ( !expectedDoc )
 						{
+							// Null case
 							expectedSetsOpt = std::nullopt;
 						}
-						else if ( expectedJson.is_array() )
+						else if ( expectedDoc.value().is<nfx::serialization::json::Document::Array>( "" ) )
 						{
+							// Array case - nested arrays
 							std::vector<std::vector<std::string>> outerVector;
-							for ( const auto& innerJsonArray : expectedJson )
+
+							auto outerArrayOpt = expectedDoc->get<nfx::serialization::json::Document::Array>( "" );
+							if ( outerArrayOpt )
 							{
-								if ( innerJsonArray.is_array() )
+								for ( const auto& innerArrayDoc : outerArrayOpt.value() )
 								{
-									std::vector<std::string> innerVector;
-									for ( const auto& elementJson : innerJsonArray )
+									if ( innerArrayDoc.is<nfx::serialization::json::Document::Array>( "" ) )
 									{
-										if ( elementJson.is_string() )
+										std::vector<std::string> innerVector;
+
+										auto innerArrayOpt = innerArrayDoc.get<nfx::serialization::json::Document::Array>( "" );
+										if ( innerArrayOpt )
 										{
-											innerVector.push_back( elementJson.get<std::string>() );
+											for ( const auto& strElem : innerArrayOpt.value() )
+											{
+												if ( auto str = strElem.get<std::string>( "" ) )
+												{
+													innerVector.push_back( *str );
+												}
+											}
 										}
+										outerVector.push_back( innerVector );
 									}
-									outerVector.push_back( innerVector );
 								}
 							}
 							expectedSetsOpt = outerVector;
 						}
+
 						params.push_back( { isFullPath, visVersionStr, pathStr, expectedSetsOpt } );
 					}
 				}
 			}
+
 			return params;
 		}
 
@@ -328,7 +375,7 @@ namespace dnv::vista::sdk::tests
 		}
 
 		INSTANTIATE_TEST_SUITE_P(
-			GmodPathIndividualizableSetsTestSuite, GmodPathIndividualizableSetsTest, ::testing::ValuesIn( LoadIndividualizableSetsData() ) );
+			GmodPathIndividualizableSetsTestSuite, GmodPathIndividualizableSetsTest, ::testing::ValuesIn( loadIndividualizableSetsData() ) );
 
 		//----------------------------------------------
 		// Test_IndividualizableSets_FullPath
@@ -387,7 +434,7 @@ namespace dnv::vista::sdk::tests
 		}
 
 		INSTANTIATE_TEST_SUITE_P(
-			GmodPathIndividualizableSetsFullPathTestSuite, GmodPathIndividualizableSetsFullPathTest, ::testing::ValuesIn( LoadIndividualizableSetsData() ) );
+			GmodPathIndividualizableSetsFullPathTestSuite, GmodPathIndividualizableSetsFullPathTest, ::testing::ValuesIn( loadIndividualizableSetsData() ) );
 
 		//----------------------------------------------
 		// Test_Valid_GmodPath_IndividualizableSets
@@ -466,7 +513,7 @@ namespace dnv::vista::sdk::tests
 
 		INSTANTIATE_TEST_SUITE_P(
 			GmodPathValidIndividualizableSetsFullPathSuite, GmodPathValidIndividualizableSetsFullPathTest, ::testing::ValuesIn( loadValidGmodPathData() ) );
-	}
+	} // namespace GmodPathTestsParametrized
 
 	namespace Tests
 	{
@@ -612,5 +659,5 @@ namespace dnv::vista::sdk::tests
 			path = gmod.parsePath( "846/G203.32-2/S110.2-1/E31" );
 			ASSERT_EQ( "VE/800a/840/846/G203/G203.3-2/G203.32-2/S110/S110.2-1/CS1/E31", path.toFullPathString() );
 		}
-	}
-}
+	} // namespace Tests
+} // namespace dnv::vista::sdk::tests

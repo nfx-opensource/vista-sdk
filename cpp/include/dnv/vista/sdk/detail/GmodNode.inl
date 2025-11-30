@@ -3,7 +3,7 @@
  * @brief Inline implementations for performance-critical GmodNode operations
  */
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/StringBuilder.h>
 #include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/config/config.h"
@@ -26,7 +26,7 @@ namespace dnv::vista::sdk
 		const std::optional<std::string>& definition,
 		const std::optional<std::string>& commonDefinition,
 		const std::optional<bool>& installSubstructure,
-		const nfx::containers::StringMap<std::string>& normalAssignmentNames ) noexcept
+		const nfx::containers::FastHashMap<std::string, std::string>& normalAssignmentNames ) noexcept
 		: m_category{ category },
 		  m_type{ type },
 		  m_name{ name },
@@ -141,7 +141,7 @@ namespace dnv::vista::sdk
 		return m_installSubstructure;
 	}
 
-	inline const nfx::containers::StringMap<std::string>& GmodNodeMetadata::normalAssignmentNames() const noexcept
+	inline const nfx::containers::FastHashMap<std::string, std::string>& GmodNodeMetadata::normalAssignmentNames() const noexcept
 	{
 		return m_normalAssignmentNames;
 	}
@@ -151,7 +151,8 @@ namespace dnv::vista::sdk
 	//=====================================================================
 
 	inline GmodNode::GmodNode( const GmodNode& other ) noexcept
-		: m_code{ other.m_code },
+		: m_hashCode{ other.m_hashCode },
+		  m_code{ other.m_code },
 		  m_location{ other.m_location },
 		  m_visVersion{ other.m_visVersion },
 		  m_metadata{ other.m_metadata },
@@ -162,7 +163,8 @@ namespace dnv::vista::sdk
 	}
 
 	inline GmodNode::GmodNode( GmodNode&& other ) noexcept
-		: m_code{ std::move( other.m_code ) },
+		: m_hashCode{ std::move( other.m_hashCode ) },
+		  m_code{ std::move( other.m_code ) },
 		  m_location{ std::move( other.m_location ) },
 		  m_visVersion{ other.m_visVersion },
 		  m_metadata{ std::move( other.m_metadata ) },
@@ -183,6 +185,7 @@ namespace dnv::vista::sdk
 			return *this;
 		}
 
+		m_hashCode = other.m_hashCode;
 		m_code = other.m_code;
 		m_location = other.m_location;
 		m_visVersion = other.m_visVersion;
@@ -201,6 +204,7 @@ namespace dnv::vista::sdk
 			return *this;
 		}
 
+		m_hashCode = std::move( other.m_hashCode );
 		m_code = std::move( other.m_code );
 		m_location = std::move( other.m_location );
 		m_visVersion = other.m_visVersion;
@@ -218,7 +222,7 @@ namespace dnv::vista::sdk
 
 	inline bool GmodNode::operator==( const GmodNode& other ) const
 	{
-		if ( !nfx::string::equals( m_code, other.m_code ) )
+		if ( !nfx::string::equals( m_code.code, other.m_code.code ) )
 		{
 			return false;
 		}
@@ -247,7 +251,7 @@ namespace dnv::vista::sdk
 
 	inline const std::string& GmodNode::code() const noexcept
 	{
-		return m_code;
+		return m_code.code;
 	}
 
 	inline const std::optional<Location>& GmodNode::location() const noexcept
@@ -285,7 +289,7 @@ namespace dnv::vista::sdk
 
 	inline bool GmodNode::isRoot() const noexcept
 	{
-		return nfx::string::equals( m_code, "VE" );
+		return nfx::string::equals( m_code.code, "VE" );
 	}
 
 	//----------------------------------------------
@@ -294,7 +298,7 @@ namespace dnv::vista::sdk
 
 	inline bool GmodNode::isChild( const GmodNode& node ) const noexcept
 	{
-		return isChild( node.m_code );
+		return isChild( node.m_code.code );
 	}
 
 	inline bool GmodNode::isChild( std::string_view code ) const noexcept
@@ -309,11 +313,11 @@ namespace dnv::vista::sdk
 	inline std::string GmodNode::toString() const noexcept
 	{
 		auto lease = nfx::string::StringBuilderPool::lease();
-		lease.builder().append( m_code );
+		lease.create().append( m_code.code );
 		if ( m_location.has_value() )
 		{
-			lease.builder().push_back( '-' );
-			lease.builder().append( m_location->toString() );
+			lease.create().append( '-' );
+			lease.create().append( m_location->toString() );
 		}
 
 		return lease.toString();
@@ -321,12 +325,21 @@ namespace dnv::vista::sdk
 
 	inline void GmodNode::toString( nfx::string::StringBuilder& builder ) const noexcept
 	{
-		builder.append( m_code );
+		builder.append( m_code.code );
 		if ( m_location.has_value() )
 		{
-			builder.push_back( '-' );
+			builder.append( '-' );
 			builder.append( m_location->toString() );
 		}
+	}
+
+	//----------------------------------------------
+	// Hashing
+	//----------------------------------------------
+
+	inline std::size_t GmodNode::hashCode() const noexcept
+	{
+		return m_hashCode;
 	}
 
 	//----------------------------------------------
@@ -341,13 +354,13 @@ namespace dnv::vista::sdk
 		}
 
 		auto childCode = child->code();
-		if ( m_childrenSet->contains( childCode ) )
+		if ( m_childrenSet->find( childCode ) != nullptr )
 		{
 			return;
 		}
 
 		m_children->push_back( child );
-		m_childrenSet->emplace( childCode );
+		m_childrenSet->insert( childCode );
 	}
 
 	inline void GmodNode::addParent( GmodNode* parent ) noexcept
@@ -372,20 +385,8 @@ namespace dnv::vista::sdk
 
 			for ( const auto* child : *m_children )
 			{
-				m_childrenSet->emplace( child->code() );
+				m_childrenSet->insert( child->code() );
 			}
 		}
 	}
-
-	//----------------------------------------------
-	// Node location methods
-	//----------------------------------------------
-
-	inline GmodNode GmodNode::withLocation( const Location& location ) const
-	{
-		GmodNode result = *this;
-		result.m_location = location;
-
-		return result;
-	}
-}
+} // namespace dnv::vista::sdk

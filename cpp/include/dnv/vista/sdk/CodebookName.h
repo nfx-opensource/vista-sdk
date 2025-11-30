@@ -123,4 +123,4 @@ namespace dnv::vista::sdk
 		 */
 		[[nodiscard]] static std::string toString( CodebookName name );
 	};
-}
+} // namespace dnv::vista::sdk

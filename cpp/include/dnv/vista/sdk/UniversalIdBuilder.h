@@ -39,9 +39,11 @@
  * ┌─────────────────────────────────────┐
  * │        UniversalIdBuilder           │
  * ├─────────────────────────────────────┤
- * │ std::optional<ImoNumber>            │ ← 8 bytes (7-digit + validity flag)
+ * │      std::size_t m_hashCode         │ ← Cached hash (8 bytes, O(1) access)
+ * ├─────────────────────────────────────┤
+ * │      std::optional<ImoNumber>       │ ← 8 bytes (7-digit + validity flag)
  * │ ┌─────────────────────────────────┐ │
- * │ │   std::optional<LocalIdBuilder> │ │ ← Local ID construction state
+ * │ │  std::optional<LocalIdBuilder>  │ │ ← Local ID construction state
  * │ │  ┌───────────────────────────┐  │ │
  * │ │  │    LocalIdItems           │  │ │ ← GMOD path components
  * │ │  │    Metadata Tags          │  │ │
@@ -50,13 +52,18 @@
  * │ │  └───────────────────────────┘  │ │
  * │ └─────────────────────────────────┘ │
  * └─────────────────────────────────────┘
- *
- * Key Performance Features:
- * - Immutable copy-on-write semantics
- * - Optional wrapping minimizes memory overhead
- * - Move semantics for expensive Local ID operations
- * - Stack allocation for builder instances
- * ```
+ *                  ↓
+ *               build()
+ *                  ↓
+ * ┌─────────────────────────────────────┐
+ * │        UniversalId Output           │
+ * ├─────────────────────────────────────┤
+ * │ - Immutable Global ID Object        │
+ * │ - IMO + LocalId Combination         │
+ * │ - Thread-Safe Value Semantics       │
+ * │ - Maritime Standards Compliance     │
+ * └─────────────────────────────────────┘
+ *```
  *
  * ## Usage Patterns:
  *
@@ -160,7 +167,7 @@ namespace dnv::vista::sdk
 	{
 		class LocalIdParsingErrorBuilder;
 		enum class LocalIdParsingState : std::uint8_t;
-	}
+	} // namespace internal
 
 	//=====================================================================
 	// UniversalIdBuilder class
@@ -181,7 +188,7 @@ namespace dnv::vista::sdk
 
 	private:
 		/** @brief Default constructor */
-		UniversalIdBuilder() = default;
+		UniversalIdBuilder();
 
 	public:
 		/**
@@ -286,6 +293,24 @@ namespace dnv::vista::sdk
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] std::string toString() const;
+
+		//----------------------------------------------
+		// Hashing
+		//----------------------------------------------
+
+		/**
+		 * @brief Gets the cached hash value for this UniversalIdBuilder instance
+		 * @details **Purpose**: Enables UniversalIdBuilder instances to be used efficiently as keys in hash-based
+		 *          collections (std::unordered_map, nfx::HashMap, etc.) without performance penalties.
+		 *
+		 *          **Performance Critical**: Hash is computed by combining the hash codes of ImoNumber and LocalId
+		 *          components using optimized hash combination algorithms. This provides O(1) hash access
+		 *          for high-performance container operations.
+		 *
+		 * @return The hash value combining ImoNumber and LocalId hash codes
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		[[nodiscard]] inline std::size_t hashCode() const noexcept;
 
 		//----------------------------------------------
 		// Static factory methods
@@ -421,9 +446,37 @@ namespace dnv::vista::sdk
 		// Private member variables
 		//----------------------------------------------
 
+		/** @brief Cached hash value computed during construction for O(1) hash access */
+		std::size_t m_hashCode;
+
+		/** @brief Optional LocalIdBuilder component for constructing the Local ID portion of the Universal ID */
 		std::optional<LocalIdBuilder> m_localIdBuilder;
+
+		/** @brief Optional IMO number component providing globally unique vessel identification */
 		std::optional<ImoNumber> m_imoNumber;
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/UniversalIdBuilder.inl"
+
+namespace std
+{
+	/**
+	 * @brief std::hash specialization for UniversalIdBuilder
+	 * @details Enables UniversalIdBuilder to be used as a key in std::unordered_map, std::unordered_set, etc.
+	 *          Uses the cached hash value from UniversalIdBuilder::hashCode() for O(1) performance.
+	 */
+	template <>
+	struct hash<dnv::vista::sdk::UniversalIdBuilder>
+	{
+		/**
+		 * @brief Computes hash for UniversalIdBuilder instance
+		 * @param builder The UniversalIdBuilder to hash
+		 * @return Hash value from builder's cached hashCode()
+		 */
+		std::size_t operator()( const dnv::vista::sdk::UniversalIdBuilder& builder ) const noexcept
+		{
+			return builder.hashCode();
+		}
+	};
+} // namespace std

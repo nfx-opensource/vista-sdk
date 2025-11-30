@@ -5,7 +5,8 @@
 #include <fstream>
 #include <filesystem>
 
-#include <nfx/containers/HashMap.h>
+#include <nfx/Containers.h>
+#include <nfx/serialization/json/Document.h>
 
 #include "TestDataLoader.h"
 
@@ -36,17 +37,17 @@ namespace dnv::vista::sdk::test
 		// Test data cache
 		//=====================================================================
 
-		static nfx::containers::HashMap<std::string, nlohmann::json> g_testDataCache;
-	}
+		static nfx::containers::FastHashMap<std::string, nfx::serialization::json::Document> g_testDataCache;
+	} // namespace
 
-	const nlohmann::json& loadTestData( const char* testDataPath )
+	const nfx::serialization::json::Document& loadTestData( const char* testDataPath )
 	{
 		const auto fullPath = testdataDirectory() / testDataPath;
 		const std::string fullPathStr = fullPath.string();
 
 		// Check if already cached
-		nlohmann::json* cachedDataPtr = nullptr;
-		if ( g_testDataCache.tryGetValue( fullPathStr, cachedDataPtr ) )
+		const auto* cachedDataPtr = g_testDataCache.find( fullPathStr );
+		if ( cachedDataPtr != nullptr )
 		{
 			return *cachedDataPtr;
 		}
@@ -60,28 +61,31 @@ namespace dnv::vista::sdk::test
 
 		try
 		{
-			nlohmann::json data;
-			jsonFile >> data;
+			std::string jsonContent( ( std::istreambuf_iterator<char>( jsonFile ) ),
+				std::istreambuf_iterator<char>() );
 
-			// Cache the data
-			g_testDataCache.insertOrAssign( fullPathStr, std::move( data ) );
+			auto docOpt = nfx::serialization::json::Document::fromString( jsonContent );
+			if ( !docOpt )
+			{
+				throw std::runtime_error{ "Failed to parse JSON from file: " + fullPathStr };
+			}
 
-			// Get fresh pointer after insertion (safer than storing old pointer)
-			nlohmann::json* result = nullptr;
-			if ( g_testDataCache.tryGetValue( fullPathStr, result ) )
+			g_testDataCache.insertOrAssign( fullPathStr, std::move( *docOpt ) );
+
+			const auto* result = g_testDataCache.find( fullPathStr );
+			if ( result != nullptr )
 			{
 				return *result;
 			}
-
 			throw std::runtime_error{ "Failed to retrieve cached test data after insertion" };
 		}
-		catch ( const nlohmann::json::parse_error& ex )
+		catch ( const std::runtime_error& )
 		{
-			throw std::runtime_error{
-				std::string{ "JSON parse error in '" } + fullPathStr +
-				"'. Type: " + std::to_string( ex.id ) +
-				", Byte: " + std::to_string( ex.byte ) +
-				". Original what() likely too long." };
+			throw;
+		}
+		catch ( const std::exception& ex )
+		{
+			throw std::runtime_error{ std::string{ "Error parsing JSON file '" } + fullPathStr + "': " + ex.what() };
 		}
 	}
-}
+} // namespace dnv::vista::sdk::test

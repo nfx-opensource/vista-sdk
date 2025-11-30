@@ -11,12 +11,13 @@
  * ## System Purpose:
  *
  * The **VISTA GmodPath System** serves as the foundation for:
- * - **Hierarchical Path Representation**: Complete vessel component paths from root to target
- * - **Path Parsing and Validation**     : String-to-path conversion with error handling
+ * - **Hierarchical Path Representation**: Complete vessel component paths with value semantics
+ * - **Path Parsing and Validation**     : String-to-path conversion with comprehensive error handling
  * - **Location Individualization**      : Component instance identification with physical locations
  * - **Path Navigation and Enumeration** : Efficient traversal of hierarchical structures
- * - **String Representation**           : Multiple output formats (short, full, debug)
- * - **Performance Optimization**        : Efficient path operations and memory management
+ * - **String Representation**           : Multiple output formats (short, full, debug) with pooled builders
+ * - **Value Semantics Integration**     : Efficient copying and storage of GmodNode components
+ * - **Performance Optimization**        : Balanced approach between copying and shared reference benefits
  *
  * ## Core Architecture:
  *
@@ -27,20 +28,28 @@
  * - **GmodPath::Enumerator**   : Iterator for efficient path traversal
  *
  * ### Path Components
- * - **Parent Nodes** : Vector of hierarchical parent components leading to target
- * - **Target Node**  : Final component in the path (the node being addressed)
+ * - **Parent Nodes** : Vector of hierarchical parent components using value semantics
+ * - **Target Node**  : Final component in the path (optional for empty paths)
  * - **Location Data**: Optional individualization information for specific instances
  * - **VIS Version**  : Version-specific validation and compatibility information
+ *
+ * ### Architecture Integration
+ * - **Value Semantics**       : GmodPath stores GmodNode copies for immutable path representation
+ * - **Shared Container Reuse**: Copied GmodNodes retain shared_ptr containers for efficiency
+ * - **Memory Balance**        : Path copying is lightweight due to shared relationship containers
+ * - **Thread Safety**         : Immutable paths safe for concurrent access and parsing operations
  *
  * ## Data Flow Architecture:
  *
  * ```
- * Path String Input
- *         ↓
- * Parse Validation (Gmod + Locations)
- *         ↓
+ *          Path String Input
+ *                  ↓
+ *   Parse Validation (Gmod + Locations)
+ *                  ↓
  * ┌─────────────────────────────────────┐
  * │            GmodPath                 │
+ * ├─────────────────────────────────────┤
+ * │      std::size_t m_hashCode         │ ← Cached hash (8 bytes, O(1) access)
  * ├─────────────────────────────────────┤
  * │ ┌─────────────────────────────────┐ │
  * │ │    std::vector<GmodNode>        │ │ ← Parent nodes
@@ -55,8 +64,19 @@
  * │ │       m_visVersion              │ │
  * │ └─────────────────────────────────┘ │
  * └─────────────────────────────────────┘
- *         ↓
- * Path Operations (enumeration, validation, string conversion)
+ *                  ↓
+ *     Path Operations & Navigation
+ *                  ↓
+ * ┌─────────────────────────────────────┐
+ * │      Path Access & Validation       │
+ * ├─────────────────────────────────────┤
+ * │ - O(1) indexed node access          │
+ * │ - Hierarchical relationship checks  │
+ * │ - Location individualization        │
+ * │ - Path enumeration & traversal      │
+ * │ - String conversion (multiple fmts) │
+ * │ - Thread-safe immutable operations  │
+ * └─────────────────────────────────────┘
  * ```
  *
  * ## Usage Patterns:
@@ -84,18 +104,24 @@
  *
  * ## Performance Characteristics:
  *
- * - **Path Construction**: O(n) where n is path depth (typically 3-8 levels)
- * - **Node Access**      : O(1) random access via operator[] with bounds checking
- * - **Path Validation**  : O(n) hierarchical relationship verification
- * - **String Parsing**   : O(m) where m is string length with optimized tokenization
- * - **Memory Usage**     : Minimal overhead with move semantics and efficient storage
+ * - **Path Construction**   : O(n) where n is path depth (typically 3-8 levels)
+ * - **Node Access**         : O(1) random access via operator[] with bounds checking
+ * - **Path Validation**     : O(n) hierarchical relationship verification using shared containers
+ * - **String Parsing**      : O(m) where m is string length with optimized tokenization
+ * - **Memory Usage**        : Value semantics for path storage, leverages GmodNode shared containers
+ * - **Copy Operations**     : Efficient GmodNode copying through shared_ptr relationship containers
+ * - **String Building**     : Thread-local StringBuilderPool for zero-allocation string operations
+ * - **Location Integration**: Optional location data with minimal memory overhead per path
  *
- * ## Thread Safety:
+ * ## Thread Safety & Memory Model:
  *
- * - **Read Operations** : Thread-safe for concurrent access to immutable path data
- * - **Parse Operations**: Thread-safe with local parsing contexts
- * - **String Building** : Uses thread-local StringBuilderPool for performance
- * - **Modification**    : Individual paths are immutable after construction
+ * - **Read Operations**     : Thread-safe for concurrent access to immutable path data
+ * - **Parse Operations**    : Thread-safe with local parsing contexts and no shared state
+ * - **String Building**     : Uses thread-local StringBuilderPool for zero-contention performance
+ * - **Node Relationship**   : Leverages GmodNode shared containers for safe concurrent access
+ * - **Modification**        : Individual paths are immutable after construction
+ * - **Copy Semantics**      : Safe copying across threads due to shared_ptr container architecture
+ * - **Location Integration**: Thread-safe location lookup and individualization operations
  */
 
 #pragma once
@@ -104,7 +130,7 @@
 #include <variant>
 #include <vector>
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/StringBuilder.h>
 
 #include "config/config.h"
 #include "GmodNode.h"
@@ -163,7 +189,7 @@ namespace dnv::vista::sdk
 		/**
 		 * @brief Default constructor.
 		 */
-		inline GmodPath();
+		GmodPath();
 
 		/**
 		 * @brief Copy constructor
@@ -374,6 +400,27 @@ namespace dnv::vista::sdk
 		inline void toStringDump( nfx::string::StringBuilder& builder ) const;
 
 		//----------------------------------------------
+		// Hashing
+		//----------------------------------------------
+
+		/**
+		 * @brief Gets the cached hash value for this GmodPath instance
+		 * @details **Purpose**: Enables GmodPath instances to be used efficiently as keys in hash-based
+		 *          collections (std::unordered_map, nfx::HashMap, etc.) without performance penalties.
+		 *
+		 *          **Performance Critical**: Hash is pre-computed during construction using optimized
+		 *          NFX FNV-1a algorithms and cached to avoid expensive recomputation. This transforms
+		 *          hash lookups from O(n) path traversal to O(1) cached access.
+		 *
+		 *          **Implementation**: Combines hash codes of all parent nodes and the target node
+		 *          using NFX hash combination algorithms for consistent, high-quality distribution.
+		 *
+		 * @return The pre-computed hash value for this GmodPath's complete hierarchical structure
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		[[nodiscard]] inline std::size_t hashCode() const noexcept;
+
+		//----------------------------------------------
 		// Path manipulation methods
 		//----------------------------------------------
 
@@ -413,7 +460,7 @@ namespace dnv::vista::sdk
 		 * @throws std::invalid_argument if parsing fails
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] VISTA_SDK_CPP_INLINE static GmodPath parse( std::string_view item, VisVersion visVersion );
+		[[nodiscard]] inline static GmodPath parse( std::string_view item, VisVersion visVersion );
 
 		/**
 		 * @brief Parses a path string using specified GMOD and locations
@@ -444,7 +491,7 @@ namespace dnv::vista::sdk
 		 * @return True if parsing succeeded, false otherwise
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] VISTA_SDK_CPP_INLINE static bool tryParse(
+		[[nodiscard]] inline static bool tryParse(
 			std::string_view item, VisVersion visVersion,
 			std::optional<GmodPath>& outPath );
 
@@ -468,7 +515,7 @@ namespace dnv::vista::sdk
 		 * @return True if parsing succeeded, false otherwise
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
-		[[nodiscard]] VISTA_SDK_CPP_INLINE static bool tryParseFullPath(
+		[[nodiscard]] inline static bool tryParseFullPath(
 			std::string_view item,
 			VisVersion visVersion, std::optional<GmodPath>& outPath );
 
@@ -501,8 +548,16 @@ namespace dnv::vista::sdk
 		// Private member variables
 		//----------------------------------------------
 
+		/** @brief Cached hash value computed during construction for O(1) hash access */
+		std::size_t m_hashCode;
+
+		/** @brief VIS version associated with this path for compatibility and validation */
 		VisVersion m_visVersion;
+
+		/** @brief Vector of parent nodes in hierarchical order leading to the target node */
 		std::vector<GmodNode> m_parents;
+
+		/** @brief Optional target node of the path (nullopt for empty paths) */
 		std::optional<GmodNode> m_node;
 
 	public:
@@ -626,8 +681,6 @@ namespace dnv::vista::sdk
 	 * their location data, and rebuilding the path to reflect these changes. The class provides access
 	 * to the indices and pointers of the nodes that can be individualized, as well as utility methods
 	 * for string conversion and location management.
-	 *
-	 * Instances of this class are non-copyable but movable, ensuring efficient handling of path data.
 	 */
 	class GmodIndividualizableSet final
 	{
@@ -864,6 +917,29 @@ namespace dnv::vista::sdk
 		 */
 		inline const Error& error() const;
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/GmodPath.inl"
+
+namespace std
+{
+	/**
+	 * @brief Hash specialization for dnv::vista::sdk::GmodPath
+	 * @details Enables GmodPath instances to be used as keys in all hash-based STL containers.
+	 *          This specialization provides seamless integration with std::unordered_map,
+	 *          std::unordered_set, and other standard library hash containers.
+	 */
+	template <>
+	struct hash<dnv::vista::sdk::GmodPath>
+	{
+		/**
+		 * @brief Returns the cached hash value for optimal performance
+		 * @param[in] path The GmodPath instance to hash
+		 * @return Pre-computed hash value (O(1) access) combining all nodes in the hierarchical path
+		 */
+		std::size_t operator()( const dnv::vista::sdk::GmodPath& path ) const noexcept
+		{
+			return path.hashCode();
+		}
+	};
+} // namespace std

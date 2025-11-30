@@ -6,9 +6,10 @@
 #include <queue>
 #include <unordered_map>
 
-#include <nfx/containers/StringMap.h>
+#include <nfx/Containers.h>
+#include <nfx/Hashing.h>
 #include <nfx/string/Splitter.h>
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/StringBuilder.h>
 #include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/GmodPath.h"
@@ -22,7 +23,29 @@ namespace dnv::vista::sdk
 {
 	namespace internal
 	{
-		//=====================================================================
+		//----------------------------------------------
+		// Hashing
+		//----------------------------------------------
+
+		/**
+		 * @brief Computes the cached hash value for a GmodPath
+		 * @details Combines hash codes of parent GmodNode and target GmodNode components using
+		 *          NFX optimized FNV-1a hash combination for consistent results across
+		 *          hierarchical maritime equipment paths.
+		 */
+		static size_t computeHash( std::vector<GmodNode>& parents, GmodNode& node ) noexcept
+		{
+			uint32_t hashCode = VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS;
+
+			for ( const auto& parent : parents )
+			{
+				hashCode = nfx::hashing::combine( hashCode, static_cast<uint32_t>( parent.hashCode() ) );
+			}
+
+			hashCode = nfx::hashing::combine( hashCode, static_cast<uint32_t>( node.hashCode() ) );
+			return static_cast<size_t>( hashCode );
+		} //=====================================================================
+
 		// Internal parsing helpers
 		//=====================================================================
 
@@ -53,11 +76,11 @@ namespace dnv::vista::sdk
 		{
 			std::queue<PathNode> parts;
 			PathNode toFind;
-			std::optional<nfx::containers::StringMap<Location>> locations;
+			std::optional<nfx::containers::FastHashMap<std::string, Location>> locations;
 			std::optional<GmodPath> path;
 			const Gmod* gmod;
 
-			ParseContext( std::queue<PathNode>&& pathNodeQueue, PathNode&& t, std::optional<nfx::containers::StringMap<Location>>&& l,
+			ParseContext( std::queue<PathNode>&& pathNodeQueue, PathNode&& t, std::optional<nfx::containers::FastHashMap<std::string, Location>>&& l,
 				std::optional<GmodPath>&& gmodPath, const Gmod& g )
 				: parts{ std::move( pathNodeQueue ) },
 				  toFind{ std::move( t ) },
@@ -89,11 +112,12 @@ namespace dnv::vista::sdk
 			{
 				if ( !context.locations.has_value() )
 				{
-					context.locations = nfx::containers::StringMap<Location>{};
+					context.locations = nfx::containers::FastHashMap<std::string, Location>{};
 				}
-				context.locations->emplace( toFind.code, toFind.location.value() );
+				std::string codeStr( toFind.code );
+				Location loc = toFind.location.value();
+				context.locations->insertOrAssign( std::move( codeStr ), std::move( loc ) );
 			}
-
 			if ( !context.parts.empty() )
 			{
 				toFind = context.parts.front();
@@ -108,10 +132,10 @@ namespace dnv::vista::sdk
 			{
 				if ( context.locations.has_value() )
 				{
-					auto locationIt = context.locations->find( parent->code() );
-					if ( locationIt != context.locations->end() )
+					const auto* location = context.locations->find( parent->code() );
+					if ( location != nullptr )
 					{
-						pathParents.emplace_back( parent->withLocation( locationIt->second ) );
+						pathParents.emplace_back( parent->withLocation( *location ) );
 						continue;
 					}
 				}
@@ -139,7 +163,22 @@ namespace dnv::vista::sdk
 
 			while ( startNode->parents().size() == 1 )
 			{
-				pathParents.insert( pathParents.begin(), *startNode );
+				// Check if this node is already in pathParents to avoid duplicates
+				bool alreadyExists = false;
+				for ( const auto& existing : pathParents )
+				{
+					if ( existing.code() == startNode->code() )
+					{
+						alreadyExists = true;
+						break;
+					}
+				}
+
+				if ( !alreadyExists )
+				{
+					pathParents.insert( pathParents.begin(), *startNode );
+				}
+
 				startNode = startNode->parents()[0];
 				if ( startNode->parents().size() > 1 )
 				{
@@ -147,7 +186,21 @@ namespace dnv::vista::sdk
 				}
 			}
 
-			pathParents.insert( pathParents.begin(), context.gmod->rootNode() );
+			// Check if root node already exists before inserting
+			bool rootExists = false;
+			for ( const auto& existing : pathParents )
+			{
+				if ( existing.code() == context.gmod->rootNode().code() )
+				{
+					rootExists = true;
+					break;
+				}
+			}
+
+			if ( !rootExists )
+			{
+				pathParents.insert( pathParents.begin(), context.gmod->rootNode() );
+			}
 
 			internal::LocationSetsVisitor visitor;
 
@@ -245,7 +298,7 @@ namespace dnv::vista::sdk
 					if ( !gmod.tryGetNode( codePart, tempNode ) || !tempNode )
 					{
 						auto lease = nfx::string::StringBuilderPool::lease();
-						auto builder = lease.builder();
+						auto builder = lease.create();
 						builder.append( "Failed to get GmodNode for " );
 						builder.append( partStr );
 						return GmodParsePathResult::Error{ lease.toString() };
@@ -255,7 +308,7 @@ namespace dnv::vista::sdk
 					if ( !locations.tryParse( locationPart, parsedLocation ) )
 					{
 						auto lease = nfx::string::StringBuilderPool::lease();
-						auto builder = lease.builder();
+						auto builder = lease.create();
 						builder.append( "Failed to parse location " );
 						builder.append( locationPart );
 						return GmodParsePathResult::Error{ lease.toString() };
@@ -269,7 +322,7 @@ namespace dnv::vista::sdk
 					if ( !gmod.tryGetNode( partStr, tempNode ) || !tempNode )
 					{
 						auto lease = nfx::string::StringBuilderPool::lease();
-						auto builder = lease.builder();
+						auto builder = lease.create();
 						builder.append( "Failed to get GmodNode for " );
 						builder.append( partStr );
 						return GmodParsePathResult::Error{ lease.toString() };
@@ -363,7 +416,7 @@ namespace dnv::vista::sdk
 			if ( !nfx::string::startsWith( item, gmod.rootNode().code() ) )
 			{
 				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
+				auto builder = lease.create();
 				builder.append( "Path must start with '" );
 				builder.append( gmod.rootNode().code() );
 				builder.append( "'" );
@@ -555,7 +608,7 @@ namespace dnv::vista::sdk
 
 			return GmodParsePathResult::Ok{ GmodPath{ std::move( nodes ), std::move( endNode ) } };
 		}
-	}
+	} // namespace internal
 
 	//=====================================================================
 	// GmodPath class
@@ -564,6 +617,14 @@ namespace dnv::vista::sdk
 	//----------------------------------------------
 	// Construction
 	//----------------------------------------------
+
+	GmodPath::GmodPath()
+		: m_hashCode{ VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS },
+		  m_visVersion{ VisVersion::Unknown },
+		  m_parents{},
+		  m_node{ std::nullopt }
+	{
+	}
 
 	GmodPath::GmodPath( std::vector<GmodNode> parents, GmodNode node, bool skipVerify )
 		: m_visVersion{ node.visVersion() },
@@ -576,7 +637,9 @@ namespace dnv::vista::sdk
 			throw std::invalid_argument{ "GmodPath constructor: node is not valid" };
 		}
 
-		if ( skipVerify || m_parents.empty() )
+		m_hashCode = internal::computeHash( m_parents, *m_node );
+
+		if ( skipVerify )
 		{
 			return;
 		}
@@ -642,7 +705,7 @@ namespace dnv::vista::sdk
 		const GmodNode& nodeInPath = ( *this )[nodeDepth];
 
 		const auto& normalAssignmentNames = nodeInPath.metadata().normalAssignmentNames();
-		if ( normalAssignmentNames.empty() )
+		if ( normalAssignmentNames.size() == 0 )
 		{
 			return std::nullopt;
 		}
@@ -655,10 +718,10 @@ namespace dnv::vista::sdk
 		for ( size_t i = length() - 1;; --i )
 		{
 			const GmodNode& child = ( *this )[i];
-			auto it = normalAssignmentNames.find( child.code() );
-			if ( it != normalAssignmentNames.end() )
+			const auto* assignment = normalAssignmentNames.find( child.code() );
+			if ( assignment != nullptr )
 			{
-				return it->second;
+				return *assignment;
 			}
 
 			if ( i == 0 )
@@ -705,14 +768,14 @@ namespace dnv::vista::sdk
 
 			const auto& normalAssignmentNames = node.metadata().normalAssignmentNames();
 
-			if ( !normalAssignmentNames.empty() )
+			if ( normalAssignmentNames.size() > 0 )
 			{
 				if ( m_node.has_value() )
 				{
-					auto nodeCodeIt = normalAssignmentNames.find( m_node->code() );
-					if ( nodeCodeIt != normalAssignmentNames.end() )
+					const auto* nodeCode = normalAssignmentNames.find( m_node->code() );
+					if ( nodeCode != nullptr )
 					{
-						name = nodeCodeIt->second;
+						name = *nodeCode;
 					}
 				}
 
@@ -721,10 +784,10 @@ namespace dnv::vista::sdk
 					for ( size_t i = m_parents.size() - 1; i >= depth; --i )
 					{
 						const GmodNode& parent = m_parents[i];
-						auto parentCodeIt = normalAssignmentNames.find( parent.code() );
-						if ( parentCodeIt != normalAssignmentNames.end() )
+						const auto* parentCode = normalAssignmentNames.find( parent.code() );
+						if ( parentCode != nullptr )
 						{
-							name = parentCodeIt->second;
+							name = *parentCode;
 
 							break;
 						}
@@ -1045,14 +1108,14 @@ namespace dnv::vista::sdk
 			{
 				if ( firstNodeAppended )
 				{
-					lease.builder().push_back( '/' );
+					lease.create().append( '/' );
 				}
 
-				lease.builder().append( currentNode.toString() );
+				lease.create().append( currentNode.toString() );
 				firstNodeAppended = true;
 			}
 		}
 
 		return lease.toString();
 	}
-}
+} // namespace dnv::vista::sdk

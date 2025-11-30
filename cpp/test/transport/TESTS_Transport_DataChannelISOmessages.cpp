@@ -1,9 +1,11 @@
 /**
- * @file TESTS_DataChannelISOmessages.cpp
+ * @file TESTS_Transport_DataChannelISOmessages.cpp
  * @brief Comprehensive tests for DataChannel infrastructure
  */
 
 #include <gtest/gtest.h>
+
+#include <nfx/datetime/DateTimeOffset.h>
 
 #include <dnv/vista/sdk/transport/datachannel/DataChannel.h>
 #include <dnv/vista/sdk/transport/ShipId.h>
@@ -23,30 +25,26 @@ namespace dnv::vista::sdk::tests
 	transport::DataChannelListPackage createValidFullyCustomDataChannelList()
 	{
 		// Create ConfigurationReference for DataChannelListId
-		auto timeStamp = nfx::time::DateTimeOffset::parse( "2016-01-01T00:00:00Z" );
+		auto timeStamp = nfx::time::DateTimeOffset{ "2016-01-01T00:00:00Z" };
 		transport::ConfigurationReference dataChannelListId{
 			"DataChannelList.xml",
 			timeStamp,
 			"1.0" };
 
 		// Create Header
-		transport::Header header{
-			transport::ShipId::parse( "IMO1234567" ),
-			dataChannelListId,
-			"Author1" };
-
-		transport::VersionInformation versionInfo;
-		versionInfo.setNamingRule( "some_naming_rule" );
-		versionInfo.setNamingSchemeVersion( "2.0" );
-		versionInfo.setReferenceUrl( "http://somewhere.net" );
-		header.setVersionInformation( versionInfo );
-
-		header.setDateCreated( nfx::time::DateTimeOffset::parse( "2015-12-01T00:00:00Z" ) );
+		transport::VersionInformation versionInfo{ "some_naming_rule", "2.0", "http://somewhere.net" };
 
 		// Add custom headers
-		nfx::containers::StringMap<transport::Value> customHeaders;
-		customHeaders["nr:CustomHeaderElement"] = transport::Value::String{ "Vendor specific headers" };
-		header.setCustomHeaders( customHeaders );
+		nfx::containers::FastHashMap<std::string, transport::Value> customHeaders;
+		customHeaders.insertOrAssign( "nr:CustomHeaderElement", transport::Value::String{ "Vendor specific headers" } );
+
+		transport::Header header{
+			"Author1",
+			nfx::time::DateTimeOffset{ "2015-12-01T00:00:00Z" },
+			transport::ShipId::parse( "IMO1234567" ),
+			dataChannelListId,
+			versionInfo,
+			std::move( customHeaders ) };
 
 		// Create DataChannelList
 		transport::DataChannelList dataChannelList;
@@ -62,13 +60,14 @@ namespace dnv::vista::sdk::tests
 
 			transport::DataChannelId dataChannelId{ localId, "0010" };
 
-			transport::NameObject nameObject;
-			nameObject.setNamingRule( "Naming_Rule" );
-
 			// Add custom name objects
-			nfx::containers::StringMap<transport::Value> customNameObjects;
-			customNameObjects["nr:CustomNameObject"] = transport::Value::String{ "Vendor specific NameObject" };
-			nameObject.setCustomNameObjects( customNameObjects );
+			nfx::containers::FastHashMap<std::string, transport::Value> customNameObjects;
+			customNameObjects.insertOrAssign( "nr:CustomNameObject", transport::Value::String{ "Vendor specific NameObject" } );
+
+			transport::NameObject nameObject{
+				"Naming_Rule",				   // namingRule
+				std::move( customNameObjects ) // customNameObjects
+			};
 
 			dataChannelId.setNameObject( nameObject );
 
@@ -84,23 +83,27 @@ namespace dnv::vista::sdk::tests
 
 			transport::Range range{ 0.0, 150.0 };
 
-			transport::Unit unit{ "°C" };
-			unit.setQuantityName( "Temperature" );
+			// Custom elements for unit
+			nfx::containers::FastHashMap<std::string, transport::Value> customElements;
+			customElements.insertOrAssign( "nr:CustomUnitElement", transport::Value::String{ "Vendor specific unit element" } );
 
-			// Add custom elements to unit
-			nfx::containers::StringMap<transport::Value> customElements;
-			customElements["nr:CustomUnitElement"] = transport::Value::String{ "Vendor specific unit element" };
-			unit.setCustomElements( customElements );
+			transport::Unit unit{ "°C", "Temperature", customElements };
 
-			transport::Property property{ dataChannelType, format, range, unit, std::nullopt };
-			property.setQualityCoding( "OPC_QUALITY" );
-			property.setName( "M/E #1 Air Cooler CFW OUT Temp" );
-			property.setRemarks( " Location: ECR, Manufacturer: AAA Company, Type: TYPE-AAA " );
+			// Custom properties
+			nfx::containers::FastHashMap<std::string, transport::Value> customProperties;
+			customProperties.insertOrAssign( "nr:CustomPropertyElement", transport::Value::String{ "Vendor specific property element" } );
 
-			// Add custom properties
-			nfx::containers::StringMap<transport::Value> customProperties;
-			customProperties["nr:CustomPropertyElement"] = transport::Value::String{ "Vendor specific property element" };
-			property.setCustomProperties( customProperties );
+			transport::Property property{
+				dataChannelType,
+				format,
+				range,
+				unit,
+				std::string{ "OPC_QUALITY" },												 // qualityCoding
+				std::nullopt,																 // alertPriority
+				std::string{ "M/E #1 Air Cooler CFW OUT Temp" },							 // name
+				std::string{ " Location: ECR, Manufacturer: AAA Company, Type: TYPE-AAA " }, // remarks
+				customProperties															 // customProperties
+			};
 
 			transport::DataChannel dataChannel{ dataChannelId, property };
 			dataChannelList.add( dataChannel );
@@ -125,7 +128,17 @@ namespace dnv::vista::sdk::tests
 			restriction.setMinLength( 0 );
 			format.setRestriction( restriction );
 
-			transport::Property property{ dataChannelType, format, std::nullopt, std::nullopt, "Warning" };
+			transport::Property property{
+				dataChannelType,
+				format,
+				std::nullopt,			  // range
+				std::nullopt,			  // unit
+				std::nullopt,			  // qualityCoding
+				std::string{ "Warning" }, // alertPriority
+				std::nullopt,			  // name
+				std::nullopt,			  // remarks
+				std::nullopt			  // customProperties
+			};
 
 			transport::DataChannel dataChannel{ dataChannelId, property };
 			dataChannelList.add( dataChannel );
@@ -147,9 +160,12 @@ namespace dnv::vista::sdk::tests
 
 		// Create Header
 		transport::Header header{
-			transport::ShipId::parse( "IMO1234567" ),
-			dataChannelListId,
-			"some-author" };
+			"some-author",							  // Author
+			nfx::time::DateTimeOffset::utcNow(),	  // Creation date
+			transport::ShipId::parse( "IMO1234567" ), // ShipId
+			dataChannelListId,						  // Configuration reference
+			std::nullopt,							  // versionInformation
+			std::nullopt };							  // customHeaders
 
 		// Create DataChannelList
 		transport::DataChannelList dataChannelList;
@@ -168,7 +184,17 @@ namespace dnv::vista::sdk::tests
 			transport::DataChannelType dataChannelType{ "Inst" };
 			transport::Format format{ "String" };
 
-			transport::Property property{ dataChannelType, format, std::nullopt, std::nullopt, std::nullopt };
+			transport::Property property{
+				dataChannelType,
+				format,
+				std::nullopt, // range
+				std::nullopt, // unit
+				std::nullopt, // qualityCoding
+				std::nullopt, // alertPriority
+				std::nullopt, // name
+				std::nullopt, // remarks
+				std::nullopt  // customProperties
+			};
 
 			transport::DataChannel dataChannel{ dataChannelId, property };
 			dataChannelList.add( dataChannel );
@@ -275,8 +301,10 @@ namespace dnv::vista::sdk::tests
 		const auto& header = dataChannelList.package().header();
 		EXPECT_TRUE( header.customHeaders().has_value() );
 		const auto& customHeaders = *header.customHeaders();
-		EXPECT_TRUE( customHeaders.contains( "nr:CustomHeaderElement" ) );
-		const auto& headerValue = customHeaders.at( "nr:CustomHeaderElement" );
+		EXPECT_TRUE( customHeaders.find( "nr:CustomHeaderElement" ) != nullptr );
+		const auto* headerValuePtr = customHeaders.find( "nr:CustomHeaderElement" );
+		ASSERT_NE( headerValuePtr, nullptr );
+		const auto& headerValue = *headerValuePtr;
 		EXPECT_EQ( headerValue.type(), transport::Value::Type::String );
 		EXPECT_EQ( headerValue.string().value(), "Vendor specific headers" );
 
@@ -352,7 +380,17 @@ namespace dnv::vista::sdk::tests
 			transport::Range range{ 0.0, 100.0 };
 			transport::Unit unit{ "°C" };
 
-			transport::Property property{ dataChannelType, format, range, unit, std::nullopt };
+			transport::Property property{
+				dataChannelType,
+				format,
+				range,
+				unit,
+				std::nullopt, // qualityCoding
+				std::nullopt, // alertPriority
+				std::nullopt, // name
+				std::nullopt, // remarks
+				std::nullopt  // customProperties
+			};
 			auto result = property.validate();
 			EXPECT_TRUE( result.isOk() );
 		}
@@ -362,7 +400,17 @@ namespace dnv::vista::sdk::tests
 			transport::DataChannelType dataChannelType{ "Alert" };
 			transport::Format format{ "String" };
 
-			transport::Property property{ dataChannelType, format, std::nullopt, std::nullopt, "Critical" };
+			transport::Property property{
+				dataChannelType,
+				format,
+				std::nullopt,			   // range
+				std::nullopt,			   // unit
+				std::nullopt,			   // qualityCoding
+				std::string{ "Critical" }, // alertPriority
+				std::nullopt,			   // name
+				std::nullopt,			   // remarks
+				std::nullopt			   // customProperties
+			};
 			auto result = property.validate();
 			EXPECT_TRUE( result.isOk() );
 		}
@@ -511,4 +559,4 @@ namespace dnv::vista::sdk::tests
 		EXPECT_FALSE( errorResult.errors().empty() );
 		EXPECT_TRUE( errorResult.errors()[0].find( "exactly 5 characters" ) != std::string::npos );
 	}
-}
+} // namespace dnv::vista::sdk::tests

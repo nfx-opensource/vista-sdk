@@ -5,6 +5,8 @@
 
 #include <gtest/gtest.h>
 
+#include <nfx/serialization/json/Document.h>
+
 #include "TestDataLoader.h"
 
 #include <dnv/vista/sdk/Exceptions.h>
@@ -39,19 +41,32 @@ namespace dnv::vista::sdk::tests
 	static std::vector<LocationParseValidParam> loadValidLocationData()
 	{
 		std::vector<LocationParseValidParam> params;
-		const nlohmann::json& jsonData = test::loadTestData( LOCATIONS_TEST_DATA_FILE );
+		const nfx::serialization::json::Document& jsonData = test::loadTestData( LOCATIONS_TEST_DATA_FILE );
 		const std::string dataKey = "locations";
 
-		if ( jsonData.contains( dataKey ) && jsonData[dataKey].is_array() )
+		if ( jsonData.is<nfx::serialization::json::Document::Array>( "/" + dataKey ) )
 		{
-			for ( const auto& item : jsonData[dataKey] )
+			auto locationsDoc = jsonData.get<nfx::serialization::json::Document>( "/" + dataKey );
+			if ( !locationsDoc )
 			{
-				if ( item.is_object() && item.contains( "success" ) && item["success"].is_boolean() && item["success"].get<bool>() == true &&
-					 item.contains( "value" ) && item["value"].is_string() && item.contains( "output" ) && item["output"].is_string() )
+				return params;
+			}
+
+			auto arrayOpt = locationsDoc->get<nfx::serialization::json::Document::Array>( "" );
+			if ( !arrayOpt )
+			{
+				return params;
+			}
+
+			for ( const auto& item : arrayOpt.value() )
+			{
+				auto successOpt = item.get<bool>( "/success" );
+				auto valueOpt = item.get<std::string>( "/value" );
+				auto outputOpt = item.get<std::string>( "/output" );
+
+				if ( successOpt && successOpt.value() == true && valueOpt && outputOpt )
 				{
-					std::string value = item["value"].get<std::string>();
-					std::string output = item["output"].get<std::string>();
-					params.push_back( { value, output } );
+					params.push_back( { valueOpt.value(), outputOpt.value() } );
 				}
 			}
 		}
@@ -71,34 +86,53 @@ namespace dnv::vista::sdk::tests
 	static std::vector<LocationParseInvalidParam> loadInvalidLocationData()
 	{
 		std::vector<LocationParseInvalidParam> params;
-		const nlohmann::json& jsonData = test::loadTestData( LOCATIONS_TEST_DATA_FILE );
+		const nfx::serialization::json::Document& jsonData = test::loadTestData( LOCATIONS_TEST_DATA_FILE );
 		const std::string dataKey = "locations";
 
-		if ( jsonData.contains( dataKey ) && jsonData[dataKey].is_array() )
+		if ( jsonData.is<nfx::serialization::json::Document::Array>( "/" + dataKey ) )
 		{
-			for ( const auto& item : jsonData[dataKey] )
+			auto locationsDoc = jsonData.get<nfx::serialization::json::Document>( "/" + dataKey );
+			if ( !locationsDoc )
 			{
-				if ( item.is_object() && item.contains( "success" ) && item["success"].is_boolean() && item["success"].get<bool>() == false &&
-					 item.contains( "value" ) )
+				return params;
+			}
+
+			auto arrayOpt = locationsDoc->get<nfx::serialization::json::Document::Array>( "" );
+			if ( !arrayOpt )
+			{
+				return params;
+			}
+
+			for ( const auto& item : arrayOpt.value() )
+			{
+				auto successOpt = item.get<bool>( "/success" );
+				if ( successOpt && successOpt.value() == false )
 				{
-					std::string value;
-					if ( item["value"].is_string() )
+					auto valueOpt = item.get<std::string>( "/value" );
+					if ( !valueOpt )
 					{
-						value = item["value"].get<std::string>();
-					}
-					else if ( item["value"].is_null() )
-					{
+						// Skip null values
 						continue;
 					}
 
+					std::string value = valueOpt.value();
 					std::vector<std::string> errorMessages;
-					if ( item.contains( "expectedErrorMessages" ) && item["expectedErrorMessages"].is_array() )
+
+					if ( item.is<nfx::serialization::json::Document::Array>( "/expectedErrorMessages" ) )
 					{
-						for ( const auto& errorMsg : item["expectedErrorMessages"] )
+						auto errorMsgDoc = item.get<nfx::serialization::json::Document>( "/expectedErrorMessages" );
+						if ( errorMsgDoc )
 						{
-							if ( errorMsg.is_string() )
+							auto msgArrayOpt = errorMsgDoc->get<nfx::serialization::json::Document::Array>( "" );
+							if ( msgArrayOpt )
 							{
-								errorMessages.push_back( errorMsg.get<std::string>() );
+								for ( const auto& msgElem : msgArrayOpt.value() )
+								{
+									if ( auto msg = msgElem.get<std::string>( "" ) )
+									{
+										errorMessages.push_back( msg.value() );
+									}
+								}
 							}
 						}
 					}
@@ -375,4 +409,4 @@ namespace dnv::vista::sdk::tests
 		ASSERT_EQ( node1, node2 );
 		ASSERT_NE( &node1, &node2 );
 	}
-}
+} // namespace dnv::vista::sdk::tests

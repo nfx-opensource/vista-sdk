@@ -208,5 +208,5 @@ namespace dnv::vista::sdk::internal
 
 		/** @brief Result constant indicating custom position validation rules applied. */
 		inline constexpr std::string_view POSITION_VALIDATION_CUSTOM = "custom";
-	}
-}
+	} // namespace codebook
+} // namespace dnv::vista::sdk::internal

@@ -137,17 +137,18 @@ namespace dnv::vista::sdk::tests
 			// Apply parameters
 			for ( const auto& [nodeCode, locationStrings] : data.parameters )
 			{
+				const std::string nodeName = nodeCode;
 				if ( !locationStrings.has_value() || locationStrings->empty() )
 				{
 					// Match all locations for this node
-					query = query.withNode( [&nodeCode]( const auto& setNodes ) -> const GmodNode& {
-						auto it = setNodes.find( nodeCode );
-						if ( it == setNodes.end() )
+					query = query.withNode( [nodeName]( const auto& setNodes ) -> const GmodNode& {
+						const auto* nodePtr = setNodes.find( nodeName );
+						if ( nodePtr == nullptr )
 						{
-							throw std::runtime_error{ "Node not found in set nodes: " + nodeCode };
+							throw std::runtime_error{ "Node not found in set nodes: " + nodeName };
 						}
 
-						return it->second;
+						return *nodePtr;
 					},
 						true );
 				}
@@ -160,14 +161,14 @@ namespace dnv::vista::sdk::tests
 						auto location = locations.parse( locStr );
 						parsedLocations.push_back( location );
 					}
-					query = query.withNode( [&nodeCode]( const auto& setNodes ) -> const GmodNode& {
-						auto it = setNodes.find( nodeCode );
-						if ( it == setNodes.end() )
+					query = query.withNode( [nodeName]( const auto& setNodes ) -> const GmodNode& {
+						const auto* nodePtr = setNodes.find( nodeName );
+						if ( nodePtr == nullptr )
 						{
-							throw std::runtime_error{ "Node not found in set nodes: " + nodeCode };
+							throw std::runtime_error{ "Node not found in set nodes: " + nodeName };
 						}
 
-						return it->second;
+						return *nodePtr;
 					},
 						parsedLocations );
 				}
@@ -288,5 +289,5 @@ namespace dnv::vista::sdk::tests
 			NodesBuilderTestSuite,
 			NodesBuilderTest,
 			::testing::ValuesIn( nodesBuilderTestData() ) );
-	}
-}
+	} // namespace GmodPathQueryTests
+} // namespace dnv::vista::sdk::tests

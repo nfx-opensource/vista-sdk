@@ -15,7 +15,7 @@ namespace dnv::vista::sdk
 	// Construction
 	//----------------------------------------------
 
-	inline CodebookStandardValues::CodebookStandardValues( CodebookName name, nfx::containers::StringSet&& standardValues ) noexcept
+	inline CodebookStandardValues::CodebookStandardValues( CodebookName name, nfx::containers::FastHashSet<std::string>&& standardValues ) noexcept
 		: m_name{ name },
 		  m_standardValues{ std::move( standardValues ) }
 	{
@@ -32,7 +32,7 @@ namespace dnv::vista::sdk
 
 	inline bool CodebookStandardValues::contains( std::string_view tagValue ) const noexcept
 	{
-		if ( m_standardValues.contains( tagValue ) )
+		if ( m_standardValues.find( tagValue ) != nullptr )
 		{
 			return true;
 		}
@@ -67,7 +67,7 @@ namespace dnv::vista::sdk
 	// Construction
 	//----------------------------------------------
 
-	inline CodebookGroups::CodebookGroups( nfx::containers::StringSet&& groups ) noexcept
+	inline CodebookGroups::CodebookGroups( nfx::containers::FastHashSet<std::string>&& groups ) noexcept
 		: m_groups{ std::move( groups ) }
 	{
 	}
@@ -123,7 +123,7 @@ namespace dnv::vista::sdk
 		return m_standardValues;
 	}
 
-	inline const nfx::containers::StringMap<std::vector<std::string>>& Codebook::rawData() const noexcept
+	inline const nfx::containers::FastHashMap<std::string, std::vector<std::string>>& Codebook::rawData() const noexcept
 	{
 		return m_rawData;
 	}
@@ -141,4 +141,4 @@ namespace dnv::vista::sdk
 	{
 		return m_standardValues.contains( value );
 	}
-}
+} // namespace dnv::vista::sdk

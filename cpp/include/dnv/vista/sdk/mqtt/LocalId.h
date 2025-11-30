@@ -90,4 +90,4 @@ namespace dnv::vista::sdk::mqtt
 		 */
 		[[nodiscard]] std::string toString() const;
 	};
-}
+} // namespace dnv::vista::sdk::mqtt

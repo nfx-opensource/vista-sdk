@@ -49,34 +49,34 @@ namespace dnv::vista::sdk::internal
 	// Construction
 	//----------------------------------------------
 
-	GmodVersioningNode::GmodVersioningNode( VisVersion visVersion, const nfx::containers::StringMap<GmodNodeConversionDto>& dto )
+	GmodVersioningNode::GmodVersioningNode( VisVersion visVersion, const nfx::containers::FastHashMap<std::string, GmodNodeConversionDto>& dto )
 		: m_visVersion{ visVersion }
 	{
 		for ( const auto& [code, dtoNode] : dto )
 		{
 			GmodNodeConversion conversion;
-			conversion.source = dtoNode.source();
-			if ( nfx::string::isEmpty( dtoNode.target() ) )
+			conversion.source = dtoNode.source;
+			if ( nfx::string::isEmpty( dtoNode.target ) )
 			{
 				conversion.target = std::nullopt;
 			}
 			else
 			{
-				conversion.target = dtoNode.target();
+				conversion.target = dtoNode.target;
 			}
-			conversion.oldAssignment = dtoNode.oldAssignment();
-			conversion.newAssignment = dtoNode.newAssignment();
-			conversion.deleteAssignment = dtoNode.deleteAssignment();
+			conversion.oldAssignment = dtoNode.oldAssignment;
+			conversion.newAssignment = dtoNode.newAssignment;
+			conversion.deleteAssignment = dtoNode.deleteAssignment;
 
-			if ( !dtoNode.operations().empty() )
+			if ( !dtoNode.operations.empty() )
 			{
-				for ( const auto& type : dtoNode.operations() )
+				for ( const auto& type : dtoNode.operations )
 				{
 					conversion.operations.insert( parseConversionType( type ) );
 				}
 			}
 
-			m_versioningNodeChanges.emplace( code, conversion );
+			m_versioningNodeChanges.insertOrAssign( code, conversion );
 		}
 	}
 
@@ -93,14 +93,14 @@ namespace dnv::vista::sdk::internal
 		std::string_view code,
 		const GmodNodeConversion*& nodeChanges ) const
 	{
-		auto it = m_versioningNodeChanges.find( code );
-		if ( it != m_versioningNodeChanges.end() )
+		const auto* ptr = m_versioningNodeChanges.find( code );
+		if ( ptr != nullptr )
 		{
-			nodeChanges = &it->second;
+			nodeChanges = ptr;
 
 			return true;
 		}
 
 		return false;
 	}
-}
+} // namespace dnv::vista::sdk::internal

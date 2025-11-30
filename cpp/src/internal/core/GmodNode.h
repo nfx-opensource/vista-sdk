@@ -69,5 +69,5 @@ namespace dnv::vista::sdk::internal
 
 		/** @brief Complete product function leaf type specification. */
 		inline constexpr std::string_view FULLTYPE_PRODUCT_FUNCTION_LEAF = "PRODUCT FUNCTION LEAF";
-	}
-}
+	} // namespace gmodnode
+} // namespace dnv::vista::sdk::internal

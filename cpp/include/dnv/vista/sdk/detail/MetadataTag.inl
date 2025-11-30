@@ -70,4 +70,13 @@ namespace dnv::vista::sdk
 	{
 		return m_custom;
 	}
-}
+
+	//----------------------------------------------
+	// Hashing
+	//----------------------------------------------
+
+	inline std::size_t MetadataTag::hashCode() const noexcept
+	{
+		return m_hashCode;
+	}
+} // namespace dnv::vista::sdk

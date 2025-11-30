@@ -12,7 +12,7 @@
 #include <optional>
 #include <vector>
 
-#include <nfx/containers/StringMap.h>
+#include <nfx/Containers.h>
 
 #include "GmodPath.h"
 #include "Locations.h"
@@ -37,19 +37,17 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 
 		/** @brief Default constructor */
-		NodeItem() = delete;
+		NodeItem() = default;
 
 		/**
 		 * @brief Construct NodeItem with specified node and locations
 		 * @param node The GMOD node for this item
 		 * @param locations The vector of locations to associate with this node
 		 */
-		NodeItem( GmodNode node, std::vector<Location> locations ) noexcept;
-
-		/**
-		 * @brief Copy constructor
-		 * @param other The object to copy from
-		 */
+		NodeItem( GmodNode node, std::vector<Location> locations ) noexcept; /**
+																			  * @brief Copy constructor
+																			  * @param other The object to copy from
+																			  */
 		NodeItem( const NodeItem& other ) = default;
 
 		/**
@@ -240,7 +238,7 @@ namespace dnv::vista::sdk
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] GmodPathQuery withNode(
-			std::function<const GmodNode&( const nfx::containers::StringMap<GmodNode>& nodes )> selector,
+			std::function<const GmodNode&( const nfx::containers::FastHashMap<std::string, GmodNode>& nodes )> selector,
 			bool matchAllLocations = false ) const;
 
 		/**
@@ -251,7 +249,7 @@ namespace dnv::vista::sdk
 		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
 		 */
 		[[nodiscard]] GmodPathQuery withNode(
-			std::function<const GmodNode&( const nfx::containers::StringMap<GmodNode>& nodes )> selector,
+			std::function<const GmodNode&( const nfx::containers::FastHashMap<std::string, GmodNode>& nodes )> selector,
 			const std::vector<Location>& locations ) const;
 
 		//----------------------------
@@ -304,10 +302,10 @@ namespace dnv::vista::sdk
 		// Private member variables
 		//----------------------------------------------
 
-		nfx::containers::StringMap<NodeItem> m_filter;
+		nfx::containers::FastHashMap<std::string, NodeItem> m_filter;
 		std::optional<GmodPath> m_sourcePath;
-		nfx::containers::StringMap<GmodNode> m_setNodes;
+		nfx::containers::FastHashMap<std::string, GmodNode> m_setNodes;
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/GmodPathQuery.inl"

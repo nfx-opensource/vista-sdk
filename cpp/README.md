@@ -8,8 +8,7 @@
 
 <!-- CI/CD Status -->
 
-[![Linux GCC](https://img.shields.io/github/actions/workflow/status/ronan-fdev/vista-sdk/build-cpp-linux-gcc.yml?branch=cpp&label=Linux%20GCC&style=flat-square)](https://github.com/ronan-fdev/vista-sdk/actions/workflows/build-cpp-linux-gcc.yml) [![Linux Clang](https://img.shields.io/github/actions/workflow/status/ronan-fdev/vista-sdk/build-cpp-linux-clang.yml?branch=cpp&label=Linux%20Clang&style=flat-square)](https://github.com/ronan-fdev/vista-sdk/actions/workflows/build-cpp-linux-clang.yml)<br/>
-[![Windows MinGW](https://img.shields.io/github/actions/workflow/status/ronan-fdev/vista-sdk/build-cpp-windows-mingw.yml?branch=cpp&label=Windows%20MinGW&style=flat-square)](https://github.com/ronan-fdev/vista-sdk/actions/workflows/build-cpp-windows-mingw.yml) [![Windows MSVC](https://img.shields.io/github/actions/workflow/status/ronan-fdev/vista-sdk/build-cpp-windows-msvc.yml?branch=cpp&label=Windows%20MSVC&style=flat-square)](https://github.com/ronan-fdev/vista-sdk/actions/workflows/build-cpp-windows-msvc.yml)
+[![Linux GCC](https://img.shields.io/github/actions/workflow/status/ronan-fdev/vista-sdk/build-cpp-linux-gcc.yml?branch=cpp&label=Linux%20GCC&style=flat-square)](https://github.com/ronan-fdev/vista-sdk/actions/workflows/build-cpp-linux-gcc.yml) [![Linux Clang](https://img.shields.io/github/actions/workflow/status/ronan-fdev/vista-sdk/build-cpp-linux-clang.yml?branch=cpp&label=Linux%20Clang&style=flat-square)](https://github.com/ronan-fdev/vista-sdk/actions/workflows/build-cpp-linux-clang.yml) [![Windows MinGW](https://img.shields.io/github/actions/workflow/status/ronan-fdev/vista-sdk/build-cpp-windows-mingw.yml?branch=cpp&label=Windows%20MinGW&style=flat-square)](https://github.com/ronan-fdev/vista-sdk/actions/workflows/build-cpp-windows-mingw.yml) [![Windows MSVC](https://img.shields.io/github/actions/workflow/status/ronan-fdev/vista-sdk/build-cpp-windows-msvc.yml?branch=cpp&label=Windows%20MSVC&style=flat-square)](https://github.com/ronan-fdev/vista-sdk/actions/workflows/build-cpp-windows-msvc.yml)
 
 > C++ implementation of the Vista maritime standards ecosystem, providing tools for vessel data standardization, sensor naming, and maritime digitalization according to **ISO 19848**, **ISO 19847**, and **DNV VIS**
 
@@ -59,32 +58,46 @@ Originally ported from the [official DNV Vista SDK](https://github.com/dnv-opens
 ### Requirements
 
 -   C++20 compatible compiler:
-	-   **MSVC 2022+** (19.44+ tested)
-	-   **GCC 10+** (14.2.0 tested)
-	-   **Clang 12+** (19.1.5 tested)
+    -   **MSVC 2022+** (19.44+ tested)
+    -   **GCC 10+** (14.2.0 tested)
+    -   **Clang 12+** (19.1.5 tested)
 -   CMake 3.20 or higher
--   **Multi-compiler builds supported** across x64/x86 architectures
+-   Multi-compiler builds supported
 
 ### CMake Integration
 
 The library supports modular compilation through CMake options:
 
 ```cmake
+# Build optimization
+option(VISTA_SDK_CPP_USE_CCACHE                 "Enable compiler cache"                      ON  )
+
 # Library build types
-option(VISTA_SDK_CPP_BUILD_STATIC          "Build static library"                       ON   )
-option(VISTA_SDK_CPP_BUILD_SHARED          "Build shared library"                       OFF  )
+option(VISTA_SDK_CPP_BUILD_STATIC               "Build static library"                       ON   )
+option(VISTA_SDK_CPP_BUILD_SHARED               "Build shared library"                       AUTO )
 
 # Development
-option(VISTA_SDK_CPP_BUILD_TESTS           "Build tests"                                ON   )
-option(VISTA_SDK_CPP_BUILD_SMOKE_TESTS     "Build smoke tests"                          OFF  )
-option(VISTA_SDK_CPP_BUILD_BENCHMARKS      "Build benchmarks"                           ON   )
-option(VISTA_SDK_CPP_BUILD_SAMPLES         "Build vista-sdk-cpp samples"                ON   )
+option(VISTA_SDK_CPP_BUILD_TESTS                "Build tests"                                AUTO )
+option(VISTA_SDK_CPP_BUILD_SMOKE_TESTS          "Build smoke tests"                          OFF  )
+option(VISTA_SDK_CPP_BUILD_BENCHMARKS           "Build benchmarks"                           AUTO )
+option(VISTA_SDK_CPP_BUILD_SAMPLES              "Build vista-sdk-cpp samples"                AUTO )
+option(VISTA_SDK_CPP_BUILD_DOCUMENTATION        "Build vista-sdk-cpp Doxygen documentation"  AUTO )
+option(VISTA_SDK_CPP_USE_CUSTOM_COMPILER_FLAGS  "Skip automatic compiler configuration"      OFF  )
 
-# Documentation
-option(VISTA_SDK_CPP_BUILD_DOCUMENTATION   "Build vista-sdk-cpp Doxygen documentation"  ON   )
+# Installation
+option(VISTA_SDK_CPP_INSTALL_PROJECT            "Install project"                            ON   )
+
+# Packaging
+option(VISTA_SDK_CPP_PACKAGE_SOURCE             "Enable source package generation"           ON   )
+option(VISTA_SDK_CPP_PACKAGE_ARCHIVE            "Enable TGZ/ZIP package generation"          ON   )
+option(VISTA_SDK_CPP_PACKAGE_DEB                "Enable DEB package generation"              ON   )
+option(VISTA_SDK_CPP_PACKAGE_RPM                "Enable RPM package generation"              ON   )
+option(VISTA_SDK_CPP_PACKAGE_NSIS               "Enable NSIS Windows installer"              ON   )
 ```
 
 ### Using in Your Project
+
+#### Option 1: Using FetchContent (Build from source)
 
 ```cmake
 include(FetchContent)
@@ -95,8 +108,72 @@ FetchContent_Declare(
   SOURCE_SUBDIR  cpp
 )
 FetchContent_MakeAvailable(vista-sdk-cpp)
-target_link_libraries(your_target vista-sdk-cpp-static)
+
+# Link with static library (recommended for most use cases)
+target_link_libraries(your_target vista-sdk-cpp::static)
+
+# Or link with shared library
+# target_link_libraries(your_target vista-sdk-cpp::vista-sdk-cpp)
 ```
+
+#### Option 2: As a Git Submodule
+
+**Setup Steps (one-time):**
+
+```bash
+# From your project root directory
+git submodule add https://github.com/ronan-fdev/vista-sdk.git third-party/vista-sdk
+git commit -m "Add vista-sdk as submodule"
+```
+
+**CMakeLists.txt:**
+
+```cmake
+# Add Vista SDK C++ as a subdirectory
+add_subdirectory(third-party/vista-sdk/cpp)
+
+# Link with the library
+target_link_libraries(your_target vista-sdk-cpp::static)
+```
+
+**Clone/Update Commands:**
+
+```bash
+# When cloning your project (for new developers)
+# Replace with your actual project URL:
+git clone --recursive https://github.com/YOUR-USERNAME/YOUR-PROJECT.git
+
+# Or if already cloned without --recursive
+git submodule update --init --recursive
+
+# To update the submodule to latest version
+cd third-party/vista-sdk
+git pull origin cpp
+cd ../..
+git add third-party/vista-sdk
+git commit -m "Update vista-sdk submodule"
+```
+
+#### Option 3: Using find_package (for installed libraries)
+
+```cmake
+# Find the installed Vista SDK C++ library
+find_package(vista-sdk-cpp REQUIRED)
+
+# Link with static library (recommended for most use cases)
+target_link_libraries(your_target vista-sdk-cpp::static)
+
+# Or link with shared library
+# target_link_libraries(your_target vista-sdk-cpp::vista-sdk-cpp)
+```
+
+#### Integration Method Comparison
+
+| Method           | Best For                              | Pros                                              | Cons                                              |
+| ---------------- | ------------------------------------- | ------------------------------------------------- | ------------------------------------------------- |
+| **find_package** | Production builds, system packages    | Fast builds, version control, clean separation    | Requires pre-installation                         |
+| **FetchContent** | CI/CD, development, specific versions | Always available, version pinning, no pre-install | Longer build times, downloads on each clean build |
+| **Submodule**    | Long-term projects, offline builds    | Full source control, offline capability           | Manual updates, Git complexity                    |
 
 ### Building
 
@@ -119,6 +196,142 @@ cmake --build . --config Release
 # Run tests (optional)
 ctest -C Release
 ```
+
+### Documentation
+
+Vista SDK C++ includes comprehensive API documentation generated with Doxygen.
+
+#### Building Documentation
+
+```bash
+# Configure with documentation enabled
+cmake .. -DCMAKE_BUILD_TYPE=Release -DVISTA_SDK_CPP_BUILD_DOCUMENTATION=ON
+
+# Build the documentation
+cmake --build . --target documentation
+
+# Documentation will be generated in build/doc/html/
+```
+
+#### Requirements
+
+-   **Doxygen** - Documentation generation tool
+-   **Graphviz Dot** (optional) - For generating class diagrams and dependency graphs
+
+#### Accessing Documentation
+
+After building, open the documentation in your browser:
+
+```bash
+# Linux
+xdg-open build/vista-sdk-cpp-*/*/Release/doc/html/index.html     # Most Linux systems
+firefox build/vista-sdk-cpp-*/*/Release/doc/html/index.html      # If Firefox is installed
+
+# Windows
+start build/vista-sdk-cpp-*/*/Release/doc/html/index.html
+```
+
+## Installation & Packaging
+
+Vista SDK C++ provides comprehensive packaging options for distribution across multiple platforms and package managers.
+
+### Package Generation
+
+The library supports generating packages in multiple formats:
+
+```bash
+# Configure with packaging options (including both static and shared libraries)
+cmake .. -DCMAKE_BUILD_TYPE=Release \
+         -DVISTA_SDK_CPP_BUILD_STATIC=ON \
+         -DVISTA_SDK_CPP_BUILD_SHARED=ON \
+         -DVISTA_SDK_CPP_PACKAGE_ARCHIVE=ON \
+         -DVISTA_SDK_CPP_PACKAGE_DEB=ON \
+         -DVISTA_SDK_CPP_PACKAGE_RPM=ON \
+         -DVISTA_SDK_CPP_PACKAGE_NSIS=ON \
+         -DVISTA_SDK_CPP_PACKAGE_SOURCE=ON
+
+# Generate binary packages
+cmake --build . --target package
+
+# Generate source packages (recommended method)
+cd build
+cpack --config CPackSourceConfig.cmake
+```
+
+### Supported Package Formats
+
+| Format      | Platform       | Description                              | Requirements |
+| ----------- | -------------- | ---------------------------------------- | ------------ |
+| **TGZ/ZIP** | Cross-platform | Compressed archive packages              | None         |
+| **DEB**     | Debian/Ubuntu  | Native Debian packages with dependencies | `dpkg-dev`   |
+| **RPM**     | RedHat/SUSE    | Native RPM packages with dependencies    | `rpm-build`  |
+| **NSIS**    | Windows        | Professional Windows installer (.exe)    | `NSIS 3.03+` |
+| **Source**  | Cross-platform | Source code distribution                 | None         |
+
+### Package Options
+
+Control which packages are generated with CMake options:
+
+```cmake
+# Package generation control
+option(VISTA_SDK_CPP_PACKAGE_ARCHIVE      "Generate TGZ/ZIP packages"          ON   )
+option(VISTA_SDK_CPP_PACKAGE_DEB          "Generate DEB packages (Linux)"      ON   )
+option(VISTA_SDK_CPP_PACKAGE_RPM          "Generate RPM packages (Linux)"      ON   )
+option(VISTA_SDK_CPP_PACKAGE_NSIS         "Generate NSIS installer (Windows)"  ON   )
+option(VISTA_SDK_CPP_PACKAGE_SOURCE       "Generate source packages"           ON   )
+```
+
+### Linux Package Dependencies
+
+**DEB packages** automatically include runtime dependencies:
+
+-   `libc6`, `libstdc++6`, `libgcc-s1` (core runtime)
+-   `zlib1g` (compression support)
+
+**RPM packages** automatically include runtime dependencies:
+
+-   `glibc`, `libstdc++` (core runtime)
+-   `zlib` (compression support)
+
+### Windows Installer Features
+
+The NSIS installer provides:
+
+-   **64-bit Program Files installation**
+-   **Automatic PATH modification** for easy command-line access
+-   **Proper uninstaller registration** in Windows Add/Remove Programs
+-   **DPI-aware installation** for modern displays
+
+### Cross-Platform Installation
+
+```bash
+# Linux (DEB-based systems)
+sudo dpkg -i vista-sdk-cpp-*.deb
+sudo apt-get install -f  # Fix dependencies if needed
+
+# Linux (RPM-based systems)
+sudo rpm -ivh vista-sdk-cpp-*.rpm
+
+# Windows
+# Run the .exe installer with administrator privileges
+vista-sdk-cpp-*-win64.exe
+
+# Manual installation (all platforms)
+# Extract TGZ/ZIP to desired location
+tar -xzf vista-sdk-cpp-*.tar.gz -C /usr/local/
+# or
+unzip vista-sdk-cpp-*.zip -d "C:\Program Files\"
+```
+
+### Package Contents
+
+All packages include:
+
+-   **Headers** (`include/dnv/vista/sdk/`) - Public API headers
+-   **Libraries** (`lib/`) - Static/shared libraries
+-   **Documentation** (`doc/`) - API documentation (if built)
+-   **Licenses** (`licenses/`) - All license files
+-   **Examples** (`samples/`) - Usage examples (if built)
 
 ### Usage Example
 
@@ -236,11 +449,25 @@ For detailed performance metrics and cross-language comparisons, see [benchmark/
 
 -   **Platforms**: Windows, Linux, macOS
 -   **Compilers**:
-	-   **MSVC 2022+** (tested with Visual Studio 19.44.35214.0)
-	-   **GCC 10+** (tested with GCC 14.2.0)
-	-   **Clang 12+** (tested with Clang 19.1.5)
+    -   **MSVC 2022+** (tested with Visual Studio 19.44.35214.0)
+    -   **GCC 10+** (tested with GCC 14.2.0)
+    -   **Clang 12+** (tested with Clang 19.1.5)
 -   **Architectures**: x64
 -   **Standards**: C++20
+
+## CPU Architecture Detection
+
+Vista SDK C++ includes CPU feature detection to optimize performance across different hardware generations while ensuring broad compatibility for source builds.
+
+### Build-Time CPU Detection
+
+The library automatically detects CPU capabilities during CMake configuration and conditionally enables optimizations:
+
+-   **Configure-time AVX2 detection**: Uses `CheckCXXSourceRuns` with AVX2 intrinsics (`_mm256_*`) to test actual CPU support on the build machine
+-   **Conditional compilation flags**:
+    -   **MSVC**: Adds `/arch:AVX2` only if CPU supports it, otherwise falls back to `/arch:SSE2`
+    -   **GCC/Clang**: Adds `-mavx2` and `-mfma` only if CPU supports AVX2, otherwise uses SSE4.2 baseline
+-   **Hardware-specific builds**: Each build is optimized for the specific CPU it's built on (Haswell+ gets AVX2, older CPUs get SSE fallback)
 
 ## License
 
@@ -248,8 +475,7 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 
 ### Dependencies & Third-Party Attributions
 
--   **[nfx-core](https://github.com/ronan-fdev/nfx-core)**: High-performance containers and utilities
--   **[nlohmann/json](https://github.com/nlohmann/json)**: JSON parsing
+-   **[nfx-meta](https://github.com/ronan-fdev/nfx-meta)**: High-performance containers, utilities, and JSON serialization framework (embeds nlohmann/json)
 -   **[zlib-ng](https://github.com/zlib-ng/zlib-ng)**: High-performance zlib compression library
 -   **[GoogleTest](https://github.com/google/googletest)**: Testing framework
 -   **[Google Benchmark](https://github.com/google/benchmark)**: Performance benchmarking framework
@@ -267,4 +493,4 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 
 ---
 
-_Updated September 24, 2025_
+_Updated on October 9, 2025_

@@ -10,19 +10,22 @@
  * ## System Purpose:
  *
  * The **VISTA LocalIdItems Container** serves as the internal foundation for:
- * - **Dual Path Storage**    : Primary and optional secondary GMOD path management
- * - **Immutable Design**     : Thread-safe storage that cannot be modified after construction
- * - **Builder Integration**  : Exclusive access through LocalIdBuilder friend class
- * - **Move Semantics**       : Efficient path ownership transfer with zero-copy construction
- * - **String Representation**: Unified path serialization with verbose mode support
+ * - **Dual Path Storage**     : Primary and optional secondary GMOD path management
+ * - **Immutable Design**      : Thread-safe storage with no post-construction modification
+ * - **Controlled Access**     : Exclusive access through LocalIdBuilder friend class interface
+ * - **Move-Only Semantics**   : Efficient path ownership transfer with zero-copy construction
+ * - **String Serialization**  : Unified path-to-string conversion with verbose mode support
+ * - **Type-Safe Construction**: Private constructors prevent invalid state creation
+ * - **Memory Efficient**      : Minimal overhead with optional<GmodPath> storage model
  *
  * ## Core Architecture:
  *
  * ### Storage Model
- * - **Primary Path**   : Required GMOD path representing the main component or data point
- * - **Secondary Path** : Optional GMOD path for additional context or related components
- * - **Move-Only**      : GmodPath non-copyable nature enforces move semantics throughout
- * - **Immutable**      : No modification allowed after construction for thread safety
+ * - **Primary Path**    : Required GMOD path representing the main component or data point
+ * - **Secondary Path**  : Optional GMOD path for additional context or related components
+ * - **Optional Wrapper**: Both paths use std::optional for uniform handling and null safety
+ * - **Immutable State** : No modification allowed after construction ensuring thread safety
+ * - **Friend Access**   : Private interface accessible only through LocalIdBuilder
  *
  * ## Memory Layout & Performance:
  *
@@ -32,15 +35,27 @@
  * │          LocalIdItems               │
  * ├─────────────────────────────────────┤
  * │ ┌─────────────────────────────────┐ │
- * │ │  std::optional<GmodPath>        │ │ ← Primary path storage
- * │ │      m_primaryItem              │ │   (required component)
+ * │ │  std::optional<GmodPath>        │ │ ← Primary path storage (required component)
+ * │ │      m_primaryItem              │ │
  * │ └─────────────────────────────────┘ │
  * │ ┌─────────────────────────────────┐ │
- * │ │  std::optional<GmodPath>        │ │ ← Secondary path storage
- * │ │     m_secondaryItem             │ │   (optional context)
+ * │ │  std::optional<GmodPath>        │ │ ← Secondary path storage (optional context)
+ * │ │     m_secondaryItem             │ │
  * │ └─────────────────────────────────┘ │
  * └─────────────────────────────────────┘
- * ```
+ *                  ↓
+ * Path Access & String Operations
+ *                  ↓
+ * ┌─────────────────────────────────────┐
+ * │    Container Access Operations      │
+ * ├─────────────────────────────────────┤
+ * │ - O(1) primary/secondary access     │
+ * │ - Move-only construction patterns   │
+ * │ - Friend class controlled access    │
+ * │ - StringBuilder serialization       │
+ * │ - Immutable read-only operations    │
+ * └─────────────────────────────────────┘
+ *```
  *
  * ## Usage Patterns:
  *
@@ -51,20 +66,32 @@
  *
  * ```
  *
+ * ## Performance Characteristics:
+ *
+ * - **Construction**     : O(1) move operations for efficient path ownership transfer
+ * - **Access Operations**: O(1) direct member access through const reference returns
+ * - **Memory Footprint** : Minimal overhead with std::optional<GmodPath> storage model
+ * - **Thread Safety**    : Immutable read-only operations safe for concurrent access
+ * - **Move Semantics**   : Zero-copy construction and manipulation throughout lifecycle
+ * - **String Building**  : O(n) serialization where n is total path string length
+ * - **Comparison Ops**   : O(n) equality comparison delegated to GmodPath operators Secondary GMOD Path Storage
+ *
  * ## Design Philosophy:
  *
- * - **Type Safety**         : Private constructors prevent invalid state creation
- * - **Performance Focus**   : Move semantics for efficient path ownership transfer
- * - **Immutability**        : Thread-safe design with no post-construction changes
- * - **Builder Integration** : Seamless integration with fluent builder interface
+ * - **Encapsulation First** : Private constructors with friend class access ensure controlled creation
+ * - **Move-Only Efficiency**: Leverages GmodPath move semantics for optimal performance
+ * - **Immutable Container** : Thread-safe design with guaranteed no post-construction changes
+ * - **Builder Integration** : Seamless integration with LocalIdBuilder fluent interface
+ * - **Type-Safe Storage**   : std::optional wrapper provides null safety and uniform handling
  * - **Standards Compliance**: Consistent with VIS maritime data identification standards
+ * - **Minimal Interface**   : Simple, focused API with essential operations only
  *
  * ## Performance Characteristics:
  *
- * - **Construction**: O(1) move operations for path ownership transfer
- * - **Access**      : O(1) direct member access through friend interface
- * - **Memory**      : Minimal overhead with optional<GmodPath> storage
- * - **Thread Safety**: Read-only operations safe for concurrent access
+ * - **Construction**  : O(1) move operations for path ownership transfer
+ * - **Access**        : O(1) direct member access through friend interface
+ * - **Memory**        : Minimal overhead with optional<GmodPath> storage
+ * - **Thread Safety** : Read-only operations safe for concurrent access
  * - **Move Semantics**: Zero-copy construction and manipulation
  */
 
@@ -72,7 +99,7 @@
 
 #include <optional>
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/StringBuilder.h>
 
 #include "GmodPath.h"
 
@@ -86,8 +113,7 @@ namespace dnv::vista::sdk
 	 * @brief Immutable structure representing primary and optional secondary GMOD items for a LocalId.
 	 *
 	 * This class stores primary and secondary GmodPath items. It is designed to be
-	 * immutable after construction. Due to GmodPath being non-copyable, this class
-	 * also enforces move-only semantics for construction involving GmodPath objects.
+	 * immutable after construction.
 	 */
 	class LocalIdItems final
 	{
@@ -150,7 +176,7 @@ namespace dnv::vista::sdk
 		//----------------------------------------------
 
 		/** @brief Copy assignment operator */
-		LocalIdItems& operator=( const LocalIdItems& ) = delete;
+		LocalIdItems& operator=( const LocalIdItems& ) = default;
 
 		/** @brief Move assignment operator */
 		LocalIdItems& operator=( LocalIdItems&& other ) noexcept = default;
@@ -208,6 +234,6 @@ namespace dnv::vista::sdk
 		/** @brief The optional secondary item path. */
 		std::optional<GmodPath> m_secondaryItem;
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/LocalIdItems.inl"

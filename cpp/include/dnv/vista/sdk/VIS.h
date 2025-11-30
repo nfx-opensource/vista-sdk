@@ -78,7 +78,7 @@
 
 #include <vector>
 
-#include <nfx/containers/StringMap.h>
+#include <nfx/Containers.h>
 #include <nfx/string/Utils.h>
 
 #include "Codebooks.h"
@@ -650,6 +650,6 @@ namespace dnv::vista::sdk
 		 */
 		[[nodiscard]] std::optional<LocalId> convertLocalId( const LocalId& sourceLocalId, VisVersion targetVersion ) const;
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/VIS.inl"

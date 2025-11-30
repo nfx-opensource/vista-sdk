@@ -6,12 +6,12 @@
 #include <cstdint>
 #include <regex>
 
-#include <nfx/string/StringBuilderPool.h>
+#include <nfx/string/StringBuilder.h>
 #include <nfx/string/Utils.h>
 
 #include "dnv/vista/sdk/transport/datachannel/DataChannel.h"
 
-#include "internal/transport/ISO19848.h"
+#include "dnv/vista/sdk/transport/ISO19848Constants.h"
 
 namespace dnv::vista::sdk::transport
 {
@@ -32,7 +32,7 @@ namespace dnv::vista::sdk::transport
 			if ( restriction.minExclusive() && number <= *restriction.minExclusive() )
 			{
 				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
+				auto builder = lease.create();
 				builder.append( "Value must be greater than " );
 				builder.append( std::to_string( *restriction.minExclusive() ) );
 
@@ -42,7 +42,7 @@ namespace dnv::vista::sdk::transport
 			if ( restriction.maxExclusive() && number >= *restriction.maxExclusive() )
 			{
 				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
+				auto builder = lease.create();
 				builder.append( "Value must be less than " );
 				builder.append( std::to_string( *restriction.maxExclusive() ) );
 
@@ -52,7 +52,7 @@ namespace dnv::vista::sdk::transport
 			if ( restriction.minInclusive() && number < *restriction.minInclusive() )
 			{
 				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
+				auto builder = lease.create();
 				builder.append( "Value must be greater than or equal to " );
 				builder.append( std::to_string( *restriction.minInclusive() ) );
 
@@ -62,7 +62,7 @@ namespace dnv::vista::sdk::transport
 			if ( restriction.maxInclusive() && number > *restriction.maxInclusive() )
 			{
 				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
+				auto builder = lease.create();
 				builder.append( "Value must be less than or equal to " );
 				builder.append( std::to_string( *restriction.maxInclusive() ) );
 
@@ -71,7 +71,7 @@ namespace dnv::vista::sdk::transport
 
 			return ValidateResult::Ok{};
 		}
-	}
+	} // namespace internal
 
 	//=====================================================================
 	// Restriction class
@@ -163,7 +163,7 @@ namespace dnv::vista::sdk::transport
 		if ( m_length && !nfx::string::hasExactLength( value, *m_length ) )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
+			auto builder = lease.create();
 			builder.append( "Value length must be exactly " );
 			builder.append( std::to_string( *m_length ) );
 			builder.append( " characters" );
@@ -174,7 +174,7 @@ namespace dnv::vista::sdk::transport
 		if ( m_minLength && value.length() < *m_minLength )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
+			auto builder = lease.create();
 			builder.append( "Value length must be at least " );
 			builder.append( std::to_string( *m_minLength ) );
 			builder.append( " characters" );
@@ -185,7 +185,7 @@ namespace dnv::vista::sdk::transport
 		if ( m_maxLength && value.length() > *m_maxLength )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
+			auto builder = lease.create();
 			builder.append( "Value length must be at most " );
 			builder.append( std::to_string( *m_maxLength ) );
 			builder.append( " characters" );
@@ -196,7 +196,7 @@ namespace dnv::vista::sdk::transport
 		if ( format.isDecimal() )
 		{
 			nfx::datatypes::Decimal decimalValueResult;
-			if ( !nfx::datatypes::Decimal::tryParse( value, decimalValueResult ) )
+			if ( !nfx::datatypes::Decimal::fromString( value, decimalValueResult ) )
 			{
 				return ValidateResult::Invalid{ { "Invalid numeric value" } };
 			}
@@ -212,7 +212,7 @@ namespace dnv::vista::sdk::transport
 				if ( decimalValueResult.decimalPlacesCount() > *m_fractionDigits )
 				{
 					auto lease = nfx::string::StringBuilderPool::lease();
-					auto builder = lease.builder();
+					auto builder = lease.create();
 					builder.append( "Value has too many decimal places (max: " );
 					builder.append( std::to_string( *m_fractionDigits ) );
 					builder.append( ")" );
@@ -230,7 +230,7 @@ namespace dnv::vista::sdk::transport
 				if ( numStr.length() > *m_totalDigits )
 				{
 					auto lease = nfx::string::StringBuilderPool::lease();
-					auto builder = lease.builder();
+					auto builder = lease.create();
 					builder.append( "Value has too many total digits (max: " );
 					builder.append( std::to_string( *m_totalDigits ) );
 					builder.append( ")" );
@@ -251,7 +251,8 @@ namespace dnv::vista::sdk::transport
 	// Construction
 	//----------------------------------------------
 
-	Format::Format( std::string_view type )
+	Format::Format( std::string_view type, std::optional<Restriction> restriction )
+		: m_restriction{ std::move( restriction ) }
 	{
 		setType( type );
 	}
@@ -262,7 +263,7 @@ namespace dnv::vista::sdk::transport
 
 	bool Format::isDecimal() const noexcept
 	{
-		return m_type && nfx::string::equals( *m_type, sdk::internal::iso19848::FORMAT_TYPE_DECIMAL );
+		return m_type && nfx::string::equals( *m_type, iso19848::formatdatatypes::DECIMAL );
 	}
 
 	//----------------------------------------------
@@ -300,7 +301,11 @@ namespace dnv::vista::sdk::transport
 	// Construction
 	//----------------------------------------------
 
-	DataChannelType::DataChannelType( std::string_view type )
+	DataChannelType::DataChannelType( std::string_view type,
+		std::optional<double> updateCycle,
+		std::optional<double> calculationPeriod )
+		: m_updateCycle{ updateCycle },
+		  m_calculationPeriod{ calculationPeriod }
 	{
 		setType( type );
 	}
@@ -325,13 +330,13 @@ namespace dnv::vista::sdk::transport
 	void DataChannelType::setType( std::string_view type )
 	{
 		// Validate against ISO19848 data channel types
-		auto channelTypes = ISO19848::instance().dataChannelTypeNames( ISO19848Version::LATEST );
+		auto channelTypes = ISO19848::instance().dataChannelTypeNames( ISO19848Version::Latest );
 		auto result = channelTypes.parse( type );
 
 		if ( !result.isOk() )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
+			auto builder = lease.create();
 			builder.append( "Invalid data channel type: " );
 			builder.append( type );
 			throw std::invalid_argument{ lease.toString() };
@@ -457,6 +462,15 @@ namespace dnv::vista::sdk::transport
 	//=====================================================================
 
 	//----------------------------------------------
+	// Construction
+	//----------------------------------------------
+
+	DataChannelList::DataChannelList( const std::vector<DataChannel>& dataChannels )
+	{
+		add( std::move( dataChannels ) );
+	}
+
+	//----------------------------------------------
 	// Collection interface
 	//----------------------------------------------
 
@@ -464,7 +478,7 @@ namespace dnv::vista::sdk::transport
 	{
 		m_dataChannels.clear();
 		m_shortIdMap.clear();
-		m_localIdMap = nfx::containers::HashMap<LocalId, const DataChannel*>{};
+		m_localIdMap = nfx::containers::FastHashMap<LocalId, const DataChannel*>{};
 	}
 
 	//----------------------------------------------
@@ -473,10 +487,10 @@ namespace dnv::vista::sdk::transport
 
 	const DataChannel* DataChannelList::tryGetByShortId( const std::string& shortId ) const
 	{
-		auto it = m_shortIdMap.find( shortId );
-		if ( it != m_shortIdMap.end() )
+		const auto* ptr = m_shortIdMap.find( shortId );
+		if ( ptr != nullptr )
 		{
-			return it->second;
+			return *ptr;
 		}
 
 		return nullptr;
@@ -484,10 +498,10 @@ namespace dnv::vista::sdk::transport
 
 	const DataChannel* DataChannelList::tryGetByShortId( std::string_view shortId ) const
 	{
-		auto it = m_shortIdMap.find( shortId );
-		if ( it != m_shortIdMap.end() )
+		const auto* ptr = m_shortIdMap.find( shortId );
+		if ( ptr != nullptr )
 		{
-			return it->second;
+			return *ptr;
 		}
 
 		return nullptr;
@@ -495,9 +509,8 @@ namespace dnv::vista::sdk::transport
 
 	const DataChannel* DataChannelList::tryGetByLocalId( const LocalId& localId ) const
 	{
-		const DataChannel** valuePtr = nullptr;
-		auto& mutableMap = const_cast<nfx::containers::HashMap<LocalId, const DataChannel*>&>(m_localIdMap);
-		if ( mutableMap.tryGetValue( localId, valuePtr ) )
+		const DataChannel* const* valuePtr = m_localIdMap.find( localId );
+		if ( valuePtr != nullptr )
 		{
 			return *valuePtr;
 		}
@@ -512,23 +525,22 @@ namespace dnv::vista::sdk::transport
 	void DataChannelList::add( DataChannel dataChannel )
 	{
 		// Check for LocalId conflicts
-		const DataChannel** existingPtr = nullptr;
-		if ( m_localIdMap.tryGetValue( dataChannel.dataChannelId().localId(), existingPtr ) )
+		const auto* existingPtr = m_localIdMap.find( dataChannel.dataChannelId().localId() );
+		if ( existingPtr != nullptr )
 		{
-			throw std::invalid_argument{ "LocalId already exists in collection" };
+			throw std::invalid_argument{ "LocalId already exists in collection: " + dataChannel.dataChannelId().localId().toString() };
 		}
 
 		// Check for ShortId conflicts (if ShortId is present)
 		if ( dataChannel.dataChannelId().shortId() )
 		{
 			const auto& shortId = *dataChannel.dataChannelId().shortId();
-			if ( m_shortIdMap.find( shortId ) != m_shortIdMap.end() )
+			if ( m_shortIdMap.find( shortId ) != nullptr )
 			{
 				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
+				auto builder = lease.create();
 				builder.append( "ShortId already exists in collection: " );
 				builder.append( shortId );
-
 				throw std::invalid_argument{ lease.toString() };
 			}
 		}
@@ -542,7 +554,7 @@ namespace dnv::vista::sdk::transport
 
 		if ( addedChannel.dataChannelId().shortId() )
 		{
-			m_shortIdMap.emplace( *addedChannel.dataChannelId().shortId(), &addedChannel );
+			m_shortIdMap.insertOrAssign( *addedChannel.dataChannelId().shortId(), &addedChannel );
 		}
 	}
 
@@ -578,4 +590,4 @@ namespace dnv::vista::sdk::transport
 		m_dataChannels.erase( it );
 		return true;
 	}
-}
+} // namespace dnv::vista::sdk::transport

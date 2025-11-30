@@ -50,6 +50,11 @@ namespace dnv::vista::sdk
 		return m_value;
 	}
 
+	inline std::size_t Location::hashCode() const noexcept
+	{
+		return m_hashCode;
+	}
+
 	//=====================================================================
 	// RelativeLocation Class
 	//=====================================================================
@@ -91,4 +96,4 @@ namespace dnv::vista::sdk
 	{
 		return m_location;
 	}
-}
+} // namespace dnv::vista::sdk

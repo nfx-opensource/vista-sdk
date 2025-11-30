@@ -11,11 +11,13 @@
  * ## System Purpose:
  *
  * The **VISTA Location System** serves as the foundation for:
- * - **Spatial Validation**  : Ensuring maritime location data conforms to VIS spatial standards
- * - **Location Parsing**    : Converting string representations to validated Location objects
- * - **Component Analysis**  : Breaking down complex locations into constituent parts
- * - **Group Classification**: Organizing location components by type (Side, Vertical, etc.)
- * - **Relative Positioning**: Managing relationships between location components
+ * - **Spatial Validation**    : Ensuring maritime location data conforms to VIS spatial standards
+ * - **Location Parsing**      : Converting string representations to validated Location objects
+ * - **Component Analysis**    : Breaking down complex locations into constituent character parts
+ * - **Group Classification**  : Organizing location components by type (Side, Vertical, Longitudinal, etc.)
+ * - **Relative Positioning**  : Managing hierarchical relationships between location components
+ * - **Character Code Mapping**: Providing human-readable names for location character codes
+ * - **Fast Validation**       : O(1) hash-based lookups for high-performance location checking
  *
  * ## Core Architecture:
  *
@@ -26,18 +28,20 @@
  * - **LocationGroup**   : Enumeration classifying location component types
  *
  * ### Validation Framework
- * - **String Parsing**       : Convert location strings to validated objects
- * - **Component Validation** : Verify individual location components
- * - **Group Classification** : Determine component types (Side, Vertical, etc.)
- * - **Hierarchical Checking**: Validate component combinations and sequences
+ * - **String Parsing**       : Convert location strings to validated immutable objects
+ * - **Character Validation** : Verify individual location characters using hash-based lookup
+ * - **Component Validation** : Verify individual location components and their combinations
+ * - **Group Classification** : Determine component types (Side, Vertical, Longitudinal, etc.)
+ * - **Hierarchical Checking**: Validate component combinations and sequences for maritime context
+ * - **Error Diagnostics**    : Comprehensive error reporting with detailed failure information
  *
  * ## Data Flow Architecture:
  *
  * ```
- * LocationsDto (External Data)
- *         ↓
- * Locations Construction
- *         ↓
+ *      LocationsDto (External Data)
+ *                  ↓
+ *        Locations Construction
+ *                  ↓
  * ┌─────────────────────────────────────┐
  * │            Locations                │
  * ├─────────────────────────────────────┤
@@ -54,9 +58,20 @@
  * │ │   (map<char, LocationGroup>)    │ │
  * │ └─────────────────────────────────┘ │
  * └─────────────────────────────────────┘
- *         ↓
- * Location Parsing & Validation
- * ```
+ *                  ↓
+ *      Location Parsing & Validation
+ *                  ↓
+ * ┌─────────────────────────────────────┐
+ * │    Location Processing Operations   │
+ * ├─────────────────────────────────────┤
+ * │ - O(1) character code validation    │
+ * │ - O(1) group classification lookup  │
+ * │ - Component sequence parsing        │
+ * │ - Location object construction      │
+ * │ - Hierarchical validation checks    │
+ * │ - Error reporting and diagnostics   │
+ * └─────────────────────────────────────┘
+ *```
  *
  * ## Usage Patterns:
  *
@@ -76,20 +91,22 @@
  *
  * ## Performance Characteristics:
  *
- * - **O(1) Validation**  : Hash-based sets for constant-time character validation
- * - **Zero-Copy Access** : `string_view` interfaces minimize memory allocation
- * - **Immutable Design** : Thread-safe operations with immutable location objects
- * - **Fast Parsing**     : Optimized string parsing with minimal allocations
- * - **Efficient Storage**: Compact representation with minimal memory overhead
+ * - **O(1) Character Validation**: Hash-based `std::unordered_set<char>` for constant-time lookups
+ * - **O(1) Group Classification**: `std::map<char, LocationGroup>` for fast component type determination
+ * - **Zero-Copy Access**         : `string_view` interfaces minimize memory allocation overhead
+ * - **Immutable Design**         : Thread-safe operations with immutable location objects
+ * - **Fast Parsing**             : Optimized string parsing with minimal temporary allocations
+ * - **Efficient Storage**        : Compact representation with minimal memory overhead per location
+ * - **Container Optimization**   : STL containers optimized
  *
  * ## Location Component Types:
  *
  * ### LocationGroup Classifications
- * - **Number**      : Numeric identifiers (e.g., )
- * - **Side**        : Port/Starboard positioning (e.g., )
- * - **Vertical**    : Upper/Middle/Lower positioning (e.g., )
- * - **Transverse**  : Cross-ship positioning (e.g., )
- * - **Longitudinal**: Fore/Aft positioning (e.g., )
+ * - **Number**      : Numeric identifiers (e.g., 1-9 for deck levels, compartment numbers)
+ * - **Side**        : Port/Starboard positioning (e.g., P for Port, S for Starboard)
+ * - **Vertical**    : Upper/Middle/Lower positioning (e.g., U for Upper, M for Middle, L for Lower)
+ * - **Transverse**  : Cross-ship positioning (e.g., C for Center, I for Inboard, O for Outboard)
+ * - **Longitudinal**: Fore/Aft positioning (e.g., F for Forward, A for Aft, M for Midships)
  *
  * ### Validation Levels
  * - **Character Validation**: Verify individual characters are valid location codes
@@ -99,12 +116,47 @@
  *
  * ## Design Philosophy:
  *
- * - **Standards Compliance**: Full adherence to VIS location specifications
- * - **Type Safety**         : Strong typing prevents invalid location construction
- * - **Performance Focus**   : Optimized for high-frequency maritime data processing
- * - **Immutability**        : Thread-safe design with immutable location objects
- * - **Usability**           : Clear, intuitive API for common location operations
- * - **Error Handling**      : Comprehensive error reporting with detailed diagnostics
+ * - **Standards Compliance**: Full adherence to VIS location specifications and maritime conventions
+ * - **Type Safety**         : Strong typing with LocationGroup enums prevents invalid construction
+ * - **Performance First**   : Hash-based lookups optimized for high-frequency maritime data processing
+ * - **Immutable Objects**   : Thread-safe design with immutable location objects after construction
+ * - **Intuitive API**       : Clear, discoverable interfaces for common location validation operations
+ * - **Comprehensive Errors**: Detailed error reporting with precise failure diagnostics
+ * - **Memory Efficiency**   : Minimal overhead with efficient container usage and string handling
+ */
+
+/**
+ * @brief Standard Maritime Location Codes Reference
+ *
+ * ## Location Code Classifications:
+ *
+ * ### Longitudinal Positioning (Fore-Aft):
+ * - **A** - Aft (stern/rear section of vessel)
+ * - **F** - Forward (bow/front section of vessel)
+ *
+ * ### Transverse Positioning (Port-Starboard):
+ * - **P** - Port (left side when facing forward)
+ * - **S** - Starboard (right side when facing forward)
+ * - **C** - Centre (centerline/midship position)
+ *
+ * ### Vertical Positioning (Height Levels):
+ * - **U** - Upper (higher elevation/deck level)
+ * - **M** - Middle (intermediate elevation)
+ * - **L** - Lower (base level/lower deck)
+ *
+ * ### Radial Positioning (Inboard-Outboard):
+ * - **I** - Inner (closer to vessel centerline)
+ * - **O** - Outer (farther from vessel centerline)
+ *
+ * ### Orientation & Directional:
+ * - **H** - Horizontal (horizontal orientation)
+ * - **V** - Vertical-diagonal (vertical or diagonal orientation)
+ *
+ * ### Numeric Identifiers:
+ * - **N** - No. n (numbered locations for sequential identification)
+ *
+ * ## Usage in Maritime Systems:
+ * These codes combine to form precise location identifiers (e.g., "PSU" = Port-Starboard-Upper).
  */
 
 #pragma once
@@ -124,7 +176,7 @@ namespace dnv::vista::sdk
 	//=====================================================================
 
 	enum class VisVersion : std::uint16_t;
-	class LocationsDto;
+	struct LocationsDto;
 	class ParsingErrors;
 
 	namespace internal
@@ -158,9 +210,35 @@ namespace dnv::vista::sdk
 	/**
 	 * @brief Represents a validated location string in the VIS system.
 	 *
-	 * This class encapsulates a location string (e.g., "P", "CL1", "P1U").
-	 * Instances are typically created via parsing methods in the `Locations` class.
-	 * This class is immutable; its value is set at construction.
+	 * @details This class encapsulates a location string (e.g., "P", "CL1", "P1U") with
+	 *          cached hash for optimal performance in hash-based containers.
+	 *          Instances are typically created via parsing methods in the `Locations` class.
+	 *          This class is immutable; its value is set at construction.
+	 *
+	 * ## Memory Layout & Performance:
+	 *
+	 * ```
+	 * Location Structure:
+	 * ┌─────────────────────────────────────┐
+	 * │              Location               │
+	 * ├─────────────────────────────────────┤
+	 * │      std::size_t m_hashCode         │ ← Cached hash (8 bytes, O(1) access)
+	 * ├─────────────────────────────────────┤
+	 * │       std::string m_value           │ ← Location string (e.g., "P", "CL1")
+	 * └─────────────────────────────────────┘
+	 *                  ↓
+	 *        Cached Hash Performance
+	 *                  ↓
+	 * ┌─────────────────────────────────────┐
+	 * │       Hash Container Benefits       │
+	 * ├─────────────────────────────────────┤
+	 * │ - O(1) hash lookups in containers   │
+	 * │ - Pre-computed during construction  │
+	 * │ - SSE4.2/FNV-1a optimized hashing   │
+	 * │ - Zero recomputation overhead       │
+	 * │ - Thread-safe concurrent access     │
+	 * └─────────────────────────────────────┘
+	 * ```
 	 */
 	class Location final
 	{
@@ -279,10 +357,31 @@ namespace dnv::vista::sdk
 		 */
 		[[nodiscard]] inline const std::string& toString() const noexcept;
 
+		//----------------------------------------------
+		// Hashing
+		//----------------------------------------------
+
+		/**
+		 * @brief Gets the cached hash value for this Location instance
+		 * @details **Purpose**: Enables Location instances to be used efficiently as keys in hash-based
+		 *          collections (std::unordered_map, nfx::HashMap, etc.) without performance penalties.
+		 *
+		 *          **Performance Critical**: Hash is pre-computed during construction using optimized
+		 *          SSE4.2/FNV-1a algorithms and cached to avoid expensive recomputation. This transforms
+		 *          hash lookups from O(n) string processing to O(1) cached access.
+		 *
+		 * @return The pre-computed hash value for this Location's string value
+		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
+		 */
+		[[nodiscard]] inline std::size_t hashCode() const noexcept;
+
 	private:
 		//----------------------------------------------
 		// Private member variables
 		//----------------------------------------------
+
+		/** @brief Cached hash value computed during construction for O(1) hash access */
+		std::size_t m_hashCode;
 
 		/** @brief The string value representing the location. */
 		std::string m_value;
@@ -441,7 +540,6 @@ namespace dnv::vista::sdk
 	 * This class serves as the primary entry point for parsing location strings and
 	 * retrieving information about predefined relative locations.
 	 * An instance of this class is typically initialized with data loaded from a VIS standard definition.
-	 * This class is non-copyable (due to potentially large internal data) but movable.
 	 */
 	class Locations final
 	{
@@ -553,26 +651,6 @@ namespace dnv::vista::sdk
 		[[nodiscard]] Location parse( std::string_view locationStr ) const;
 
 		/**
-		 * @brief Tries to parse a location string.
-		 * @param value The location string to parse.
-		 * @param location Output parameter: if parsing succeeds, this is set to the parsed `Location`.
-		 *                 The state of `location` is undefined if parsing fails.
-		 * @return True if parsing succeeded, false otherwise.
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] bool tryParse( const std::string& value, Location& location ) const;
-
-		/**
-		 * @brief Tries to parse a location string.
-		 * @param value An optional string containing the location to parse. If nullopt or empty, parsing fails.
-		 * @param location Output parameter: if parsing succeeds, this is set to the parsed `Location`.
-		 *                 The state of `location` is undefined if parsing fails.
-		 * @return True if parsing succeeded, false otherwise.
-		 * @note This function is marked [[nodiscard]] - the return value should not be ignored
-		 */
-		[[nodiscard]] bool tryParse( const std::optional<std::string>& value, Location& location ) const;
-
-		/**
 		 * @brief Tries to parse a location string, providing detailed error information.
 		 * @param value An optional string containing the location to parse.
 		 * @param location Output parameter: if parsing succeeds, this is set to the parsed `Location`.
@@ -622,6 +700,27 @@ namespace dnv::vista::sdk
 		/** @brief A map grouping `RelativeLocation` objects by their `LocationGroup`. */
 		std::unordered_map<LocationGroup, std::vector<RelativeLocation>> m_groups;
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/Locations.inl"
+
+namespace std
+{
+	/**
+	 * @brief Hash specialization for dnv::vista::sdk::Location
+	 * @details Enables Location instances to be used as keys in all hash-based STL containers.
+	 */
+	template <>
+	struct hash<dnv::vista::sdk::Location>
+	{
+		/**
+		 * @brief Returns the cached hash value for optimal performance
+		 * @param[in] location The Location instance to hash
+		 * @return Pre-computed hash value (O(1) access) using hardware-accelerated algorithms
+		 */
+		std::size_t operator()( const dnv::vista::sdk::Location& location ) const noexcept
+		{
+			return location.hashCode();
+		}
+	};
+} // namespace std

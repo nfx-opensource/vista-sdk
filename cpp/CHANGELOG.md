@@ -31,6 +31,394 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   NIL
 
+## [0.0.70] - 2025-11-01
+
+-   **Dependencies**: Updated nfx-core from v0.7.0 to v0.8.0
+
+## [0.0.69] - 2025-10-31
+
+### Changed
+
+-   **BREAKING CHANGE: Dependency migration**: Complete migration from nfx-core to nfx-meta
+    -   Updated all CMake configurations to use nfx-meta v0.7.0
+    -   Updated all target linking from `nfx-core::static` to `nfx-meta::static`
+    -   Updated package configuration for nfx-meta dependency resolution
+
+## [0.0.68] - 2025-10-31
+
+-   **Dependencies**: Updated nfx-core from v0.5.9 to v0.6.0
+
+## [0.0.67] - 2025-10-30
+
+-   **Dependencies**: Updated nfx-core from v0.5.8 to v0.5.9
+
+## [0.0.66] - 2025-10-30
+
+-   **Dependencies**: Updated nfx-core from v0.5.7 to v0.5.8
+
+## [0.0.65] - 2025-10-30
+
+### Changed
+
+-   **Dependencies**: Updated nfx-core from v0.5.6 to v0.5.7
+-   **BREAKING CHANGE**: Migrated StringBuilderPool API from `lease.builder()` to `lease.create()` for nfx-core v0.5.7 compatibility
+
+## [0.0.64] - 2025-10-30
+
+-   **Dependencies**: Updated nfx-core from v0.5.5 to v0.5.6
+
+## [0.0.63] - 2025-10-29
+
+-   **Dependencies**: Updated nfx-core from v0.5.4 to v0.5.5
+
+## [0.0.62] - 2025-10-28
+
+-   **Dependencies**: Updated nfx-core from v0.5.3 to v0.5.4
+
+## [0.0.61] - 2025-10-26
+
+### Changed
+
+-   **Dependencies**: Updated nfx-core from v0.5.2 to v0.5.3
+
+## [0.0.60] - 2025-10-26
+
+### Changed
+
+-   **Dependencies**: Updated nfx-core from v0.5.1 to v0.5.2 with externalized datatypes infrastructure
+
+## [0.0.59] - 2025-10-25
+
+### Changed
+
+-   **Dependencies**: Updated nfx-core from v0.5.0 to v0.5.1 with integrated StringUtils library
+
+## [0.0.58] - 2025-10-25
+
+### Changed
+
+-   **Dependencies**: Updated nfx-core from v0.4.1 to v0.5.0 for enhanced DateTime infrastructure and nfx DateTime library integration
+
+-   **BREAKING CHANGE: NFX DateTime namespace migration**: Complete migration from `nfx::time` to `nfx::datetime` namespace
+
+    -   Migrated all `nfx::time::DateTime` references to `nfx::datetime::DateTime`
+    -   Migrated all `nfx::time::DateTimeOffset` references to `nfx::datetime::DateTimeOffset`
+    -   Migrated all `nfx::time::TimeSpan` references to `nfx::datetime::TimeSpan`
+    -   Updated all timestamp handling throughout transport layer, serialization, and test suites
+
+## [0.0.57] - 2025-10-18
+
+### Changed
+
+-   **Dependencies**: Updated nfx-core from v0.3.5 to v0.4.1 for enhanced JSON serialization capabilities and Document API improvements
+
+-   **BREAKING CHANGE: JSON Serialization API modernization**: Complete migration from JSON Pointer methods to modern Document API
+
+    -   Replaced all `*ByPointer()` methods with modern `doc.set()` and `doc.get<T>()` template methods
+
+-   **File naming standardization**: Renamed serialization headers for better API clarity
+
+    -   `DataChannelList.h` → `DataChannelListSerializationTraits.h`
+    -   `TimeSeriesData.h` → `TimeSeriesDataSerializationTraits.h`
+
+-   **JSON serialization performance optimization**: Eliminated intermediate Document object creation
+
+    -   Direct JSON path construction using `doc.set("/Package/Header/ShipID", value)` pattern
+    -   Removed complex object hierarchy building in favor of direct path-based serialization
+
+-   **Restriction handling enhancement**: Complete implementation of JSON schema restriction serialization
+    -   Added full support for enumeration, pattern, numeric bounds, length constraints, digit constraints, and whitespace handling
+    -   Enhanced Format restriction serialization with comprehensive constraint support
+
+## [0.0.56] - 2025-10-12
+
+### Added
+
+-   **JSON Serialization Framework**: Complete infrastructure with comprehensive type system integration
+
+    -   Added advanced Value type system with complete ISO 19848 format validation and serialization support
+    -   Added DataChannel metadata management with rich property annotation capabilities
+    -   Added comprehensive DataChannelList indexing with LocalId and ShortId lookup optimization
+    -   Added Package and DataChannelListPackage transport containers for efficient data serialization
+    -   Added DataChannel creation and manipulation examples with full metadata integration
+
+### Changed
+
+-   **Dependencies**: Updated nfx-core from v0.3.3 to v0.3.5 for enhanced JSON serialization capabilities and performance improvements
+
+-   **Value type system architecture consolidation**: Complete refactoring of Value types for ISO 19848 compliance and type safety
+
+### Removed
+
+-   **Legacy Value type implementations**: Removed non-ISO 19848 compliant Value types and validation patterns
+
+## [0.0.55] - 2025-10-09
+
+### Added
+
+-   **CMake architecture redesign**: Complete modularization of build system into specialized component files
+
+    -   Added `dnvVistaCppBuildConfig.cmake` - Core build configuration and directory management
+    -   Added `dnvVistaCppInstall.cmake` - Installation rules and export configuration
+    -   Added `dnvVistaCppPackaging.cmake` - Multi-platform packaging with CPack integration
+    -   Added `dnvVistaCppSummary.cmake` - Detailed configuration summary reporting
+
+-   **Cross-Platform Packaging**: CPack configuration for TGZ, ZIP, DEB, RPM, and NSIS packages
+
+    -   Linux packages include automatic dependency resolution
+    -   Windows NSIS installer
+    -   Component-based installation (Runtime, Development, Documentation)
+    -   CMake package configuration with `find_package()` support
+
+-   **Advanced build options**: Extended CMake configuration
+
+    -   Added `VISTA_SDK_CPP_USE_CCACHE` for compiler cache optimization
+    -   Added `VISTA_SDK_CPP_USE_CUSTOM_COMPILER_FLAGS` for custom compiler configuration
+    -   Added comprehensive packaging control options (ARCHIVE, DEB, RPM, NSIS, SOURCE)
+    -   Added `VISTA_SDK_CPP_INSTALL_PROJECT` for installation control
+
+### Changed
+
+-   **Dependencies**: Updated nfx-core from v0.2.1 to v0.3.2
+
+-   **Library target architecture modernization**:
+
+    -   Enhanced target configuration with BUILD_INTERFACE generator expressions for proper FetchContent support
+    -   Updated target linking to use proper static/shared library preference patterns
+
+-   **Enhanced compiler configuration**: Improved compiler detection and optimization settings
+
+    -   Added user override option `VISTA_SDK_CPP_USE_CUSTOM_COMPILER_FLAGS` for custom build environments
+
+### Fixed
+
+-   **CMake export dependency conflicts**: Resolved critical FetchContent integration issues
+
+    -   Fixed BUILD_INTERFACE generator expressions for proper dependency export in consuming projects
+    -   Resolved .deps directory location from VISTA_SDK_ROOT_DIR to CMAKE_BINARY_DIR for proper build isolation
+
+## [0.0.54] - 2025-10-05
+
+### Changed
+
+-   **Dependencies**: Updated nfx-core from v0.1.9 to v0.2.1
+
+-   **Internal JSON serialization migration**: Replaced nlohmann::json with nfx-core JSON serialization framework (nlohmann::json abstraction)
+
+    -   Migrated all internal DTO from class-based to struct-based architecture with public members for reflection-based serialization
+    -   Replaced ADL serialization hooks with nfx `SerializationTraits` template specializations using compile-time reflection
+    -   All JSON operations now use RFC 6901 JSON Pointer methods (`*ByPointer`) for standardized path-based field access
+
+### Removed
+
+-   **nlohmann::json direct dependency**: Removed nlohmann::json library and associated CMake dependencies
+-   **DTO implementation files**: Removed .cpp files for DTO classes (now header-only)
+
+## [0.0.53] - 2025-10-02
+
+### Added
+
+-   **Test Suite**:
+
+    -   Added `TESTS_HashingConsistencyGmodNode.cpp`
+    -   Added `TESTS_HashingConsistencyGmodPath.cpp`
+    -   Added `TESTS_HashingConsistencyImoNumber.cpp`
+    -   Added `TESTS_HashingConsistencyLocalId.cpp`
+    -   Added `TESTS_HashingConsistencyLocalIdBuilder.cpp`
+    -   Added `TESTS_HashingConsistencyLocations.cpp`
+    -   Added `TESTS_HashingConsistencyMetadataTags.cpp`
+    -   Added `TESTS_HashingConsistencyParsingErrors.cpp`
+    -   Added `TESTS_HashingConsistencyUniversalId.cpp`
+    -   Added `TESTS_HashingConsistencyUniversalIdBuilder.cpp`
+
+-   **STL Hash Specializations**: enabling following objects as keys in hash-based STL containers
+
+    -   Added `std::hash<LocalIdBuilder>`
+    -   Added `std::hash<UniversalId>`
+
+-   **Hash Consistency Infrastructure**:
+
+    -   Added hash computation in all fluent API methods
+    -   Ensures hash consistency across all LocalIdBuilder operations and state changes
+
+-   **UniversalId Architecture Improvements**: Refactored internal structure for better maintainability
+
+    -   Added `hashCode()` method returning cached hash value
+    -   Enhanced internal structure using UniversalIdBuilder for centralized data management
+
+-   **Test data files**:
+
+    -   Add `testdata/GmodNodes_unique_vis-3-4a.txt` for GmodNode datasets validation
+    -   Add `testdata/GmodPaths_unique_vis-3-4a.txt` for GmodPath datasets validation
+    -   Add `testdata/ImoNumbers_unique.txt` for IMO numbers datasets validation
+    -   Add `testdata/LocalIds_unique_3-4a.txt` for LocalId datasets validation
+    -   Add `testdata/LocalIds_unique_3-6a.txt` for LocalId datasets validation
+    -   Add `testdata/LocalIds_unique_3-7a.txt` for LocalId datasets validation
+
+-   **Cross-platform CPU feature detection**: Comprehensive AVX2 runtime detection system for improved deployment compatibility
+    -   Added configure-time CPU capability detection using `CheckCXXSourceRuns` with AVX2 intrinsics test
+    -   Added compiler-specific flag detection (MSVC `/arch:AVX2` vs GCC/Clang `-mavx2`)
+    -   Added `VISTA_SDK_CPP_HAS_AVX2_RUNTIME_SUPPORT` and `VISTA_SDK_CPP_ENABLE_AVX2` CMake variables for build system integration
+
+### Changed
+
+-   **Dependencies**:
+
+    -   Updated `nfx-core` from `0.1.7` to `0.1.9` for improved hash combining algorithms
+
+-   **MetadataTag Hash Implementation**: Enhanced hash computation for improved uniqueness and collision resistance
+
+    -   Changed from value-only hashing to composite hash including CodebookName, value, and isCustom flag
+    -   Ensures unique hash values for MetadataTags with identical values but different codebook names or custom flags
+
+-   **Locations API**: Simplified parsing interface by removing redundant overloads
+
+    -   Removed `bool tryParse(const std::string& value, Location& location)` method (use string_view version)
+    -   Removed `bool tryParse(const std::optional<std::string>& value, Location& location)` method (use version with ParsingErrors)
+    -   Enhanced error handling in remaining `tryParse()` methods with proper error builder initialization
+
+-   **ImoNumber API**: Improved parsing interface with better error handling
+
+    -   Added default constructor `ImoNumber()` for container compatibility
+    -   Added out-parameter parsing method `static bool tryParse(std::string_view value, ImoNumber& imoNumber)`
+
+-   **UniversalId Internal Structure**: Streamlined architecture for better performance and maintainability
+
+    -   Changed internal storage from separate `m_imoNumber` and `m_localId` to unified `m_builder` approach
+    -   Refactored `toString()` implementation to delegate to builder for consistency
+    -   Updated equality comparison to use builder-based comparison for better reliability
+
+-   **LocalIdBuilder hash system integration**: Complete hash computation support in LocalIdBuilder architecture
+
+    -   Enhanced `LocalIdBuilder()` constructor with FNV-1a hash initialization (`VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS`)
+    -   Added `m_hashCode` member management in move assignment operators
+    -   Enabled copy assignment operator for `LocalIdBuilder`
+
+-   **LocalId copy semantics**: Enhanced LocalId with proper copy assignment support
+
+-   **LocalIdItems copy semantics**: Enhanced LocalIdItems container with proper copy support
+
+### Removed
+
+-   **Code Cleanup**:
+
+    -   Removed unused internal constructor from `ParsingErrors` class
+    -   Removed redundant move constructor implementation from `ParsingErrors`
+
+-   **Hash Consistency Issues**: Resolved critical hash computation inconsistencies in LocalIdBuilder
+    -   Fixed hash inconsistencies between fluent API construction and parsing methods
+
+### Fixed
+
+-   **Build System**:
+
+    -   Updated lambda capture to prevent potential dangling reference issues in `GmodPathQuery` tests
+
+-   **Deployment compatibility issues**: Resolved "illegal instruction" crashes on CPUs without AVX2 support on some platforms
+
+    -   Fixed runtime crashes caused by hardcoded advanced CPU instruction compilation
+    -   Ensured binaries work on both modern CPUs (with AVX2 optimizations) and older CPUs (with SSE2 fallback)
+
+-   **GmodPath parsing consistency**: Fixed critical bug in GmodPath hierarchy completion logic causing duplicate nodes
+
+    -   Resolved `parse()` method creating malformed duplicate hierarchies (e.g., `"VE/000a"` becoming `VE/VE/000a` instead of `VE/000a`)
+    -   Fixed duplicate node insertion in hierarchy completion algorithm by adding duplicate checking before node insertion
+    -   Fixed duplicate root node insertion by verifying root node existence before adding to hierarchy
+    -   Ensured consistent hash values across all parsing methods (`parse()`, `parseFullPath()`, `tryParse()`, `tryParseFullPath()`)
+
+-   **LocalIdBuilder hash computation**: Fixed hash calculation consistency in `tryParse()` method
+
+    -   Added proper hash computation after successful parsing to match behavior of other parsing methods
+    -   Ensured hash consistency across all LocalIdBuilder creation and parsing methods
+
+-   **LocalIdBuilder hash computation**: Fixed hash consistency and integration issues in LocalIdBuilder architecture
+    -   Resolved hash initialization problems with proper FNV-1a offset basis setup
+    -   Fixed hash computation integration during builder finalization process
+    -   Corrected copy semantics across LocalId ecosystem (LocalId, LocalIdBuilder, LocalIdItems)
+    -   Ensured hash consistency across all Vista Objects for STL container compatibility
+
+## [0.0.52] - 2025-09-28
+
+### Added
+
+-   **Comprehensive hash system implementation**: Added cached hash support across all major VISTA SDK classes
+
+    -   **GmodNode hash system**: Added `m_hashCode` member and `hashCode()` method with SSE4.2/FNV-1a optimization
+    -   **GmodPath hash system**: Added hierarchical path hash combining all parent and target node hash codes
+    -   **ImoNumber hash system**: Added cached hash for IMO number validation with integer hashing optimization
+    -   **LocalIdBuilder hash system**: Added comprehensive hash combining all metadata components and builder state
+    -   **Location hash system**: Added cached hash for location strings with SSE4.2/FNV-1a algorithms
+    -   **MetadataTag hash system**: Added hash combining CodebookName enum, string value, and custom flag
+    -   **ParsingErrors hash system**: Added hash combining all error entries for diagnostic collection management
+    -   **UniversalIdBuilder hash system**: Added hash combining ImoNumber and LocalIdBuilder components
+
+-   **std::hash specializations**: Complete STL container integration for all hash-enabled classes
+
+    -   Added specialized `std::hash` templates for GmodNode, GmodPath, ImoNumber, Location, MetadataTag, ParsingErrors
+    -   Enables seamless usage in std::unordered_map, std::unordered_set, and other STL hash containers
+    -   O(1) hash access performance through cached pre-computed values
+
+### Changed
+
+-   **LocalId hash implementation**: Refactored to delegate hash computation to underlying LocalIdBuilder
+-   **GmodNode constructor architecture**: Enhanced with hash computation during construction
+-   **GmodPath constructor architecture**: Enhanced with hierarchical hash computation
+-   **ParsingErrors constructor architecture**: Enhanced with error collection hash computation
+
+## [0.0.51] - 2025-09-27
+
+### Added
+
+-   **LocalId cached hash system**: Implemented performance-optimized cached hash computation
+    -   Added `m_hashCode` member to LocalId class for O(1) hash access
+    -   Added `hashCode()` method returning pre-computed hash value
+    -   Enhanced std::hash specialization to use cached hash instead of recomputing from string
+    -   std::hash specialization enables zero-overhead hash-based container usage (std::unordered_map, nfx::HashMap)
+
+### Changed
+
+-   **nfx-core dependency update**: Updated from v0.1.5 to v0.1.7
+-   **LocalId constructor optimization**: Hash computation now performed during construction using hardware-accelerated CRC32/FNV-1a
+
+### Fixed
+
+-   **Hash performance optimization**: Resolved O(n) to O(1) hash access transformation
+
+## [0.0.50] - 2025-09-27
+
+### Added
+
+-   **Hash algorithm constants**: Added `VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS` and `VISTA_SDK_CPP_HASH_FNV_PRIME` constants in config.h
+
+### Changed
+
+-   **nfx-core dependency update**: Updated from v0.1.4 to v0.1.5
+-   **nfx::containers::ChdHashMap template parameter enhancement**: Added explicit hash constant template parameters
+    -   Updated `ChdHashMap<GmodNode>` to `ChdHashMap<GmodNode, VISTA_SDK_CPP_HASH_FNV_OFFSET_BASIS, VISTA_SDK_CPP_HASH_FNV_PRIME>`
+    -   Enhanced type safety and performance through compile-time hash constant specification
+-   **LocalId hash specialization enhancement**: Updated std::hash specialization with explicit template parameters
+    -   Added explicit FNV-1a constants to `nfx::core::hashing::hashStringView` calls
+    -   Improved hash compatibility and deterministic behavior across platforms
+
+## [0.0.49] - 2025-09-27
+
+### Added
+
+-   **VersionInformation constructor overload**: New constructor accepting custom values for namingRule, namingSchemeVersion, and referenceUrl
+-   **ConfigurationReference::timeStamp() accessor**: New const accessor method for timeStamp property
+-   **Enhanced header documentation**: Comprehensive documentation improvements across all major SDK components
+
+### Changed
+
+-   **nfx-core dependency update**: Updated from v0.1.2 to v0.1.4
+-   **BREAKING CHANGE: VersionInformation API simplification**: Removed setter methods in favor of constructor-based initialization
+    -   Removed `setNamingRule()`, `setNamingSchemeVersion()`, and `setReferenceUrl()` methods
+
+### Removed
+
+-   **Forward declarations cleanup**: Removed unnecessary `nfx::datatypes::DateTimeOffset` forward declarations
+-   **Setter-based initialization pattern**: Eliminated mutable setter pattern in favor of immutable constructor initialization
+
 ## [0.0.48] - 2025-09-26
 
 ### Added

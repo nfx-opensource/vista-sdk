@@ -93,4 +93,4 @@ namespace dnv::vista::sdk
 		}
 		return result;
 	}
-}
+} // namespace dnv::vista::sdk

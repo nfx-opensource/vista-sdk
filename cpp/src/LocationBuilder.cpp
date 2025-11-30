@@ -3,8 +3,8 @@
  * @brief Implementation of the LocationBuilder class
  */
 
-#include <nfx/string/StringBuilderPool.h>
-#include <nfx/string/Utils.h>
+#include <nfx/string/StringBuilder.h>
+#include <nfx/StringUtils.h>
 
 #include "dnv/vista/sdk/LocationBuilder.h"
 
@@ -76,9 +76,9 @@ namespace dnv::vista::sdk
 				}();
 
 				auto lease = nfx::string::StringBuilderPool::lease();
-				auto builder = lease.builder();
+				auto builder = lease.create();
 				builder.append( "The value '" );
-				builder.push_back( value );
+				builder.append( value );
 				builder.append( "' is an invalid " );
 				builder.append( groupName );
 				builder.append( " value" );
@@ -117,7 +117,7 @@ namespace dnv::vista::sdk
 				}
 			}
 		}
-	}
+	} // namespace internal::locations
 
 	//=====================================================================
 	// LocationBuilder class
@@ -140,7 +140,7 @@ namespace dnv::vista::sdk
 	std::string LocationBuilder::toString() const
 	{
 		auto lease = nfx::string::StringBuilderPool::lease();
-		auto builder = lease.builder();
+		auto builder = lease.create();
 
 		if ( m_number.has_value() )
 		{
@@ -149,22 +149,24 @@ namespace dnv::vista::sdk
 
 		if ( m_side.has_value() )
 		{
-			builder.push_back( m_side.value() );
+			builder.append( m_side.value() );
 		}
 		if ( m_vertical.has_value() )
 		{
-			builder.push_back( m_vertical.value() );
+			builder.append( m_vertical.value() );
 		}
 		if ( m_transverse.has_value() )
 		{
-			builder.push_back( m_transverse.value() );
+			builder.append( m_transverse.value() );
 		}
 		if ( m_longitudinal.has_value() )
 		{
-			builder.push_back( m_longitudinal.value() );
+			builder.append( m_longitudinal.value() );
 		}
 
 		std::string result = lease.toString();
+
+		// Sort alphabetically
 		std::sort( result.begin(), result.end() );
 
 		return result;
@@ -221,7 +223,7 @@ namespace dnv::vista::sdk
 					// Extract substring from start to current position (i+1)
 					std::string_view numberSubstr = span.substr( 0, i + 1 );
 					int parsedNumber;
-					if ( !nfx::string::tryParseInt( numberSubstr, parsedNumber ) )
+					if ( !nfx::string::fromString<int>( numberSubstr, parsedNumber ) )
 					{
 						throw std::invalid_argument{ "Should include a valid number" };
 					}
@@ -341,9 +343,9 @@ namespace dnv::vista::sdk
 		if ( it == m_reversedGroups->end() )
 		{
 			auto lease = nfx::string::StringBuilderPool::lease();
-			auto builder = lease.builder();
+			auto builder = lease.create();
 			builder.append( "The value '" );
-			builder.push_back( value );
+			builder.append( value );
 			builder.append( "' is an invalid Locations value" );
 			throw ValidationException{ lease.toString() };
 		}
@@ -392,4 +394,4 @@ namespace dnv::vista::sdk
 
 		return result;
 	}
-}
+} // namespace dnv::vista::sdk

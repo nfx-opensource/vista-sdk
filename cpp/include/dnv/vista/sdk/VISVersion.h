@@ -19,17 +19,53 @@ namespace dnv::vista::sdk
 		v3_8a = 3800,
 		v3_9a = 3900,
 
-		LATEST = v3_9a
+		Latest = v3_9a
 	};
 
 	/**
-	 * @brief Arithmetic operators for VisVersion to optimize version arithmetic
+	 * @brief Pre-increment operator for VisVersion
+	 * @param version The version to increment
+	 * @return The incremented version
 	 */
 	inline VisVersion operator++( VisVersion& version );
+
+	/**
+	 * @brief Post-increment operator for VisVersion
+	 * @param version The version to increment
+	 * @return The version before increment
+	 */
 	inline VisVersion operator++( VisVersion& version, int );
+
+	/**
+	 * @brief Addition operator for VisVersion
+	 * @param version The base version
+	 * @param increment The increment value
+	 * @return The version incremented by the specified amount
+	 */
 	inline VisVersion operator+( VisVersion version, int increment );
+
+	/**
+	 * @brief Subtraction operator for VisVersion
+	 * @param version The base version
+	 * @param decrement The decrement value
+	 * @return The version decremented by the specified amount
+	 */
 	inline VisVersion operator-( VisVersion version, int decrement );
+
+	/**
+	 * @brief Less-than-or-equal comparison operator for VisVersion
+	 * @param lhs The left-hand side version
+	 * @param rhs The right-hand side version
+	 * @return true if lhs <= rhs, false otherwise
+	 */
 	inline bool operator<=( VisVersion lhs, VisVersion rhs );
+
+	/**
+	 * @brief Subtraction operator for VisVersion difference
+	 * @param lhs The left-hand side version
+	 * @param rhs The right-hand side version
+	 * @return The numeric difference between versions
+	 */
 	inline int operator-( VisVersion lhs, VisVersion rhs );
 
 	/**
@@ -80,6 +116,6 @@ namespace dnv::vista::sdk
 		 */
 		inline static VisVersion parse( std::string_view versionString );
 	};
-}
+} // namespace dnv::vista::sdk
 
 #include "detail/VISVersion.inl"

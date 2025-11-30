@@ -641,5 +641,5 @@ namespace dnv::vista::sdk::tests
 				"/dnv-v2/vis-3-4a/623.121/H201/sec/412.722-A/C542/meta/qty-level/cnt-lubricating.oil/state-low",
 				"/dnv-v2/vis-3-4a/412.723-A/CS6d/meta/qty-temperature",
 				"/dnv-v2/vis-3-4a/411.1/C101.64i-1/S201.1/C151.2/S110/meta/cnt-hydraulic.oil/state-running" ) );
-	}
-}
+	} // namespace LocalIdQueryTests
+} // namespace dnv::vista::sdk::tests

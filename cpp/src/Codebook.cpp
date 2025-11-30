@@ -26,7 +26,6 @@ namespace dnv::vista::sdk
 		{
 			throw std::invalid_argument{ "PositionValidationResult name cannot be empty" };
 		}
-
 		if ( nfx::string::iequals( name, internal::codebook::POSITION_VALIDATION_INVALID ) )
 		{
 			return PositionValidationResult::Invalid;
@@ -63,7 +62,7 @@ namespace dnv::vista::sdk
 	//----------------------------------------------
 
 	Codebook::Codebook( const CodebookDto& dto )
-		: m_name{ CodebookNames::fromString( dto.name() ) },
+		: m_name{ CodebookNames::fromString( dto.name ) },
 		  m_groupMap{},
 		  m_standardValues{},
 		  m_groups{},
@@ -71,7 +70,7 @@ namespace dnv::vista::sdk
 	{
 		// Pre-calculate total size for better memory allocation
 		size_t totalEstimate = 0;
-		const auto& dtoValues = dto.values();
+		const auto& dtoValues = dto.values;
 		const size_t groupCount = dtoValues.size();
 
 		for ( const auto& [_, values] : dtoValues )
@@ -85,12 +84,12 @@ namespace dnv::vista::sdk
 		m_groupMap.reserve( capacity );
 		m_rawData.reserve( groupCount + ( groupCount >> 2 ) ); // 1.25x
 
-		nfx::containers::StringSet valueSet;
-		nfx::containers::StringSet groupSet;
+		nfx::containers::FastHashSet<std::string> valueSet;
+		nfx::containers::FastHashSet<std::string> groupSet;
 		valueSet.reserve( capacity );
 		groupSet.reserve( groupCount + ( groupCount >> 2 ) );
 
-		for ( auto& [groupKey, values] : dto.values() )
+		for ( auto& [groupKey, values] : dto.values )
 		{
 			std::string_view groupTrimmed = nfx::string::trim( groupKey );
 			std::string groupStr{ groupTrimmed };
@@ -103,16 +102,15 @@ namespace dnv::vista::sdk
 				std::string_view valueTrimmed = nfx::string::trim( value );
 				std::string valueStr{ valueTrimmed };
 				trimmedValues.emplace_back( std::move( valueStr ) );
-
 				if ( trimmedValues.back() != internal::codebook::GROUP_NUMBER )
 				{
-					m_groupMap.emplace( trimmedValues.back(), groupStr );
-					valueSet.emplace( trimmedValues.back() );
-					groupSet.emplace( groupStr );
+					m_groupMap.insertOrAssign( trimmedValues.back(), groupStr );
+					valueSet.insert( trimmedValues.back() );
+					groupSet.insert( groupStr );
 				}
 			}
 
-			m_rawData.emplace( std::move( groupStr ), std::move( trimmedValues ) );
+			m_rawData.insertOrAssign( std::move( groupStr ), std::move( trimmedValues ) );
 		}
 
 		m_standardValues = CodebookStandardValues{ m_name, std::move( valueSet ) };
@@ -170,7 +168,6 @@ namespace dnv::vista::sdk
 		}
 
 		std::string value{ valueView };
-
 		return MetadataTag{ m_name, value, isCustom };
 	}
 
@@ -320,7 +317,7 @@ namespace dnv::vista::sdk
 
 		if ( worstResult == PositionValidationResult::Valid )
 		{
-			nfx::containers::StringSet uniqueGroups;
+			nfx::containers::FastHashSet<std::string> uniqueGroups;
 			uniqueGroups.reserve( internal::codebook::MAX_GROUPS );
 			bool hasDefaultGroup = false;
 
@@ -334,12 +331,12 @@ namespace dnv::vista::sdk
 				}
 				else
 				{
-					auto it = m_groupMap.find( std::string{ positions[i] } );
-					group = ( it != m_groupMap.end() ) ? std::string_view{ it->second }
-													   : internal::codebook::GROUP_UNKNOWN;
+					const auto* ptr = m_groupMap.find( std::string{ positions[i] } );
+					group = ( ptr != nullptr ) ? std::string_view{ *ptr }
+											   : internal::codebook::GROUP_UNKNOWN;
 				}
 
-				uniqueGroups.emplace( group );
+				uniqueGroups.insert( std::string{ group } );
 
 				if ( group == internal::codebook::GROUP_DEFAULT )
 				{
@@ -355,4 +352,4 @@ namespace dnv::vista::sdk
 
 		return worstResult;
 	}
-}
+} // namespace dnv::vista::sdk

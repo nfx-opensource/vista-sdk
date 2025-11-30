@@ -146,4 +146,4 @@ namespace dnv::vista::sdk::transport
 			}
 		}
 	}
-}
+} // namespace dnv::vista::sdk::transport

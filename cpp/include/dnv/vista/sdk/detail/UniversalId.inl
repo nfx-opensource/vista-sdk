@@ -27,8 +27,7 @@ namespace dnv::vista::sdk
 
 	inline bool UniversalId::equals( const UniversalId& other ) const noexcept
 	{
-		return m_imoNumber == other.m_imoNumber &&
-			   m_localId.equals( other.m_localId );
+		return m_builder.equals( other.m_builder );
 	}
 
 	//----------------------------------------------
@@ -37,11 +36,20 @@ namespace dnv::vista::sdk
 
 	inline const ImoNumber& UniversalId::imoNumber() const noexcept
 	{
-		return m_imoNumber;
+		return *m_builder.imoNumber();
 	}
 
 	inline const LocalId& UniversalId::localId() const noexcept
 	{
 		return m_localId;
 	}
-}
+
+	//----------------------------------------------
+	// Hashing
+	//----------------------------------------------
+
+	inline std::size_t UniversalId::hashCode() const noexcept
+	{
+		return m_builder.hashCode();
+	}
+} // namespace dnv::vista::sdk

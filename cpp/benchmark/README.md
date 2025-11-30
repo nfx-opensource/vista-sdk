@@ -81,7 +81,7 @@
 | **nfx_hashmap**       | 15.7 ns   | 22.2 ns     | 7.88 ns     | 14.7 ns      | _N/A_         | _N/A_           |
 | **nfx_stringmap**     | 31.3 ns   | 52.6 ns     | 52.3 ns     | 10.8 ns      | _N/A_         | _N/A_           |
 | **nfx_stringset**     | 29.5 ns   | 54.0 ns     | 52.1 ns     | 11.2 ns      | _N/A_         | _N/A_           |
-| **nfx_chd_hashmap**   | 24.0 ns   | 13.6 ns     | 12.0 ns     | 14.6 ns      | _N/A_         | _N/A_           |
+| **nfx_CHD_hashmap**   | 24.0 ns   | 13.6 ns     | 12.0 ns     | 14.6 ns      | _N/A_         | _N/A_           |
 | **Dict**              | _N/A_     | _N/A_       | _N/A_       | _N/A_        | _TBD_         | 39.9 ns         |
 | **FrozenDict**        | _N/A_     | _N/A_       | _N/A_       | _N/A_        | _TBD_         | 16.3 ns         |
 | **sdk_gmod**          | 22.6 ns   | 14.2 ns     | 12.7 ns     | 14.6 ns      | _TBD_         | 16.5 ns         |

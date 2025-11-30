@@ -63,7 +63,7 @@ namespace dnv::vista::sdk
 
 			return node;
 		}
-	}
+	} // namespace internal
 
 	//=====================================================================
 	// GmodPathQuery class
@@ -84,7 +84,7 @@ namespace dnv::vista::sdk
 				const auto& setNode = *nodes.back();
 				const auto nodeCode = setNode.code();
 
-				m_setNodes.emplace( nodeCode, setNode );
+				m_setNodes.insertOrAssign( nodeCode, setNode );
 
 				std::vector<Location> locations;
 				if ( set.location().has_value() )
@@ -93,7 +93,7 @@ namespace dnv::vista::sdk
 				}
 
 				NodeItem item( setNode, std::move( locations ) );
-				m_filter.emplace( nodeCode, std::move( item ) );
+				m_filter.insertOrAssign( nodeCode, std::move( item ) );
 			}
 		}
 	}
@@ -107,7 +107,7 @@ namespace dnv::vista::sdk
 	//----------------------------
 
 	GmodPathQuery GmodPathQuery::withNode(
-		std::function<const GmodNode&( const nfx::containers::StringMap<GmodNode>& nodes )> selector,
+		std::function<const GmodNode&( const nfx::containers::FastHashMap<std::string, GmodNode>& nodes )> selector,
 		bool matchAllLocations ) const
 	{
 		if ( !m_sourcePath.has_value() )
@@ -117,20 +117,22 @@ namespace dnv::vista::sdk
 
 		GmodPathQuery result = *this;
 		const auto& node = selector( m_setNodes );
-		auto it = result.m_filter.find( node.code() );
-		if ( it == result.m_filter.end() )
+		const auto* existingItem = result.m_filter.find( node.code() );
+		if ( existingItem == nullptr )
 		{
 			throw std::runtime_error{ "Expected to find a filter on the node in the path" };
 		}
 
-		it->second.setLocations( {} );
-		it->second.setMatchAllLocations( matchAllLocations );
+		NodeItem updatedItem = *existingItem;
+		updatedItem.setLocations( {} );
+		updatedItem.setMatchAllLocations( matchAllLocations );
+		result.m_filter.insertOrAssign( node.code(), std::move( updatedItem ) );
 
 		return result;
 	}
 
 	GmodPathQuery GmodPathQuery::withNode(
-		std::function<const GmodNode&( const nfx::containers::StringMap<GmodNode>& nodes )> selector,
+		std::function<const GmodNode&( const nfx::containers::FastHashMap<std::string, GmodNode>& nodes )> selector,
 		const std::vector<Location>& locations ) const
 	{
 		if ( !m_sourcePath.has_value() )
@@ -140,14 +142,16 @@ namespace dnv::vista::sdk
 
 		GmodPathQuery result = *this;
 		const auto& node = selector( m_setNodes );
-		auto it = result.m_filter.find( node.code() );
-		if ( it == result.m_filter.end() )
+		const auto* existingItem = result.m_filter.find( node.code() );
+		if ( existingItem == nullptr )
 		{
 			throw std::runtime_error{ "Expected to find a filter on the node in the path" };
 		}
 
 		std::vector<Location> locationSet{ locations.begin(), locations.end() };
-		it->second.setLocations( std::move( locationSet ) );
+		NodeItem updatedItem = *existingItem;
+		updatedItem.setLocations( std::move( locationSet ) );
+		result.m_filter.insertOrAssign( node.code(), std::move( updatedItem ) );
 
 		return result;
 	}
@@ -159,17 +163,19 @@ namespace dnv::vista::sdk
 	GmodPathQuery GmodPathQuery::withNode( const GmodNode& node, bool matchAllLocations ) const
 	{
 		GmodPathQuery result = *this;
-		auto it = result.m_filter.find( node.code() );
-		if ( it != result.m_filter.end() )
+		const auto* existingItem = result.m_filter.find( node.code() );
+		if ( existingItem != nullptr )
 		{
-			it->second.setLocations( {} );
-			it->second.setMatchAllLocations( matchAllLocations );
+			NodeItem updatedItem = *existingItem;
+			updatedItem.setLocations( {} );
+			updatedItem.setMatchAllLocations( matchAllLocations );
+			result.m_filter.insertOrAssign( node.code(), std::move( updatedItem ) );
 		}
 		else
 		{
 			NodeItem item( node, {} );
 			item.setMatchAllLocations( matchAllLocations );
-			result.m_filter.emplace( node.code(), std::move( item ) );
+			result.m_filter.insertOrAssign( node.code(), std::move( item ) );
 		}
 
 		return result;
@@ -180,15 +186,17 @@ namespace dnv::vista::sdk
 		GmodPathQuery result = *this;
 		std::vector<Location> locationSet{ locations.begin(), locations.end() };
 
-		auto it = result.m_filter.find( node.code() );
-		if ( it != result.m_filter.end() )
+		const auto* existingItem = result.m_filter.find( node.code() );
+		if ( existingItem != nullptr )
 		{
-			it->second.setLocations( std::move( locationSet ) );
+			NodeItem updatedItem = *existingItem;
+			updatedItem.setLocations( std::move( locationSet ) );
+			result.m_filter.insertOrAssign( node.code(), std::move( updatedItem ) );
 		}
 		else
 		{
 			NodeItem item( node, std::move( locationSet ) );
-			result.m_filter.emplace( node.code(), std::move( item ) );
+			result.m_filter.insertOrAssign( node.code(), std::move( item ) );
 		}
 
 		return result;
@@ -208,19 +216,33 @@ namespace dnv::vista::sdk
 		const auto target = internal::ensurePathVersion( *other );
 
 		// Build map of target nodes and their locations
-		nfx::containers::StringMap<std::vector<Location>> targetNodes;
+		nfx::containers::FastHashMap<std::string, std::vector<Location>> targetNodes;
 
 		// Include all parents and the final node
 		for ( const auto& parent : target.parents() )
 		{
-			auto& locations = targetNodes[parent.code()];
+			const auto code = parent.code();
+			auto* locationsPtr = targetNodes.find( code );
+			if ( !locationsPtr )
+			{
+				targetNodes.insertOrAssign( code, std::vector<Location>{} );
+				locationsPtr = targetNodes.find( code );
+			}
+			auto& locations = *locationsPtr;
 			if ( parent.location().has_value() )
 			{
 				locations.push_back( parent.location().value() );
 			}
 		}
 
-		auto& nodeLocations = targetNodes[target.node().code()];
+		const auto nodeCode = target.node().code();
+		auto* nodeLocationsPtr = targetNodes.find( nodeCode );
+		if ( !nodeLocationsPtr )
+		{
+			targetNodes.insertOrAssign( nodeCode, std::vector<Location>{} );
+			nodeLocationsPtr = targetNodes.find( nodeCode );
+		}
+		auto& nodeLocations = *nodeLocationsPtr;
 		if ( target.node().location().has_value() )
 			nodeLocations.push_back( target.node().location().value() );
 
@@ -228,14 +250,13 @@ namespace dnv::vista::sdk
 		for ( const auto& [code, item] : m_filter )
 		{
 			const auto& node = internal::ensureNodeVersion( item.node() );
-			auto targetIt = targetNodes.find( node.code() );
-			if ( targetIt == targetNodes.end() )
+			const auto* potentialLocationsPtr = targetNodes.find( node.code() );
+			if ( potentialLocationsPtr == nullptr )
 			{
 				return false;
 			}
 
-			const auto& potentialLocations = targetIt->second;
-
+			const auto& potentialLocations = *potentialLocationsPtr;
 			if ( item.matchAllLocations() )
 			{
 				continue;
@@ -273,4 +294,4 @@ namespace dnv::vista::sdk
 
 		return true;
 	}
-}
+} // namespace dnv::vista::sdk

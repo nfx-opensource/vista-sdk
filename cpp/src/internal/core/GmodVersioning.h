@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include <nfx/containers/HashMap.h>
+#include <nfx/Containers.h>
 #include <nfx/string/Utils.h>
 
 #include "internal/dto/GmodVersioningDto.h"
@@ -51,7 +51,7 @@ namespace dnv::vista::sdk::internal
 		 *
 		 * @param dto Dictionary of GmodVersioningDto objects indexed by version string with heterogeneous lookup
 		 */
-		explicit GmodVersioning( const nfx::containers::StringMap<GmodVersioningDto>& dto );
+		explicit GmodVersioning( const nfx::containers::FastHashMap<std::string, GmodVersioningDto>& dto );
 
 		/** @brief Default constructor. */
 		GmodVersioning() = delete;
@@ -121,6 +121,6 @@ namespace dnv::vista::sdk::internal
 
 	private:
 		/** @brief Hash map storing versioning nodes indexed by VIS version */
-		nfx::containers::HashMap<VisVersion, GmodVersioningNode> m_versioningsMap;
+		nfx::containers::FastHashMap<VisVersion, GmodVersioningNode> m_versioningsMap;
 	};
-}
+} // namespace dnv::vista::sdk::internal
