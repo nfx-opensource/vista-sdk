@@ -56,3 +56,4 @@ include(dnvVistaSdkCppDependencies)
 #----------------------------------------------
 
 include(dnvVistaSdkCppEmbeddedResources)
+include(dnvVistaSdkCppEmbeddedSchemas)
