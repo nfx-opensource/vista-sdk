@@ -1,0 +1,51 @@
+#==============================================================================
+# dnv-vista-sdk-cpp - Top-level CMake configuration
+#==============================================================================
+
+#----------------------------------------------
+# Project definition
+#----------------------------------------------
+
+cmake_minimum_required(VERSION 3.20)
+
+project(dnv-vista-sdk-cpp
+    VERSION 0.0.0
+    DESCRIPTION "C++ implementation of DNV Vista SDK for VIS and ISO 19847/19848 standards"
+    HOMEPAGE_URL "https://github.com/dnv-opensource/vista-sdk"
+    LANGUAGES CXX
+)
+
+#----------------------------------------------
+# Version configuration
+#----------------------------------------------
+
+set(DNV_VISTA_SDK_CPP_VERSION_MAJOR ${PROJECT_VERSION_MAJOR} CACHE INTERNAL "dnv-vista-sdk-cpp major version")
+set(DNV_VISTA_SDK_CPP_VERSION_MINOR ${PROJECT_VERSION_MINOR} CACHE INTERNAL "dnv-vista-sdk-cpp minor version")
+set(DNV_VISTA_SDK_CPP_VERSION_PATCH ${PROJECT_VERSION_PATCH} CACHE INTERNAL "dnv-vista-sdk-cpp patch version")
+set(DNV_VISTA_SDK_CPP_VERSION       ${PROJECT_VERSION}       CACHE INTERNAL "dnv-vista-sdk-cpp version")
+
+#----------------------------------------------
+# Testing setup
+#----------------------------------------------
+
+enable_testing()
+
+#----------------------------------------------
+# Build options
+#----------------------------------------------
+
+# --- Library build types ---
+option(DNV_VISTA_SDK_CPP_BUILD_STATIC "Build static library" ON )
+option(DNV_VISTA_SDK_CPP_BUILD_SHARED "Build shared library" OFF)
+
+#----------------------------------------------
+# CMake modules configuration
+#----------------------------------------------
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+#----------------------------------------------
+# Main configuration
+#----------------------------------------------
+
+include(dnvVistaSdkCppBuildConfig)
