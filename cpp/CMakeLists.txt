@@ -38,6 +38,9 @@ enable_testing()
 option(DNV_VISTA_SDK_CPP_BUILD_STATIC "Build static library" ON )
 option(DNV_VISTA_SDK_CPP_BUILD_SHARED "Build shared library" OFF)
 
+# --- Build components ---
+option(DNV_VISTA_SDK_CPP_BUILD_TESTS  "Build tests"          OFF)
+
 #----------------------------------------------
 # CMake modules configuration
 #----------------------------------------------
@@ -57,3 +60,9 @@ include(dnvVistaSdkCppDependencies)
 
 include(dnvVistaSdkCppEmbeddedResources)
 include(dnvVistaSdkCppEmbeddedSchemas)
+
+#----------------------------------------------
+# Targets
+#----------------------------------------------
+
+add_subdirectory(test)
