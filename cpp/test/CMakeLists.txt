@@ -94,6 +94,93 @@ else()
 endif()
 
 #----------------------------------------------
+# Tests source files
+#----------------------------------------------
+
+set(test_sources)
+
+list(APPEND test_sources
+    SDK/Tests_VisVersions.cpp
+)
+
+#----------------------------------------------
+# Configure test executables
+#----------------------------------------------
+
+set(sdk_test_targets)
+
+foreach(test_source ${test_sources})
+    get_filename_component(test_target_name ${test_source} NAME_WE)
+
+    if(NOT TARGET ${test_target_name})
+        add_executable(${test_target_name} ${test_source})
+
+        list(APPEND sdk_test_targets ${test_target_name})
+
+        #----------------------------------------------
+        # Target linking
+        #----------------------------------------------
+
+        target_link_libraries(${test_target_name}
+            PRIVATE
+                GTest::gtest_main
+        )
+
+        target_include_directories(${test_target_name}
+            PRIVATE
+                ${DNV_VISTA_SDK_CPP_INCLUDE_DIR}
+        )
+
+        #----------------------------------------------
+        # Enable specific CPU features
+        #----------------------------------------------
+
+        target_compile_options(${test_target_name}
+            PRIVATE
+                $<$<CXX_COMPILER_ID:MSVC>:/arch:AVX2>
+                $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-march=native>
+        )
+
+        #----------------------------------------------
+        # Properties
+        #----------------------------------------------
+
+        set_target_properties(${test_target_name}
+            PROPERTIES
+                CXX_STANDARD 20
+                CXX_STANDARD_REQUIRED ON
+                CXX_EXTENSIONS OFF
+                POSITION_INDEPENDENT_CODE ON
+                DEBUG_POSTFIX "-d"
+                RUNTIME_OUTPUT_DIRECTORY         "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+                RUNTIME_OUTPUT_DIRECTORY_DEBUG   "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+                RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+        )
+
+        #----------------------------------------------
+        # Test discovery and registration
+        #----------------------------------------------
+
+        gtest_discover_tests(${test_target_name}
+            WORKING_DIRECTORY "$<TARGET_FILE_DIR:${test_target_name}>"
+            DISCOVERY_MODE POST_BUILD
+            PROPERTIES
+                TIMEOUT 120
+                RUN_SERIAL OFF
+        )
+    endif()
+endforeach()
+
+#----------------------------------------------
+# SDK test dependencies
+#----------------------------------------------
+
+# Ensure VisVersions.h is generated before building SDK tests
+if(sdk_test_targets AND TARGET dnv-vista-cpp-generate-visversions)
+    add_dependencies(${sdk_test_targets} dnv-vista-cpp-generate-visversions)
+endif()
+
+#----------------------------------------------
 # SourceGenerator tests
 #----------------------------------------------
 
