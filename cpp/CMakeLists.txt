@@ -60,6 +60,7 @@ include(dnvVistaSdkCppDependencies)
 
 include(dnvVistaSdkCppEmbeddedResources)
 include(dnvVistaSdkCppEmbeddedSchemas)
+include(dnvVistaSdkCppVisVersionsGenerator)
 
 #----------------------------------------------
 # Targets
