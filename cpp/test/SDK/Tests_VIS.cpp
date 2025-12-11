@@ -1,0 +1,117 @@
+/**
+ * @file Tests_VIS.cpp
+ * @brief Unit tests for VIS singleton
+ */
+
+#include <gtest/gtest.h>
+
+#include <dnv/vista/sdk/VIS.h>
+
+#include <algorithm>
+#include <thread>
+#include <vector>
+
+namespace dnv::vista::sdk::test
+{
+    //=====================================================================
+    // VIS tests
+    //=====================================================================
+
+    //----------------------------------------------
+    // Instance
+    //----------------------------------------------
+
+    TEST( VISTests, InstanceReturnsSameObject )
+    {
+        const auto& visInstance1 = VIS::instance();
+        const auto& visInstance2 = VIS::instance();
+
+        EXPECT_EQ( &visInstance1, &visInstance2 );
+    }
+
+    //----------------------------------------------
+    // Versions
+    //----------------------------------------------
+
+    TEST( VISTests, VisVersionsReturnsAllVersions )
+    {
+        const auto& allVisVersions = VIS::instance().versions();
+
+        EXPECT_EQ( allVisVersions.size(), 7 );
+        EXPECT_EQ( allVisVersions[0], VisVersion::v3_4a );
+        EXPECT_EQ( allVisVersions[1], VisVersion::v3_5a );
+        EXPECT_EQ( allVisVersions[2], VisVersion::v3_6a );
+        EXPECT_EQ( allVisVersions[3], VisVersion::v3_7a );
+        EXPECT_EQ( allVisVersions[4], VisVersion::v3_8a );
+        EXPECT_EQ( allVisVersions[5], VisVersion::v3_9a );
+        EXPECT_EQ( allVisVersions[6], VisVersion::v3_10a );
+    }
+
+    TEST( VISTests, VisVersionsReturnsSameReference )
+    {
+        const auto& vis = VIS::instance();
+
+        const auto& allVisVersions1 = vis.versions();
+        const auto& allVisVersions2 = vis.versions();
+
+        EXPECT_EQ( &allVisVersions1, &allVisVersions2 );
+    }
+
+    TEST( VISTests, VisVersionsReturnsOrdered )
+    {
+        const auto& versions = VIS::instance().versions();
+
+        auto it34 = std::find( versions.begin(), versions.end(), VisVersion::v3_4a );
+        auto it310 = std::find( versions.begin(), versions.end(), VisVersion::v3_10a );
+
+        ASSERT_NE( it34, versions.end() );
+        ASSERT_NE( it310, versions.end() );
+
+        EXPECT_LT( std::distance( versions.begin(), it34 ), std::distance( versions.begin(), it310 ) );
+    }
+
+    TEST( VISTests, LatestReturnsValidVersion )
+    {
+        auto latestVisVersion = VIS::instance().latest();
+
+        EXPECT_EQ( latestVisVersion, VisVersion::v3_10a );
+    }
+
+    //----------------------------------------------
+    // Thread safety
+    //----------------------------------------------
+
+    TEST( VISTests, ConcurrentSingletonAccess_ThreadSafety )
+    {
+        // Test that multiple threads can safely access the const singleton simultaneously
+        constexpr int numThreads = 10;
+        std::vector<std::thread> threads;
+        std::vector<const VIS*> instances( numThreads, nullptr );
+
+        // Launch threads that all try to access the const singleton at the same time
+        for( int i = 0; i < numThreads; ++i )
+        {
+            threads.emplace_back( [&instances, i]() {
+                instances[i] = &VIS::instance();
+
+                const auto& versions = instances[i]->versions();
+                const auto& latest = instances[i]->latest();
+
+                EXPECT_EQ( versions.size(), 7 );
+                EXPECT_EQ( latest, VisVersion::v3_10a );
+            } );
+        }
+
+        // Wait for all threads to complete
+        for( auto& thread : threads )
+        {
+            thread.join();
+        }
+
+        // All threads should have received the exact same const instance pointer
+        for( int i = 1; i < numThreads; ++i )
+        {
+            EXPECT_EQ( instances[0], instances[i] );
+        }
+    }
+} // namespace dnv::vista::sdk::test
