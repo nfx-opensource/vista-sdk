@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "CodebookName.h"
 #include "VisVersions.h"
 
 #include <vector>
