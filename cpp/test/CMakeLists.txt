@@ -100,6 +100,7 @@ endif()
 set(test_sources)
 
 list(APPEND test_sources
+    SDK/Tests_CodebookNames.cpp
     SDK/Tests_VIS.cpp
     SDK/Tests_VisVersions.cpp
 )
