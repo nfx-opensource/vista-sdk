@@ -22,6 +22,8 @@ namespace dnv::vista::sdk
      */
     class MetadataTag final
     {
+        friend class Codebook;
+
     private:
         /**
          * @brief Internal constructor - Constructs a MetadataTag object

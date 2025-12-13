@@ -50,9 +50,16 @@ function(configure_target target_name)
             ${DNV_VISTA_SDK_CPP_SOURCE_DIR}
     )
 
+    target_sources(${target_name}
+        PRIVATE
+            $<TARGET_OBJECTS:dnv-vista-cpp-embeddedresources>
+    )
+
     target_link_libraries(${target_name}
         PUBLIC
+            $<BUILD_INTERFACE:nfx-containers::nfx-containers>
             $<BUILD_INTERFACE:nfx-stringbuilder::static>
+            $<BUILD_INTERFACE:nfx-stringutils::nfx-stringutils>
         PRIVATE
             $<BUILD_INTERFACE:zlib-ng>
             $<BUILD_INTERFACE:nfx-serialization::static>

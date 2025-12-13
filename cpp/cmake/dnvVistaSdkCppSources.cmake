@@ -9,5 +9,7 @@
 set(private_sources)
 
 list(APPEND private_sources
-	${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/VIS.cpp
+    ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/Codebook.cpp
+    ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/Codebooks.cpp
+    ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/VIS.cpp
 )
