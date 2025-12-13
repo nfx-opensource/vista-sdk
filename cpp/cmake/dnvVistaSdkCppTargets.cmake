@@ -51,10 +51,11 @@ function(configure_target target_name)
     )
 
     target_link_libraries(${target_name}
+        PUBLIC
+            $<BUILD_INTERFACE:nfx-stringbuilder::static>
         PRIVATE
             $<BUILD_INTERFACE:zlib-ng>
             $<BUILD_INTERFACE:nfx-serialization::static>
-            $<BUILD_INTERFACE:nfx-stringbuilder::static>
     )
 
     # --- Properties ---
