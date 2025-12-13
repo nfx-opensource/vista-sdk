@@ -135,11 +135,63 @@ if(NOT nfx-stringbuilder_FOUND)
             GIT_REPOSITORY https://github.com/nfx-libs/nfx-stringbuilder
             GIT_TAG        main
             GIT_SHALLOW    TRUE
-	)
+    )
 endif()
 
 if(NOT nfx-stringbuilder_FOUND)
     FetchContent_MakeAvailable(nfx-stringbuilder)
+endif()
+
+# --- nfx-stringutils ---
+find_package(nfx-stringutils QUIET)
+if(NOT nfx-stringutils_FOUND)
+    set(NFX_STRINGUTILS_BUILD_TESTS         OFF CACHE BOOL "Build tests"                 FORCE)
+    set(NFX_STRINGUTILS_BUILD_SAMPLES       OFF CACHE BOOL "Build samples"               FORCE)
+    set(NFX_STRINGUTILS_BUILD_BENCHMARKS    OFF CACHE BOOL "Build benchmarks"            FORCE)
+    set(NFX_STRINGUTILS_BUILD_DOCUMENTATION OFF CACHE BOOL "Build Doxygen documentation" FORCE)
+    set(NFX_STRINGUTILS_INSTALL_PROJECT     OFF CACHE BOOL "Install project"             FORCE)
+    set(NFX_STRINGUTILS_PACKAGE_SOURCE      OFF CACHE BOOL "Enable source package"       FORCE)
+    set(NFX_STRINGUTILS_PACKAGE_ARCHIVE     OFF CACHE BOOL "Enable archive package"      FORCE)
+    set(NFX_STRINGUTILS_PACKAGE_DEB         OFF CACHE BOOL "Enable DEB package"          FORCE)
+    set(NFX_STRINGUTILS_PACKAGE_RPM         OFF CACHE BOOL "Enable RPM package"          FORCE)
+    set(NFX_STRINGUTILS_PACKAGE_WIX         OFF CACHE BOOL "Enable WIX package"          FORCE)
+
+    FetchContent_Declare(
+        nfx-stringutils
+            GIT_REPOSITORY https://github.com/nfx-libs/nfx-stringutils
+            GIT_TAG        main
+            GIT_SHALLOW    TRUE
+    )
+endif()
+
+if(NOT nfx-stringutils_FOUND)
+    FetchContent_MakeAvailable(nfx-stringutils)
+endif()
+
+# --- nfx-containers ---
+find_package(nfx-containers QUIET)
+if(NOT nfx-containers_FOUND)
+    set(NFX_CONTAINERS_BUILD_TESTS         OFF CACHE BOOL "Build tests"                 FORCE)
+    set(NFX_CONTAINERS_BUILD_SAMPLES       OFF CACHE BOOL "Build samples"               FORCE)
+    set(NFX_CONTAINERS_BUILD_BENCHMARKS    OFF CACHE BOOL "Build benchmarks"            FORCE)
+    set(NFX_CONTAINERS_BUILD_DOCUMENTATION OFF CACHE BOOL "Build Doxygen documentation" FORCE)
+    set(NFX_CONTAINERS_INSTALL_PROJECT     OFF CACHE BOOL "Install project"             FORCE)
+    set(NFX_CONTAINERS_PACKAGE_SOURCE      OFF CACHE BOOL "Enable source package"       FORCE)
+    set(NFX_CONTAINERS_PACKAGE_ARCHIVE     OFF CACHE BOOL "Enable archive package"      FORCE)
+    set(NFX_CONTAINERS_PACKAGE_DEB         OFF CACHE BOOL "Enable DEB package"          FORCE)
+    set(NFX_CONTAINERS_PACKAGE_RPM         OFF CACHE BOOL "Enable RPM package"          FORCE)
+    set(NFX_CONTAINERS_PACKAGE_WIX         OFF CACHE BOOL "Enable WIX package"          FORCE)
+
+    FetchContent_Declare(
+        nfx-containers
+            GIT_REPOSITORY https://github.com/nfx-libs/nfx-containers
+            GIT_TAG        main
+            GIT_SHALLOW    TRUE
+    )
+endif()
+
+if(NOT nfx-containers_FOUND)
+    FetchContent_MakeAvailable(nfx-containers)
 endif()
 
 #----------------------------------------------
