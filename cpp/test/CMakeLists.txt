@@ -100,7 +100,9 @@ endif()
 set(test_sources)
 
 list(APPEND test_sources
+    SDK/Tests_Codebook.cpp
     SDK/Tests_CodebookNames.cpp
+    SDK/Tests_Codebooks.cpp
     SDK/Tests_VIS.cpp
     SDK/Tests_VisVersions.cpp
 )
@@ -127,11 +129,13 @@ foreach(test_source ${test_sources})
             PRIVATE
                 GTest::gtest_main
                 dnv-vista-sdk-cpp::static
+                dnv-vista-cpp-embeddedtestdata
+                nfx-serialization::static
         )
 
         target_include_directories(${test_target_name}
             PRIVATE
-                ${DNV_VISTA_SDK_CPP_INCLUDE_DIR}
+                ${DNV_VISTA_SDK_CPP_SOURCE_DIR}
         )
 
         #----------------------------------------------
