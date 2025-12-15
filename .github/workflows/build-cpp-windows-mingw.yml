@@ -65,6 +65,7 @@ jobs:
                 -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
                 -DDNV_VISTA_SDK_CPP_BUILD_STATIC=ON \
                 -DDNV_VISTA_SDK_CPP_BUILD_SHARED=OFF \
+                -DDNV_VISTA_SDK_CPP_BUILD_TOOLS=ON \
                 -DDNV_VISTA_SDK_CPP_BUILD_TESTS=ON \
                 -DDNV_VISTA_SDK_CPP_BUILD_SAMPLES=ON
 
