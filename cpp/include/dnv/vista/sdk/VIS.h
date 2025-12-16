@@ -7,6 +7,7 @@
 #pragma once
 
 #include "Codebooks.h"
+#include "ParsingErrors.h"
 #include "VisVersions.h"
 
 #include <vector>
