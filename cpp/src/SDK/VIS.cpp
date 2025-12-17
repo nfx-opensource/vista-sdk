@@ -8,7 +8,9 @@
 
 #include "dnv/vista/sdk/detail/Containers.h"
 #include "dnv/vista/sdk/Codebooks.h"
+#include "dnv/vista/sdk/Locations.h"
 #include "dto/CodebooksDto.h"
+#include "dto/LocationsDto.h"
 #include "VisVersionsExtensions.h"
 
 #include <EmbeddedResources/EmbeddedResources.h>
@@ -29,6 +31,18 @@ namespace dnv::vista::sdk
         }
 
         auto& codebooksMutex()
+        {
+            static std::shared_mutex mutex;
+            return mutex;
+        }
+
+        auto& locationsCache()
+        {
+            static HashMap<VisVersion, Locations> cache;
+            return cache;
+        }
+
+        auto& locationsMutex()
         {
             static std::shared_mutex mutex;
             return mutex;
@@ -88,5 +102,38 @@ namespace dnv::vista::sdk
 
         codebooksCache().emplace( visVersion, Codebooks{ visVersion, *dto } );
         return *codebooksCache().find( visVersion );
+    }
+
+    const Locations& VIS::locations( VisVersion visVersion ) const
+    {
+        // Fast path: read-only access
+        {
+            std::shared_lock lock( locationsMutex() );
+            if( auto* cached = locationsCache().find( visVersion ) )
+            {
+                return *cached;
+            }
+        }
+
+        // Slow path: load and cache
+        std::unique_lock lock( locationsMutex() );
+
+        // Double-check
+        if( auto* cached = locationsCache().find( visVersion ) )
+        {
+            return *cached;
+        }
+
+        // Load from embedded resource
+        auto versionStr = VisVersions::toString( visVersion );
+        auto dto = EmbeddedResources::locations( versionStr );
+
+        if( !dto.has_value() )
+        {
+            throw std::out_of_range{ "Locations not available for version: " + std::string{ versionStr } };
+        }
+
+        locationsCache().emplace( visVersion, Locations{ visVersion, *dto } );
+        return *locationsCache().find( visVersion );
     }
 } // namespace dnv::vista::sdk
