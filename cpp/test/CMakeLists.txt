@@ -103,6 +103,7 @@ list(APPEND test_sources
     SDK/Tests_Codebook.cpp
     SDK/Tests_CodebookNames.cpp
     SDK/Tests_Codebooks.cpp
+    SDK/Tests_Locations.cpp
     SDK/Tests_ParsingErrors.cpp
     SDK/Tests_VIS.cpp
     SDK/Tests_VisVersions.cpp
