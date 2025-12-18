@@ -18,6 +18,7 @@ set(tools_sources)
 
 list(APPEND tools_sources
     codebooks-cli.cpp
+    locations-cli.cpp
 )
 
 #----------------------------------------------
