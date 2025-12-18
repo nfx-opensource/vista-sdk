@@ -51,6 +51,7 @@ namespace dnv::vista::sdk
     class Location final
     {
         friend class Locations;
+        friend class LocationBuilder;
 
     private:
         /**
@@ -213,6 +214,7 @@ namespace dnv::vista::sdk
     class Locations final
     {
         friend class VIS;
+        friend class LocationBuilder;
 
     private:
         /**
