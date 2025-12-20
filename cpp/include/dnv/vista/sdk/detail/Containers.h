@@ -26,4 +26,8 @@ namespace dnv::vista::sdk
     /** @brief Fast hash map with FNV-1a hashing */
     template <typename K, typename V>
     using HashMap = nfx::containers::FastHashMap<K, V, std::uint32_t, FNV_OFFSET_BASIS_32>;
+
+    /** @brief Perfect hash map (Compress-Hash-Displace) for Gmod immutable key sets */
+    template <typename K, typename V>
+    using PerfectHashMap = nfx::containers::PerfectHashMap<K, V, std::uint32_t, FNV_OFFSET_BASIS_32>;
 } // namespace dnv::vista::sdk

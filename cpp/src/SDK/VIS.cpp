@@ -8,8 +8,10 @@
 
 #include "dnv/vista/sdk/detail/Containers.h"
 #include "dnv/vista/sdk/Codebooks.h"
+#include "dnv/vista/sdk/Gmod.h"
 #include "dnv/vista/sdk/Locations.h"
 #include "dto/CodebooksDto.h"
+#include "dto/GmodDto.h"
 #include "dto/LocationsDto.h"
 #include "VisVersionsExtensions.h"
 
@@ -24,6 +26,18 @@ namespace dnv::vista::sdk
 {
     namespace
     {
+        auto& gmodCache()
+        {
+            static HashMap<VisVersion, Gmod> cache;
+            return cache;
+        }
+
+        auto& gmodMutex()
+        {
+            static std::shared_mutex mutex;
+            return mutex;
+        }
+
         auto& codebooksCache()
         {
             static HashMap<VisVersion, Codebooks> cache;
@@ -69,6 +83,39 @@ namespace dnv::vista::sdk
         }();
 
         return versions;
+    }
+
+    const Gmod& VIS::gmod( VisVersion visVersion ) const
+    {
+        // Fast path: read-only access
+        {
+            std::shared_lock lock( gmodMutex() );
+            if( auto* cached = gmodCache().find( visVersion ) )
+            {
+                return *cached;
+            }
+        }
+
+        // Slow path: load and cache
+        std::unique_lock lock( gmodMutex() );
+
+        // Double-check (another thread might have loaded it)
+        if( auto* cached = gmodCache().find( visVersion ) )
+        {
+            return *cached;
+        }
+
+        // Load from embedded resource
+        auto versionStr = VisVersions::toString( visVersion );
+        auto dto = EmbeddedResources::gmod( versionStr );
+
+        if( !dto.has_value() )
+        {
+            throw std::out_of_range{ "Gmod not available for version: " + std::string{ versionStr } };
+        }
+
+        gmodCache().emplace( visVersion, Gmod{ visVersion, *dto } );
+        return *gmodCache().find( visVersion );
     }
 
     const Codebooks& VIS::codebooks( VisVersion visVersion ) const
