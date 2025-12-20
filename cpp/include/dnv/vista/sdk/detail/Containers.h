@@ -22,4 +22,7 @@ namespace dnv::vista::sdk
 
 	template <typename K, typename V>
 	using HashMap = nfx::containers::FastHashMap<K, V, std::uint32_t, FNV_OFFSET_BASIS_32>;
+
+	template <typename K, typename V>
+	using ChdDictionary = nfx::containers::PerfectHashMap<K, V, std::uint32_t, FNV_OFFSET_BASIS_32>;
 } // namespace dnv::vista::sdk
