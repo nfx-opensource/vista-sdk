@@ -12,6 +12,7 @@ list(APPEND private_sources
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/internal/parsing/LocationParsingErrorBuilder.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/Codebook.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/Codebooks.cpp
+    ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/GmodNode.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/ImoNumber.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/LocationBuilder.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/Locations.cpp
