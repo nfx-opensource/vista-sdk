@@ -64,4 +64,24 @@ namespace dnv::vista::sdk
         }
         m_rootNode = const_cast<GmodNode*>( rootPtr );
     }
+
+    bool Gmod::traverse( TraverseHandler handler, TraversalOptions options ) const
+    {
+        return traverse( *m_rootNode, handler, options );
+    }
+
+    bool Gmod::traverse( const GmodNode& rootNode, TraverseHandler handler, TraversalOptions options ) const
+    {
+        struct DummyState
+        {
+        };
+
+        DummyState state;
+
+        TraverseHandlerWithState<DummyState> wrappedHandler =
+            [&handler]( DummyState&, const SmallVector<const GmodNode*, 16>& parents, const GmodNode& node )
+            -> TraversalHandlerResult { return handler( parents, node ); };
+
+        return traverse( state, rootNode, wrappedHandler, options );
+    }
 } // namespace dnv::vista::sdk
