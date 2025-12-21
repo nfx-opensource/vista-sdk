@@ -40,12 +40,12 @@ namespace dnv::vista::sdk
 			const auto* parentNodePtr = m_nodeMap.find( relation[0] );
 			if ( !parentNodePtr )
 			{
-				throw std::runtime_error{ "Parent node not found in GMOD" };
+				throw std::runtime_error{ "Parent node not found in Gmod" };
 			}
 			const auto* childNodePtr = m_nodeMap.find( relation[1] );
 			if ( !childNodePtr )
 			{
-				throw std::runtime_error{ "Child node not found in GMOD" };
+				throw std::runtime_error{ "Child node not found in Gmod" };
 			}
 			auto& parentNode = const_cast<GmodNode&>( *parentNodePtr );
 			auto& childNode = const_cast<GmodNode&>( *childNodePtr );
@@ -61,8 +61,30 @@ namespace dnv::vista::sdk
 		const auto* rootPtr = m_nodeMap.find( "VE" );
 		if ( !rootPtr )
 		{
-			throw std::runtime_error{ "Root node 'VE' not found in GMOD" };
+			throw std::runtime_error{ "Root node 'VE' not found in Gmod" };
 		}
 		m_rootNode = const_cast<GmodNode*>( rootPtr );
+	}
+
+	bool Gmod::traverse( TraverseHandler handler, TraversalOptions options ) const
+	{
+		return traverse( *m_rootNode, handler, options );
+	}
+
+	bool Gmod::traverse( const GmodNode& rootNode, TraverseHandler handler, TraversalOptions options ) const
+	{
+		struct DummyState
+		{
+		};
+
+		DummyState state;
+
+		TraverseHandlerWithState<DummyState> wrappedHandler =
+			[&handler]( DummyState&, const std::vector<const GmodNode*>& parents, const GmodNode& node )
+			-> TraversalHandlerResult {
+			return handler( parents, node );
+		};
+
+		return traverse( state, rootNode, wrappedHandler, options );
 	}
 } // namespace dnv::vista::sdk
