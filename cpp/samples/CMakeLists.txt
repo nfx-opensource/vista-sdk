@@ -19,6 +19,7 @@ set(sample_sources)
 list(APPEND sample_sources
     Sample_Codebooks.cpp
     Sample_Gmod.cpp
+    Sample_GmodPath.cpp
     Sample_ImoNumber.cpp
     Sample_Locations.cpp
 )
