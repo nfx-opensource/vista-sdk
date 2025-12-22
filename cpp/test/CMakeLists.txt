@@ -104,6 +104,7 @@ list(APPEND test_sources
     SDK/Tests_CodebookNames.cpp
     SDK/Tests_Codebooks.cpp
     SDK/Tests_Gmod.cpp
+    SDK/Tests_GmodPath.cpp
     SDK/Tests_ImoNumber.cpp
     SDK/Tests_Locations.cpp
     SDK/Tests_ParsingErrors.cpp
