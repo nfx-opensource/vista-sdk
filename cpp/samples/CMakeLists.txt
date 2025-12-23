@@ -21,6 +21,7 @@ list(APPEND sample_sources
     Sample_Gmod.cpp
     Sample_GmodPath.cpp
     Sample_ImoNumber.cpp
+    Sample_LocalId.cpp
     Sample_Locations.cpp
 )
 
