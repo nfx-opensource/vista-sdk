@@ -114,3 +114,81 @@ namespace dnv::vista::sdk
         m_builder.toString( sb );
     }
 } // namespace dnv::vista::sdk
+
+namespace dnv::vista::sdk::mqtt
+{
+    inline std::string LocalId::toString() const&
+    {
+        StringBuilder sb;
+        toString( sb );
+        return sb.toString();
+    }
+
+    inline std::string LocalId::toString() &&
+    {
+        StringBuilder sb;
+        toString( sb );
+        return std::move( sb ).toString();
+    }
+
+    inline void LocalId::toString( StringBuilder& sb ) const
+    {
+        // Naming rule (NO leading slash for MQTT): "dnv-v2/"
+        sb << "dnv-v2/";
+
+        sb << "vis-" << VisVersions::toString( version() ) << "/";
+
+        appendPrimaryItem( m_builder, sb );
+        appendSecondaryItem( m_builder, sb );
+        appendMeta( sb, quantity() );
+        appendMeta( sb, content() );
+        appendMeta( sb, calculation() );
+        appendMeta( sb, state() );
+        appendMeta( sb, command() );
+        appendMeta( sb, type() );
+        appendMeta( sb, position() );
+        appendMeta( sb, detail() );
+
+        if( sb.size() > 0 && sb[sb.size() - 1] == '/' )
+        {
+            sb.resize( sb.size() - 1 );
+        }
+    }
+
+    inline void LocalId::appendPath( StringBuilder& builder, const GmodPath& path ) const
+    {
+        // Convert path to string with MQTT separator (underscore instead of slash)
+        path.toString( builder, m_separator );
+        builder << '/';
+    }
+
+    inline void LocalId::appendPrimaryItem( const LocalIdBuilder& localIdBuilder, StringBuilder& builder ) const
+    {
+        appendPath( builder, localIdBuilder.primaryItem().value() );
+    }
+
+    inline void LocalId::appendSecondaryItem( const LocalIdBuilder& localIdBuilder, StringBuilder& builder ) const
+    {
+        if( localIdBuilder.secondaryItem().has_value() )
+        {
+            appendPath( builder, localIdBuilder.secondaryItem().value() );
+        }
+        else
+        {
+            // No secondary item - use placeholder
+            builder << "_/";
+        }
+    }
+
+    inline void LocalId::appendMeta( StringBuilder& builder, const std::optional<MetadataTag>& tag ) const
+    {
+        if( !tag.has_value() )
+        {
+            builder << "_/";
+        }
+        else
+        {
+            tag.value().toString( builder );
+        }
+    }
+} // namespace dnv::vista::sdk::mqtt

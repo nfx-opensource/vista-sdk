@@ -34,11 +34,11 @@ namespace dnv::vista::sdk
      * @note LocalId follows the dnv-v2 naming rule format:
      *       /dnv-v2/vis-{version}/{primary-item}[/sec/{secondary-item}]/meta[/qty-{value}][/cnt-{value}]...
      */
-    class LocalId final
+    class LocalId
     {
         friend class LocalIdBuilder;
 
-    private:
+    protected:
         /**
          * @brief Construct LocalId from builder
          * @param builder LocalIdBuilder with validated state
@@ -57,7 +57,7 @@ namespace dnv::vista::sdk
         LocalId( LocalId&& ) noexcept = default;
 
         /** @brief Destructor */
-        ~LocalId() = default;
+        virtual ~LocalId() = default;
 
         /**
          * @brief Copy assignment operator
@@ -185,19 +185,19 @@ namespace dnv::vista::sdk
          * @brief Convert to string representation (lvalue-qualified)
          * @return String representation of the LocalId in dnv-v2 format
          */
-        [[nodiscard]] inline std::string toString() const&;
+        [[nodiscard]] virtual inline std::string toString() const&;
 
         /**
          * @brief Convert to string representation (rvalue-qualified)
          * @return String representation with potential move optimization
          */
-        [[nodiscard]] inline std::string toString() &&;
+        [[nodiscard]] virtual inline std::string toString() &&;
 
         /**
          * @brief Append string representation to StringBuilder
          * @param sb StringBuilder to append to
          */
-        void inline toString( StringBuilder& sb ) const;
+        virtual void inline toString( StringBuilder& sb ) const;
 
         /**
          * @brief Create LocalId from string representation
@@ -218,9 +218,118 @@ namespace dnv::vista::sdk
         [[nodiscard]] static std::optional<LocalId> fromString(
             std::string_view localIdStr, ParsingErrors& errors ) noexcept;
 
-    private:
+    protected:
         LocalIdBuilder m_builder; ///< Internal builder containing all state
     };
 } // namespace dnv::vista::sdk
+
+namespace dnv::vista::sdk::mqtt
+{
+    /**
+     * @brief MQTT-compatible LocalId implementation inheriting from main LocalId.
+     * @details This class extends the base LocalId with MQTT-specific formatting capabilities:
+     *          - Underscores instead of slashes in Gmod paths for topic compatibility
+     *          - No leading slash to match MQTT topic conventions
+     *          - No "meta/" prefix section for cleaner IoT topics
+     *          - Placeholder handling for missing components
+     */
+    class LocalId final : public sdk::LocalId
+    {
+    public:
+        /**
+         * @brief Constructs MQTT LocalId from validated LocalIdBuilder.
+         * @param[in] builder Valid LocalIdBuilder instance.
+         * @throws std::invalid_argument If builder is invalid or empty.
+         */
+        explicit LocalId( const sdk::LocalIdBuilder& builder );
+
+        /** @brief Default constructor */
+        LocalId() = delete;
+
+        /**
+         * @brief Copy constructor
+         * @param other The MQTT LocalId to copy from
+         */
+        LocalId( const LocalId& other ) = default;
+
+        /**
+         * @brief Move constructor
+         * @param other The MQTT LocalId to move from
+         */
+        LocalId( LocalId&& other ) noexcept = default;
+
+        /** @brief Destructor */
+        virtual ~LocalId() override = default;
+
+        /**
+         * @brief Copy assignment operator
+         */
+        LocalId& operator=( const LocalId& ) = delete;
+
+        /**
+         * @brief Move assignment operator
+         * @param other The MQTT LocalId to move from
+         * @return Reference to this LocalId
+         */
+        LocalId& operator=( LocalId&& other ) noexcept = default;
+
+        /**
+         * @brief Converts LocalId to MQTT-compatible topic string.
+         * @details Provides MQTT-specific formatting:
+         *          - No leading slash
+         *          - Underscores instead of slashes in paths
+         *          - No "meta/" section
+         *          - Placeholders for missing components
+         * @return MQTT-compatible Local ID topic string.
+         */
+        [[nodiscard]] virtual inline std::string toString() const& override;
+
+        /**
+         * @brief Convert to MQTT topic string (rvalue-qualified)
+         * @return MQTT-compatible string with potential move optimization
+         */
+        [[nodiscard]] virtual inline std::string toString() && override;
+
+        /**
+         * @brief Append MQTT topic string to StringBuilder
+         * @param sb StringBuilder to append to
+         */
+        virtual inline void toString( StringBuilder& sb ) const override;
+
+    private:
+        /** @brief Internal separator for MQTT paths */
+        static constexpr char m_separator = '_';
+
+        /**
+         * @brief Appends Gmod path to builder with MQTT formatting.
+         * @param[in,out] builder StringBuilder to append to.
+         * @param[in] path GmodPath to append with underscore separators.
+         */
+        inline void appendPath( StringBuilder& builder, const GmodPath& path ) const;
+
+        /**
+         * @brief Appends primary item to builder in MQTT format.
+         * @param[in] localIdBuilder LocalIdBuilder containing the primary item.
+         * @param[in,out] builder StringBuilder to append to.
+         */
+        inline void appendPrimaryItem( const LocalIdBuilder& localIdBuilder, StringBuilder& builder ) const;
+
+        /**
+         * @brief Appends secondary item or placeholder to builder in MQTT format.
+         * @param[in] localIdBuilder LocalIdBuilder containing the optional secondary item.
+         * @param[in,out] builder StringBuilder to append to.
+         */
+        inline void appendSecondaryItem( const LocalIdBuilder& localIdBuilder, StringBuilder& builder ) const;
+
+        /**
+         * @brief Appends metadata tag or placeholder to builder in MQTT format.
+         * @details Appends the metadata tag value if present, otherwise appends an underscore placeholder.
+         *          Always appends a trailing forward slash for MQTT topic formatting.
+         * @param[in,out] builder StringBuilder to append to.
+         * @param[in] tag Optional metadata tag to append (or placeholder if empty).
+         */
+        inline void appendMeta( StringBuilder& builder, const std::optional<MetadataTag>& tag ) const;
+    };
+} // namespace dnv::vista::sdk::mqtt
 
 #include "detail/LocalId.inl"
