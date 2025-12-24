@@ -7,6 +7,7 @@
 #include "dnv/vista/sdk/LocalId.h"
 
 #include "dnv/vista/sdk/LocalIdBuilder.h"
+#include "dnv/vista/sdk/ParsingErrors.h"
 
 #include <stdexcept>
 
@@ -35,3 +36,11 @@ namespace dnv::vista::sdk
         return LocalIdBuilder::fromString( localIdStr, errors );
     }
 } // namespace dnv::vista::sdk
+
+namespace dnv::vista::sdk::mqtt
+{
+    LocalId::LocalId( const sdk::LocalIdBuilder& builder )
+        : sdk::LocalId{ builder }
+    {
+    }
+} // namespace dnv::vista::sdk::mqtt
