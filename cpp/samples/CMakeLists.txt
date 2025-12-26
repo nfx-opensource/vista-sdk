@@ -23,6 +23,7 @@ list(APPEND sample_sources
     Sample_ImoNumber.cpp
     Sample_LocalId.cpp
     Sample_Locations.cpp
+    Sample_UniversalId.cpp
 )
 
 #----------------------------------------------
