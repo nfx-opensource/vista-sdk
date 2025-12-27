@@ -60,6 +60,7 @@ jobs:
             -DDNV_VISTA_SDK_CPP_BUILD_SHARED=ON \
             -DDNV_VISTA_SDK_CPP_BUILD_TOOLS=ON \
             -DDNV_VISTA_SDK_CPP_BUILD_TESTS=OFF \
+            -DDNV_VISTA_SDK_CPP_BUILD_SMOKE_TESTS=OFF \
             -DDNV_VISTA_SDK_CPP_BUILD_SAMPLES=ON
 
       - name: Build

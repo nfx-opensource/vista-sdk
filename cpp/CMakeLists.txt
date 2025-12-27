@@ -35,13 +35,14 @@ enable_testing()
 #----------------------------------------------
 
 # --- Library build types ---
-option(DNV_VISTA_SDK_CPP_BUILD_STATIC  "Build static library" ON )
-option(DNV_VISTA_SDK_CPP_BUILD_SHARED  "Build shared library" OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_STATIC      "Build static library" ON )
+option(DNV_VISTA_SDK_CPP_BUILD_SHARED      "Build shared library" OFF)
 
 # --- Build components ---
-option(DNV_VISTA_SDK_CPP_BUILD_TOOLS   "Build tools"          OFF)
-option(DNV_VISTA_SDK_CPP_BUILD_TESTS   "Build tests"          OFF)
-option(DNV_VISTA_SDK_CPP_BUILD_SAMPLES "Build samples"        OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_TOOLS       "Build tools"          OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_TESTS       "Build tests"          OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_SMOKE_TESTS "Build smoke tests"    OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_SAMPLES     "Build samples"        OFF)
 
 #----------------------------------------------
 # CMake modules configuration
