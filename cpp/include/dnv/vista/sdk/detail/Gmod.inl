@@ -4,6 +4,8 @@
  * @details Provides inline implementations for simple accessor methods.
  */
 
+#include <nfx/StringUtils.h>
+
 namespace dnv::vista::sdk
 {
     inline const GmodNode& Gmod::operator[]( std::string_view key ) const
@@ -147,5 +149,123 @@ namespace dnv::vista::sdk
     constexpr bool Gmod::isPotentialParent( std::string_view type ) noexcept
     {
         return type == "SELECTION" || type == "GROUP" || type == "LEAF";
+    }
+
+    template <std::size_t N, std::size_t M>
+    inline bool Gmod::pathExistsBetween(
+        const SmallVector<const GmodNode*, N>& fromPath,
+        const GmodNode& to,
+        SmallVector<const GmodNode*, M>& remainingParents ) const
+    {
+        remainingParents.clear();
+
+        const GmodNode* lastAssetFunction = nullptr;
+        size_t assetFunctionIndex = std::numeric_limits<size_t>::max();
+        for( size_t i = fromPath.size(); i > 0; --i )
+        {
+            size_t idx = i - 1;
+            if( fromPath[idx]->isAssetFunctionNode() )
+            {
+                lastAssetFunction = fromPath[idx];
+                assetFunctionIndex = idx;
+                break;
+            }
+        }
+
+        const GmodNode& startNode = lastAssetFunction ? *lastAssetFunction : rootNode();
+
+        struct PathExistsState
+        {
+            const GmodNode& targetNode;
+            const SmallVector<const GmodNode*, N>& fromPath;
+            SmallVector<const GmodNode*, M>& remainingParents;
+            size_t assetFunctionIndex;
+            bool found = false;
+
+            PathExistsState(
+                const GmodNode& target,
+                const SmallVector<const GmodNode*, N>& from,
+                SmallVector<const GmodNode*, M>& remaining,
+                size_t afIndex )
+                : targetNode{ target },
+                  fromPath{ from },
+                  remainingParents{ remaining },
+                  assetFunctionIndex{ afIndex }
+            {
+            }
+
+            PathExistsState( const PathExistsState& ) = delete;
+            PathExistsState( PathExistsState&& ) = delete;
+            PathExistsState& operator=( const PathExistsState& ) = delete;
+            PathExistsState& operator=( PathExistsState&& ) = delete;
+        };
+
+        PathExistsState state( to, fromPath, remainingParents, assetFunctionIndex );
+
+        auto handler = [this](
+                           PathExistsState& s,
+                           const SmallVector<const GmodNode*, 16>& parents,
+                           const GmodNode& node ) -> TraversalHandlerResult {
+            if( !nfx::string::equals( node.code(), s.targetNode.code() ) )
+            {
+                return TraversalHandlerResult::Continue;
+            }
+
+            SmallVector<const GmodNode*, 16> completePath;
+            completePath.reserve( parents.size() );
+            for( const GmodNode* parent : parents )
+            {
+                if( !parent->isRoot() )
+                {
+                    completePath.push_back( parent );
+                }
+            }
+            size_t startIndex = 0;
+
+            if( s.assetFunctionIndex != std::numeric_limits<size_t>::max() )
+            {
+                startIndex = s.assetFunctionIndex;
+            }
+
+            size_t requiredNodes = s.fromPath.size() - startIndex;
+            if( completePath.size() < requiredNodes )
+            {
+                return TraversalHandlerResult::Continue;
+            }
+
+            bool match = true;
+            for( size_t i = 0; i < requiredNodes; ++i )
+            {
+                size_t fromPathIdx = startIndex + i;
+                if( fromPathIdx >= s.fromPath.size() || i >= completePath.size() )
+                {
+                    match = false;
+                    break;
+                }
+                if( !nfx::string::equals( completePath[i]->code(), s.fromPath[fromPathIdx]->code() ) )
+                {
+                    match = false;
+                    break;
+                }
+            }
+
+            if( match )
+            {
+                for( size_t i = requiredNodes; i < completePath.size(); ++i )
+                {
+                    s.remainingParents.push_back( completePath[i] );
+                }
+                s.found = true;
+                return TraversalHandlerResult::Stop;
+            }
+
+            return TraversalHandlerResult::Continue;
+        };
+
+        TraverseHandlerWithState<PathExistsState> wrappedHandler = handler;
+
+        traverse( state, startNode, wrappedHandler, TraversalOptions{} );
+
+        return state.found;
     }
 } // namespace dnv::vista::sdk

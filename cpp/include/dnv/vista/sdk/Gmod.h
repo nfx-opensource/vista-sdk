@@ -60,6 +60,7 @@ namespace dnv::vista::sdk
     class Gmod final
     {
         friend class VIS;
+        friend class internal::GmodVersioning;
         friend class internal::LocationSetsVisitor;
         friend internal::GmodParsePathResult internal::fromShortPath(
             std::string_view, const Gmod&, const Locations& ) noexcept;
@@ -242,6 +243,19 @@ namespace dnv::vista::sdk
          * @details Internal helper - these types can have location-based child scopes in the tree hierarchy.
          */
         [[nodiscard]] static constexpr bool isPotentialParent( std::string_view type ) noexcept;
+
+        /**
+         * @brief Check if a path exists from a given path to a target node
+         * @param fromPath Current path of parent nodes
+         * @param to Target node to reach
+         * @param[out] remainingParents Remaining parent nodes in the path to target
+         * @return True if path exists, false otherwise
+         */
+        template <std::size_t N, std::size_t M>
+        bool pathExistsBetween(
+            const SmallVector<const GmodNode*, N>& fromPath,
+            const GmodNode& to,
+            SmallVector<const GmodNode*, M>& remainingParents ) const;
 
     private:
         VisVersion m_visVersion; ///< VIS version for this Gmod
