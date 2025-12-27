@@ -32,6 +32,7 @@ namespace dnv::vista::sdk
 		struct GmodParsePathResult;
 		struct ParseContext;
 
+		class GmodVersioning;
 		class LocationSetsVisitor;
 
 		/**
@@ -226,6 +227,7 @@ namespace dnv::vista::sdk
 		friend class Gmod;
 		friend class GmodPath;
 		friend class GmodIndividualizableSet;
+		friend class internal::GmodVersioning;
 		friend class internal::LocationSetsVisitor;
 		friend internal::GmodParsePathResult internal::fromShortPath( std::string_view, const Gmod&, const Locations& ) noexcept;
 		friend internal::GmodParsePathResult internal::fromFullPath( std::string_view, const Gmod&, const Locations& ) noexcept;
