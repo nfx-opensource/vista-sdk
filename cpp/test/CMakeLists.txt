@@ -76,6 +76,7 @@ list(APPEND test_sources
 	SDK/Tests_Codebooks.cpp
 	SDK/Tests_Gmod.cpp
 	SDK/Tests_GmodPath.cpp
+	SDK/Tests_GmodVersioning.cpp
 	SDK/Tests_ImoNumber.cpp
 	SDK/Tests_LocalId.cpp
 	SDK/Tests_Locations.cpp
@@ -84,6 +85,12 @@ list(APPEND test_sources
 	SDK/Tests_VIS.cpp
 	SDK/Tests_VisVersions.cpp
 )
+
+if(DNV_VISTA_SDK_CPP_BUILD_SMOKE_TESTS)
+	list(APPEND test_sources
+		SDK/Tests_GmodVersioning_Smoke.cpp
+	)
+endif()
 
 #----------------------------------------------
 # Configure test executables
