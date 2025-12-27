@@ -23,8 +23,12 @@ namespace dnv::vista::sdk
     class GmodIndividualizableSet;
     class Location;
     class Locations;
-
     enum class VisVersion : std::uint8_t;
+
+    namespace internal
+    {
+        class GmodVersioning;
+    } // namespace internal
 
     /**
      * @class GmodPath
@@ -39,6 +43,7 @@ namespace dnv::vista::sdk
     {
     private:
         friend class GmodIndividualizableSet;
+        friend class internal::GmodVersioning;
         friend TraversalHandlerResult internal::parseHandler(
             internal::ParseContext&, const SmallVector<const GmodNode*, 16>&, const GmodNode& );
         friend internal::GmodParsePathResult internal::fromFullPath(
