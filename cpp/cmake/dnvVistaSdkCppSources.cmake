@@ -17,6 +17,7 @@ list(APPEND private_sources
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/Gmod.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/GmodNode.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/GmodPath.cpp
+    ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/GmodPathQuery.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/ImoNumber.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/LocalId.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/LocalIdBuilder.cpp
