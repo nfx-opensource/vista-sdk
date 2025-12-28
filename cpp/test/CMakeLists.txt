@@ -100,6 +100,7 @@ endif()
 set(test_sources)
 
 list(APPEND test_sources
+    SDK/query/Tests_MetadataTagsQuery.cpp
     SDK/Tests_Codebook.cpp
     SDK/Tests_CodebookNames.cpp
     SDK/Tests_Codebooks.cpp
