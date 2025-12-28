@@ -9,6 +9,7 @@
 #include "Codebooks.h"
 #include "Gmod.h"
 #include "GmodPath.h"
+#include "GmodPathQuery.h"
 #include "ImoNumber.h"
 #include "LocalId.h"
 #include "LocationBuilder.h"
