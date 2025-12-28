@@ -12,6 +12,7 @@
 #include "ImoNumber.h"
 #include "LocalId.h"
 #include "LocationBuilder.h"
+#include "MetadataTagsQuery.h"
 #include "ParsingErrors.h"
 #include "UniversalId.h"
 #include "VisVersions.h"
