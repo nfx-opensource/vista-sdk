@@ -21,6 +21,7 @@ list(APPEND private_sources
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/ImoNumber.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/LocalId.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/LocalIdBuilder.cpp
+    ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/LocalIdQuery.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/LocationBuilder.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/Locations.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/MetadataTagsQuery.cpp
