@@ -68,6 +68,7 @@ include(dnvVistaSdkCppEmbeddedResources)
 include(dnvVistaSdkCppEmbeddedSchemas)
 include(dnvVistaSdkCppEmbeddedTestData)
 include(dnvVistaSdkCppVisVersionsGenerator)
+include(dnvVistaSdkCppISO19848VersionsGenerator)
 
 #----------------------------------------------
 # Targets

@@ -92,3 +92,5 @@ tests/TESTS_*[1]_*
 # Generated files
 VisVersions.h
 VisVersionsExtensions.h
+ISO19848Versions.h
+ISO19848VersionsExtensions.h
