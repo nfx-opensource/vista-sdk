@@ -37,6 +37,12 @@ namespace dnv::vista::sdk
         static std::vector<std::string> visVersions();
 
         /**
+         * @brief Get list of available ISO 19848 versions
+         * @return Vector of version strings (e.g., ["v2018", "v2024"])
+         */
+        static std::vector<std::string> iso19848Versions();
+
+        /**
          * @brief Load Gmod data for a VIS version
          * @param visVersion VIS version string (e.g., "3-4a")
          * @return Gmod DTO if found, nullopt otherwise

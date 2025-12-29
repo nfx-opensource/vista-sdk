@@ -87,7 +87,7 @@ endfunction()
 
 # --- Apply configuration to both targets ---
 if(DNV_VISTA_SDK_CPP_BUILD_SHARED)
-    add_dependencies(${PROJECT_NAME} dnv-vista-cpp-generate-visversions)
+    add_dependencies(${PROJECT_NAME} dnv-vista-cpp-generate-visversions dnv-vista-cpp-generate-iso19848versions)
     configure_target(${PROJECT_NAME})
     if(WIN32)
         set_target_properties(${PROJECT_NAME}
@@ -106,6 +106,6 @@ if(DNV_VISTA_SDK_CPP_BUILD_SHARED)
 endif()
 
 if(DNV_VISTA_SDK_CPP_BUILD_STATIC)
-    add_dependencies(${PROJECT_NAME}-static dnv-vista-cpp-generate-visversions)
+    add_dependencies(${PROJECT_NAME}-static dnv-vista-cpp-generate-visversions dnv-vista-cpp-generate-iso19848versions)
     configure_target(${PROJECT_NAME}-static)
 endif()

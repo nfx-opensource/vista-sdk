@@ -145,6 +145,47 @@ namespace dnv::vista::sdk
         return versions;
     }
 
+    std::vector<std::string> EmbeddedResources::iso19848Versions()
+    {
+        const auto& resources = resources::all();
+        std::vector<std::string> versions;
+
+        for( const auto& res : resources )
+        {
+            // Filter: ends with ".gz", contains "iso19848", contains "data-channel-type-names"
+            // Filename pattern: "iso19848-{version}-data-channel-type-names.json.gz" e.g.
+            // "iso19848-v2018-data-channel-type-names.json.gz"
+            if( nfx::string::endsWith( res.name, ".gz" ) && nfx::string::contains( res.name, "iso19848" ) &&
+                nfx::string::contains( res.name, "data-channel-type-names" ) )
+            {
+                // Extract version from filename
+                // "iso19848-v2018-data-channel-type-names.json.gz" -> "v2018"
+                constexpr std::string_view prefix = "iso19848-";
+                constexpr std::string_view suffix = "-data-channel-type-names.json.gz";
+
+                auto prefixPos = res.name.find( prefix );
+                if( prefixPos != std::string_view::npos )
+                {
+                    auto versionStart = prefixPos + prefix.size();
+                    auto suffixPos = res.name.find( suffix, versionStart );
+                    if( suffixPos != std::string_view::npos )
+                    {
+                        versions.emplace_back( res.name.substr( versionStart, suffixPos - versionStart ) );
+                    }
+                }
+            }
+        }
+
+        if( versions.empty() )
+        {
+            throw std::runtime_error{
+                "Did not find required resources (expected iso19848-*-data-channel-type-names.json.gz resources)"
+            };
+        }
+
+        return versions;
+    }
+
     std::optional<GmodDto> EmbeddedResources::gmod( std::string_view visVersion )
     {
         const auto& resources = resources::all();

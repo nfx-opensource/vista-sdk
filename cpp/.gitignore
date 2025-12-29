@@ -91,5 +91,7 @@ vista-sdk-cpp*/
 lib/
 
 # Generated files
+ISO19848Versions.h
+ISO19848VersionsExtensions.h
 VisVersions.h
 VisVersionsExtensions.h
