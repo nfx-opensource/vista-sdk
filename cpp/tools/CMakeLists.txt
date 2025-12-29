@@ -19,6 +19,7 @@ set(tools_sources)
 list(APPEND tools_sources
     codebooks-cli.cpp
     gmod-cli.cpp
+    localid-cli.cpp
     locations-cli.cpp
 )
 
