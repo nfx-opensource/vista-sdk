@@ -101,6 +101,7 @@ set(test_sources)
 
 list(APPEND test_sources
     SDK/query/Tests_GmodPathQuery.cpp
+    SDK/query/Tests_LocalIdQuery.cpp
     SDK/query/Tests_MetadataTagsQuery.cpp
     SDK/Tests_Codebook.cpp
     SDK/Tests_CodebookNames.cpp
