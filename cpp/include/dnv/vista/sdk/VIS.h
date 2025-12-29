@@ -12,6 +12,7 @@
 #include "GmodPathQuery.h"
 #include "ImoNumber.h"
 #include "LocalId.h"
+#include "LocalIdQuery.h"
 #include "LocationBuilder.h"
 #include "MetadataTagsQuery.h"
 #include "ParsingErrors.h"
