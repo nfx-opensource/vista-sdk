@@ -194,6 +194,62 @@ if(NOT nfx-containers_FOUND)
     FetchContent_MakeAvailable(nfx-containers)
 endif()
 
+# --- nfx-datetime ---
+find_package(nfx-datetime QUIET)
+if(NOT nfx-datetime_FOUND)
+    set(NFX_DATETIME_BUILD_STATIC        ON  CACHE BOOL "Build static library"              FORCE)
+    set(NFX_DATETIME_BUILD_SHARED        OFF CACHE BOOL "Build shared library"              FORCE)
+    set(NFX_DATETIME_BUILD_TESTS         OFF CACHE BOOL "Build tests"                       FORCE)
+    set(NFX_DATETIME_BUILD_SAMPLES       OFF CACHE BOOL "Build samples"                     FORCE)
+    set(NFX_DATETIME_BUILD_BENCHMARKS    OFF CACHE BOOL "Build benchmarks"                  FORCE)
+    set(NFX_DATETIME_BUILD_DOCUMENTATION OFF CACHE BOOL "Build Doxygen documentation"       FORCE)
+    set(NFX_DATETIME_INSTALL_PROJECT     OFF CACHE BOOL "Install project"                   FORCE)
+    set(NFX_DATETIME_PACKAGE_SOURCE      OFF CACHE BOOL "Enable source package generation"  FORCE)
+    set(NFX_DATETIME_PACKAGE_ARCHIVE     OFF CACHE BOOL "Enable TGZ/ZIP package generation" FORCE)
+    set(NFX_DATETIME_PACKAGE_DEB         OFF CACHE BOOL "Enable DEB package generation"     FORCE)
+    set(NFX_DATETIME_PACKAGE_RPM         OFF CACHE BOOL "Enable RPM package generation"     FORCE)
+    set(NFX_DATETIME_PACKAGE_WIX         OFF CACHE BOOL "Enable WiX MSI installer"          FORCE)
+
+    FetchContent_Declare(
+        nfx-datetime
+            GIT_REPOSITORY https://github.com/nfx-libs/nfx-datetime
+            GIT_TAG        main
+            GIT_SHALLOW    TRUE
+    )
+endif()
+
+if(NOT nfx-datetime_FOUND)
+    FetchContent_MakeAvailable(nfx-datetime)
+endif()
+
+# --- nfx-datatypes ---
+find_package(nfx-datatypes QUIET)
+if(NOT nfx-datatypes_FOUND)
+    set(NFX_DATATYPES_BUILD_STATIC        ON  CACHE BOOL "Build static library"              FORCE)
+    set(NFX_DATATYPES_BUILD_SHARED        OFF CACHE BOOL "Build shared library"              FORCE)
+    set(NFX_DATATYPES_BUILD_TESTS         OFF CACHE BOOL "Build tests"                       FORCE)
+    set(NFX_DATATYPES_BUILD_SAMPLES       OFF CACHE BOOL "Build samples"                     FORCE)
+    set(NFX_DATATYPES_BUILD_BENCHMARKS    OFF CACHE BOOL "Build benchmarks"                  FORCE)
+    set(NFX_DATATYPES_BUILD_DOCUMENTATION OFF CACHE BOOL "Build Doxygen documentation"       FORCE)
+    set(NFX_DATATYPES_INSTALL_PROJECT     OFF CACHE BOOL "Install project"                   FORCE)
+    set(NFX_DATATYPES_PACKAGE_SOURCE      OFF CACHE BOOL "Enable source package generation"  FORCE)
+    set(NFX_DATATYPES_PACKAGE_ARCHIVE     OFF CACHE BOOL "Enable TGZ/ZIP package generation" FORCE)
+    set(NFX_DATATYPES_PACKAGE_DEB         OFF CACHE BOOL "Enable DEB package generation"     FORCE)
+    set(NFX_DATATYPES_PACKAGE_RPM         OFF CACHE BOOL "Enable RPM package generation"     FORCE)
+    set(NFX_DATATYPES_PACKAGE_WIX         OFF CACHE BOOL "Enable WiX MSI installer"          FORCE)
+
+    FetchContent_Declare(
+        nfx-datatypes
+            GIT_REPOSITORY https://github.com/nfx-libs/nfx-datatypes
+            GIT_TAG        main
+            GIT_SHALLOW    TRUE
+    )
+endif()
+
+if(NOT nfx-datatypes_FOUND)
+    FetchContent_MakeAvailable(nfx-datatypes)
+endif()
+
 #----------------------------------------------
 # Cleanup
 #----------------------------------------------
