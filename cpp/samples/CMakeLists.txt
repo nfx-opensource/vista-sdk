@@ -22,6 +22,7 @@ list(APPEND sample_sources
     Sample_GmodPath.cpp
     Sample_GmodVersioning.cpp
     Sample_ImoNumber.cpp
+    Sample_ISO19848.cpp
     Sample_LocalId.cpp
     Sample_Locations.cpp
     Sample_Queries.cpp
