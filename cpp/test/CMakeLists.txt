@@ -103,6 +103,7 @@ list(APPEND test_sources
 	SDK/query/Tests_GmodPathQuery.cpp
 	SDK/query/Tests_LocalIdQuery.cpp
 	SDK/query/Tests_MetadataTagsQuery.cpp
+	SDK/transport/Tests_DataChannelISOmessages.cpp
 	SDK/transport/Tests_ISO19848.cpp
 	SDK/transport/Tests_ISO19848Versions.cpp
 	SDK/Tests_Codebook.cpp
