@@ -115,6 +115,7 @@ list(APPEND test_sources
 	SDK/Tests_LocalId.cpp
 	SDK/Tests_Locations.cpp
 	SDK/Tests_ParsingErrors.cpp
+	SDK/Tests_ShipId.cpp
 	SDK/Tests_UniversalId.cpp
 	SDK/Tests_VIS.cpp
 	SDK/Tests_VisVersions.cpp
