@@ -74,6 +74,7 @@ list(APPEND test_sources
 	SDK/query/Tests_GmodPathQuery.cpp
 	SDK/query/Tests_LocalIdQuery.cpp
 	SDK/query/Tests_MetadataTagsQuery.cpp
+	SDK/transport/serialization/json/Tests_Json.cpp
 	SDK/transport/Tests_DataChannelISOmessages.cpp
 	SDK/transport/Tests_ISO19848.cpp
 	SDK/transport/Tests_ISO19848Versions.cpp
@@ -121,6 +122,7 @@ foreach(test_source ${test_sources})
 			GTest::gtest_main
 			dnv-vista-sdk-cpp::static
 			dnv-vista-cpp-embeddedtestdata
+			dnv-vista-cpp-embeddedschemas
 			nfx-serialization::static
 		)
 
