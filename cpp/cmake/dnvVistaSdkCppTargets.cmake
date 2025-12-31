@@ -60,11 +60,11 @@ function(configure_target target_name)
             $<BUILD_INTERFACE:nfx-containers::nfx-containers>
             $<BUILD_INTERFACE:nfx-datatypes::static>
             $<BUILD_INTERFACE:nfx-datetime::static>
+            $<BUILD_INTERFACE:nfx-serialization::static>
             $<BUILD_INTERFACE:nfx-stringbuilder::static>
             $<BUILD_INTERFACE:nfx-stringutils::nfx-stringutils>
         PRIVATE
             $<BUILD_INTERFACE:zlib-ng>
-            $<BUILD_INTERFACE:nfx-serialization::static>
     )
 
     # --- Properties ---
