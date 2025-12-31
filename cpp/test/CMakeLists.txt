@@ -23,6 +23,15 @@ nfx_embed_resources(
     PATTERN "*.json" "*.txt" "*.gz"
 )
 
+nfx_embed_resources(
+    TARGET dnv-vista-cpp-embeddedtestdata
+    RESOURCE_DIR "${DNV_VISTA_SDK_CPP_DIR}/test/SDK/transport/serialization/json/_files"
+    OUTPUT_DIR "${CMAKE_BINARY_DIR}/generated/dnv-vista-cpp-testdata-additional"
+    NAMESPACE "dnv::vista::sdk::testdata::additional"
+    REGISTRY_NAME "testdata_additional"
+    PATTERN "*.json"
+)
+
 # Add the EmbeddedTestData helper class to the target
 target_sources(dnv-vista-cpp-embeddedtestdata
     PRIVATE
@@ -100,26 +109,27 @@ endif()
 set(test_sources)
 
 list(APPEND test_sources
-	SDK/query/Tests_GmodPathQuery.cpp
-	SDK/query/Tests_LocalIdQuery.cpp
-	SDK/query/Tests_MetadataTagsQuery.cpp
-	SDK/transport/Tests_DataChannelISOmessages.cpp
-	SDK/transport/Tests_ISO19848.cpp
-	SDK/transport/Tests_ISO19848Versions.cpp
-	SDK/Tests_Codebook.cpp
-	SDK/Tests_CodebookNames.cpp
-	SDK/Tests_Codebooks.cpp
-	SDK/Tests_Gmod.cpp
-	SDK/Tests_GmodPath.cpp
-	SDK/Tests_GmodVersioning.cpp
-	SDK/Tests_ImoNumber.cpp
-	SDK/Tests_LocalId.cpp
-	SDK/Tests_Locations.cpp
-	SDK/Tests_ParsingErrors.cpp
-	SDK/Tests_ShipId.cpp
-	SDK/Tests_UniversalId.cpp
-	SDK/Tests_VIS.cpp
-	SDK/Tests_VisVersions.cpp
+    SDK/query/Tests_GmodPathQuery.cpp
+    SDK/query/Tests_LocalIdQuery.cpp
+    SDK/query/Tests_MetadataTagsQuery.cpp
+    SDK/transport/serialization/json/Tests_Json.cpp
+    SDK/transport/Tests_DataChannelISOmessages.cpp
+    SDK/transport/Tests_ISO19848.cpp
+    SDK/transport/Tests_ISO19848Versions.cpp
+    SDK/Tests_Codebook.cpp
+    SDK/Tests_CodebookNames.cpp
+    SDK/Tests_Codebooks.cpp
+    SDK/Tests_Gmod.cpp
+    SDK/Tests_GmodPath.cpp
+    SDK/Tests_GmodVersioning.cpp
+    SDK/Tests_ImoNumber.cpp
+    SDK/Tests_LocalId.cpp
+    SDK/Tests_Locations.cpp
+    SDK/Tests_ParsingErrors.cpp
+    SDK/Tests_ShipId.cpp
+    SDK/Tests_UniversalId.cpp
+    SDK/Tests_VIS.cpp
+    SDK/Tests_VisVersions.cpp
 )
 
 if(DNV_VISTA_SDK_CPP_BUILD_SMOKE_TESTS)
@@ -151,6 +161,7 @@ foreach(test_source ${test_sources})
                 GTest::gtest_main
                 dnv-vista-sdk-cpp::static
                 dnv-vista-cpp-embeddedtestdata
+                dnv-vista-cpp-embeddedschemas
                 nfx-serialization::static
         )
 

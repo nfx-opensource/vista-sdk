@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 
 #include <dnv/vista/sdk/transport/datachannel/DataChannel.h>
+#include <dnv/vista/sdk/serialization/json/DataChannelListSerializationTraits.h>
 
 namespace dnv::vista::sdk::tests
 {
@@ -530,5 +531,332 @@ namespace dnv::vista::sdk::tests
                 EXPECT_TRUE( errors[0].find( "should be 5" ) != std::string::npos );
             }
         }
+    }
+
+    //=====================================================================
+    // JSON Serialization Tests
+    //=====================================================================
+
+    /**
+     * @brief Complete JSON serialization round-trip test
+     * @details Verifies that ALL fields survive JSON serialization/deserialization including:
+     *          - All custom dictionaries (customHeaders, customNameObjects, customElements, customProperties)
+     *          - All optional fields
+     *          - All restriction details
+     *          - ConfigurationReference.version
+     *          - Both DataChannels (temperature and alert)
+     */
+    TEST( IsoMessageTests, DataChannelListJsonSerializationComplete )
+    {
+        // Create a fully populated DataChannelList
+        auto originalPackage = createValidFullyCustomDataChannelList();
+
+        // Serialize domain model directly to JSON
+        auto options = nfx::serialization::json::Serializer<transport::datachannel::DataChannelListPackage>::Options{};
+        options.includeNullFields = false;
+        options.prettyPrint = true;
+        std::string json =
+            nfx::serialization::json::Serializer<transport::datachannel::DataChannelListPackage>::toString(
+                originalPackage, options );
+
+        // std::cout << "Full JSON:\n" << json << std::endl;
+
+        // Deserialize JSON directly to domain model
+        auto docOpt = nfx::serialization::json::SerializableDocument::fromString( json );
+        ASSERT_TRUE( docOpt.has_value() );
+        transport::datachannel::DataChannelListPackage deserializedPackage{ transport::datachannel::Package{
+            transport::datachannel::Header{
+                ShipId::fromString( "IMO1234567" ).value(),
+                transport::datachannel::ConfigurationReference{ "dummy", DateTimeOffset{}, std::nullopt } },
+            transport::datachannel::DataChannelList{} } };
+
+        nfx::serialization::json::SerializationTraits<transport::datachannel::DataChannelListPackage>::deserialize(
+            *docOpt, deserializedPackage );
+
+        // Header
+        const auto& originalHeader = originalPackage.package().header();
+        const auto& deserializedHeader = deserializedPackage.package().header();
+
+        // ShipId
+        EXPECT_EQ( originalHeader.shipId().toString(), deserializedHeader.shipId().toString() );
+
+        // ConfigurationReference
+        EXPECT_EQ( originalHeader.dataChannelListId().id(), deserializedHeader.dataChannelListId().id() );
+        EXPECT_EQ(
+            originalHeader.dataChannelListId().timeStamp().toString(),
+            deserializedHeader.dataChannelListId().timeStamp().toString() );
+        EXPECT_TRUE( originalHeader.dataChannelListId().version().has_value() );
+        EXPECT_TRUE( deserializedHeader.dataChannelListId().version().has_value() );
+        EXPECT_EQ( *originalHeader.dataChannelListId().version(), *deserializedHeader.dataChannelListId().version() );
+
+        // VersionInformation
+        EXPECT_TRUE( originalHeader.versionInformation().has_value() );
+        EXPECT_TRUE( deserializedHeader.versionInformation().has_value() );
+        EXPECT_EQ(
+            originalHeader.versionInformation()->namingRule(), deserializedHeader.versionInformation()->namingRule() );
+        EXPECT_EQ(
+            originalHeader.versionInformation()->namingSchemeVersion(),
+            deserializedHeader.versionInformation()->namingSchemeVersion() );
+        EXPECT_EQ(
+            originalHeader.versionInformation()->referenceUrl(),
+            deserializedHeader.versionInformation()->referenceUrl() );
+
+        // Author
+        EXPECT_TRUE( originalHeader.author().has_value() );
+        EXPECT_TRUE( deserializedHeader.author().has_value() );
+        EXPECT_EQ( *originalHeader.author(), *deserializedHeader.author() );
+
+        // DateCreated
+        EXPECT_TRUE( originalHeader.dateCreated().has_value() );
+        EXPECT_TRUE( deserializedHeader.dateCreated().has_value() );
+        EXPECT_EQ( originalHeader.dateCreated()->toString(), deserializedHeader.dateCreated()->toString() );
+
+        // CustomHeaders
+        EXPECT_TRUE( deserializedHeader.customHeaders().has_value() );
+        const auto& deserializedCustomHeaders = *deserializedHeader.customHeaders();
+
+        // Verify String type
+        auto headerValueOpt = deserializedCustomHeaders.get<std::string>( "nr:CustomHeaderElement" );
+        ASSERT_TRUE( headerValueOpt.has_value() );
+        EXPECT_EQ( headerValueOpt.value(), "Vendor specific headers" );
+
+        // Verify Integer type
+        auto sampleRateOpt = deserializedCustomHeaders.get<int64_t>( "sampleRate" );
+        ASSERT_TRUE( sampleRateOpt.has_value() );
+        EXPECT_EQ( sampleRateOpt.value(), 1000 );
+
+        // Verify Boolean type
+        auto isValidatedOpt = deserializedCustomHeaders.get<bool>( "isValidated" );
+        ASSERT_TRUE( isValidatedOpt.has_value() );
+        EXPECT_EQ( isValidatedOpt.value(), true );
+
+        // Verify String (decimal as string) type
+        auto toleranceOpt = deserializedCustomHeaders.get<std::string>( "tolerance" );
+        ASSERT_TRUE( toleranceOpt.has_value() );
+        EXPECT_EQ( toleranceOpt.value(), "0.001" );
+
+        // Verify String (DateTime as string) type
+        auto certDateOpt = deserializedCustomHeaders.get<std::string>( "certificationDate" );
+        ASSERT_TRUE( certDateOpt.has_value() );
+        EXPECT_EQ( certDateOpt.value(), "2024-01-15T00:00:00Z" );
+
+        // DataChannelList
+        const auto& originalList = originalPackage.package().dataChannelList();
+        const auto& deserializedList = deserializedPackage.package().dataChannelList();
+
+        EXPECT_EQ( originalList.size(), deserializedList.size() );
+        EXPECT_EQ( deserializedList.size(), 2U );
+
+        // First DataChannel (Temperature Sensor)
+        const auto& originalChannel1 = originalList[0];
+        const auto& deserializedChannel1 = deserializedList[0];
+
+        // DataChannelId
+        EXPECT_EQ(
+            originalChannel1.dataChannelId().localId().toString(),
+            deserializedChannel1.dataChannelId().localId().toString() );
+        EXPECT_TRUE( originalChannel1.dataChannelId().shortId().has_value() );
+        EXPECT_TRUE( deserializedChannel1.dataChannelId().shortId().has_value() );
+        EXPECT_EQ( *originalChannel1.dataChannelId().shortId(), *deserializedChannel1.dataChannelId().shortId() );
+
+        // NameObject
+        EXPECT_TRUE( originalChannel1.dataChannelId().nameObject().has_value() );
+        EXPECT_TRUE( deserializedChannel1.dataChannelId().nameObject().has_value() );
+        const auto& originalNameObject = *originalChannel1.dataChannelId().nameObject();
+        const auto& deserializedNameObject = *deserializedChannel1.dataChannelId().nameObject();
+        EXPECT_EQ( originalNameObject.namingRule(), deserializedNameObject.namingRule() );
+
+        // CustomNameObjects - verify all types using Document API
+        EXPECT_TRUE( originalNameObject.customNameObjects().has_value() );
+        EXPECT_TRUE( deserializedNameObject.customNameObjects().has_value() );
+        const auto& originalCustomNameObjects = *originalNameObject.customNameObjects();
+        const auto& deserializedCustomNameObjects = *deserializedNameObject.customNameObjects();
+
+        // Get root object for iteration
+        auto deserializedObjOpt = deserializedCustomNameObjects.get<nfx::serialization::json::Object>( "" );
+        ASSERT_TRUE( deserializedObjOpt.has_value() );
+        const auto& deserializedObj = deserializedObjOpt.value();
+
+        // Verify we have 5 custom properties
+        size_t count = 0;
+        for( const auto& [key, doc] : deserializedObj )
+        {
+            ++count;
+        }
+        EXPECT_EQ( count, 5U );
+
+        // Verify string value
+        auto nameObjStrOpt = deserializedCustomNameObjects.get<std::string>( "nr:CustomNameObject" );
+        ASSERT_TRUE( nameObjStrOpt.has_value() );
+        EXPECT_EQ( nameObjStrOpt.value(), "Vendor specific NameObject" );
+
+        // Verify integer value
+        auto priorityOpt = deserializedCustomNameObjects.get<int64_t>( "priority" );
+        ASSERT_TRUE( priorityOpt.has_value() );
+        EXPECT_EQ( priorityOpt.value(), 10 );
+
+        // Verify boolean value
+        auto isActiveOpt = deserializedCustomNameObjects.get<bool>( "isActive" );
+        ASSERT_TRUE( isActiveOpt.has_value() );
+        EXPECT_EQ( isActiveOpt.value(), false );
+
+        // Verify decimal value
+        auto offsetOpt = deserializedCustomNameObjects.get<Decimal>( "offset" );
+        ASSERT_TRUE( offsetOpt.has_value() );
+        EXPECT_EQ( offsetOpt.value().toString(), "2.5" );
+
+        // Verify datetime value
+        auto lastModifiedOpt = deserializedCustomNameObjects.get<std::string>( "lastModified" );
+        ASSERT_TRUE( lastModifiedOpt.has_value() );
+        EXPECT_EQ( lastModifiedOpt.value(), "2024-01-10T12:30:00Z" );
+        // Property
+        const auto& originalProperty1 = originalChannel1.property();
+        const auto& deserializedProperty1 = deserializedChannel1.property();
+
+        // DataChannelType
+        EXPECT_EQ( originalProperty1.dataChannelType().type(), deserializedProperty1.dataChannelType().type() );
+        EXPECT_TRUE( originalProperty1.dataChannelType().updateCycle().has_value() );
+        EXPECT_TRUE( deserializedProperty1.dataChannelType().updateCycle().has_value() );
+        EXPECT_EQ(
+            *originalProperty1.dataChannelType().updateCycle(),
+            *deserializedProperty1.dataChannelType().updateCycle() );
+
+        // Format
+        EXPECT_EQ( originalProperty1.format().type(), deserializedProperty1.format().type() );
+
+        // Restriction
+        EXPECT_TRUE( originalProperty1.format().restriction().has_value() );
+        EXPECT_TRUE( deserializedProperty1.format().restriction().has_value() );
+        const auto& originalRestriction = *originalProperty1.format().restriction();
+        const auto& deserializedRestriction = *deserializedProperty1.format().restriction();
+
+        EXPECT_TRUE( originalRestriction.fractionDigits().has_value() );
+        EXPECT_TRUE( deserializedRestriction.fractionDigits().has_value() );
+        EXPECT_EQ( *originalRestriction.fractionDigits(), *deserializedRestriction.fractionDigits() );
+
+        EXPECT_TRUE( originalRestriction.maxInclusive().has_value() );
+        EXPECT_TRUE( deserializedRestriction.maxInclusive().has_value() );
+        EXPECT_EQ( *originalRestriction.maxInclusive(), *deserializedRestriction.maxInclusive() );
+
+        EXPECT_TRUE( originalRestriction.minInclusive().has_value() );
+        EXPECT_TRUE( deserializedRestriction.minInclusive().has_value() );
+        EXPECT_EQ( *originalRestriction.minInclusive(), *deserializedRestriction.minInclusive() );
+
+        // Range
+        EXPECT_TRUE( originalProperty1.range().has_value() );
+        EXPECT_TRUE( deserializedProperty1.range().has_value() );
+        const auto& originalRange = *originalProperty1.range();
+        const auto& deserializedRange = *deserializedProperty1.range();
+        EXPECT_EQ( originalRange.low(), deserializedRange.low() );
+        EXPECT_EQ( originalRange.high(), deserializedRange.high() );
+
+        // Unit
+        EXPECT_TRUE( originalProperty1.unit().has_value() );
+        EXPECT_TRUE( deserializedProperty1.unit().has_value() );
+        const auto& originalUnit = *originalProperty1.unit();
+        const auto& deserializedUnit = *deserializedProperty1.unit();
+        EXPECT_EQ( originalUnit.unitSymbol(), deserializedUnit.unitSymbol() );
+        EXPECT_TRUE( originalUnit.quantityName().has_value() );
+        EXPECT_TRUE( deserializedUnit.quantityName().has_value() );
+        EXPECT_EQ( *originalUnit.quantityName(), *deserializedUnit.quantityName() );
+
+        // CustomElements - verify all 5 Value types
+        EXPECT_TRUE( originalUnit.customElements().has_value() );
+        EXPECT_TRUE( deserializedUnit.customElements().has_value() );
+        const auto& deserializedCustomElements = *deserializedUnit.customElements();
+
+        // Verify values using Document API
+        EXPECT_EQ(
+            deserializedCustomElements.get<std::string>( "nr:CustomUnitElement" ), "Vendor specific unit element" );
+        EXPECT_EQ( deserializedCustomElements.get<int64_t>( "conversionFactor" ), 100 );
+        EXPECT_EQ( deserializedCustomElements.get<bool>( "isMetric" ), false );
+        EXPECT_EQ( deserializedCustomElements.get<Decimal>( "multiplier" )->toString(), "1.8" );
+        EXPECT_EQ( deserializedCustomElements.get<std::string>( "standardizedDate" ), "2020-05-01T00:00:00.0000000Z" );
+
+        // QualityCoding
+        EXPECT_TRUE( originalProperty1.qualityCoding().has_value() );
+        EXPECT_TRUE( deserializedProperty1.qualityCoding().has_value() );
+        EXPECT_EQ( *originalProperty1.qualityCoding(), *deserializedProperty1.qualityCoding() );
+
+        // Name
+        EXPECT_TRUE( originalProperty1.name().has_value() );
+        EXPECT_TRUE( deserializedProperty1.name().has_value() );
+        EXPECT_EQ( *originalProperty1.name(), *deserializedProperty1.name() );
+
+        // Remarks
+        EXPECT_TRUE( originalProperty1.remarks().has_value() );
+        EXPECT_TRUE( deserializedProperty1.remarks().has_value() );
+        EXPECT_EQ( *originalProperty1.remarks(), *deserializedProperty1.remarks() );
+
+        // CustomProperties - verify all 5 values using Document API
+        EXPECT_TRUE( originalProperty1.customProperties().has_value() );
+        EXPECT_TRUE( deserializedProperty1.customProperties().has_value() );
+        const auto& deserializedCustomProperties = *deserializedProperty1.customProperties();
+
+        EXPECT_EQ(
+            deserializedCustomProperties.get<std::string>( "nr:CustomPropertyElement" ),
+            "Vendor specific property element" );
+        EXPECT_EQ( deserializedCustomProperties.get<int64_t>( "maxSamples" ), 500 );
+        EXPECT_EQ( deserializedCustomProperties.get<bool>( "requiresCalibration" ), false );
+        EXPECT_EQ( deserializedCustomProperties.get<Decimal>( "accuracy" )->toString(), "0.05" );
+        EXPECT_EQ(
+            deserializedCustomProperties.get<std::string>( "installationDate" ), "2023-06-15T08:00:00.0000000Z" );
+
+        // Second DataChannel (Alert Type)
+        const auto& originalChannel2 = originalList[1];
+        const auto& deserializedChannel2 = deserializedList[1];
+
+        // DataChannelId
+        EXPECT_EQ(
+            originalChannel2.dataChannelId().localId().toString(),
+            deserializedChannel2.dataChannelId().localId().toString() );
+        EXPECT_TRUE( originalChannel2.dataChannelId().shortId().has_value() );
+        EXPECT_TRUE( deserializedChannel2.dataChannelId().shortId().has_value() );
+        EXPECT_EQ( *originalChannel2.dataChannelId().shortId(), *deserializedChannel2.dataChannelId().shortId() );
+
+        // Property
+        const auto& originalProperty2 = originalChannel2.property();
+        const auto& deserializedProperty2 = deserializedChannel2.property();
+
+        // DataChannelType
+        EXPECT_EQ( originalProperty2.dataChannelType().type(), deserializedProperty2.dataChannelType().type() );
+        EXPECT_EQ( originalProperty2.dataChannelType().type(), "Alert" );
+
+        // Format
+        EXPECT_EQ( originalProperty2.format().type(), deserializedProperty2.format().type() );
+        EXPECT_EQ( originalProperty2.format().type(), "String" );
+
+        // Restriction for String
+        EXPECT_TRUE( originalProperty2.format().restriction().has_value() );
+        EXPECT_TRUE( deserializedProperty2.format().restriction().has_value() );
+        const auto& originalRestriction2 = *originalProperty2.format().restriction();
+        const auto& deserializedRestriction2 = *deserializedProperty2.format().restriction();
+
+        EXPECT_TRUE( originalRestriction2.maxLength().has_value() );
+        EXPECT_TRUE( deserializedRestriction2.maxLength().has_value() );
+        EXPECT_EQ( *originalRestriction2.maxLength(), *deserializedRestriction2.maxLength() );
+
+        EXPECT_TRUE( originalRestriction2.minLength().has_value() );
+        EXPECT_TRUE( deserializedRestriction2.minLength().has_value() );
+        EXPECT_EQ( *originalRestriction2.minLength(), *deserializedRestriction2.minLength() );
+
+        // AlertPriority
+        EXPECT_TRUE( originalProperty2.alertPriority().has_value() );
+        EXPECT_TRUE( deserializedProperty2.alertPriority().has_value() );
+        EXPECT_EQ( *originalProperty2.alertPriority(), *deserializedProperty2.alertPriority() );
+
+        // Verify optional fields are NOT present (should be nullopt)
+        EXPECT_FALSE( originalProperty2.range().has_value() );
+        EXPECT_FALSE( deserializedProperty2.range().has_value() );
+        EXPECT_FALSE( originalProperty2.unit().has_value() );
+        EXPECT_FALSE( deserializedProperty2.unit().has_value() );
+        EXPECT_FALSE( originalProperty2.qualityCoding().has_value() );
+        EXPECT_FALSE( deserializedProperty2.qualityCoding().has_value() );
+        EXPECT_FALSE( originalProperty2.name().has_value() );
+        EXPECT_FALSE( deserializedProperty2.name().has_value() );
+        EXPECT_FALSE( originalProperty2.remarks().has_value() );
+        EXPECT_FALSE( deserializedProperty2.remarks().has_value() );
+        EXPECT_FALSE( originalProperty2.customProperties().has_value() );
+        EXPECT_FALSE( deserializedProperty2.customProperties().has_value() );
     }
 } // namespace dnv::vista::sdk::tests
