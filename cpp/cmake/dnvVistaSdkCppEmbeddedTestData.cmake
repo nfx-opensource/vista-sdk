@@ -65,6 +65,15 @@ function(embed_all_testdata_to_target TARGET_NAME TESTDATA_DIR OUTPUT_DIR)
 			"${TESTDATA_DIR}/*.gz"
 	)
 
+	# Also check for additional test files directory
+	if(EXISTS "${DNV_VISTA_SDK_CPP_DIR}/test/SDK/transport/serialization/json/_files")
+		file(GLOB
+			ADDITIONAL_FILES
+				"${DNV_VISTA_SDK_CPP_DIR}/test/SDK/transport/serialization/json/_files/*.json"
+		)
+		list(APPEND TESTDATA_FILES ${ADDITIONAL_FILES})
+	endif()
+
 	if(NOT TESTDATA_FILES)
 		message(WARNING "No testdata files found in ${TESTDATA_DIR}")
 		return()
