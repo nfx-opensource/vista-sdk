@@ -18,6 +18,7 @@ set(sample_sources)
 
 list(APPEND sample_sources
     Sample_Codebooks.cpp
+    Sample_DataChannelList.cpp
     Sample_Gmod.cpp
     Sample_GmodPath.cpp
     Sample_GmodVersioning.cpp
