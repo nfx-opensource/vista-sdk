@@ -113,6 +113,7 @@ list(APPEND test_sources
     SDK/query/Tests_LocalIdQuery.cpp
     SDK/query/Tests_MetadataTagsQuery.cpp
     SDK/transport/serialization/json/Tests_Json.cpp
+    SDK/transport/Tests_DataChannelId.cpp
     SDK/transport/Tests_DataChannelISOmessages.cpp
     SDK/transport/Tests_ISO19848.cpp
     SDK/transport/Tests_ISO19848Versions.cpp
