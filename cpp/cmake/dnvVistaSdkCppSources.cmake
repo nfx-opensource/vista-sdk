@@ -13,6 +13,7 @@ list(APPEND private_sources
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/internal/parsing/LocationParsingErrorBuilder.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/internal/versioning/GmodVersioning.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/transport/datachannel/DataChannel.cpp
+    ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/transport/timeseries/TimeSeriesData.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/transport/ISO19848.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/transport/ShipId.cpp
     ${DNV_VISTA_SDK_CPP_SOURCE_DIR}/SDK/Codebook.cpp
