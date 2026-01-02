@@ -117,6 +117,7 @@ list(APPEND test_sources
     SDK/transport/Tests_DataChannelISOmessages.cpp
     SDK/transport/Tests_ISO19848.cpp
     SDK/transport/Tests_ISO19848Versions.cpp
+    SDK/transport/Tests_TimeSeriesISOmessages.cpp
     SDK/Tests_Codebook.cpp
     SDK/Tests_CodebookNames.cpp
     SDK/Tests_Codebooks.cpp
