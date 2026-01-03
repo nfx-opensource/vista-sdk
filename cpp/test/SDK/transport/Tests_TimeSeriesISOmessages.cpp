@@ -7,6 +7,7 @@
 
 #include <dnv/vista/sdk/transport/timeseries/TimeSeriesData.h>
 #include <dnv/vista/sdk/transport/datachannel/DataChannel.h>
+#include <dnv/vista/sdk/serialization/json/TimeSeriesDataSerializationTraits.h>
 
 namespace dnv::vista::sdk::tests
 {
@@ -725,5 +726,282 @@ namespace dnv::vista::sdk::tests
         EXPECT_FALSE( result.isOk() );
         EXPECT_FALSE( result.errors.empty() );
         EXPECT_TRUE( result.errors[0].find( "Custom business rule violation" ) != std::string::npos );
+    }
+
+    //=====================================================================
+    // JSON Serialization Tests
+    //=====================================================================
+
+    /**
+     * @brief Test TimeSeriesData JSON serialization
+     * @details Tests JSON round-trip serialization
+     */
+    TEST( IsoMessageTests, TimeSeriesDataJson )
+    {
+        // Create original package
+        auto originalPackage = createTestTimeSeriesDataPackage();
+
+        // Serialize domain model to JSON
+        auto options = nfx::serialization::json::Serializer<transport::timeseries::TimeSeriesDataPackage>::Options{};
+        options.includeNullFields = false;
+        options.prettyPrint = true;
+        std::string json = nfx::serialization::json::Serializer<transport::timeseries::TimeSeriesDataPackage>::toString(
+            originalPackage, options );
+
+        // Deserialize JSON to domain model
+        auto docOpt = nfx::json::Document::fromString( json );
+        ASSERT_TRUE( docOpt.has_value() );
+
+        auto deserializedPackage =
+            nfx::serialization::json::SerializationTraits<transport::timeseries::TimeSeriesDataPackage>::fromDocument(
+                *docOpt );
+
+        // Header
+        const auto& originalHeader = originalPackage.package().header();
+        const auto& deserializedHeader = deserializedPackage.package().header();
+
+        ASSERT_TRUE( originalHeader.has_value() );
+        ASSERT_TRUE( deserializedHeader.has_value() );
+
+        // ShipId
+        EXPECT_EQ( originalHeader->shipId().toString(), deserializedHeader->shipId().toString() );
+
+        // TimeSpan
+        ASSERT_TRUE( originalHeader->timeSpan().has_value() );
+        ASSERT_TRUE( deserializedHeader->timeSpan().has_value() );
+        EXPECT_EQ( originalHeader->timeSpan()->start().toString(), deserializedHeader->timeSpan()->start().toString() );
+        EXPECT_EQ( originalHeader->timeSpan()->end().toString(), deserializedHeader->timeSpan()->end().toString() );
+
+        // DateCreated
+        ASSERT_TRUE( originalHeader->dateCreated().has_value() );
+        ASSERT_TRUE( deserializedHeader->dateCreated().has_value() );
+        EXPECT_EQ( originalHeader->dateCreated()->toString(), deserializedHeader->dateCreated()->toString() );
+
+        // DateModified
+        ASSERT_TRUE( originalHeader->dateModified().has_value() );
+        ASSERT_TRUE( deserializedHeader->dateModified().has_value() );
+        EXPECT_EQ( originalHeader->dateModified()->toString(), deserializedHeader->dateModified()->toString() );
+
+        // Author
+        ASSERT_TRUE( originalHeader->author().has_value() );
+        ASSERT_TRUE( deserializedHeader->author().has_value() );
+        EXPECT_EQ( *originalHeader->author(), *deserializedHeader->author() );
+
+        // SystemConfiguration
+        ASSERT_TRUE( originalHeader->systemConfiguration().has_value() );
+        ASSERT_TRUE( deserializedHeader->systemConfiguration().has_value() );
+        const auto& originalSysConfigs = *originalHeader->systemConfiguration();
+        const auto& deserializedSysConfigs = *deserializedHeader->systemConfiguration();
+        EXPECT_EQ( originalSysConfigs.size(), deserializedSysConfigs.size() );
+        for( std::size_t i = 0; i < originalSysConfigs.size(); ++i )
+        {
+            EXPECT_EQ( originalSysConfigs[i].id(), deserializedSysConfigs[i].id() );
+            EXPECT_EQ( originalSysConfigs[i].timeStamp().toString(), deserializedSysConfigs[i].timeStamp().toString() );
+        }
+
+        // CustomHeaders (verify JSON serialization)
+        ASSERT_TRUE( originalHeader->customHeaders().has_value() );
+        ASSERT_TRUE( deserializedHeader->customHeaders().has_value() );
+        const auto& deserializedCustomHeaders = *deserializedHeader->customHeaders();
+
+        // Verify String type
+        auto tempUnit = deserializedCustomHeaders.get<std::string>( "temperatureUnit" );
+        ASSERT_TRUE( tempUnit.has_value() );
+        EXPECT_EQ( *tempUnit, "Celsius" );
+
+        // Verify Integer type
+        auto sampleRate = deserializedCustomHeaders.get<int64_t>( "sampleRate" );
+        ASSERT_TRUE( sampleRate.has_value() );
+        EXPECT_EQ( *sampleRate, 1000 );
+
+        // Verify Boolean type
+        auto isCompressed = deserializedCustomHeaders.get<bool>( "isCompressed" );
+        ASSERT_TRUE( isCompressed.has_value() );
+        EXPECT_TRUE( *isCompressed );
+
+        // Verify Decimal type
+        auto precision = deserializedCustomHeaders.get<double>( "precision" );
+        ASSERT_TRUE( precision.has_value() );
+        EXPECT_DOUBLE_EQ( *precision, 0.001 );
+
+        // Verify DateTime type (stored as string)
+        auto calDate = deserializedCustomHeaders.get<std::string>( "calibrationDate" );
+        ASSERT_TRUE( calDate.has_value() );
+        EXPECT_EQ( *calDate, "2024-01-15T00:00:00Z" );
+
+        // TimeSeriesData
+        const auto& originalTimeSeriesData = originalPackage.package().timeSeriesData();
+        const auto& deserializedTimeSeriesData = deserializedPackage.package().timeSeriesData();
+
+        EXPECT_EQ( originalTimeSeriesData.size(), deserializedTimeSeriesData.size() );
+        ASSERT_EQ( deserializedTimeSeriesData.size(), 2U );
+
+        for( std::size_t tsIdx = 0; tsIdx < originalTimeSeriesData.size(); ++tsIdx )
+        {
+            const auto& originalTsData = originalTimeSeriesData[tsIdx];
+            const auto& deserializedTsData = deserializedTimeSeriesData[tsIdx];
+
+            // DataConfiguration
+            ASSERT_TRUE( originalTsData.dataConfiguration().has_value() );
+            ASSERT_TRUE( deserializedTsData.dataConfiguration().has_value() );
+            EXPECT_EQ( originalTsData.dataConfiguration()->id(), deserializedTsData.dataConfiguration()->id() );
+            EXPECT_EQ(
+                originalTsData.dataConfiguration()->timeStamp().toString(),
+                deserializedTsData.dataConfiguration()->timeStamp().toString() );
+
+            // TabularData
+            ASSERT_TRUE( originalTsData.tabularData().has_value() );
+            ASSERT_TRUE( deserializedTsData.tabularData().has_value() );
+            const auto& originalTabularDataList = *originalTsData.tabularData();
+            const auto& deserializedTabularDataList = *deserializedTsData.tabularData();
+            EXPECT_EQ( originalTabularDataList.size(), deserializedTabularDataList.size() );
+
+            for( std::size_t tabIdx = 0; tabIdx < originalTabularDataList.size(); ++tabIdx )
+            {
+                const auto& originalTabData = originalTabularDataList[tabIdx];
+                const auto& deserializedTabData = deserializedTabularDataList[tabIdx];
+
+                // DataChannelIds
+                const auto& originalChannelIds = originalTabData.dataChannelIds();
+                const auto& deserializedChannelIds = deserializedTabData.dataChannelIds();
+                EXPECT_EQ( originalChannelIds.size(), deserializedChannelIds.size() );
+                for( std::size_t cidIdx = 0; cidIdx < originalChannelIds.size(); ++cidIdx )
+                {
+                    EXPECT_EQ( originalChannelIds[cidIdx].toString(), deserializedChannelIds[cidIdx].toString() );
+                }
+
+                // DataSets
+                const auto& originalDataSets = originalTabData.dataSets();
+                const auto& deserializedDataSets = deserializedTabData.dataSets();
+                EXPECT_EQ( originalDataSets.size(), deserializedDataSets.size() );
+
+                for( std::size_t dsIdx = 0; dsIdx < originalDataSets.size(); ++dsIdx )
+                {
+                    const auto& originalDataSet = originalDataSets[dsIdx];
+                    const auto& deserializedDataSet = deserializedDataSets[dsIdx];
+
+                    // TimeStamp
+                    EXPECT_EQ( originalDataSet.timeStamp().toString(), deserializedDataSet.timeStamp().toString() );
+
+                    // Values
+                    const auto& originalValues = originalDataSet.value();
+                    const auto& deserializedValues = deserializedDataSet.value();
+                    EXPECT_EQ( originalValues.size(), deserializedValues.size() );
+                    for( std::size_t vIdx = 0; vIdx < originalValues.size(); ++vIdx )
+                    {
+                        EXPECT_EQ( originalValues[vIdx], deserializedValues[vIdx] );
+                    }
+
+                    // Quality
+                    if( originalDataSet.quality().has_value() )
+                    {
+                        ASSERT_TRUE( deserializedDataSet.quality().has_value() );
+                        const auto& originalQuality = *originalDataSet.quality();
+                        const auto& deserializedQuality = *deserializedDataSet.quality();
+                        EXPECT_EQ( originalQuality.size(), deserializedQuality.size() );
+                        for( std::size_t qIdx = 0; qIdx < originalQuality.size(); ++qIdx )
+                        {
+                            EXPECT_EQ( originalQuality[qIdx], deserializedQuality[qIdx] );
+                        }
+                    }
+                    else
+                    {
+                        EXPECT_FALSE( deserializedDataSet.quality().has_value() );
+                    }
+                }
+            }
+
+            // EventData
+            ASSERT_TRUE( originalTsData.eventData().has_value() );
+            ASSERT_TRUE( deserializedTsData.eventData().has_value() );
+            const auto& originalEventData = *originalTsData.eventData();
+            const auto& deserializedEventData = *deserializedTsData.eventData();
+
+            if( originalEventData.dataSet().has_value() )
+            {
+                ASSERT_TRUE( deserializedEventData.dataSet().has_value() );
+                const auto& originalEventDataSets = *originalEventData.dataSet();
+                const auto& deserializedEventDataSets = *deserializedEventData.dataSet();
+                EXPECT_EQ( originalEventDataSets.size(), deserializedEventDataSets.size() );
+
+                for( std::size_t edIdx = 0; edIdx < originalEventDataSets.size(); ++edIdx )
+                {
+                    const auto& originalEventDataSet = originalEventDataSets[edIdx];
+                    const auto& deserializedEventDataSet = deserializedEventDataSets[edIdx];
+
+                    // TimeStamp
+                    EXPECT_EQ(
+                        originalEventDataSet.timeStamp().toString(), deserializedEventDataSet.timeStamp().toString() );
+
+                    // DataChannelId
+                    EXPECT_EQ(
+                        originalEventDataSet.dataChannelId().toString(),
+                        deserializedEventDataSet.dataChannelId().toString() );
+
+                    // Value
+                    EXPECT_EQ( originalEventDataSet.value(), deserializedEventDataSet.value() );
+
+                    // Quality
+                    if( originalEventDataSet.quality().has_value() )
+                    {
+                        ASSERT_TRUE( deserializedEventDataSet.quality().has_value() );
+                        EXPECT_EQ( *originalEventDataSet.quality(), *deserializedEventDataSet.quality() );
+                    }
+                    else
+                    {
+                        EXPECT_FALSE( deserializedEventDataSet.quality().has_value() );
+                    }
+                }
+            }
+            else
+            {
+                EXPECT_FALSE( deserializedEventData.dataSet().has_value() );
+            }
+
+            // CustomDataKinds (verify JSON serialization)
+            ASSERT_TRUE( originalTsData.customDataKinds().has_value() );
+            ASSERT_TRUE( deserializedTsData.customDataKinds().has_value() );
+            const auto& deserializedCustomData = *deserializedTsData.customDataKinds();
+
+            if( tsIdx == 0 )
+            {
+                // First TimeSeriesData has 5 custom data entries
+                // Verify String type
+                auto quality = deserializedCustomData.get<std::string>( "dataQuality" );
+                ASSERT_TRUE( quality.has_value() );
+                EXPECT_EQ( *quality, "high" );
+
+                // Verify Integer type
+                auto recordCount = deserializedCustomData.get<int64_t>( "recordCount" );
+                ASSERT_TRUE( recordCount.has_value() );
+                EXPECT_EQ( *recordCount, 42 );
+
+                // Verify Boolean type
+                auto validated = deserializedCustomData.get<bool>( "validated" );
+                ASSERT_TRUE( validated.has_value() );
+                EXPECT_TRUE( *validated );
+
+                // Verify Decimal type
+                auto accuracy = deserializedCustomData.get<double>( "accuracy" );
+                ASSERT_TRUE( accuracy.has_value() );
+                EXPECT_DOUBLE_EQ( *accuracy, 0.01 );
+
+                // Verify DateTime type (stored as string)
+                auto procTime = deserializedCustomData.get<std::string>( "processingTime" );
+                ASSERT_TRUE( procTime.has_value() );
+                EXPECT_EQ( *procTime, "2024-01-15T10:30:00Z" );
+            }
+            else if( tsIdx == 1 )
+            {
+                // Second TimeSeriesData has 2 custom data entries
+                auto source = deserializedCustomData.get<std::string>( "source" );
+                ASSERT_TRUE( source.has_value() );
+                EXPECT_EQ( *source, "sensor_array_1" );
+
+                auto version = deserializedCustomData.get<int64_t>( "version" );
+                ASSERT_TRUE( version.has_value() );
+                EXPECT_EQ( *version, 2 );
+            }
+        }
     }
 } // namespace dnv::vista::sdk::tests
