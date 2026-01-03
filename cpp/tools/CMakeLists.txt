@@ -7,7 +7,7 @@
 #----------------------------------------------
 
 if(NOT DNV_VISTA_SDK_CPP_BUILD_TOOLS)
-	return()
+    return()
 endif()
 
 #----------------------------------------------
@@ -19,6 +19,7 @@ set(tools_sources)
 list(APPEND tools_sources
     codebooks-cli.cpp
     gmod-cli.cpp
+    json-validator-cli.cpp
     localid-cli.cpp
     locations-cli.cpp
 )
@@ -40,6 +41,20 @@ foreach(tools_source ${tools_sources})
         target_link_libraries(${tool_target_name}
             PRIVATE
                 dnv-vista-sdk-cpp::static
+        )
+
+        if(tool_target_name STREQUAL "json-validator-cli")
+            target_link_libraries(${tool_target_name} PRIVATE
+                $<TARGET_OBJECTS:dnv-vista-cpp-embeddedschemas>
+            )
+        endif()
+
+        #----------------------------------------------
+        # Include directories
+        #----------------------------------------------
+
+        target_include_directories(${tool_target_name} PRIVATE
+            ${DNV_VISTA_SDK_CPP_SOURCE_DIR}
         )
 
         #----------------------------------------------
