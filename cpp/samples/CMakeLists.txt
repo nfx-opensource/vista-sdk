@@ -27,6 +27,7 @@ list(APPEND sample_sources
     Sample_LocalId.cpp
     Sample_Locations.cpp
     Sample_Queries.cpp
+    Sample_TimeSeriesData.cpp
     Sample_UniversalId.cpp
 )
 
