@@ -43,6 +43,7 @@ option(DNV_VISTA_SDK_CPP_BUILD_TOOLS       "Build tools"          OFF)
 option(DNV_VISTA_SDK_CPP_BUILD_TESTS       "Build tests"          OFF)
 option(DNV_VISTA_SDK_CPP_BUILD_SMOKE_TESTS "Build smoke tests"    OFF)
 option(DNV_VISTA_SDK_CPP_BUILD_SAMPLES     "Build samples"        OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_BENCHMARKS  "Build benchmarks"     OFF)
 
 #----------------------------------------------
 # CMake modules configuration
@@ -75,3 +76,4 @@ include(dnvVistaSdkCppISO19848VersionsGenerator)
 add_subdirectory(tools)
 add_subdirectory(test)
 add_subdirectory(samples)
+add_subdirectory(benchmark)
