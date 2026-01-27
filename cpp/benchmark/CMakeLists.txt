@@ -16,7 +16,7 @@ endif()
 
 include(FetchContent)
 
-set(VISTA_SDK_CPP_DEPS_BENCHMARK_VERSION "1.9.4")
+set(VISTA_SDK_CPP_DEPS_BENCHMARK_VERSION "1.9.5")
 
 find_package(benchmark ${VISTA_SDK_CPP_DEPS_BENCHMARK_MIN_VERSION} QUIET)
 if(NOT benchmark_FOUND)

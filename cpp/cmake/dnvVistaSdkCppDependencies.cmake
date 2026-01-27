@@ -18,7 +18,14 @@ set(CMAKE_FIND_QUIETLY      ON     )
 # Dependency versions
 #----------------------------------------------
 
-set(DNV_VISTA_SDK_CPP_DEPS_ZLIB_NG_VERSION "2.3.2")
+set(DNV_VISTA_SDK_CPP_DEPS_ZLIB_NG_VERSION      "2.3.2")
+set(DNV_VISTA_SDK_CPP_NFX_RESOURCE_VERSION      "1.1.0")
+set(DNV_VISTA_SDK_CPP_NFX_SERIALIZATION_VERSION "0.6.1")
+set(DNV_VISTA_SDK_CPP_NFX_STRINGBUILDER_VERSION "0.5.0")
+set(DNV_VISTA_SDK_CPP_NFX_STRINGUTILS_VERSION   "0.5.0")
+set(DNV_VISTA_SDK_CPP_NFX_CONTAINERS_VERSION    "0.3.0")
+set(DNV_VISTA_SDK_CPP_NFX_DATETIME_VERSION      "0.3.0")
+set(DNV_VISTA_SDK_CPP_NFX_DATATYPES_VERSION     "0.2.0")
 
 #----------------------------------------------
 # FetchContent dependencies
@@ -80,7 +87,7 @@ if(NOT nfx-resource_FOUND)
     FetchContent_Declare(
         nfx-resource
             GIT_REPOSITORY https://github.com/nfx-libs/nfx-resource.git
-            GIT_TAG        main
+            GIT_TAG        ${DNV_VISTA_SDK_CPP_NFX_RESOURCE_VERSION}
             GIT_SHALLOW    TRUE
     )
     FetchContent_MakeAvailable(nfx-resource)
@@ -105,7 +112,7 @@ if(NOT nfx-serialization_FOUND)
     FetchContent_Declare(
         nfx-serialization
             GIT_REPOSITORY https://github.com/nfx-libs/nfx-serialization.git
-            GIT_TAG        main
+            GIT_TAG        ${DNV_VISTA_SDK_CPP_NFX_SERIALIZATION_VERSION}
             GIT_SHALLOW    TRUE
     )
 endif()
@@ -133,7 +140,7 @@ if(NOT nfx-stringbuilder_FOUND)
     FetchContent_Declare(
         nfx-stringbuilder
             GIT_REPOSITORY https://github.com/nfx-libs/nfx-stringbuilder
-            GIT_TAG        main
+            GIT_TAG        ${DNV_VISTA_SDK_CPP_NFX_STRINGBUILDER_VERSION}
             GIT_SHALLOW    TRUE
     )
 endif()
@@ -159,7 +166,7 @@ if(NOT nfx-stringutils_FOUND)
     FetchContent_Declare(
         nfx-stringutils
             GIT_REPOSITORY https://github.com/nfx-libs/nfx-stringutils
-            GIT_TAG        main
+            GIT_TAG        ${DNV_VISTA_SDK_CPP_NFX_STRINGUTILS_VERSION}
             GIT_SHALLOW    TRUE
     )
 endif()
@@ -185,7 +192,7 @@ if(NOT nfx-containers_FOUND)
     FetchContent_Declare(
         nfx-containers
             GIT_REPOSITORY https://github.com/nfx-libs/nfx-containers
-            GIT_TAG        main
+            GIT_TAG        ${DNV_VISTA_SDK_CPP_NFX_CONTAINERS_VERSION}
             GIT_SHALLOW    TRUE
     )
 endif()
@@ -213,7 +220,7 @@ if(NOT nfx-datetime_FOUND)
     FetchContent_Declare(
         nfx-datetime
             GIT_REPOSITORY https://github.com/nfx-libs/nfx-datetime
-            GIT_TAG        main
+            GIT_TAG        ${DNV_VISTA_SDK_CPP_NFX_DATETIME_VERSION}
             GIT_SHALLOW    TRUE
     )
 endif()
@@ -241,7 +248,7 @@ if(NOT nfx-datatypes_FOUND)
     FetchContent_Declare(
         nfx-datatypes
             GIT_REPOSITORY https://github.com/nfx-libs/nfx-datatypes
-            GIT_TAG        main
+            GIT_TAG        ${DNV_VISTA_SDK_CPP_NFX_DATATYPES_VERSION}
             GIT_SHALLOW    TRUE
     )
 endif()
