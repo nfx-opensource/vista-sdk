@@ -251,6 +251,7 @@ All stages are automated via CMake custom commands and execute during the build.
 vista-sdk/cpp/
 ├── benchmark/              # Performance benchmarks with Google Benchmark
 ├── cmake/                  # CMake modules and build configuration
+├── doc/                    # Doxygen documentation configuration
 ├── include/dnv/vista/sdk/  # Public API headers
 ├── licenses/               # Third-party license files
 ├── samples/                # Usage examples
@@ -309,6 +310,20 @@ cmake --build build
 # ... and more
 ```
 
+## API Documentation
+
+The SDK includes complete API documentation generated with Doxygen.
+
+```bash
+cmake -B build -DDNV_VISTA_SDK_CPP_BUILD_DOCUMENTATION=ON
+cmake --build build
+
+# Open documentation (Linux)
+xdg-open build/doc/html/index.html
+
+# Open documentation (Windows)
+build\doc\index.html.cmd
+```
 ## License
 
 This project is licensed under the MIT License.

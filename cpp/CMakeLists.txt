@@ -35,15 +35,16 @@ enable_testing()
 #----------------------------------------------
 
 # --- Library build types ---
-option(DNV_VISTA_SDK_CPP_BUILD_STATIC      "Build static library" ON )
-option(DNV_VISTA_SDK_CPP_BUILD_SHARED      "Build shared library" OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_STATIC        "Build static library" ON )
+option(DNV_VISTA_SDK_CPP_BUILD_SHARED        "Build shared library" OFF)
 
 # --- Build components ---
-option(DNV_VISTA_SDK_CPP_BUILD_TOOLS       "Build tools"          OFF)
-option(DNV_VISTA_SDK_CPP_BUILD_TESTS       "Build tests"          OFF)
-option(DNV_VISTA_SDK_CPP_BUILD_SMOKE_TESTS "Build smoke tests"    OFF)
-option(DNV_VISTA_SDK_CPP_BUILD_SAMPLES     "Build samples"        OFF)
-option(DNV_VISTA_SDK_CPP_BUILD_BENCHMARKS  "Build benchmarks"     OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_TOOLS         "Build tools"          OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_TESTS         "Build tests"          OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_SMOKE_TESTS   "Build smoke tests"    OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_SAMPLES       "Build samples"        OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_BENCHMARKS    "Build benchmarks"     OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_DOCUMENTATION "Build documentation"  OFF)
 
 #----------------------------------------------
 # CMake modules configuration
@@ -77,3 +78,4 @@ add_subdirectory(tools)
 add_subdirectory(test)
 add_subdirectory(samples)
 add_subdirectory(benchmark)
+add_subdirectory(doc)
