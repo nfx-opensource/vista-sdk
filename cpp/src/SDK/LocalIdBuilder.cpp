@@ -446,13 +446,17 @@ namespace dnv::vista::sdk
         // Primary item
         if( m_primaryItem.has_value() )
         {
-            builder << '/' << m_primaryItem->toString() << '/';
+            builder << '/';
+            m_primaryItem->toString( builder );
+            builder << '/';
         }
 
         // Secondary item
         if( m_secondaryItem.has_value() )
         {
-            builder << "sec/" << m_secondaryItem->toString() << '/';
+            builder << "sec/";
+            m_secondaryItem->toString( builder );
+            builder << '/';
         }
 
         // Verbose mode: Add common names
