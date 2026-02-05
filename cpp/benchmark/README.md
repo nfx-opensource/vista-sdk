@@ -78,23 +78,23 @@
 
 | Benchmark                                                       | linux GCC | linux clang | linux C# .NET | Windows GCC | Windows MSVC | Windows C# .NET |
 | --------------------------------------------------------------- | :-------: | :---------: | :-----------: | :---------: | :----------: | :-------------: |
-| **FromShortPath / TryParse**                                    | 2.28  us  |  2.22  us   |   3.122 us    |   3.18 us   |   3.86 us    |     2.87 us     |
-| **FromFullPath / TryParseFullPath**                             | 0.515 us  |  0.618 us   |   0.555 us    |  0.730 us   |   1.05 us    |    0.517 us     |
-| **FromShortPathIndividualized / TryParseIndividualized**        | 1.22  us  |  1.17  us   |   1.443 us    |   1.79 us   |   2.00 us    |     1.24 us     |
-| **FromFullPathIndividualized / TryParseFullPathIndividualized** | 0.824 us  |  0.753 us   |   0.760 us    |   1.12 us   |   1.36 us    |    0.646 us     |
+| **FromShortPath / TryParse**                                    | 1.77  us  |  1.61  us   |   3.122 us    |   2.53 us   |   3.09 us    |     2.87 us     |
+| **FromFullPath / TryParseFullPath**                             | 0.555 us  |  0.582 us   |   0.555 us    |  0.787 us   |   1.02 us    |    0.517 us     |
+| **FromShortPathIndividualized / TryParseIndividualized**        | 1.22  us  |  1.07  us   |   1.443 us    |   1.68 us   |   1.81 us    |     1.24 us     |
+| **FromFullPathIndividualized / TryParseFullPathIndividualized** | 0.823 us  |  0.782 us   |   0.760 us    |   1.15 us   |   1.31 us    |    0.646 us     |
 
 #### Gmod traversal
 
 | Benchmark         | linux GCC | linux clang | linux C# .NET | Windows GCC | Windows MSVC | Windows C# .NET |
 | ----------------- | :-------: | :---------: | :-----------: | :---------: | :----------: | :-------------: |
-| **FullTraversal** |  132 ms   |   153 ms    |   126.2 ms    |   147 ms    |    183 ms    |    121.2 ms     |
+| **FullTraversal** |  87.3 ms  |   96.0 ms   |   126.2 ms    |   99.1 ms   |    113 ms    |    121.2 ms     |
 
 #### Gmod versioning convert path
 
 | Benchmark                   | linux GCC | linux clang | linux C# .NET | Windows GCC | Windows MSVC | Windows C# .NET |
 | --------------------------- | :-------: | :---------: | :-----------: | :---------: | :----------: | :-------------: |
-| **ConvertPath**             |  1.55 us  |   1.56 us   |    1.33 us    |   2.12 us   |   2.32 us    |     1.27 us     |
-| **ConvertPathWithLocation** |  1.51 us  |   1.48 us   |     _N/A_     |   2.04 us   |   2.19 us    |      _N/A_      |
+| **ConvertPath**             |  1.56 us  |   1.47 us   |    1.33 us    |   2.12 us   |   2.33 us    |     1.27 us     |
+| **ConvertPathWithLocation** |  1.62 us  |   1.45 us   |     _N/A_     |   1.99 us   |   2.19 us    |      _N/A_      |
 
 ## Transport Layer
 

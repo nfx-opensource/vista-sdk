@@ -275,13 +275,13 @@ namespace dnv::vista::sdk
             void push( const GmodNode* parent )
             {
                 m_parents.push_back( parent );
-                if( auto* count = m_occurrences.find( parent->code() ) )
+                if( auto* count = m_occurrences.find( parent ) )
                 {
                     ++( *count );
                 }
                 else
                 {
-                    m_occurrences.emplace( parent->code(), 1 );
+                    m_occurrences.emplace( parent, 1 );
                 }
             }
 
@@ -290,11 +290,11 @@ namespace dnv::vista::sdk
                 const GmodNode* parent = m_parents.back();
                 m_parents.pop_back();
 
-                if( auto* count = m_occurrences.find( parent->code() ) )
+                if( auto* count = m_occurrences.find( parent ) )
                 {
                     if( *count == 1 )
                     {
-                        m_occurrences.erase( parent->code() );
+                        m_occurrences.erase( parent );
                     }
                     else
                     {
@@ -305,7 +305,7 @@ namespace dnv::vista::sdk
 
             [[nodiscard]] int occurrences( const GmodNode& node ) const
             {
-                if( const auto* count = m_occurrences.find( node.code() ) )
+                if( const auto* count = m_occurrences.find( &node ) )
                 {
                     return *count;
                 }
@@ -329,7 +329,7 @@ namespace dnv::vista::sdk
 
         private:
             SmallVector<const GmodNode*, 16> m_parents;
-            HashMap<std::string_view, int> m_occurrences;
+            HashMap<const GmodNode*, int> m_occurrences;
         };
     };
 } // namespace dnv::vista::sdk
