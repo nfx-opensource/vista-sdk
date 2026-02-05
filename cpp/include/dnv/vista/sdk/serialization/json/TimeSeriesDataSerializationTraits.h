@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <nfx/serialization/json/SerializationTraits.h>
+#include <nfx/serialization/json/Serializer.h>
 #include <nfx/serialization/json/extensions/ContainersTraits.h>
 #include <nfx/serialization/json/extensions/DatatypesTraits.h>
 #include <nfx/serialization/json/extensions/DateTimeTraits.h>
@@ -21,359 +21,49 @@ namespace nfx::serialization::json
 
     /**
      * @brief SerializationTraits specialization for TimeSeriesDataPackage
-     * @details Converts Vista SDK TimeSeriesData domain objects directly to/from JSON
+     * @details Provides unified bidirectional JSON serialization for Vista SDK TimeSeriesData domain objects.
+     *          - serialize(): High-performance streaming serialization using Builder API
+     *          - fromDocument(): DOM-based deserialization
      */
     template <>
     struct SerializationTraits<timeseries::TimeSeriesDataPackage>
     {
-    public:
         /**
-         * @brief Serialize TimeSeriesDataPackage to JSON document
-         * @param obj The TimeSeriesDataPackage to serialize
-         * @param doc The JSON document to serialize into
+         * @brief Serialize TimeSeriesDataPackage to JSON using Builder
+         * @param pkg The package to serialize
+         * @param builder The JSON Builder to write to
          */
-        static void serialize( const timeseries::TimeSeriesDataPackage& obj, SerializableDocument& doc )
+        static void serialize( const timeseries::TimeSeriesDataPackage& pkg, nfx::json::Builder& builder )
         {
-            auto& jsonDoc = doc.document();
-            const auto& package = obj.package();
+            const auto& package = pkg.package();
 
-            // Serialize Header
-            nfx::json::Document headerDoc;
-            if( package.header().has_value() )
+            builder.writeStartObject(); // Package root
+            builder.writeKey( "Package" );
+            builder.writeStartObject();
+
+            // Header (optional)
+            if( auto header = package.header() )
             {
-                const auto& header = *package.header();
-
-                // Build Header object
-                headerDoc = nfx::json::Document::object();
-                if( auto headerRef = headerDoc.rootRef<Object>() )
-                {
-                    auto& headerObj = headerRef->get();
-                    // ShipID, TimeSpan, DateCreated, DateModified, Author, SystemConfiguration, CustomHeaders
-                    headerObj.reserve( 7 );
-
-                    // ShipID (required)
-                    headerObj.emplace_back( "ShipID", nfx::json::Document{ header.shipId().toString() } );
-
-                    // TimeSpan (optional)
-                    if( auto timeSpanOpt = header.timeSpan() )
-                    {
-                        const auto& timeSpan = *timeSpanOpt;
-                        nfx::json::Document timeSpanDoc = nfx::json::Document::object();
-                        if( auto tsRef = timeSpanDoc.rootRef<Object>() )
-                        {
-                            auto& tsObj = tsRef->get();
-                            tsObj.reserve( 2 );
-                            tsObj.emplace_back(
-                                "Start",
-                                nfx::json::Document{
-                                    timeSpan.start().toString( DateTime::Format::Iso8601PreciseTrimmed ) } );
-                            tsObj.emplace_back(
-                                "End",
-                                nfx::json::Document{
-                                    timeSpan.end().toString( DateTime::Format::Iso8601PreciseTrimmed ) } );
-                        }
-                        headerObj.emplace_back( "TimeSpan", std::move( timeSpanDoc ) );
-                    }
-
-                    // DateCreated (optional)
-                    if( auto dateCreated = header.dateCreated() )
-                    {
-                        headerObj.emplace_back(
-                            "DateCreated",
-                            nfx::json::Document{ dateCreated->toString( DateTime::Format::Iso8601PreciseTrimmed ) } );
-                    }
-
-                    // DateModified (optional)
-                    if( auto dateModified = header.dateModified() )
-                    {
-                        headerObj.emplace_back(
-                            "DateModified",
-                            nfx::json::Document{ dateModified->toString( DateTime::Format::Iso8601PreciseTrimmed ) } );
-                    }
-
-                    // Author (optional)
-                    if( auto author = header.author() )
-                    {
-                        headerObj.emplace_back( "Author", nfx::json::Document{ author.value() } );
-                    }
-
-                    // SystemConfiguration (optional)
-                    if( auto sysConfigsOpt = header.systemConfiguration() )
-                    {
-                        const auto& sysConfigs = *sysConfigsOpt;
-                        Array sysConfigArray;
-                        sysConfigArray.reserve( sysConfigs.size() );
-
-                        for( const auto& config : sysConfigs )
-                        {
-                            nfx::json::Document configDoc = nfx::json::Document::object();
-                            if( auto configRef = configDoc.rootRef<Object>() )
-                            {
-                                auto& cfgObj = configRef->get();
-                                cfgObj.reserve( 2 );
-                                cfgObj.emplace_back( "ID", nfx::json::Document{ config.id() } );
-                                cfgObj.emplace_back(
-                                    "TimeStamp",
-                                    nfx::json::Document{
-                                        config.timeStamp().toString( DateTime::Format::Iso8601PreciseTrimmed ) } );
-                            }
-                            sysConfigArray.push_back( std::move( configDoc ) );
-                        }
-                        headerObj.emplace_back(
-                            "SystemConfiguration", nfx::json::Document{ std::move( sysConfigArray ) } );
-                    }
-
-                    // CustomHeaders
-                    if( auto customHeadersOpt = header.customHeaders() )
-                    {
-                        const auto& customHdrs = *customHeadersOpt;
-                        if( auto customHdrsObj = customHdrs.get<Object>( "" ) )
-                        {
-                            for( auto&& [key, valueDoc] : customHdrsObj.value() )
-                            {
-                                headerObj.emplace_back( std::move( key ), std::move( valueDoc ) );
-                            }
-                        }
-                    }
-                }
+                builder.writeKey( "Header" );
+                serializeHeader( *header, builder );
             }
 
             // TimeSeriesData
-            const auto& timeSeriesData = package.timeSeriesData();
-            Array timeSeriesArray;
-            timeSeriesArray.reserve( timeSeriesData.size() );
+            builder.writeKey( "TimeSeriesData" );
+            serializeTimeSeriesDataList( package.timeSeriesData(), builder );
 
-            for( const auto& tsData : timeSeriesData )
-            {
-                // DataConfiguration (optional)
-                nfx::json::Document dataConfigDoc;
-                bool hasDataConfig = false;
-                if( tsData.dataConfiguration().has_value() )
-                {
-                    hasDataConfig = true;
-                    const auto& dataConfig = *tsData.dataConfiguration();
-                    dataConfigDoc = nfx::json::Document::object();
-                    if( auto dcRef = dataConfigDoc.rootRef<Object>() )
-                    {
-                        auto& dcObj = dcRef->get();
-                        dcObj.reserve( 2 );
-                        dcObj.emplace_back( "ID", nfx::json::Document{ dataConfig.id() } );
-                        dcObj.emplace_back(
-                            "TimeStamp",
-                            nfx::json::Document{
-                                dataConfig.timeStamp().toString( DateTime::Format::Iso8601PreciseTrimmed ) } );
-                    }
-                }
-
-                // TabularData (optional)
-                nfx::json::Document tabularDataArrayDoc;
-                bool hasTabularData = false;
-                if( auto tabularDataListOpt = tsData.tabularData() )
-                {
-                    hasTabularData = true;
-                    const auto& tabularDataList = *tabularDataListOpt;
-                    Array tabularArray;
-                    tabularArray.reserve( tabularDataList.size() );
-
-                    for( const auto& tabularData : tabularDataList )
-                    {
-                        const auto& dataSets = tabularData.dataSets();
-                        const auto& channelIds = tabularData.dataChannelIds();
-
-                        // TabularData object
-                        nfx::json::Document tabDoc = nfx::json::Document::object();
-                        if( auto tabRef = tabDoc.rootRef<Object>() )
-                        {
-                            auto& tabObj = tabRef->get();
-                            tabObj.reserve( 4 ); // NumberOfDataSet, NumberOfDataChannel, DataChannelID, DataSet
-
-                            tabObj.emplace_back(
-                                "NumberOfDataSet", nfx::json::Document{ static_cast<uint64_t>( dataSets.size() ) } );
-                            tabObj.emplace_back(
-                                "NumberOfDataChannel",
-                                nfx::json::Document{ static_cast<uint64_t>( channelIds.size() ) } );
-
-                            // DataChannelID
-                            Array channelIdArray;
-                            channelIdArray.reserve( channelIds.size() );
-                            for( const auto& channelId : channelIds )
-                            {
-                                channelIdArray.push_back( nfx::json::Document{ channelId.toString() } );
-                            }
-                            tabObj.emplace_back( "DataChannelID", nfx::json::Document{ std::move( channelIdArray ) } );
-
-                            // DataSet
-                            Array dataSetArray;
-                            dataSetArray.reserve( dataSets.size() );
-                            for( const auto& dataSet : dataSets )
-                            {
-                                // DataSet
-                                nfx::json::Document dsDoc = nfx::json::Document::object();
-                                if( auto dsRef = dsDoc.rootRef<Object>() )
-                                {
-                                    auto& dsObj = dsRef->get();
-                                    dsObj.reserve( 3 ); // TimeStamp, Value, Quality (optional)
-
-                                    dsObj.emplace_back(
-                                        "TimeStamp",
-                                        nfx::json::Document{
-                                            dataSet.timeStamp().toString( DateTime::Format::Iso8601PreciseTrimmed ) } );
-
-                                    // Values
-                                    const auto& values = dataSet.value();
-                                    Array valueArray;
-                                    valueArray.reserve( values.size() );
-                                    for( const auto& value : values )
-                                    {
-                                        valueArray.push_back( nfx::json::Document{ value } );
-                                    }
-                                    dsObj.emplace_back( "Value", nfx::json::Document{ std::move( valueArray ) } );
-
-                                    // Quality (optional)
-                                    if( dataSet.quality().has_value() )
-                                    {
-                                        const auto& qualities = *dataSet.quality();
-                                        Array qualityArray;
-                                        qualityArray.reserve( qualities.size() );
-                                        for( const auto& quality : qualities )
-                                        {
-                                            qualityArray.push_back( nfx::json::Document{ quality } );
-                                        }
-                                        dsObj.emplace_back(
-                                            "Quality", nfx::json::Document{ std::move( qualityArray ) } );
-                                    }
-                                }
-                                dataSetArray.push_back( std::move( dsDoc ) );
-                            }
-                            tabObj.emplace_back( "DataSet", nfx::json::Document{ std::move( dataSetArray ) } );
-                        }
-
-                        tabularArray.push_back( std::move( tabDoc ) );
-                    }
-                    tabularDataArrayDoc = nfx::json::Document{ std::move( tabularArray ) };
-                }
-
-                // EventData (optional)
-                nfx::json::Document eventDataDoc;
-                bool hasEventData = false;
-                if( tsData.eventData().has_value() )
-                {
-                    hasEventData = true;
-                    const auto& eventData = *tsData.eventData();
-                    if( eventData.dataSet().has_value() )
-                    {
-                        const auto& eventDataSets = *eventData.dataSet();
-
-                        Array eventDataArray;
-                        eventDataArray.reserve( eventDataSets.size() );
-
-                        for( const auto& eventDataSet : eventDataSets )
-                        {
-                            nfx::json::Document edDoc = nfx::json::Document::object();
-                            if( auto ref = edDoc.rootRef<Object>() )
-                            {
-                                auto& edObj = ref->get();
-                                const bool hasQuality = eventDataSet.quality().has_value();
-                                edObj.reserve( hasQuality ? 4 : 3 );
-
-                                edObj.emplace_back(
-                                    "TimeStamp",
-                                    nfx::json::Document{ eventDataSet.timeStamp().toString(
-                                        DateTime::Format::Iso8601PreciseTrimmed ) } );
-                                edObj.emplace_back(
-                                    "DataChannelID", nfx::json::Document{ eventDataSet.dataChannelId().toString() } );
-                                edObj.emplace_back( "Value", nfx::json::Document{ eventDataSet.value() } );
-
-                                // Quality (optional)
-                                if( hasQuality )
-                                {
-                                    edObj.emplace_back( "Quality", nfx::json::Document{ *eventDataSet.quality() } );
-                                }
-                            }
-
-                            eventDataArray.push_back( std::move( edDoc ) );
-                        }
-
-                        eventDataDoc = nfx::json::Document::object();
-                        if( auto ref = eventDataDoc.rootRef<Object>() )
-                        {
-                            auto& eventDataObj = ref->get();
-                            eventDataObj.reserve( 2 );
-                            eventDataObj.emplace_back(
-                                "NumberOfDataSet",
-                                nfx::json::Document{ static_cast<uint64_t>( eventDataSets.size() ) } );
-                            eventDataObj.emplace_back( "DataSet", nfx::json::Document{ std::move( eventDataArray ) } );
-                        }
-                    }
-                }
-
-                // TimeSeriesData
-                nfx::json::Document tsDoc = nfx::json::Document::object();
-                if( auto tsRef = tsDoc.rootRef<Object>() )
-                {
-                    auto& tsObj = tsRef->get();
-                    // Reserve space: DataConfiguration, TabularData, EventData, + CustomData fields
-                    tsObj.reserve( 3 + ( tsData.customDataKinds().has_value() ? 5 : 0 ) );
-
-                    if( hasDataConfig )
-                    {
-                        tsObj.emplace_back( "DataConfiguration", std::move( dataConfigDoc ) );
-                    }
-
-                    if( hasTabularData )
-                    {
-                        tsObj.emplace_back( "TabularData", std::move( tabularDataArrayDoc ) );
-                    }
-
-                    if( hasEventData )
-                    {
-                        tsObj.emplace_back( "EventData", std::move( eventDataDoc ) );
-                    }
-
-                    // CustomData (JsonExtensionData - flattened at TimeSeriesData level)
-                    if( auto customDataKindsOpt = tsData.customDataKinds() )
-                    {
-                        const auto& customDataKinds = *customDataKindsOpt;
-                        if( auto customDataKindsObj = customDataKinds.get<Object>( "" ) )
-                        {
-                            for( auto&& [key, valueDoc] : customDataKindsObj.value() )
-                            {
-                                tsObj.emplace_back( std::move( key ), std::move( valueDoc ) );
-                            }
-                        }
-                    }
-                }
-
-                timeSeriesArray.push_back( std::move( tsDoc ) );
-            }
-
-            // Package
-            nfx::json::Document packageDoc = nfx::json::Document::object();
-            if( auto packageRef = packageDoc.rootRef<Object>() )
-            {
-                auto& packageObj = packageRef->get();
-                packageObj.reserve( headerDoc.isValid() ? 2 : 1 );
-
-                if( headerDoc.isValid() )
-                {
-                    packageObj.emplace_back( "Header", std::move( headerDoc ) );
-                }
-                packageObj.emplace_back( "TimeSeriesData", nfx::json::Document{ std::move( timeSeriesArray ) } );
-            }
-
-            jsonDoc["Package"] = std::move( packageDoc );
+            builder.writeEndObject();
+            builder.writeEndObject();
         }
 
         /**
-         * @brief Deserialize TimeSeriesDataPackage from JSON document
+         * @brief Factory deserialization: Construct TimeSeriesDataPackage directly from JSON document
          * @param doc The JSON document to deserialize from
-         * @param obj The TimeSeriesDataPackage to populate
+         * @return Newly constructed TimeSeriesDataPackage
          */
-        static void deserialize( const SerializableDocument& doc, timeseries::TimeSeriesDataPackage& obj )
+        static timeseries::TimeSeriesDataPackage fromDocument( const nfx::json::Document& doc )
         {
-            auto& jsonDoc = doc.document();
-
-            auto& packageObj = jsonDoc["Package"];
+            auto& packageObj = doc["Package"];
 
             // Header
             std::optional<timeseries::Header> header;
@@ -499,21 +189,20 @@ namespace nfx::serialization::json
 
                 // CustomHeaders (optional)
                 std::optional<timeseries::CustomHeaders> customHeaders;
-                if( auto headerObjOpt = headerDoc.get<Object>( "" ) )
+                if( auto headerObjOpt = headerDoc.getRef<Object>( "" ) )
                 {
                     static const std::unordered_set<std::string> knownKeys = { "ShipID",      "TimeSpan",
                                                                                "DateCreated", "DateModified",
                                                                                "Author",      "SystemConfiguration" };
 
-                    timeseries::CustomHeaders customHdrs;
-                    auto& customHdrsDoc = customHdrs.document();
+                    nfx::json::Document customHdrsDoc = nfx::json::Document::object();
                     bool hasCustomHeaders = false;
 
                     // Custom headers object
                     if( auto customHdrsRef = customHdrsDoc.rootRef<Object>() )
                     {
                         auto& customHdrsObj = customHdrsRef->get();
-                        for( const auto& [key, valueDoc] : headerObjOpt.value() )
+                        for( const auto& [key, valueDoc] : headerObjOpt->get() )
                         {
                             // Skip known properties
                             if( knownKeys.find( key ) != knownKeys.end() )
@@ -529,6 +218,8 @@ namespace nfx::serialization::json
 
                     if( hasCustomHeaders )
                     {
+                        timeseries::CustomHeaders customHdrs;
+                        customHdrs.document() = std::move( customHdrsDoc );
                         customHeaders = std::move( customHdrs );
                     }
                 }
@@ -758,21 +449,20 @@ namespace nfx::serialization::json
 
                     // CustomDataKinds (optional)
                     std::optional<timeseries::CustomData> customDataKinds;
-                    if( auto tsObjOpt = tsDoc.get<Object>( "" ) )
+                    if( auto tsObjOpt = tsDoc.getRef<Object>( "" ) )
                     {
                         static const std::unordered_set<std::string> knownKeys = { "DataConfiguration",
                                                                                    "TabularData",
                                                                                    "EventData" };
 
-                        timeseries::CustomData customData;
-                        auto& customDataDoc = customData.document();
+                        nfx::json::Document customDataDoc = nfx::json::Document::object();
                         bool hasCustomData = false;
 
                         // Custom data object
                         if( auto customDataRef = customDataDoc.rootRef<Object>() )
                         {
                             auto& customDataObj = customDataRef->get();
-                            for( const auto& [key, valueDoc] : tsObjOpt.value() )
+                            for( const auto& [key, valueDoc] : tsObjOpt->get() )
                             {
                                 // Skip known properties
                                 if( knownKeys.find( key ) != knownKeys.end() )
@@ -788,6 +478,8 @@ namespace nfx::serialization::json
 
                         if( hasCustomData )
                         {
+                            timeseries::CustomData customData;
+                            customData.document() = std::move( customDataDoc );
                             customDataKinds = std::move( customData );
                         }
                     } // TimeSeriesData
@@ -799,8 +491,272 @@ namespace nfx::serialization::json
             // Create Package
             timeseries::Package package{ header, std::move( timeSeriesDataList ) };
 
-            // Assign to obj
-            obj = timeseries::TimeSeriesDataPackage{ std::move( package ) };
+            return timeseries::TimeSeriesDataPackage{ std::move( package ) };
+        }
+
+    private:
+        // Helper methods for streaming serialization
+        static void serializeHeader( const timeseries::Header& header, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            // ShipID
+            builder.writeKey( "ShipID" );
+            builder.write( header.shipId().toString() );
+
+            // TimeSpan (optional)
+            if( auto timeSpan = header.timeSpan() )
+            {
+                builder.writeKey( "TimeSpan" );
+                serializeTimeSpan( *timeSpan, builder );
+            }
+
+            // DateCreated (optional)
+            if( auto dateCreated = header.dateCreated() )
+            {
+                builder.writeKey( "DateCreated" );
+                builder.write( dateCreated->toString( DateTime::Format::Iso8601Precise ) );
+            }
+
+            // DateModified (optional)
+            if( auto dateModified = header.dateModified() )
+            {
+                builder.writeKey( "DateModified" );
+                builder.write( dateModified->toString( DateTime::Format::Iso8601Precise ) );
+            }
+
+            // Author (optional)
+            if( auto author = header.author() )
+            {
+                builder.writeKey( "Author" );
+                builder.write( *author );
+            }
+
+            // SystemConfiguration (optional)
+            if( auto sysConfig = header.systemConfiguration() )
+            {
+                builder.writeKey( "SystemConfiguration" );
+                builder.writeStartArray();
+                for( const auto& config : *sysConfig )
+                {
+                    serializeConfigRef( config, builder );
+                }
+                builder.writeEndArray();
+            }
+
+            // CustomHeaders
+            if( auto customHeaders = header.customHeaders() )
+            {
+                if( auto objRef = customHeaders->document().rootRef<Object>() )
+                {
+                    for( const auto& [key, valueDoc] : objRef->get() )
+                    {
+                        builder.write( key, valueDoc );
+                    }
+                }
+            }
+
+            builder.writeEndObject();
+        }
+
+        static void serializeTimeSpan( const timeseries::TimeSpan& timeSpan, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            builder.writeKey( "Start" );
+            builder.write( timeSpan.start().toString( DateTime::Format::Iso8601Precise ) );
+
+            builder.writeKey( "End" );
+            builder.write( timeSpan.end().toString( DateTime::Format::Iso8601Precise ) );
+
+            builder.writeEndObject();
+        }
+
+        static void serializeConfigRef( const timeseries::ConfigurationReference& ref, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            builder.writeKey( "ID" );
+            builder.write( ref.id() );
+
+            builder.writeKey( "TimeStamp" );
+            builder.write( ref.timeStamp().toString( DateTime::Format::Iso8601Precise ) );
+
+            builder.writeEndObject();
+        }
+
+        static void serializeTimeSeriesDataList(
+            const std::vector<timeseries::TimeSeriesData>& dataList, nfx::json::Builder& builder )
+        {
+            builder.writeStartArray();
+            for( const auto& data : dataList )
+            {
+                serializeTimeSeriesData( data, builder );
+            }
+            builder.writeEndArray();
+        }
+
+        static void serializeTimeSeriesData( const timeseries::TimeSeriesData& data, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            // DataConfiguration (optional)
+            if( auto dataConfig = data.dataConfiguration() )
+            {
+                builder.writeKey( "DataConfiguration" );
+                serializeConfigRef( *dataConfig, builder );
+            }
+
+            // TabularData (optional)
+            if( auto tabularData = data.tabularData() )
+            {
+                builder.writeKey( "TabularData" );
+                serializeTabularDataList( *tabularData, builder );
+            }
+
+            // EventData (optional)
+            if( auto eventData = data.eventData() )
+            {
+                builder.writeKey( "EventData" );
+                serializeEventData( *eventData, builder );
+            }
+
+            // CustomDataKinds
+            if( auto customDataKinds = data.customDataKinds() )
+            {
+                if( auto objRef = customDataKinds->document().rootRef<Object>() )
+                {
+                    for( const auto& [key, valueDoc] : objRef->get() )
+                    {
+                        builder.write( key, valueDoc );
+                    }
+                }
+            }
+
+            builder.writeEndObject();
+        }
+
+        static void serializeTabularDataList(
+            const std::vector<timeseries::TabularData>& tabularList, nfx::json::Builder& builder )
+        {
+            builder.writeStartArray();
+            for( const auto& tabular : tabularList )
+            {
+                serializeTabularData( tabular, builder );
+            }
+            builder.writeEndArray();
+        }
+
+        static void serializeTabularData( const timeseries::TabularData& tabular, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            builder.writeKey( "NumberOfDataSet" );
+            builder.write( static_cast<uint64_t>( tabular.numberOfDataSets() ) );
+
+            builder.writeKey( "NumberOfDataChannel" );
+            builder.write( static_cast<uint64_t>( tabular.numberOfDataChannels() ) );
+
+            // DataChannelID
+            builder.writeKey( "DataChannelID" );
+            builder.writeStartArray();
+            for( const auto& channelId : tabular.dataChannelIds() )
+            {
+                builder.write( channelId.toString() );
+            }
+            builder.writeEndArray();
+
+            // DataSet
+            builder.writeKey( "DataSet" );
+            builder.writeStartArray();
+            for( const auto& dataSet : tabular.dataSets() )
+            {
+                serializeTabularDataSet( dataSet, builder );
+            }
+            builder.writeEndArray();
+
+            builder.writeEndObject();
+        }
+
+        static void serializeTabularDataSet( const timeseries::TabularDataSet& dataSet, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            // TimeStamp
+            builder.writeKey( "TimeStamp" );
+            builder.write( dataSet.timeStamp().toString( DateTime::Format::Iso8601Precise ) );
+
+            // Value
+            builder.writeKey( "Value" );
+            builder.writeStartArray();
+            for( const auto& val : dataSet.value() )
+            {
+                builder.write( val );
+            }
+            builder.writeEndArray();
+
+            // Quality (optional)
+            if( auto quality = dataSet.quality() )
+            {
+                builder.writeKey( "Quality" );
+                builder.writeStartArray();
+                for( const auto& qual : *quality )
+                {
+                    builder.write( qual );
+                }
+                builder.writeEndArray();
+            }
+
+            builder.writeEndObject();
+        }
+
+        static void serializeEventData( const timeseries::EventData& eventData, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            // NumberOfDataSet
+            builder.writeKey( "NumberOfDataSet" );
+            builder.write( static_cast<uint64_t>( eventData.numberOfDataSet() ) );
+
+            // DataSet (optional)
+            if( auto dataSet = eventData.dataSet() )
+            {
+                builder.writeKey( "DataSet" );
+                builder.writeStartArray();
+                for( const auto& event : *dataSet )
+                {
+                    serializeEventDataSet( event, builder );
+                }
+                builder.writeEndArray();
+            }
+
+            builder.writeEndObject();
+        }
+
+        static void serializeEventDataSet( const timeseries::EventDataSet& eventSet, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            // TimeStamp
+            builder.writeKey( "TimeStamp" );
+            builder.write( eventSet.timeStamp().toString( DateTime::Format::Iso8601Precise ) );
+
+            // DataChannelID
+            builder.writeKey( "DataChannelID" );
+            builder.write( eventSet.dataChannelId().toString() );
+
+            // Value
+            builder.writeKey( "Value" );
+            builder.write( eventSet.value() );
+
+            // Quality (optional)
+            if( auto quality = eventSet.quality() )
+            {
+                builder.writeKey( "Quality" );
+                builder.write( *quality );
+            }
+
+            builder.writeEndObject();
         }
     };
 } // namespace nfx::serialization::json

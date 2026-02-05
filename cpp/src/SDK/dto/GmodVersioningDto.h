@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <nfx/Serialization.h>
+#include <nfx/serialization/json/Serializer.h>
 
 #include <optional>
 #include <stdexcept>
@@ -124,157 +124,161 @@ namespace dnv::vista::sdk
 namespace nfx::serialization::json
 {
     /**
-     * @brief Serialization traits for GmodVersioningAssignmentChangeDto
+     * @brief SerializationTraits for GmodVersioningAssignmentChangeDto
+     * @details High-performance streaming serialization with bidirectional support
      */
     template <>
     struct SerializationTraits<dnv::vista::sdk::GmodVersioningAssignmentChangeDto>
     {
         /**
-         * @brief Serialize GmodVersioningAssignmentChangeDto to JSON document
+         * @brief High-performance streaming serialization
          * @param obj Object to serialize
-         * @param doc Document to serialize into
+         * @param builder Builder to write to
          */
-        static void serialize( const dnv::vista::sdk::GmodVersioningAssignmentChangeDto& obj, Document& doc )
+        static void serialize(
+            const dnv::vista::sdk::GmodVersioningAssignmentChangeDto& obj, nfx::json::Builder& builder )
         {
-            doc["oldAssignment"] = obj.oldAssignment;
-            doc["currentAssignment"] = obj.currentAssignment;
+            builder.writeStartObject();
+            builder.write( "oldAssignment", obj.oldAssignment );
+            builder.write( "currentAssignment", obj.currentAssignment );
+            builder.writeEndObject();
         }
 
         /**
          * @brief Deserialize GmodVersioningAssignmentChangeDto from JSON document
-         * @param obj Object to deserialize into
          * @param doc Document to deserialize from
+         * @param obj Object to deserialize into
          * @throws std::runtime_error if required fields are missing or invalid
          */
-        static void deserialize( dnv::vista::sdk::GmodVersioningAssignmentChangeDto& obj, const Document& doc )
+        static void fromDocument(
+            const nfx::json::Document& doc, dnv::vista::sdk::GmodVersioningAssignmentChangeDto& obj )
         {
-            auto oldAssignmentOpt = doc["oldAssignment"].root<std::string>();
+            auto oldAssignmentOpt = doc.get<std::string>( "oldAssignment" );
             if( !oldAssignmentOpt )
             {
-                throw std::runtime_error( "GmodVersioningAssignmentChangeDto: Missing required field 'oldAssignment'" );
+                throw std::runtime_error{ "GmodVersioningAssignmentChangeDto: Missing required field 'oldAssignment'" };
             }
             obj.oldAssignment = std::move( *oldAssignmentOpt );
 
-            auto currentAssignmentOpt = doc["currentAssignment"].root<std::string>();
+            auto currentAssignmentOpt = doc.get<std::string>( "currentAssignment" );
             if( !currentAssignmentOpt )
             {
-                throw std::runtime_error(
-                    "GmodVersioningAssignmentChangeDto: Missing required field 'currentAssignment'" );
+                throw std::runtime_error{
+                    "GmodVersioningAssignmentChangeDto: Missing required field 'currentAssignment'"
+                };
             }
             obj.currentAssignment = std::move( *currentAssignmentOpt );
         }
     };
 
     /**
-     * @brief Serialization traits for GmodNodeConversionDto
+     * @brief SerializationTraits for GmodNodeConversionDto
+     * @details High-performance streaming serialization with bidirectional support
      */
     template <>
     struct SerializationTraits<dnv::vista::sdk::GmodNodeConversionDto>
     {
         /**
-         * @brief Serialize GmodNodeConversionDto to JSON document
+         * @brief High-performance streaming serialization
          * @param obj Object to serialize
-         * @param doc Document to serialize into
+         * @param builder Builder to write to
          */
-        static void serialize( const dnv::vista::sdk::GmodNodeConversionDto& obj, Document& doc )
+        static void serialize( const dnv::vista::sdk::GmodNodeConversionDto& obj, nfx::json::Builder& builder )
         {
-            Serializer<dnv::vista::sdk::GmodNodeConversionDto::Operations> operationsSerializer;
-            doc["operations"] = operationsSerializer.serialize( obj.operations );
+            builder.writeStartObject();
 
+            builder.writeKey( "operations" );
+            builder.writeStartArray();
+            for( const auto& op : obj.operations )
+            {
+                builder.write( op );
+            }
+            builder.writeEndArray();
+
+            // Optional fields
             if( obj.source )
-            {
-                doc["source"] = *obj.source;
-            }
+                builder.write( "source", *obj.source );
             if( obj.target )
-            {
-                doc["target"] = *obj.target;
-            }
+                builder.write( "target", *obj.target );
             if( obj.oldAssignment )
-            {
-                doc["oldAssignment"] = *obj.oldAssignment;
-            }
+                builder.write( "oldAssignment", *obj.oldAssignment );
             if( obj.newAssignment )
-            {
-                doc["newAssignment"] = *obj.newAssignment;
-            }
+                builder.write( "newAssignment", *obj.newAssignment );
             if( obj.deleteAssignment )
-            {
-                doc["deleteAssignment"] = *obj.deleteAssignment;
-            }
+                builder.write( "deleteAssignment", *obj.deleteAssignment );
+
+            builder.writeEndObject();
         }
 
         /**
          * @brief Deserialize GmodNodeConversionDto from JSON document
-         * @param obj Object to deserialize into
          * @param doc Document to deserialize from
+         * @param obj Object to deserialize into
          * @throws std::runtime_error if required fields are missing or invalid
          */
-        static void deserialize( dnv::vista::sdk::GmodNodeConversionDto& obj, const Document& doc )
+        static void fromDocument( const nfx::json::Document& doc, dnv::vista::sdk::GmodNodeConversionDto& obj )
         {
-            // Required fields
-            if( !doc.contains( "operations" ) )
+            auto operationsArrOpt = doc.get<nfx::json::Array>( "operations" );
+            if( !operationsArrOpt )
             {
                 throw std::runtime_error{ "GmodNodeConversionDto: Missing required field 'operations'" };
             }
-            Serializer<dnv::vista::sdk::GmodNodeConversionDto::Operations> operationsSerializer;
-            obj.operations = operationsSerializer.deserialize( doc["operations"] );
+            nfx::json::Document operationsDoc{ operationsArrOpt.value() };
+            Serializer<dnv::vista::sdk::GmodNodeConversionDto::Operations> operationsSer;
+            operationsSer.deserializeValue( operationsDoc, obj.operations );
 
-            auto sourceOpt = doc["source"].root<std::string>();
-            if( !sourceOpt )
-            {
-                throw std::runtime_error{ "GmodNodeConversionDto: Missing required field 'source'" };
-            }
-            obj.source = std::move( *sourceOpt );
-
-            // Optional fields
-            if( auto val = doc["target"].root<std::string>() )
-            {
+            if( auto val = doc.get<std::string>( "source" ) )
+                obj.source = std::move( *val );
+            if( auto val = doc.get<std::string>( "target" ) )
                 obj.target = std::move( *val );
-            }
-            if( auto val = doc["oldAssignment"].root<std::string>() )
-            {
+            if( auto val = doc.get<std::string>( "oldAssignment" ) )
                 obj.oldAssignment = std::move( *val );
-            }
-            if( auto val = doc["newAssignment"].root<std::string>() )
-            {
+            if( auto val = doc.get<std::string>( "newAssignment" ) )
                 obj.newAssignment = std::move( *val );
-            }
-            if( auto val = doc["deleteAssignment"].root<bool>() )
-            {
+            if( auto val = doc.get<bool>( "deleteAssignment" ) )
                 obj.deleteAssignment = *val;
-            }
         }
     };
 
     /**
-     * @brief Serialization traits for GmodVersioningDto
+     * @brief SerializationTraits for GmodVersioningDto
+     * @details High-performance streaming serialization with bidirectional support
      */
     template <>
     struct SerializationTraits<dnv::vista::sdk::GmodVersioningDto>
     {
         /**
-         * @brief Serialize GmodVersioningDto to JSON document
+         * @brief High-performance streaming serialization
          * @param obj Object to serialize
-         * @param doc Document to serialize into
+         * @param builder Builder to write to
          */
-        static void serialize( const dnv::vista::sdk::GmodVersioningDto& obj, Document& doc )
+        static void serialize( const dnv::vista::sdk::GmodVersioningDto& obj, nfx::json::Builder& builder )
         {
-            doc["visRelease"] = obj.visVersion;
+            builder.writeStartObject();
+            builder.write( "visRelease", obj.visVersion );
 
-            Serializer<dnv::vista::sdk::GmodVersioningDto::Items> itemsSerializer;
-            doc["items"] = itemsSerializer.serialize( obj.items );
+            builder.writeKey( "items" );
+            builder.writeStartObject();
+            for( const auto& pair : obj.items )
+            {
+                builder.writeKey( pair.first );
+                SerializationTraits<dnv::vista::sdk::GmodNodeConversionDto>::serialize( pair.second, builder );
+            }
+            builder.writeEndObject();
+
+            builder.writeEndObject();
         }
 
         /**
          * @brief Deserialize GmodVersioningDto from JSON document
-         * @param obj Object to deserialize into
          * @param doc Document to deserialize from
+         * @param obj Object to deserialize into
          * @throws std::runtime_error if required fields are missing or invalid
          * @note JSON field "visRelease" maps to member visVersion
          */
-        static void deserialize( dnv::vista::sdk::GmodVersioningDto& obj, const Document& doc )
+        static void fromDocument( const nfx::json::Document& doc, dnv::vista::sdk::GmodVersioningDto& obj )
         {
-            auto visReleaseOpt = doc["visRelease"].root<std::string>();
+            auto visReleaseOpt = doc.get<std::string>( "visRelease" );
             if( !visReleaseOpt )
             {
                 throw std::runtime_error{ "GmodVersioningDto: Missing required field 'visRelease'" };
@@ -286,13 +290,14 @@ namespace nfx::serialization::json
                 throw std::runtime_error{ "GmodVersioningDto: Field 'visRelease' cannot be empty" };
             }
 
-            if( !doc.contains( "items" ) )
+            auto itemsObjOpt = doc.get<nfx::json::Object>( "items" );
+            if( !itemsObjOpt )
             {
                 throw std::runtime_error{ "GmodVersioningDto: Missing required field 'items'" };
             }
-
-            Serializer<dnv::vista::sdk::GmodVersioningDto::Items> itemsSerializer;
-            obj.items = itemsSerializer.deserialize( doc["items"] );
+            nfx::json::Document itemsDoc{ itemsObjOpt.value() };
+            Serializer<dnv::vista::sdk::GmodVersioningDto::Items> itemsSer;
+            itemsSer.deserializeValue( itemsDoc, obj.items );
         }
     };
 } // namespace nfx::serialization::json

@@ -48,6 +48,12 @@ target_link_libraries(dnv-vista-cpp-embeddedtestdata
         nfx-serialization::static
 )
 
+target_compile_options(dnv-vista-cpp-embeddedtestdata
+    PRIVATE
+        $<$<CXX_COMPILER_ID:MSVC>:/arch:AVX2>
+        $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-march=native>
+)
+
 #----------------------------------------------
 # GoogleTest dependency
 #----------------------------------------------

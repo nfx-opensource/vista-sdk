@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <nfx/Serialization.h>
+#include <nfx/serialization/json/Serializer.h>
 
 #include <optional>
 #include <stdexcept>
@@ -101,74 +101,74 @@ namespace dnv::vista::sdk
 namespace nfx::serialization::json
 {
     /**
-     * @brief Serialization traits for GmodNodeDto
+     * @brief SerializationTraits for GmodNodeDto
+     * @details High-performance streaming serialization with bidirectional support
      */
     template <>
     struct SerializationTraits<dnv::vista::sdk::GmodNodeDto>
     {
         /**
-         * @brief Serialize GmodNodeDto to JSON document
+         * @brief High-performance streaming serialization
          * @param obj Object to serialize
-         * @param doc Document to serialize into
+         * @param builder Builder to write to
          */
-        static void serialize( const dnv::vista::sdk::GmodNodeDto& obj, Document& doc )
+        static void serialize( const dnv::vista::sdk::GmodNodeDto& obj, nfx::json::Builder& builder )
         {
-            // Direct access to Object variant - much faster than JSON Pointer parsing
-            doc["category"] = obj.category;
-            doc["type"] = obj.type;
-            doc["code"] = obj.code;
+            builder.writeStartObject();
+            builder.write( "category", obj.category );
+            builder.write( "type", obj.type );
+            builder.write( "code", obj.code );
 
+            // Optional fields
             if( obj.name )
-            {
-                doc["name"] = *obj.name;
-            }
+                builder.write( "name", *obj.name );
             if( obj.commonName )
-            {
-                doc["commonName"] = *obj.commonName;
-            }
+                builder.write( "commonName", *obj.commonName );
             if( obj.definition )
-            {
-                doc["definition"] = *obj.definition;
-            }
+                builder.write( "definition", *obj.definition );
             if( obj.commonDefinition )
-            {
-                doc["commonDefinition"] = *obj.commonDefinition;
-            }
+                builder.write( "commonDefinition", *obj.commonDefinition );
             if( obj.installSubstructure )
-            {
-                doc["installSubstructure"] = *obj.installSubstructure;
-            }
+                builder.write( "installSubstructure", *obj.installSubstructure );
 
+            // Serialize normalAssignmentNames vector
             if( obj.normalAssignmentNames )
             {
-                Serializer<dnv::vista::sdk::GmodNodeDto::NormalAssignmentNames> namesSerializer;
-                doc["normalAssignmentNames"] = namesSerializer.serialize( *obj.normalAssignmentNames );
+                builder.writeKey( "normalAssignmentNames" );
+                builder.writeStartObject();
+                for( const auto& pair : *obj.normalAssignmentNames )
+                {
+                    builder.write( pair.first, pair.second );
+                }
+                builder.writeEndObject();
             }
+
+            builder.writeEndObject();
         }
 
         /**
          * @brief Deserialize GmodNodeDto from JSON document
-         * @param obj Object to deserialize into
          * @param doc Document to deserialize from
+         * @param obj Object to deserialize into
          * @throws std::runtime_error if required fields are missing or invalid
          */
-        static void deserialize( dnv::vista::sdk::GmodNodeDto& obj, const Document& doc )
+        static void fromDocument( const nfx::json::Document& doc, dnv::vista::sdk::GmodNodeDto& obj )
         {
-            auto categoryOpt = doc["category"].root<std::string>();
+            auto categoryOpt = doc.get<std::string>( "category" );
             if( !categoryOpt )
             {
                 throw std::runtime_error{ "GmodNodeDto: Missing required field 'category'" };
             }
             obj.category = std::move( *categoryOpt );
 
-            auto typeOpt = doc["type"].root<std::string>();
+            auto typeOpt = doc.get<std::string>( "type" );
             if( !typeOpt )
             {
                 throw std::runtime_error{ "GmodNodeDto: Missing required field 'type'" };
             }
             obj.type = std::move( *typeOpt );
 
-            auto codeOpt = doc["code"].root<std::string>();
+            auto codeOpt = doc.get<std::string>( "code" );
             if( !codeOpt )
             {
                 throw std::runtime_error{ "GmodNodeDto: Missing required field 'code'" };
@@ -176,70 +176,83 @@ namespace nfx::serialization::json
             obj.code = std::move( *codeOpt );
 
             // Optional fields
-            // Note: 'name' is optional because some nodes (e.g., installSubstructure nodes) may not have it in the JSON
-            if( auto val = doc["name"].root<std::string>() )
-            {
+            if( auto val = doc.get<std::string>( "name" ) )
                 obj.name = std::move( *val );
-            }
-
-            if( auto val = doc["commonName"].root<std::string>() )
-            {
+            if( auto val = doc.get<std::string>( "commonName" ) )
                 obj.commonName = std::move( *val );
-            }
-            if( auto val = doc["definition"].root<std::string>() )
-            {
+            if( auto val = doc.get<std::string>( "definition" ) )
                 obj.definition = std::move( *val );
-            }
-            if( auto val = doc["commonDefinition"].root<std::string>() )
-            {
+            if( auto val = doc.get<std::string>( "commonDefinition" ) )
                 obj.commonDefinition = std::move( *val );
-            }
-            if( auto val = doc["installSubstructure"].root<bool>() )
-            {
+            if( auto val = doc.get<bool>( "installSubstructure" ) )
                 obj.installSubstructure = *val;
-            }
 
             if( doc.contains( "normalAssignmentNames" ) )
             {
-                Serializer<dnv::vista::sdk::GmodNodeDto::NormalAssignmentNames> namesSerializer;
-                obj.normalAssignmentNames = namesSerializer.deserialize( doc["normalAssignmentNames"] );
+                auto namesObjOpt = doc.get<nfx::json::Object>( "normalAssignmentNames" );
+                if( namesObjOpt )
+                {
+                    nfx::json::Document namesDoc{ namesObjOpt.value() };
+                    Serializer<dnv::vista::sdk::GmodNodeDto::NormalAssignmentNames> namesSer;
+                    dnv::vista::sdk::GmodNodeDto::NormalAssignmentNames names;
+                    namesSer.deserializeValue( namesDoc, names );
+                    obj.normalAssignmentNames = std::move( names );
+                }
             }
         }
     };
 
     /**
-     * @brief Serialization traits for GmodDto
+     * @brief SerializationTraits for GmodDto
+     * @details High-performance streaming serialization with bidirectional support
      */
     template <>
     struct SerializationTraits<dnv::vista::sdk::GmodDto>
     {
         /**
-         * @brief Serialize GmodDto to JSON document
+         * @brief High-performance streaming serialization
          * @param obj Object to serialize
-         * @param doc Document to serialize into
+         * @param builder Builder to write to
          */
-        static void serialize( const dnv::vista::sdk::GmodDto& obj, Document& doc )
+        static void serialize( const dnv::vista::sdk::GmodDto& obj, nfx::json::Builder& builder )
         {
-            // Direct access - faster than JSON Pointer
-            doc["visRelease"] = obj.visVersion;
+            builder.writeStartObject();
+            builder.write( "visRelease", obj.visVersion );
 
-            Serializer<dnv::vista::sdk::GmodDto::Items> itemsSerializer;
-            doc["items"] = itemsSerializer.serialize( obj.items );
+            builder.writeKey( "items" );
+            builder.writeStartArray();
+            for( const auto& item : obj.items )
+            {
+                SerializationTraits<dnv::vista::sdk::GmodNodeDto>::serialize( item, builder );
+            }
+            builder.writeEndArray();
 
-            Serializer<dnv::vista::sdk::GmodDto::Relations> relationsSerializer;
-            doc["relations"] = relationsSerializer.serialize( obj.relations );
+            builder.writeKey( "relations" );
+            builder.writeStartArray();
+            for( const auto& relationArray : obj.relations )
+            {
+                builder.writeStartArray();
+                for( const auto& val : relationArray )
+                {
+                    builder.write( val );
+                }
+                builder.writeEndArray();
+            }
+            builder.writeEndArray();
+
+            builder.writeEndObject();
         }
 
         /**
          * @brief Deserialize GmodDto from JSON document
-         * @param obj Object to deserialize into
          * @param doc Document to deserialize from
+         * @param obj Object to deserialize into
          * @throws std::runtime_error if required fields are missing or invalid
          * @note JSON field "visRelease" maps to member visVersion
          */
-        static void deserialize( dnv::vista::sdk::GmodDto& obj, const Document& doc )
+        static void fromDocument( const nfx::json::Document& doc, dnv::vista::sdk::GmodDto& obj )
         {
-            auto visReleaseOpt = doc["visRelease"].root<std::string>();
+            auto visReleaseOpt = doc.get<std::string>( "visRelease" );
             if( !visReleaseOpt )
             {
                 throw std::runtime_error{ "GmodDto: Missing required field 'visRelease'" };
@@ -251,21 +264,23 @@ namespace nfx::serialization::json
                 throw std::runtime_error{ "GmodDto: Field 'visRelease' cannot be empty" };
             }
 
-            if( !doc.contains( "items" ) )
+            auto itemsArrOpt = doc.get<nfx::json::Array>( "items" );
+            if( !itemsArrOpt )
             {
                 throw std::runtime_error{ "GmodDto: Missing required field 'items'" };
             }
+            nfx::json::Document itemsDoc{ itemsArrOpt.value() };
+            Serializer<dnv::vista::sdk::GmodDto::Items> itemsSer;
+            itemsSer.deserializeValue( itemsDoc, obj.items );
 
-            Serializer<dnv::vista::sdk::GmodDto::Items> itemsSerializer;
-            obj.items = itemsSerializer.deserialize( doc["items"] );
-
-            if( !doc.contains( "relations" ) )
+            auto relationsArrOpt = doc.get<nfx::json::Array>( "relations" );
+            if( !relationsArrOpt )
             {
                 throw std::runtime_error{ "GmodDto: Missing required field 'relations'" };
             }
-
-            Serializer<dnv::vista::sdk::GmodDto::Relations> relationsSerializer;
-            obj.relations = relationsSerializer.deserialize( doc["relations"] );
+            nfx::json::Document relationsDoc{ relationsArrOpt.value() };
+            Serializer<dnv::vista::sdk::GmodDto::Relations> relationsSer;
+            relationsSer.deserializeValue( relationsDoc, obj.relations );
         }
     };
 } // namespace nfx::serialization::json

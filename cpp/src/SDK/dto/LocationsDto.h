@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <nfx/Serialization.h>
+#include <nfx/serialization/json/Serializer.h>
 
 #include <optional>
 #include <stdexcept>
@@ -86,50 +86,50 @@ namespace dnv::vista::sdk
 namespace nfx::serialization::json
 {
     /**
-     * @brief Serialization traits for RelativeLocationsDto
+     * @brief SerializationTraits for RelativeLocationsDto
+     * @details High-performance streaming serialization with bidirectional support
      */
     template <>
     struct SerializationTraits<dnv::vista::sdk::RelativeLocationsDto>
     {
         /**
-         * @brief Serialize RelativeLocationsDto to JSON document
+         * @brief High-performance streaming serialization
          * @param obj Object to serialize
-         * @param doc Document to serialize into
+         * @param builder Builder to write to
          */
-        static void serialize( const dnv::vista::sdk::RelativeLocationsDto& obj, Document& doc )
+        static void serialize( const dnv::vista::sdk::RelativeLocationsDto& obj, nfx::json::Builder& builder )
         {
-            doc["code"] = std::string( 1, obj.code );
-            doc["name"] = obj.name;
-
+            builder.writeStartObject();
+            builder.write( "code", std::string( 1, obj.code ) );
+            builder.write( "name", obj.name );
             if( obj.definition )
-            {
-                doc["definition"] = *obj.definition;
-            }
+                builder.write( "definition", *obj.definition );
+            builder.writeEndObject();
         }
 
         /**
          * @brief Deserialize RelativeLocationsDto from JSON document
-         * @param obj Object to deserialize into
          * @param doc Document to deserialize from
+         * @param obj Object to deserialize into
          * @throws std::runtime_error if required fields are missing or invalid
          */
-        static void deserialize( dnv::vista::sdk::RelativeLocationsDto& obj, const Document& doc )
+        static void fromDocument( const nfx::json::Document& doc, dnv::vista::sdk::RelativeLocationsDto& obj )
         {
-            auto codeOpt = doc["code"].root<std::string>();
+            auto codeOpt = doc.get<std::string>( "code" );
             if( !codeOpt || codeOpt->empty() )
             {
                 throw std::runtime_error{ "RelativeLocationsDto: Missing required field 'code'" };
             }
             obj.code = ( *codeOpt )[0];
 
-            auto nameOpt = doc["name"].root<std::string>();
+            auto nameOpt = doc.get<std::string>( "name" );
             if( !nameOpt )
             {
                 throw std::runtime_error{ "RelativeLocationsDto: Missing required field 'name'" };
             }
             obj.name = std::move( *nameOpt );
 
-            if( auto val = doc["definition"].root<std::string>() )
+            if( auto val = doc.get<std::string>( "definition" ) )
             {
                 obj.definition = std::move( *val );
             }
@@ -137,34 +137,43 @@ namespace nfx::serialization::json
     };
 
     /**
-     * @brief Serialization traits for LocationsDto
+     * @brief SerializationTraits for LocationsDto
+     * @details High-performance streaming serialization with bidirectional support
      */
     template <>
     struct SerializationTraits<dnv::vista::sdk::LocationsDto>
     {
         /**
-         * @brief Serialize LocationsDto to JSON document
+         * @brief High-performance streaming serialization
          * @param obj Object to serialize
-         * @param doc Document to serialize into
+         * @param builder Builder to write to
          */
-        static void serialize( const dnv::vista::sdk::LocationsDto& obj, Document& doc )
+        static void serialize( const dnv::vista::sdk::LocationsDto& obj, nfx::json::Builder& builder )
         {
-            doc["visRelease"] = obj.visVersion;
+            builder.writeStartObject();
+            builder.write( "visRelease", obj.visVersion );
 
-            Serializer<dnv::vista::sdk::LocationsDto::Items> itemsSerializer;
-            doc["items"] = itemsSerializer.serialize( obj.items );
+            builder.writeKey( "items" );
+            builder.writeStartArray();
+            for( const auto& item : obj.items )
+            {
+                SerializationTraits<dnv::vista::sdk::RelativeLocationsDto>::serialize( item, builder );
+            }
+            builder.writeEndArray();
+
+            builder.writeEndObject();
         }
 
         /**
          * @brief Deserialize LocationsDto from JSON document
-         * @param obj Object to deserialize into
          * @param doc Document to deserialize from
+         * @param obj Object to deserialize into
          * @throws std::runtime_error if required fields are missing or invalid
          * @note JSON field "visRelease" maps to member visVersion
          */
-        static void deserialize( dnv::vista::sdk::LocationsDto& obj, const Document& doc )
+        static void fromDocument( const nfx::json::Document& doc, dnv::vista::sdk::LocationsDto& obj )
         {
-            auto visReleaseOpt = doc["visRelease"].root<std::string>();
+            auto visReleaseOpt = doc.get<std::string>( "visRelease" );
             if( !visReleaseOpt )
             {
                 throw std::runtime_error{ "LocationsDto: Missing required field 'visRelease'" };
@@ -176,13 +185,14 @@ namespace nfx::serialization::json
                 throw std::runtime_error{ "LocationsDto: Field 'visRelease' cannot be empty" };
             }
 
-            if( !doc.contains( "items" ) )
+            auto itemsArrOpt = doc.get<nfx::json::Array>( "items" );
+            if( !itemsArrOpt )
             {
                 throw std::runtime_error{ "LocationsDto: Missing required field 'items'" };
             }
-
-            Serializer<dnv::vista::sdk::LocationsDto::Items> itemsSerializer;
-            obj.items = itemsSerializer.deserialize( doc["items"] );
+            nfx::json::Document itemsDoc{ itemsArrOpt.value() };
+            Serializer<dnv::vista::sdk::LocationsDto::Items> itemsSer;
+            itemsSer.deserializeValue( itemsDoc, obj.items );
         }
     };
 } // namespace nfx::serialization::json

@@ -32,7 +32,7 @@ namespace dnv::vista::sdk::benchmarks
             auto path = GmodPath::fromShortPath( pathStr, *m_gmod, locations, errors );
             if( !path.has_value() )
             {
-                throw std::runtime_error( "Failed to parse benchmark path: " + std::string{ pathStr } );
+                throw std::runtime_error{ "Failed to parse benchmark path: " + std::string{ pathStr } };
             }
             m_gmodPath = *path;
         }

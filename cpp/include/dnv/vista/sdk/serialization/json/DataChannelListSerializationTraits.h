@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <nfx/serialization/json/SerializationTraits.h>
+#include <nfx/serialization/json/Serializer.h>
 #include <nfx/serialization/json/extensions/ContainersTraits.h>
 #include <nfx/serialization/json/extensions/DatatypesTraits.h>
 #include <nfx/serialization/json/extensions/DateTimeTraits.h>
@@ -21,476 +21,46 @@ namespace nfx::serialization::json
 
     /**
      * @brief SerializationTraits specialization for DataChannelListPackage
-     * @details Converts Vista SDK domain objects directly to/from JSON
+     * @details Provides unified bidirectional JSON serialization for Vista SDK domain objects.
+     *          - serialize(): High-performance streaming serialization using Builder API
+     *          - fromDocument(): DOM-based deserialization
      */
     template <>
     struct SerializationTraits<datachannel::DataChannelListPackage>
     {
-    public:
         /**
-         * @brief Serialize DataChannelListPackage to JSON document
-         * @param obj The DataChannelListPackage to serialize
-         * @param doc The JSON document to serialize into
+         * @brief Serialize DataChannelListPackage to JSON using Builder
+         * @param pkg The package to serialize
+         * @param builder The JSON Builder to write to
          */
-        static void serialize( const datachannel::DataChannelListPackage& obj, SerializableDocument& doc )
+        static void serialize( const datachannel::DataChannelListPackage& pkg, nfx::json::Builder& builder )
         {
-            auto& jsonDoc = doc.document();
-            const auto& package = obj.package();
-            const auto& header = package.header();
+            const auto& package = pkg.package();
 
-            const auto& configRef = header.dataChannelListId();
-            nfx::json::Document configRefDoc = nfx::json::Document::object();
-            if( auto configRefRef = configRefDoc.rootRef<Object>() )
-            {
-                auto& configObj = configRefRef->get();
-                configObj.reserve( 3 ); // ID, TimeStamp, Version (optional)
-
-                configObj.emplace_back( "ID", nfx::json::Document{ configRef.id() } );
-                configObj.emplace_back(
-                    "TimeStamp",
-                    nfx::json::Document{ configRef.timeStamp().toString( DateTime::Format::Iso8601PreciseTrimmed ) } );
-
-                if( auto version = configRef.version() )
-                {
-                    configObj.emplace_back( "Version", nfx::json::Document{ version.value() } );
-                }
-            }
-
-            // Build VersionInformation (optional)
-            nfx::json::Document versionInfoDoc;
-            bool hasVersionInfo = false;
-            if( auto versionInfoOpt = header.versionInformation() )
-            {
-                hasVersionInfo = true;
-                const auto& version = *versionInfoOpt;
-                versionInfoDoc = nfx::json::Document::object();
-                if( auto versionInfoRef = versionInfoDoc.rootRef<Object>() )
-                {
-                    auto& versionObj = versionInfoRef->get();
-                    versionObj.reserve( 3 ); // NamingRule, NamingSchemeVersion, ReferenceURL (optional)
-
-                    versionObj.emplace_back( "NamingRule", nfx::json::Document{ version.namingRule() } );
-                    versionObj.emplace_back(
-                        "NamingSchemeVersion", nfx::json::Document{ version.namingSchemeVersion() } );
-
-                    if( auto refUrl = version.referenceUrl() )
-                    {
-                        versionObj.emplace_back( "ReferenceURL", nfx::json::Document{ *refUrl } );
-                    }
-                }
-            }
+            builder.writeStartObject(); // Package root
+            builder.writeKey( "Package" );
+            builder.writeStartObject();
 
             // Header
-            nfx::json::Document headerDoc = nfx::json::Document::object();
-            if( auto headerRef = headerDoc.rootRef<Object>() )
-            {
-                auto& headerObj = headerRef->get();
-
-                // ShipID, DataChannelListID, VersionInformation, Author, DateCreated, CustomHeaders
-                headerObj.reserve( 7 );
-                headerObj.emplace_back( "ShipID", nfx::json::Document{ header.shipId().toString() } );
-                headerObj.emplace_back( "DataChannelListID", std::move( configRefDoc ) );
-
-                if( hasVersionInfo )
-                {
-                    headerObj.emplace_back( "VersionInformation", std::move( versionInfoDoc ) );
-                }
-
-                if( auto author = header.author() )
-                {
-                    headerObj.emplace_back( "Author", nfx::json::Document{ author.value() } );
-                }
-
-                if( auto dateCreated = header.dateCreated() )
-                {
-                    headerObj.emplace_back(
-                        "DateCreated",
-                        nfx::json::Document{ dateCreated->toString( DateTime::Format::Iso8601PreciseTrimmed ) } );
-                }
-
-                // CustomHeaders
-                if( auto customHeadersOpt = header.customHeaders() )
-                {
-                    const auto& customHdrs = *customHeadersOpt;
-                    if( auto customHdrsObj = customHdrs.get<Object>( "" ) )
-                    {
-                        for( auto&& [key, valueDoc] : customHdrsObj.value() )
-                        {
-                            headerObj.emplace_back( std::move( key ), std::move( valueDoc ) );
-                        }
-                    }
-                }
-            }
+            builder.writeKey( "Header" );
+            serializeHeader( package.header(), builder );
 
             // DataChannelList
-            const auto& channels = package.dataChannelList();
-            Array dataChannelArray;
-            dataChannelArray.reserve( channels.size() );
+            builder.writeKey( "DataChannelList" );
+            serializeDataChannelList( package.dataChannelList(), builder );
 
-            for( size_t i = 0; i < channels.size(); ++i )
-            {
-                const auto& channel = channels[i];
-                const auto& channelId = channel.dataChannelId();
-                const auto& property = channel.property();
-
-                // DataChannelID
-                nfx::json::Document dataChannelIdDoc = nfx::json::Document::object();
-                if( auto dataChannelIdRef = dataChannelIdDoc.rootRef<Object>() )
-                {
-                    auto& idObj = dataChannelIdRef->get();
-                    idObj.reserve( 3 ); // LocalID, ShortID (optional), NameObject (optional)
-
-                    idObj.emplace_back( "LocalID", nfx::json::Document{ channelId.localId().toString() } );
-
-                    if( auto shortId = channelId.shortId() )
-                    {
-                        idObj.emplace_back( "ShortID", nfx::json::Document{ shortId.value() } );
-                    }
-
-                    // NameObject (optional)
-                    if( auto nameObjectOpt = channelId.nameObject() )
-                    {
-                        const auto& nameObject = *nameObjectOpt;
-                        nfx::json::Document nameObjectDoc = nfx::json::Document::object();
-                        if( auto nameObjectRef = nameObjectDoc.rootRef<Object>() )
-                        {
-                            auto& nameObj = nameObjectRef->get();
-                            nameObj.reserve( 2 ); // NamingRule, CustomNameObjects
-
-                            nameObj.emplace_back( "NamingRule", nfx::json::Document{ nameObject.namingRule() } );
-
-                            // CustomNameObjects (optional)
-                            if( auto customNameObjsOpt = nameObject.customNameObjects() )
-                            {
-                                const auto& customNameObjs = *customNameObjsOpt;
-                                if( auto customNameObjsObj = customNameObjs.get<Object>( "" ) )
-                                {
-                                    for( auto&& [key, valueDoc] : customNameObjsObj.value() )
-                                    {
-                                        nameObj.emplace_back( std::move( key ), std::move( valueDoc ) );
-                                    }
-                                }
-                            }
-                        }
-                        idObj.emplace_back( "NameObject", std::move( nameObjectDoc ) );
-                    }
-                }
-
-                // DataChannelType
-                const auto& channelType = property.dataChannelType();
-                nfx::json::Document dataChannelTypeDoc = nfx::json::Document::object();
-                if( auto dataChannelTypeRef = dataChannelTypeDoc.rootRef<Object>() )
-                {
-                    auto& obj = dataChannelTypeRef->get();
-                    obj.reserve( 3 ); // Type, UpdateCycle, CalculationPeriod
-
-                    obj.emplace_back( "Type", nfx::json::Document{ channelType.type() } );
-
-                    if( auto updateCycle = channelType.updateCycle() )
-                    {
-                        double val = updateCycle.value();
-                        if( val == std::trunc( val ) && std::isfinite( val ) )
-                        {
-                            obj.emplace_back( "UpdateCycle", nfx::json::Document{ static_cast<int64_t>( val ) } );
-                        }
-                        else
-                        {
-                            obj.emplace_back( "UpdateCycle", nfx::json::Document{ val } );
-                        }
-                    }
-                    if( auto calcPeriod = channelType.calculationPeriod() )
-                    {
-                        double val = calcPeriod.value();
-                        if( val == std::trunc( val ) && std::isfinite( val ) )
-                        {
-                            obj.emplace_back( "CalculationPeriod", nfx::json::Document{ static_cast<int64_t>( val ) } );
-                        }
-                        else
-                        {
-                            obj.emplace_back( "CalculationPeriod", nfx::json::Document{ val } );
-                        }
-                    }
-                }
-
-                // Format
-                const auto& format = property.format();
-                nfx::json::Document formatDoc = nfx::json::Document::object();
-                if( auto formatRef = formatDoc.rootRef<Object>() )
-                {
-                    auto& formatObj = formatRef->get();
-                    formatObj.reserve( 2 ); // Type, Restriction (optional)
-
-                    formatObj.emplace_back( "Type", nfx::json::Document{ format.type() } );
-
-                    // Restriction
-                    if( auto restrictionOpt = format.restriction() )
-                    {
-                        const auto& restriction = *restrictionOpt;
-                        nfx::json::Document restrictionDoc = nfx::json::Document::object();
-                        if( auto restrictionRef = restrictionDoc.rootRef<Object>() )
-                        {
-                            auto& resObj = restrictionRef->get();
-                            resObj.reserve( 12 ); // Max possible restriction fields
-
-                            // Restrictions
-                            if( auto enumOpt = restriction.enumeration() )
-                            {
-                                const auto& enumValues = *enumOpt;
-                                Array enumArray;
-                                enumArray.reserve( enumValues.size() );
-                                for( const auto& enumVal : enumValues )
-                                {
-                                    enumArray.push_back( nfx::json::Document{ enumVal } );
-                                }
-                                resObj.emplace_back( "Enumeration", nfx::json::Document{ std::move( enumArray ) } );
-                            }
-
-                            if( auto fracDigits = restriction.fractionDigits() )
-                            {
-                                resObj.emplace_back(
-                                    "FractionDigits",
-                                    nfx::json::Document{ static_cast<uint64_t>( fracDigits.value() ) } );
-                            }
-
-                            if( auto length = restriction.length() )
-                            {
-                                resObj.emplace_back(
-                                    "Length", nfx::json::Document{ static_cast<uint64_t>( length.value() ) } );
-                            }
-
-                            if( auto maxExc = restriction.maxExclusive() )
-                            {
-                                resObj.emplace_back( "MaxExclusive", nfx::json::Document{ maxExc.value() } );
-                            }
-
-                            if( auto maxInc = restriction.maxInclusive() )
-                            {
-                                resObj.emplace_back( "MaxInclusive", nfx::json::Document{ maxInc.value() } );
-                            }
-
-                            if( auto maxLen = restriction.maxLength() )
-                            {
-                                resObj.emplace_back(
-                                    "MaxLength", nfx::json::Document{ static_cast<uint64_t>( maxLen.value() ) } );
-                            }
-
-                            if( auto minExc = restriction.minExclusive() )
-                            {
-                                resObj.emplace_back( "MinExclusive", nfx::json::Document{ minExc.value() } );
-                            }
-
-                            if( auto minInc = restriction.minInclusive() )
-                            {
-                                resObj.emplace_back( "MinInclusive", nfx::json::Document{ minInc.value() } );
-                            }
-
-                            if( auto minLen = restriction.minLength() )
-                            {
-                                resObj.emplace_back(
-                                    "MinLength", nfx::json::Document{ static_cast<uint64_t>( minLen.value() ) } );
-                            }
-
-                            if( auto pattern = restriction.pattern() )
-                            {
-                                resObj.emplace_back( "Pattern", nfx::json::Document{ pattern.value() } );
-                            }
-
-                            if( auto totalDigits = restriction.totalDigits() )
-                            {
-                                resObj.emplace_back(
-                                    "TotalDigits",
-                                    nfx::json::Document{ static_cast<uint64_t>( totalDigits.value() ) } );
-                            }
-
-                            if( auto whiteSpace = restriction.whiteSpace() )
-                            {
-                                std::string whiteSpaceValue;
-                                switch( *whiteSpace )
-                                {
-                                    case datachannel::WhiteSpace::Preserve:
-                                        whiteSpaceValue = "Preserve";
-                                        break;
-                                    case datachannel::WhiteSpace::Replace:
-                                        whiteSpaceValue = "Replace";
-                                        break;
-                                    case datachannel::WhiteSpace::Collapse:
-                                        whiteSpaceValue = "Collapse";
-                                        break;
-                                }
-                                resObj.emplace_back(
-                                    "WhiteSpace", nfx::json::Document{ std::move( whiteSpaceValue ) } );
-                            }
-                        }
-                        formatObj.emplace_back( "Restriction", std::move( restrictionDoc ) );
-                    }
-                }
-
-                // Range (optional)
-                nfx::json::Document rangeDoc;
-                bool hasRange = false;
-                if( auto rangeOpt = property.range() )
-                {
-                    hasRange = true;
-                    const auto& range = *rangeOpt;
-                    rangeDoc = nfx::json::Document::object();
-                    if( auto rangeRef = rangeDoc.rootRef<Object>() )
-                    {
-                        auto& rangeObj = rangeRef->get();
-                        rangeObj.reserve( 2 );
-
-                        double high = range.high();
-                        if( high == std::trunc( high ) && std::isfinite( high ) )
-                        {
-                            rangeObj.emplace_back( "High", nfx::json::Document{ static_cast<int64_t>( high ) } );
-                        }
-                        else
-                        {
-                            rangeObj.emplace_back( "High", nfx::json::Document{ high } );
-                        }
-
-                        double low = range.low();
-                        if( low == std::trunc( low ) && std::isfinite( low ) )
-                        {
-                            rangeObj.emplace_back( "Low", nfx::json::Document{ static_cast<int64_t>( low ) } );
-                        }
-                        else
-                        {
-                            rangeObj.emplace_back( "Low", nfx::json::Document{ low } );
-                        }
-                    }
-                }
-
-                // Unit (optional)
-                nfx::json::Document unitDoc;
-                bool hasUnit = false;
-                if( auto unitOpt = property.unit() )
-                {
-                    hasUnit = true;
-                    const auto& unit = *unitOpt;
-                    unitDoc = nfx::json::Document::object();
-                    if( auto unitRef = unitDoc.rootRef<Object>() )
-                    {
-                        auto& unitObj = unitRef->get();
-                        unitObj.reserve( 3 ); // UnitSymbol, QuantityName, CustomElements
-
-                        unitObj.emplace_back( "UnitSymbol", nfx::json::Document{ unit.unitSymbol() } );
-
-                        if( auto quantityName = unit.quantityName() )
-                        {
-                            unitObj.emplace_back( "QuantityName", nfx::json::Document{ quantityName.value() } );
-                        }
-
-                        // CustomElements (optional)
-                        if( auto customElemsOpt = unit.customElements() )
-                        {
-                            const auto& customElems = *customElemsOpt;
-                            if( auto customElemsObj = customElems.get<Object>( "" ) )
-                            {
-                                for( auto&& [key, valueDoc] : customElemsObj.value() )
-                                {
-                                    unitObj.emplace_back( std::move( key ), std::move( valueDoc ) );
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Property
-                nfx::json::Document propertyObj = nfx::json::Document::object();
-                if( auto propertyRef = propertyObj.rootRef<Object>() )
-                {
-                    auto& propObj = propertyRef->get();
-                    propObj.reserve( 10 ); // DataChannelType, Format, Range, Unit, + up to 6 optional fields
-
-                    propObj.emplace_back( "DataChannelType", std::move( dataChannelTypeDoc ) );
-                    propObj.emplace_back( "Format", std::move( formatDoc ) );
-
-                    // Range (optional)
-                    if( hasRange )
-                    {
-                        propObj.emplace_back( "Range", std::move( rangeDoc ) );
-                    }
-                    if( hasUnit )
-                    {
-                        propObj.emplace_back( "Unit", std::move( unitDoc ) );
-                    }
-
-                    if( auto qualityCoding = property.qualityCoding() )
-                    {
-                        propObj.emplace_back( "QualityCoding", nfx::json::Document{ qualityCoding.value() } );
-                    }
-                    if( auto alertPriority = property.alertPriority() )
-                    {
-                        propObj.emplace_back( "AlertPriority", nfx::json::Document{ alertPriority.value() } );
-                    }
-                    if( auto name = property.name() )
-                    {
-                        propObj.emplace_back( "Name", nfx::json::Document{ name.value() } );
-                    }
-                    if( auto remarks = property.remarks() )
-                    {
-                        propObj.emplace_back( "Remarks", nfx::json::Document{ remarks.value() } );
-                    }
-
-                    // CustomProperties (optional)
-                    if( auto customPropsOpt = property.customProperties() )
-                    {
-                        const auto& customProps = *customPropsOpt;
-                        if( auto customPropsObj = customProps.get<Object>( "" ) )
-                        {
-                            for( auto&& [key, valueDoc] : customPropsObj.value() )
-                            {
-                                propObj.emplace_back( std::move( key ), std::move( valueDoc ) );
-                            }
-                        }
-                    }
-                }
-
-                nfx::json::Document channelJsonDoc = nfx::json::Document::object();
-                if( auto channelRef = channelJsonDoc.rootRef<Object>() )
-                {
-                    auto& channelObj = channelRef->get();
-                    channelObj.reserve( 2 ); // DataChannelID, Property
-                    channelObj.emplace_back( "DataChannelID", std::move( dataChannelIdDoc ) );
-                    channelObj.emplace_back( "Property", std::move( propertyObj ) );
-                }
-
-                dataChannelArray.emplace_back( std::move( channelJsonDoc ) );
-            }
-
-            // DataChannelList
-            nfx::json::Document dataChannelListDoc = nfx::json::Document::object();
-            if( auto dataChannelListRef = dataChannelListDoc.rootRef<Object>() )
-            {
-                auto& dataChannelListObj = dataChannelListRef->get();
-                dataChannelListObj.reserve( 1 ); // DataChannel
-                dataChannelListObj.emplace_back( "DataChannel", nfx::json::Document{ std::move( dataChannelArray ) } );
-            }
-
-            // Package
-            nfx::json::Document packageDoc = nfx::json::Document::object();
-            if( auto packageRef = packageDoc.rootRef<Object>() )
-            {
-                auto& packageObj = packageRef->get();
-                packageObj.reserve( 2 ); // Header, DataChannelList
-                packageObj.emplace_back( "Header", std::move( headerDoc ) );
-                packageObj.emplace_back( "DataChannelList", std::move( dataChannelListDoc ) );
-            }
-
-            // Assign to root document
-            jsonDoc["Package"] = std::move( packageDoc );
+            builder.writeEndObject();
+            builder.writeEndObject();
         }
 
         /**
-         * @brief Deserialize DataChannelListPackage from JSON document
-         * @param obj The object to deserialize into (will be assigned)
+         * @brief Factory deserialization: Construct DataChannelListPackage directly from JSON document
          * @param doc The JSON document to deserialize from
+         * @return Newly constructed DataChannelListPackage
          */
-        static void deserialize( const SerializableDocument& doc, datachannel::DataChannelListPackage& obj )
+        static datachannel::DataChannelListPackage fromDocument( const nfx::json::Document& doc )
         {
-            auto& jsonDoc = doc.document();
-
-            auto& packageObj = jsonDoc["Package"];
+            auto& packageObj = doc["Package"];
             auto& headerObj = packageObj["Header"];
 
             // Header
@@ -562,16 +132,15 @@ namespace nfx::serialization::json
                 }
             }
             std::optional<datachannel::CustomHeaders> customHeaders;
-            if( auto headerObjOpt = headerObj.get<Object>( "" ) )
+            if( auto headerObjOpt = headerObj.getRef<Object>( "" ) )
             {
                 static const std::unordered_set<std::string> knownKeys = {
                     "ShipID", "Author", "DateCreated", "DataChannelListID", "VersionInformation"
                 };
 
-                SerializableDocument customHdrs;
-                auto& customHdrsDoc = customHdrs.document();
+                nfx::json::Document customHdrsDoc = nfx::json::Document::object();
                 bool hasCustomHeaders = false;
-                for( const auto& [key, valueDoc] : headerObjOpt.value() )
+                for( const auto& [key, valueDoc] : headerObjOpt->get() )
                 {
                     // Skip known properties
                     if( knownKeys.find( key ) != knownKeys.end() )
@@ -584,7 +153,9 @@ namespace nfx::serialization::json
                 }
                 if( hasCustomHeaders )
                 {
-                    customHeaders = std::move( customHdrs );
+                    datachannel::CustomHeaders customDict;
+                    customDict.document() = std::move( customHdrsDoc );
+                    customHeaders = std::move( customDict );
                 }
             }
 
@@ -625,12 +196,11 @@ namespace nfx::serialization::json
 
                             // CustomNameObjects (optional)
                             std::optional<datachannel::CustomNameObjects> customNameObjects;
-                            if( auto nameObjOpt = nameObjectDoc.get<Object>( "" ) )
+                            if( auto nameObjOpt = nameObjectDoc.getRef<Object>( "" ) )
                             {
-                                SerializableDocument customNameObjs;
-                                auto& customNameObjsDoc = customNameObjs.document();
+                                nfx::json::Document customNameObjsDoc = nfx::json::Document::object();
                                 bool hasCustomNameObjects = false;
-                                for( const auto& [key, valueDoc] : nameObjOpt.value() )
+                                for( const auto& [key, valueDoc] : nameObjOpt->get() )
                                 {
                                     if( key == "NamingRule" )
                                     {
@@ -641,7 +211,9 @@ namespace nfx::serialization::json
                                 }
                                 if( hasCustomNameObjects )
                                 {
-                                    customNameObjects = std::move( customNameObjs );
+                                    datachannel::CustomNameObjects customDict;
+                                    customDict.document() = std::move( customNameObjsDoc );
+                                    customNameObjects = std::move( customDict );
                                 }
                             }
 
@@ -852,12 +424,11 @@ namespace nfx::serialization::json
 
                                 // CustomElements (optional)
                                 std::optional<datachannel::CustomElements> customElements;
-                                if( auto unitObjOpt = unitObj.get<Object>( "" ) )
+                                if( auto unitObjOpt = unitObj.getRef<Object>( "" ) )
                                 {
-                                    SerializableDocument customElems;
-                                    auto& customElemsDoc = customElems.document();
+                                    nfx::json::Document customElemsDoc = nfx::json::Document::object();
                                     bool hasCustomElements = false;
-                                    for( const auto& [key, valueDoc] : unitObjOpt.value() )
+                                    for( const auto& [key, valueDoc] : unitObjOpt->get() )
                                     {
                                         if( key == "UnitSymbol" || key == "QuantityName" )
                                         {
@@ -868,7 +439,9 @@ namespace nfx::serialization::json
                                     }
                                     if( hasCustomElements )
                                     {
-                                        customElements = std::move( customElems );
+                                        datachannel::CustomElements customDict;
+                                        customDict.document() = std::move( customElemsDoc );
+                                        customElements = std::move( customDict );
                                     }
                                 }
 
@@ -902,16 +475,15 @@ namespace nfx::serialization::json
 
                         // CustomProperties (optional)
                         std::optional<datachannel::CustomProperties> customProperties;
-                        if( auto propObjOpt = propertyObj.get<Object>( "" ) )
+                        if( auto propObjOpt = propertyObj.getRef<Object>( "" ) )
                         {
                             static const std::unordered_set<std::string> knownKeys = {
                                 "DataChannelType", "Format",        "Range", "Unit",
                                 "QualityCoding",   "AlertPriority", "Name",  "Remarks"
                             };
-                            SerializableDocument customProps;
-                            auto& customPropsDoc = customProps.document();
+                            nfx::json::Document customPropsDoc = nfx::json::Document::object();
                             bool hasCustomProperties = false;
-                            for( const auto& [key, valueDoc] : propObjOpt.value() )
+                            for( const auto& [key, valueDoc] : propObjOpt->get() )
                             {
                                 if( knownKeys.find( key ) != knownKeys.end() )
                                 {
@@ -922,7 +494,9 @@ namespace nfx::serialization::json
                             }
                             if( hasCustomProperties )
                             {
-                                customProperties = std::move( customProps );
+                                datachannel::CustomProperties customDict;
+                                customDict.document() = std::move( customPropsDoc );
+                                customProperties = std::move( customDict );
                             }
                         }
 
@@ -941,8 +515,411 @@ namespace nfx::serialization::json
             // Create Package
             datachannel::Package package{ header, std::move( dataChannelList ) };
 
-            // Assign to obj
-            obj = datachannel::DataChannelListPackage{ std::move( package ) };
+            return datachannel::DataChannelListPackage{ std::move( package ) };
+        }
+
+    private:
+        // Helper methods for streaming serialization
+        static void serializeHeader( const datachannel::Header& header, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            // ShipID
+            builder.writeKey( "ShipID" );
+            builder.write( header.shipId().toString() );
+
+            // DataChannelListID
+            builder.writeKey( "DataChannelListID" );
+            serializeConfigRef( header.dataChannelListId(), builder );
+
+            // VersionInformation (optional)
+            if( auto versionInfo = header.versionInformation() )
+            {
+                builder.writeKey( "VersionInformation" );
+                serializeVersionInfo( *versionInfo, builder );
+            }
+
+            // Author (optional)
+            if( auto author = header.author() )
+            {
+                builder.writeKey( "Author" );
+                builder.write( *author );
+            }
+
+            // DateCreated (optional)
+            if( auto dateCreated = header.dateCreated() )
+            {
+                builder.writeKey( "DateCreated" );
+                builder.write( dateCreated->toString( DateTime::Format::Iso8601Precise ) );
+            }
+
+            // CustomHeaders
+            if( auto customHeaders = header.customHeaders() )
+            {
+                if( auto objRef = customHeaders->document().rootRef<Object>() )
+                {
+                    for( const auto& [key, valueDoc] : objRef->get() )
+                    {
+                        builder.write( key, valueDoc );
+                    }
+                }
+            }
+
+            builder.writeEndObject();
+        }
+
+        static void serializeConfigRef( const datachannel::ConfigurationReference& ref, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            builder.writeKey( "ID" );
+            builder.write( ref.id() );
+
+            if( auto version = ref.version() )
+            {
+                builder.writeKey( "Version" );
+                builder.write( version.value() );
+            }
+
+            builder.writeKey( "TimeStamp" );
+            builder.write( ref.timeStamp().toString( DateTime::Format::Iso8601Precise ) );
+
+            builder.writeEndObject();
+        }
+
+        static void serializeVersionInfo( const datachannel::VersionInformation& info, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            builder.writeKey( "NamingRule" );
+            builder.write( info.namingRule() );
+
+            builder.writeKey( "NamingSchemeVersion" );
+            builder.write( info.namingSchemeVersion() );
+
+            if( auto refUrl = info.referenceUrl() )
+            {
+                builder.writeKey( "ReferenceURL" );
+                builder.write( *refUrl );
+            }
+
+            builder.writeEndObject();
+        }
+
+        static void serializeDataChannelList( const datachannel::DataChannelList& list, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            builder.writeKey( "DataChannel" );
+            builder.writeStartArray();
+            for( const auto& channel : list )
+            {
+                serializeDataChannel( channel, builder );
+            }
+            builder.writeEndArray();
+
+            builder.writeEndObject();
+        }
+
+        static void serializeDataChannel( const datachannel::DataChannel& channel, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            // DataChannelID
+            builder.writeKey( "DataChannelID" );
+            serializeDataChannelId( channel.dataChannelId(), builder );
+
+            // Property
+            builder.writeKey( "Property" );
+            serializeProperty( channel.property(), builder );
+
+            builder.writeEndObject();
+        }
+
+        static void serializeDataChannelId( const datachannel::DataChannelId& id, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            builder.writeKey( "LocalID" );
+            builder.write( id.localId().toString() );
+
+            if( auto shortId = id.shortId() )
+            {
+                builder.writeKey( "ShortID" );
+                builder.write( *shortId );
+            }
+
+            if( auto nameObj = id.nameObject() )
+            {
+                builder.writeKey( "NameObject" );
+                serializeNameObject( *nameObj, builder );
+            }
+
+            builder.writeEndObject();
+        }
+
+        static void serializeNameObject( const datachannel::NameObject& nameObj, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            builder.writeKey( "NamingRule" );
+            builder.write( nameObj.namingRule() );
+
+            // CustomNameObjects
+            if( auto customObjs = nameObj.customNameObjects() )
+            {
+                if( auto objRef = customObjs->document().rootRef<Object>() )
+                {
+                    for( const auto& [key, valueDoc] : objRef->get() )
+                    {
+                        builder.write( key, valueDoc );
+                    }
+                }
+            }
+
+            builder.writeEndObject();
+        }
+
+        static void serializeProperty( const datachannel::Property& prop, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            // DataChannelType (required)
+            builder.writeKey( "DataChannelType" );
+            serializeDataChannelType( prop.dataChannelType(), builder );
+
+            // Format (required)
+            builder.writeKey( "Format" );
+            serializeFormat( prop.format(), builder );
+
+            // Range (optional)
+            if( auto range = prop.range() )
+            {
+                builder.writeKey( "Range" );
+                serializeRange( *range, builder );
+            }
+
+            // Unit (optional)
+            if( auto unit = prop.unit() )
+            {
+                builder.writeKey( "Unit" );
+                serializeUnit( *unit, builder );
+            }
+
+            // QualityCoding (optional)
+            if( auto qualityCoding = prop.qualityCoding() )
+            {
+                builder.writeKey( "QualityCoding" );
+                builder.write( *qualityCoding );
+            }
+
+            // AlertPriority (optional)
+            if( auto alertPriority = prop.alertPriority() )
+            {
+                builder.writeKey( "AlertPriority" );
+                builder.write( *alertPriority );
+            }
+
+            // Name (optional)
+            if( auto name = prop.name() )
+            {
+                builder.writeKey( "Name" );
+                builder.write( *name );
+            }
+
+            // Remarks (optional)
+            if( auto remarks = prop.remarks() )
+            {
+                builder.writeKey( "Remarks" );
+                builder.write( *remarks );
+            }
+
+            // CustomProperties (last)
+            if( auto customProps = prop.customProperties() )
+            {
+                if( auto objRef = customProps->document().rootRef<Object>() )
+                {
+                    for( const auto& [key, valueDoc] : objRef->get() )
+                    {
+                        builder.write( key, valueDoc );
+                    }
+                }
+            }
+
+            builder.writeEndObject();
+        }
+
+        static void serializeDataChannelType( const datachannel::DataChannelType& type, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            // Type (required)
+            builder.writeKey( "Type" );
+            builder.write( type.type() );
+
+            // UpdateCycle (optional)
+            if( auto uc = type.updateCycle() )
+            {
+                builder.writeKey( "UpdateCycle" );
+                builder.write( *uc );
+            }
+
+            // CalculationPeriod (optional)
+            if( auto calcPeriod = type.calculationPeriod() )
+            {
+                builder.writeKey( "CalculationPeriod" );
+                builder.write( static_cast<uint64_t>( *calcPeriod ) );
+            }
+
+            builder.writeEndObject();
+        }
+
+        static void serializeFormat( const datachannel::Format& format, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            // Type (required)
+            builder.writeKey( "Type" );
+            builder.write( format.type() );
+
+            // Restriction (optional)
+            if( auto restriction = format.restriction() )
+            {
+                builder.writeKey( "Restriction" );
+                serializeRestriction( *restriction, builder );
+            }
+
+            builder.writeEndObject();
+        }
+
+        static void serializeRestriction( const datachannel::Restriction& restriction, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            if( auto enumeration = restriction.enumeration() )
+            {
+                builder.writeKey( "Enumeration" );
+                builder.writeStartArray();
+                for( const auto& val : *enumeration )
+                {
+                    builder.write( val );
+                }
+                builder.writeEndArray();
+            }
+
+            if( auto fractionDigits = restriction.fractionDigits() )
+            {
+                builder.writeKey( "FractionDigits" );
+                builder.write( static_cast<uint64_t>( *fractionDigits ) );
+            }
+
+            if( auto length = restriction.length() )
+            {
+                builder.writeKey( "Length" );
+                builder.write( static_cast<uint64_t>( *length ) );
+            }
+
+            if( auto maxExclusive = restriction.maxExclusive() )
+            {
+                builder.writeKey( "MaxExclusive" );
+                builder.write( *maxExclusive );
+            }
+
+            if( auto maxInclusive = restriction.maxInclusive() )
+            {
+                builder.writeKey( "MaxInclusive" );
+                builder.write( *maxInclusive );
+            }
+
+            if( auto maxLength = restriction.maxLength() )
+            {
+                builder.writeKey( "MaxLength" );
+                builder.write( static_cast<uint64_t>( *maxLength ) );
+            }
+
+            if( auto minExclusive = restriction.minExclusive() )
+            {
+                builder.writeKey( "MinExclusive" );
+                builder.write( *minExclusive );
+            }
+
+            if( auto minInclusive = restriction.minInclusive() )
+            {
+                builder.writeKey( "MinInclusive" );
+                builder.write( *minInclusive );
+            }
+
+            if( auto minLength = restriction.minLength() )
+            {
+                builder.writeKey( "MinLength" );
+                builder.write( static_cast<uint64_t>( *minLength ) );
+            }
+
+            if( auto pattern = restriction.pattern() )
+            {
+                builder.writeKey( "Pattern" );
+                builder.write( *pattern );
+            }
+
+            if( auto totalDigits = restriction.totalDigits() )
+            {
+                builder.writeKey( "TotalDigits" );
+                builder.write( static_cast<uint64_t>( *totalDigits ) );
+            }
+
+            if( auto whiteSpace = restriction.whiteSpace() )
+            {
+                builder.writeKey( "WhiteSpace" );
+                using WS = datachannel::WhiteSpace;
+                const char* wsStr = ( *whiteSpace == WS::Preserve )   ? "Preserve"
+                                    : ( *whiteSpace == WS::Replace )  ? "Replace"
+                                    : ( *whiteSpace == WS::Collapse ) ? "Collapse"
+                                                                      : "";
+                builder.write( wsStr );
+            }
+
+            builder.writeEndObject();
+        }
+
+        static void serializeRange( const datachannel::Range& range, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            builder.writeKey( "High" );
+            builder.write( range.high() );
+
+            builder.writeKey( "Low" );
+            builder.write( range.low() );
+
+            builder.writeEndObject();
+        }
+
+        static void serializeUnit( const datachannel::Unit& unit, nfx::json::Builder& builder )
+        {
+            builder.writeStartObject();
+
+            builder.writeKey( "UnitSymbol" );
+            builder.write( unit.unitSymbol() );
+
+            if( auto quantityName = unit.quantityName() )
+            {
+                builder.writeKey( "QuantityName" );
+                builder.write( *quantityName );
+            }
+
+            // CustomElements
+            if( auto customElems = unit.customElements() )
+            {
+                if( auto objRef = customElems->document().rootRef<Object>() )
+                {
+                    for( const auto& [key, valueDoc] : objRef->get() )
+                    {
+                        builder.write( key, valueDoc );
+                    }
+                }
+            }
+
+            builder.writeEndObject();
         }
     };
 } // namespace nfx::serialization::json

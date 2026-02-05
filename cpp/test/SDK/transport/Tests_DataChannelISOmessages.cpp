@@ -7,6 +7,7 @@
 
 #include <dnv/vista/sdk/transport/datachannel/DataChannel.h>
 #include <dnv/vista/sdk/serialization/json/DataChannelListSerializationTraits.h>
+#include <nfx/serialization/json/extensions/DatatypesTraits.h>
 
 namespace dnv::vista::sdk::tests
 {
@@ -58,7 +59,7 @@ namespace dnv::vista::sdk::tests
             customNameObjs.set( "nr:CustomNameObject", std::string( "Vendor specific NameObject" ) );
             customNameObjs.set( "priority", static_cast<int64_t>( 10 ) );
             customNameObjs.set( "isActive", false );
-            customNameObjs.set<Decimal>( "offset", 2.5 );
+            customNameObjs.set( "offset", Decimal{ 2.5 } );
             customNameObjs.set( "lastModified", std::string( "2024-01-10T12:30:00Z" ) );
 
             transport::datachannel::NameObject nameObject;
@@ -559,19 +560,13 @@ namespace dnv::vista::sdk::tests
             nfx::serialization::json::Serializer<transport::datachannel::DataChannelListPackage>::toString(
                 originalPackage, options );
 
-        // std::cout << "Full JSON:\n" << json << std::endl;
-
         // Deserialize JSON directly to domain model
-        auto docOpt = nfx::serialization::json::SerializableDocument::fromString( json );
+        auto docOpt = nfx::json::Document::fromString( json );
         ASSERT_TRUE( docOpt.has_value() );
-        transport::datachannel::DataChannelListPackage deserializedPackage{ transport::datachannel::Package{
-            transport::datachannel::Header{
-                ShipId::fromString( "IMO1234567" ).value(),
-                transport::datachannel::ConfigurationReference{ "dummy", DateTimeOffset{}, std::nullopt } },
-            transport::datachannel::DataChannelList{} } };
 
-        nfx::serialization::json::SerializationTraits<transport::datachannel::DataChannelListPackage>::deserialize(
-            *docOpt, deserializedPackage );
+        auto deserializedPackage =
+            nfx::serialization::json::SerializationTraits<transport::datachannel::DataChannelListPackage>::fromDocument(
+                *docOpt );
 
         // Header
         const auto& originalHeader = originalPackage.package().header();
@@ -673,7 +668,7 @@ namespace dnv::vista::sdk::tests
         const auto& deserializedCustomNameObjects = *deserializedNameObject.customNameObjects();
 
         // Get root object for iteration
-        auto deserializedObjOpt = deserializedCustomNameObjects.get<nfx::serialization::json::Object>( "" );
+        auto deserializedObjOpt = deserializedCustomNameObjects.document().get<nfx::serialization::json::Object>( "" );
         ASSERT_TRUE( deserializedObjOpt.has_value() );
         const auto& deserializedObj = deserializedObjOpt.value();
 

@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <nfx/Serialization.h>
+#include <nfx/serialization/json/Serializer.h>
 
 #include <stdexcept>
 #include <string>
@@ -145,38 +145,30 @@ namespace dnv::vista::sdk
 namespace nfx::serialization::json
 {
     /**
-     * @brief Serialization traits for DataChannelTypeNameDto
+     * @brief SerializationTraits for DataChannelTypeNameDto
+     * @details High-performance streaming serialization with bidirectional support
      */
     template <>
     struct SerializationTraits<dnv::vista::sdk::DataChannelTypeNameDto>
     {
-        /**
-         * @brief Serialize DataChannelTypeNameDto to JSON document
-         * @param obj Object to serialize
-         * @param doc Document to serialize into
-         */
-        static void serialize( const dnv::vista::sdk::DataChannelTypeNameDto& obj, Document& doc )
+        static void serialize( const dnv::vista::sdk::DataChannelTypeNameDto& obj, nfx::json::Builder& builder )
         {
-            doc["type"] = obj.type;
-            doc["description"] = obj.description;
+            builder.writeStartObject();
+            builder.write( "type", obj.type );
+            builder.write( "description", obj.description );
+            builder.writeEndObject();
         }
 
-        /**
-         * @brief Deserialize DataChannelTypeNameDto from JSON document
-         * @param obj Object to deserialize into
-         * @param doc Document to deserialize from
-         * @throws std::runtime_error if required fields are missing or invalid
-         */
-        static void deserialize( dnv::vista::sdk::DataChannelTypeNameDto& obj, const Document& doc )
+        static void fromDocument( const nfx::json::Document& doc, dnv::vista::sdk::DataChannelTypeNameDto& obj )
         {
-            auto typeOpt = doc["type"].root<std::string>();
+            auto typeOpt = doc.get<std::string>( "type" );
             if( !typeOpt )
             {
                 throw std::runtime_error{ "DataChannelTypeNameDto: Missing required field 'type'" };
             }
             obj.type = std::move( *typeOpt );
 
-            auto descriptionOpt = doc["description"].root<std::string>();
+            auto descriptionOpt = doc.get<std::string>( "description" );
             if( !descriptionOpt )
             {
                 throw std::runtime_error{ "DataChannelTypeNameDto: Missing required field 'description'" };
@@ -186,73 +178,65 @@ namespace nfx::serialization::json
     };
 
     /**
-     * @brief Serialization traits for DataChannelTypeNamesDto
+     * @brief SerializationTraits for DataChannelTypeNamesDto
+     * @details High-performance streaming serialization with bidirectional support
      */
     template <>
     struct SerializationTraits<dnv::vista::sdk::DataChannelTypeNamesDto>
     {
-        /**
-         * @brief Serialize DataChannelTypeNamesDto to JSON document
-         * @param obj Object to serialize
-         * @param doc Document to serialize into
-         */
-        static void serialize( const dnv::vista::sdk::DataChannelTypeNamesDto& obj, Document& doc )
+        static void serialize( const dnv::vista::sdk::DataChannelTypeNamesDto& obj, nfx::json::Builder& builder )
         {
-            Serializer<dnv::vista::sdk::DataChannelTypeNamesDto::Values> valuesSerializer;
-            doc["values"] = valuesSerializer.serialize( obj.values );
+            builder.writeStartObject();
+
+            builder.writeKey( "values" );
+            builder.writeStartArray();
+            for( const auto& item : obj.values )
+            {
+                SerializationTraits<dnv::vista::sdk::DataChannelTypeNameDto>::serialize( item, builder );
+            }
+            builder.writeEndArray();
+
+            builder.writeEndObject();
         }
 
-        /**
-         * @brief Deserialize DataChannelTypeNamesDto from JSON document
-         * @param obj Object to deserialize into
-         * @param doc Document to deserialize from
-         * @throws std::runtime_error if required fields are missing or invalid
-         */
-        static void deserialize( dnv::vista::sdk::DataChannelTypeNamesDto& obj, const Document& doc )
+        static void fromDocument( const nfx::json::Document& doc, dnv::vista::sdk::DataChannelTypeNamesDto& obj )
         {
-            if( !doc.contains( "values" ) )
+            auto valuesArrOpt = doc.get<nfx::json::Array>( "values" );
+            if( !valuesArrOpt )
             {
                 throw std::runtime_error{ "DataChannelTypeNamesDto: Missing required field 'values'" };
             }
-
-            Serializer<dnv::vista::sdk::DataChannelTypeNamesDto::Values> valuesSerializer;
-            obj.values = valuesSerializer.deserialize( doc["values"] );
+            nfx::json::Document valuesDoc{ valuesArrOpt.value() };
+            Serializer<dnv::vista::sdk::DataChannelTypeNamesDto::Values> valuesSer;
+            valuesSer.deserializeValue( valuesDoc, obj.values );
         }
     };
 
     /**
-     * @brief Serialization traits for FormatDataTypeDto
+     * @brief SerializationTraits for FormatDataTypeDto
+     * @details High-performance streaming serialization with bidirectional support
      */
     template <>
     struct SerializationTraits<dnv::vista::sdk::FormatDataTypeDto>
     {
-        /**
-         * @brief Serialize FormatDataTypeDto to JSON document
-         * @param obj Object to serialize
-         * @param doc Document to serialize into
-         */
-        static void serialize( const dnv::vista::sdk::FormatDataTypeDto& obj, Document& doc )
+        static void serialize( const dnv::vista::sdk::FormatDataTypeDto& obj, nfx::json::Builder& builder )
         {
-            doc["type"] = obj.type;
-            doc["description"] = obj.description;
+            builder.writeStartObject();
+            builder.write( "type", obj.type );
+            builder.write( "description", obj.description );
+            builder.writeEndObject();
         }
 
-        /**
-         * @brief Deserialize FormatDataTypeDto from JSON document
-         * @param obj Object to deserialize into
-         * @param doc Document to deserialize from
-         * @throws std::runtime_error if required fields are missing or invalid
-         */
-        static void deserialize( dnv::vista::sdk::FormatDataTypeDto& obj, const Document& doc )
+        static void fromDocument( const nfx::json::Document& doc, dnv::vista::sdk::FormatDataTypeDto& obj )
         {
-            auto typeOpt = doc["type"].root<std::string>();
+            auto typeOpt = doc.get<std::string>( "type" );
             if( !typeOpt )
             {
                 throw std::runtime_error{ "FormatDataTypeDto: Missing required field 'type'" };
             }
             obj.type = std::move( *typeOpt );
 
-            auto descriptionOpt = doc["description"].root<std::string>();
+            auto descriptionOpt = doc.get<std::string>( "description" );
             if( !descriptionOpt )
             {
                 throw std::runtime_error{ "FormatDataTypeDto: Missing required field 'description'" };
@@ -262,37 +246,37 @@ namespace nfx::serialization::json
     };
 
     /**
-     * @brief Serialization traits for FormatDataTypesDto
+     * @brief SerializationTraits for FormatDataTypesDto
+     * @details High-performance streaming serialization with bidirectional support
      */
     template <>
     struct SerializationTraits<dnv::vista::sdk::FormatDataTypesDto>
     {
-        /**
-         * @brief Serialize FormatDataTypesDto to JSON document
-         * @param obj Object to serialize
-         * @param doc Document to serialize into
-         */
-        static void serialize( const dnv::vista::sdk::FormatDataTypesDto& obj, Document& doc )
+        static void serialize( const dnv::vista::sdk::FormatDataTypesDto& obj, nfx::json::Builder& builder )
         {
-            Serializer<dnv::vista::sdk::FormatDataTypesDto::Values> valuesSerializer;
-            doc["values"] = valuesSerializer.serialize( obj.values );
+            builder.writeStartObject();
+
+            builder.writeKey( "values" );
+            builder.writeStartArray();
+            for( const auto& item : obj.values )
+            {
+                SerializationTraits<dnv::vista::sdk::FormatDataTypeDto>::serialize( item, builder );
+            }
+            builder.writeEndArray();
+
+            builder.writeEndObject();
         }
 
-        /**
-         * @brief Deserialize FormatDataTypesDto from JSON document
-         * @param obj Object to deserialize into
-         * @param doc Document to deserialize from
-         * @throws std::runtime_error if required fields are missing or invalid
-         */
-        static void deserialize( dnv::vista::sdk::FormatDataTypesDto& obj, const Document& doc )
+        static void fromDocument( const nfx::json::Document& doc, dnv::vista::sdk::FormatDataTypesDto& obj )
         {
-            if( !doc.contains( "values" ) )
+            auto valuesArrOpt = doc.get<nfx::json::Array>( "values" );
+            if( !valuesArrOpt )
             {
                 throw std::runtime_error{ "FormatDataTypesDto: Missing required field 'values'" };
             }
-
-            Serializer<dnv::vista::sdk::FormatDataTypesDto::Values> valuesSerializer;
-            obj.values = valuesSerializer.deserialize( doc["values"] );
+            nfx::json::Document valuesDoc{ valuesArrOpt.value() };
+            Serializer<dnv::vista::sdk::FormatDataTypesDto::Values> valuesSer;
+            valuesSer.deserializeValue( valuesDoc, obj.values );
         }
     };
 } // namespace nfx::serialization::json

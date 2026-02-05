@@ -9,6 +9,7 @@
 #include <dnv/vista/sdk/serialization/json/TimeSeriesDataSerializationTraits.h>
 
 #include <dnv/vista/sdk/transport/datachannel/DataChannel.h>
+
 #include <nfx/Json.h>
 #include <nfx/Serialization.h>
 
@@ -31,26 +32,16 @@ namespace dnv::vista::sdk::tests
      */
     DataChannelListPackage deserializeDataChannelList( const std::string& jsonStr )
     {
-        auto docOpt = nfx::serialization::json::SerializableDocument::fromString( jsonStr );
+        auto docOpt = nfx::json::Document::fromString( jsonStr );
         if( !docOpt.has_value() )
         {
-            throw std::runtime_error( "Failed to parse JSON" );
+            throw std::runtime_error{ "Failed to parse JSON" };
         }
 
         const auto& doc = docOpt.value();
 
-        // Build minimal package first
-        auto shipId = ShipId::fromString( "IMO0000000" ).value();
-        auto configRef = ConfigurationReference{ "temp", DateTimeOffset::now() };
-        auto header = Header{ shipId, configRef };
-        auto dataChannelList = DataChannelList{};
-        auto package = Package{ header, dataChannelList };
-        auto dataChannelListPackage = DataChannelListPackage{ package };
-
-        // Now deserialize into it
-        SerializationTraits<DataChannelListPackage>::deserialize( doc, dataChannelListPackage );
-
-        return dataChannelListPackage;
+        // Factory pattern - direct construction, no minimal package needed!
+        return nfx::serialization::json::SerializationTraits<DataChannelListPackage>::fromDocument( doc );
     }
 
     /**
@@ -71,24 +62,15 @@ namespace dnv::vista::sdk::tests
     {
         using namespace transport::timeseries;
 
-        auto docOpt = nfx::serialization::json::SerializableDocument::fromString( jsonStr );
+        auto docOpt = nfx::json::Document::fromString( jsonStr );
         if( !docOpt.has_value() )
         {
-            throw std::runtime_error( "Failed to parse JSON" );
+            throw std::runtime_error{ "Failed to parse JSON" };
         }
 
         const auto& doc = docOpt.value();
 
-        // Build minimal package first
-        auto shipId = ShipId::fromString( "IMO0000000" ).value();
-        auto header = Header{ shipId };
-        auto package = Package{ header, std::vector<TimeSeriesData>{} };
-        auto timeSeriesDataPackage = TimeSeriesDataPackage{ package };
-
-        // Now deserialize into it
-        SerializationTraits<TimeSeriesDataPackage>::deserialize( doc, timeSeriesDataPackage );
-
-        return timeSeriesDataPackage;
+        return nfx::serialization::json::SerializationTraits<TimeSeriesDataPackage>::fromDocument( doc );
     }
 
     /**

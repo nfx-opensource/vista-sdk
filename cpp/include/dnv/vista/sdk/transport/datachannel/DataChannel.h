@@ -9,9 +9,8 @@
 #include "dnv/vista/sdk/transport/ISO19848.h"
 #include "dnv/vista/sdk/transport/Results.h"
 #include "dnv/vista/sdk/transport/ShipId.h"
+#include "dnv/vista/sdk/transport/CustomDictionary.h"
 #include "dnv/vista/sdk/LocalId.h"
-
-#include <nfx/Serialization.h>
 
 #include <functional>
 #include <optional>
@@ -21,20 +20,20 @@
 namespace dnv::vista::sdk::transport::datachannel
 {
     //=====================================================================
-    // Type aliases
+    // Type aliases using shared CustomDictionary
     //=====================================================================
 
-    /** @brief Alias for custom headers - supports arbitrary JSON */
-    using CustomHeaders = nfx::serialization::json::SerializableDocument;
+    /** @brief Custom headers dictionary - supports both JSON native and serializable types */
+    using CustomHeaders = transport::CustomDictionary;
 
-    /** @brief Alias for custom headers - supports arbitrary JSON */
-    using CustomNameObjects = nfx::serialization::json::SerializableDocument;
+    /** @brief Custom name objects dictionary - supports both JSON native and serializable types */
+    using CustomNameObjects = transport::CustomDictionary;
 
-    /** @brief Alias for custom headers - supports arbitrary JSON */
-    using CustomElements = nfx::serialization::json::SerializableDocument;
+    /** @brief Custom elements dictionary - supports both JSON native and serializable types */
+    using CustomElements = transport::CustomDictionary;
 
-    /** @brief Alias for custom headers - supports arbitrary JSON */
-    using CustomProperties = nfx::serialization::json::SerializableDocument;
+    /** @brief Custom properties dictionary - supports both JSON native and serializable types */
+    using CustomProperties = transport::CustomDictionary;
 
     //=====================================================================
     // ConfigurationReference class - Table 11

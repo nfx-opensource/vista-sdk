@@ -56,6 +56,7 @@ list(APPEND benchmark_sources
     gmod/BM_GmodTraversal.cpp
     gmod/BM_GmodVersioningConvertPath.cpp
     transport/BM_DataChannelListSerialization.cpp
+    transport/BM_TimeSeriesDataSerialization.cpp
 )
 
 #----------------------------------------------

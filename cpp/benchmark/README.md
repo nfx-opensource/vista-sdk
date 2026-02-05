@@ -24,10 +24,10 @@
 
 | Platform    | Benchmark Framework     | C++ Compiler         | Vista SDK c++ Version |
 | ----------- | ----------------------- | -------------------- | :-------------------: |
-| **Linux**   | Google Benchmark v1.9.4 | GCC 14.2.0           |        v0.0.0         |
-| **Linux**   | Google Benchmark v1.9.4 | Clang 16.0.6         |        v0.0.0         |
-| **Windows** | Google Benchmark v1.9.4 | MinGW GCC 14.2.0-x64 |        v0.0.0         |
-| **Windows** | Google Benchmark v1.9.4 | MSVC 19.44.35214-x64 |        v0.0.0         |
+| **Linux**   | Google Benchmark v1.9.5 | GCC 14.2.0           |        v0.0.0         |
+| **Linux**   | Google Benchmark v1.9.5 | Clang 16.0.6         |        v0.0.0         |
+| **Windows** | Google Benchmark v1.9.5 | MinGW GCC 14.2.0-x64 |        v0.0.0         |
+| **Windows** | Google Benchmark v1.9.5 | MSVC 19.44.35214-x64 |        v0.0.0         |
 
 ### C#
 
@@ -78,23 +78,23 @@
 
 | Benchmark                                                       | linux GCC | linux clang | linux C# .NET | Windows GCC | Windows MSVC | Windows C# .NET |
 | --------------------------------------------------------------- | :-------: | :---------: | :-----------: | :---------: | :----------: | :-------------: |
-| **FromShortPath / TryParse**                                    | 2.22  us  |  2.10  us   |   3.122 us    |   2.78 us   |   3.51  us   |     2.87 us     |
-| **FromFullPath / TryParseFullPath**                             | 0.528 us  |  0.578 us   |   0.555 us    |  0.674 us   |   0.900 us   |    0.517 us     |
-| **FromShortPathIndividualized / TryParseIndividualized**        | 1.21  us  |  1.17  us   |   1.443 us    |   1.58 us   |   1.73  us   |     1.24 us     |
-| **FromFullPathIndividualized / TryParseFullPathIndividualized** | 0.787 us  |  0.769 us   |   0.760 us    |   1.01 us   |   1.20  us   |    0.646 us     |
+| **FromShortPath / TryParse**                                    | 2.28  us  |  2.22  us   |   3.122 us    |   3.18 us   |   3.86 us    |     2.87 us     |
+| **FromFullPath / TryParseFullPath**                             | 0.515 us  |  0.618 us   |   0.555 us    |  0.730 us   |   1.05 us    |    0.517 us     |
+| **FromShortPathIndividualized / TryParseIndividualized**        | 1.22  us  |  1.17  us   |   1.443 us    |   1.79 us   |   2.00 us    |     1.24 us     |
+| **FromFullPathIndividualized / TryParseFullPathIndividualized** | 0.824 us  |  0.753 us   |   0.760 us    |   1.12 us   |   1.36 us    |    0.646 us     |
 
 #### Gmod traversal
 
 | Benchmark         | linux GCC | linux clang | linux C# .NET | Windows GCC | Windows MSVC | Windows C# .NET |
 | ----------------- | :-------: | :---------: | :-----------: | :---------: | :----------: | :-------------: |
-| **FullTraversal** |  131 ms   |   148 ms    |   126.2 ms    |   133 ms    |    168 ms    |    121.2 ms     |
+| **FullTraversal** |  132 ms   |   153 ms    |   126.2 ms    |   147 ms    |    183 ms    |    121.2 ms     |
 
 #### Gmod versioning convert path
 
 | Benchmark                   | linux GCC | linux clang | linux C# .NET | Windows GCC | Windows MSVC | Windows C# .NET |
 | --------------------------- | :-------: | :---------: | :-----------: | :---------: | :----------: | :-------------: |
-| **ConvertPath**             |  1.58 us  |   1.48 us   |    1.33 us    |   1.98 us   |   2.11 us    |     1.27 us     |
-| **ConvertPathWithLocation** |  1.50 us  |   1.47 us   |     _N/A_     |   1.85 us   |   1.99 us    |      _N/A_      |
+| **ConvertPath**             |  1.55 us  |   1.56 us   |    1.33 us    |   2.12 us   |   2.32 us    |     1.27 us     |
+| **ConvertPathWithLocation** |  1.51 us  |   1.48 us   |     _N/A_     |   2.04 us   |   2.19 us    |      _N/A_      |
 
 ## Transport Layer
 
@@ -102,7 +102,13 @@
 
 | Benchmark | linux GCC | linux clang | linux C# .NET | Windows GCC | Windows MSVC | Windows C# .NET |
 | --------- | :-------: | :---------: | :-----------: | :---------: | :----------: | :-------------: |
-| **Json**  |  16.0 us  |   14.6 us   |   10.11 us    |   21.3 us   |   25.5 us    |    10.15 us     |
+| **Json**  |  8.66 us  |   8.53 us   |   10.11 us    |   14.3 us   |   13.4 us    |    10.15 us     |
+
+### TimeSeriesDataSerialization Serialization
+
+| Benchmark | linux GCC | linux clang | linux C# .NET | Windows GCC | Windows MSVC | Windows C# .NET |
+| --------- | :-------: | :---------: | :-----------: | :---------: | :----------: | :-------------: |
+| **Json**  |  5.04 us  |   4.72 us   |     _N/A_     |   7.62 us   |   7.33 us    |      _N/A_      |
 
 ## See Also
 
@@ -112,4 +118,4 @@
 
 ---
 
-_Benchmarked on January 7, 2026_
+_Benchmarked on February 5, 2026_

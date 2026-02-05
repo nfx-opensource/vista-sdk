@@ -29,3 +29,9 @@ target_link_libraries(dnv-vista-cpp-embeddedresources
         nfx-serialization::static
         nfx-stringutils::nfx-stringutils
 )
+
+target_compile_options(dnv-vista-cpp-embeddedresources
+    PRIVATE
+        $<$<CXX_COMPILER_ID:MSVC>:/arch:AVX2>
+        $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-march=native>
+)
