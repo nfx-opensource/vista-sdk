@@ -593,23 +593,15 @@ void dumpMap( const dnv::vista::sdk::Gmod& gmod, std::string_view filename )
         return;
     }
 
-    std::vector<std::pair<std::string, const GmodNode*>> nodePairs;
-    nodePairs.reserve( 8000 );
-
-    for( const auto& [code, node] : gmod )
-    {
-        nodePairs.emplace_back( std::string{ code }, &node );
-    }
-
-    ChdDictionary<std::string, const GmodNode*> nodeMap{ std::move( nodePairs ) };
-    auto hasher = nodeMap.hash_function();
+    // Get hasher for computing hash values
+    nfx::hashing::Hasher hasher;
 
     // Get all entries and sort them
     std::vector<std::pair<std::string, const GmodNode*>> sortedEntries;
-    sortedEntries.reserve( nodeMap.size() );
-    for( const auto& [code, nodePtr] : nodeMap )
+    sortedEntries.reserve( 8000 );
+    for( const auto& [code, node] : gmod )
     {
-        sortedEntries.emplace_back( std::string{ code }, nodePtr );
+        sortedEntries.emplace_back( std::string{ code }, &node );
     }
     std::sort( sortedEntries.begin(), sortedEntries.end(), []( const auto& a, const auto& b ) {
         return nfx::string::naturalCompare( a.first, b.first ) < 0;
