@@ -190,8 +190,8 @@ namespace dnv::vista::sdk
         }
 
         // Split and validate each part
-        SmallVector<std::string_view, 16> parts;
-        SmallVector<PositionValidationResult, 16> validations;
+        StackVector<std::string_view, 16> parts;
+        StackVector<PositionValidationResult, 16> validations;
 
         for( auto part : nfx::string::splitView( position, '-' ) )
         {

@@ -115,7 +115,7 @@ namespace dnv::vista::sdk
 
     std::vector<GmodIndividualizableSet> GmodPath::individualizableSets() const
     {
-        SmallVector<GmodIndividualizableSet, 4> result;
+        StackVector<GmodIndividualizableSet, 4> result;
 
         internal::LocationSetsVisitor locationSetsVisitor;
 

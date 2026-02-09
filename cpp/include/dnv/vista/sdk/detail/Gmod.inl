@@ -153,9 +153,9 @@ namespace dnv::vista::sdk
 
     template <std::size_t N, std::size_t M>
     inline bool Gmod::pathExistsBetween(
-        const SmallVector<const GmodNode*, N>& fromPath,
+        const StackVector<const GmodNode*, N>& fromPath,
         const GmodNode& to,
-        SmallVector<const GmodNode*, M>& remainingParents ) const
+        StackVector<const GmodNode*, M>& remainingParents ) const
     {
         remainingParents.clear();
 
@@ -177,15 +177,15 @@ namespace dnv::vista::sdk
         struct PathExistsState
         {
             const GmodNode& targetNode;
-            const SmallVector<const GmodNode*, N>& fromPath;
-            SmallVector<const GmodNode*, M>& remainingParents;
+            const StackVector<const GmodNode*, N>& fromPath;
+            StackVector<const GmodNode*, M>& remainingParents;
             size_t assetFunctionIndex;
             bool found = false;
 
             PathExistsState(
                 const GmodNode& target,
-                const SmallVector<const GmodNode*, N>& from,
-                SmallVector<const GmodNode*, M>& remaining,
+                const StackVector<const GmodNode*, N>& from,
+                StackVector<const GmodNode*, M>& remaining,
                 size_t afIndex )
                 : targetNode{ target },
                   fromPath{ from },
@@ -204,14 +204,14 @@ namespace dnv::vista::sdk
 
         auto handler = [this](
                            PathExistsState& s,
-                           const SmallVector<const GmodNode*, 16>& parents,
+                           const StackVector<const GmodNode*, 16>& parents,
                            const GmodNode& node ) -> TraversalHandlerResult {
             if( !nfx::string::equals( node.code(), s.targetNode.code() ) )
             {
                 return TraversalHandlerResult::Continue;
             }
 
-            SmallVector<const GmodNode*, 16> completePath;
+            StackVector<const GmodNode*, 16> completePath;
             completePath.reserve( parents.size() );
             for( const GmodNode* parent : parents )
             {

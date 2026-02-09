@@ -12,9 +12,9 @@
 
 namespace dnv::vista::sdk
 {
-    /** @brief Small vector with stack storage for N elements before heap allocation */
+    /** @brief Vector with stack storage for N elements before heap allocation */
     template <typename T, std::size_t N>
-    using SmallVector = nfx::containers::SmallVector<T, N>;
+    using StackVector = nfx::containers::StackVector<T, N>;
 
     /** @brief FNV-1a hash offset basis (32-bit) used for all Vista SDK containers */
     constexpr std::uint32_t FNV_OFFSET_BASIS_32{ 0x811C9DC5 };

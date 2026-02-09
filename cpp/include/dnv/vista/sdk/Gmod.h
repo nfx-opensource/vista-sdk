@@ -154,7 +154,7 @@ namespace dnv::vista::sdk
          * @return TraversalHandlerResult indicating how to continue traversal
          */
         using TraverseHandler = std::function<TraversalHandlerResult(
-            const SmallVector<const GmodNode*, 16>& parents, const GmodNode& node )>;
+            const StackVector<const GmodNode*, 16>& parents, const GmodNode& node )>;
 
         /**
          * @brief Callback function type for tree traversal with custom state
@@ -166,7 +166,7 @@ namespace dnv::vista::sdk
          */
         template <typename TState>
         using TraverseHandlerWithState = std::function<TraversalHandlerResult(
-            TState& state, const SmallVector<const GmodNode*, 16>& parents, const GmodNode& node )>;
+            TState& state, const StackVector<const GmodNode*, 16>& parents, const GmodNode& node )>;
 
         /**
          * @brief Traverse the Gmod tree from root with a callback handler
@@ -253,9 +253,9 @@ namespace dnv::vista::sdk
          */
         template <std::size_t N, std::size_t M>
         bool pathExistsBetween(
-            const SmallVector<const GmodNode*, N>& fromPath,
+            const StackVector<const GmodNode*, N>& fromPath,
             const GmodNode& to,
-            SmallVector<const GmodNode*, M>& remainingParents ) const;
+            StackVector<const GmodNode*, M>& remainingParents ) const;
 
     private:
         VisVersion m_visVersion; ///< VIS version for this Gmod
@@ -317,7 +317,7 @@ namespace dnv::vista::sdk
                 return m_parents.isEmpty() ? nullptr : m_parents.back();
             }
 
-            [[nodiscard]] const SmallVector<const GmodNode*, 16>& asList() const noexcept
+            [[nodiscard]] const StackVector<const GmodNode*, 16>& asList() const noexcept
             {
                 return m_parents;
             }
@@ -328,7 +328,7 @@ namespace dnv::vista::sdk
             }
 
         private:
-            SmallVector<const GmodNode*, 16> m_parents;
+            StackVector<const GmodNode*, 16> m_parents;
             HashMap<const GmodNode*, int> m_occurrences;
         };
     };

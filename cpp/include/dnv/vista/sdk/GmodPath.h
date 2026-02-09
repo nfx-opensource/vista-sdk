@@ -45,7 +45,7 @@ namespace dnv::vista::sdk
         friend class GmodIndividualizableSet;
         friend class internal::GmodVersioning;
         friend TraversalHandlerResult internal::parseHandler(
-            internal::ParseContext&, const SmallVector<const GmodNode*, 16>&, const GmodNode& );
+            internal::ParseContext&, const StackVector<const GmodNode*, 16>&, const GmodNode& );
         friend internal::GmodParsePathResult internal::fromFullPath(
             std::string_view, const Gmod&, const Locations& ) noexcept;
 
@@ -167,13 +167,13 @@ namespace dnv::vista::sdk
         std::vector<std::pair<size_t, std::string>> commonNames() const;
 
         /**
-         * @brief Validate parent-child sequence (SmallVector overload to avoid conversion)
+         * @brief Validate parent-child sequence (StackVector overload to avoid conversion)
          * @param parents Sequence of parent nodes
          * @param node Target node to validate
          * @return True if the sequence forms a valid Gmod path
          */
         template <std::size_t N>
-        static inline bool isValid( const nfx::containers::SmallVector<GmodNode, N>& parents, const GmodNode& node );
+        static inline bool isValid( const nfx::containers::StackVector<GmodNode, N>& parents, const GmodNode& node );
 
         /**
          * @brief Check if the target node is mappable

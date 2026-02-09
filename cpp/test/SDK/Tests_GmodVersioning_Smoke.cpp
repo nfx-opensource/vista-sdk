@@ -128,7 +128,7 @@ namespace dnv::vista::sdk::test
         // Producer thread
         auto producer = std::thread( [&]() {
             auto completed =
-                sourceGmod.traverse( [&]( const SmallVector<const GmodNode*, 16>& parents, const GmodNode& node ) {
+                sourceGmod.traverse( [&]( const StackVector<const GmodNode*, 16>& parents, const GmodNode& node ) {
                     if( parents.isEmpty() )
                         return TraversalHandlerResult::Continue;
 

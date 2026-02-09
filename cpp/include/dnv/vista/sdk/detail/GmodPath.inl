@@ -72,7 +72,7 @@ namespace dnv::vista::sdk
     }
 
     template <std::size_t N>
-    inline bool GmodPath::isValid( const nfx::containers::SmallVector<GmodNode, N>& parents, const GmodNode& node )
+    inline bool GmodPath::isValid( const nfx::containers::StackVector<GmodNode, N>& parents, const GmodNode& node )
     {
         // Validate that we have at least one parent
         if( parents.isEmpty() )

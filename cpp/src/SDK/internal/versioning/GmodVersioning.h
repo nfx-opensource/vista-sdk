@@ -165,7 +165,7 @@ namespace dnv::vista::sdk::internal
          * @param path Path being constructed
          * @param node Node to add to the path
          */
-        void addToPath( const Gmod& gmod, SmallVector<GmodNode, 16>& path, const GmodNode& node ) const;
+        void addToPath( const Gmod& gmod, StackVector<GmodNode, 16>& path, const GmodNode& node ) const;
 
         /**
          * @brief Convert a single node from one version to the next version (internal helper)

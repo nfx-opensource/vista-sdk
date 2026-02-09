@@ -42,7 +42,7 @@ namespace dnv::vista::sdk::internal
         throw std::invalid_argument{ "Invalid conversion type: " + type };
     }
 
-    void GmodVersioning::addToPath( const Gmod& gmod, SmallVector<GmodNode, 16>& path, const GmodNode& node ) const
+    void GmodVersioning::addToPath( const Gmod& gmod, StackVector<GmodNode, 16>& path, const GmodNode& node ) const
     {
         // Fast path: if path is empty or last node is parent of new node
         if( path.isEmpty() || path.back().isChild( node ) )
@@ -52,8 +52,8 @@ namespace dnv::vista::sdk::internal
         }
 
         // Slow path: need to find common ancestor and rebuild
-        thread_local SmallVector<const GmodNode*, 16> currentParentsBuf;
-        thread_local SmallVector<const GmodNode*, 16> remainingBuf;
+        thread_local StackVector<const GmodNode*, 16> currentParentsBuf;
+        thread_local StackVector<const GmodNode*, 16> remainingBuf;
 
         for( int j = static_cast<int>( path.size() ) - 1; j >= 0; --j )
         {
@@ -455,7 +455,7 @@ namespace dnv::vista::sdk::internal
             return GmodPath{ {}, **rootNodeInGmodOpt };
         }
 
-        SmallVector<std::pair<const GmodNode*, GmodNode>, 16> qualifyingNodes;
+        StackVector<std::pair<const GmodNode*, GmodNode>, 16> qualifyingNodes;
         qualifyingNodes.reserve( sourcePath.length() );
 
         // Optimize: reserve space in qualifyingNodes to avoid reallocation during emplace_back
@@ -471,7 +471,7 @@ namespace dnv::vista::sdk::internal
         }
 
         // Try fast path first - move nodes into potentialParents
-        SmallVector<GmodNode, 16> potentialParents;
+        StackVector<GmodNode, 16> potentialParents;
         potentialParents.reserve( qualifyingNodes.size() > 0 ? qualifyingNodes.size() - 1 : 0 );
 
         for( size_t i = 0; i < qualifyingNodes.size() - 1; ++i )
@@ -494,7 +494,7 @@ namespace dnv::vista::sdk::internal
         {
             qualifyingNodes[i].second = std::move( potentialParents[i] );
         }
-        SmallVector<GmodNode, 16> path;
+        StackVector<GmodNode, 16> path;
         for( size_t i = 0; i < qualifyingNodes.size(); ++i )
         {
             const auto& qualifyingNode = qualifyingNodes[i];
@@ -644,7 +644,7 @@ namespace dnv::vista::sdk::internal
             return GmodPath{ {}, std::move( path[0] ) };
         }
 
-        SmallVector<GmodNode, 16> potentialParentsFromPath;
+        StackVector<GmodNode, 16> potentialParentsFromPath;
         potentialParentsFromPath.reserve( path.size() - 1 );
 
         for( size_t i = 0; i < path.size() - 1; ++i )

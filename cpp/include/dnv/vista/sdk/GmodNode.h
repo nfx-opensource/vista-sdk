@@ -54,7 +54,7 @@ namespace dnv::vista::sdk
          * @details Searches for matching nodes, builds parent chain, applies locations,
          *          and constructs the final GmodPath when all parts are found.
          */
-        TraversalHandlerResult parseHandler( ParseContext&, const SmallVector<const GmodNode*, 16>&, const GmodNode& );
+        TraversalHandlerResult parseHandler( ParseContext&, const StackVector<const GmodNode*, 16>&, const GmodNode& );
     } // namespace internal
 
     /**
@@ -225,7 +225,7 @@ namespace dnv::vista::sdk
         friend internal::GmodParsePathResult internal::fromFullPath(
             std::string_view, const Gmod&, const Locations& ) noexcept;
         friend TraversalHandlerResult internal::parseHandler(
-            internal::ParseContext&, const SmallVector<const GmodNode*, 16>&, const GmodNode& );
+            internal::ParseContext&, const StackVector<const GmodNode*, 16>&, const GmodNode& );
 
     private:
         /**
@@ -302,13 +302,13 @@ namespace dnv::vista::sdk
          * @brief Get child nodes
          * @return Vector of child node pointers
          */
-        inline const SmallVector<GmodNode*, 16>& children() const noexcept;
+        inline const StackVector<GmodNode*, 16>& children() const noexcept;
 
         /**
          * @brief Get parent nodes
          * @return Vector of parent node pointers
          */
-        inline const SmallVector<GmodNode*, 16>& parents() const noexcept;
+        inline const StackVector<GmodNode*, 16>& parents() const noexcept;
 
         /**
          * @brief Get product type child if this is a function node
@@ -481,8 +481,8 @@ namespace dnv::vista::sdk
         std::string m_code;                                  ///< Node code (e.g., "VE", "411.1")
         std::optional<Location> m_location;                  ///< Optional VIS location
         std::shared_ptr<const GmodNodeMetadata> m_metadata;  ///< Node metadata (shared for O(1) copies)
-        SmallVector<GmodNode*, 16> m_children;               ///< Child nodes (managed by Gmod)
-        SmallVector<GmodNode*, 16> m_parents;                ///< Parent nodes (managed by Gmod)
+        StackVector<GmodNode*, 16> m_children;               ///< Child nodes (managed by Gmod)
+        StackVector<GmodNode*, 16> m_parents;                ///< Parent nodes (managed by Gmod)
         std::shared_ptr<HashSet<std::string>> m_childrenSet; ///< Fast child code lookup
     };
 } // namespace dnv::vista::sdk

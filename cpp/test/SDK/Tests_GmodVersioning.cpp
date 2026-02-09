@@ -205,7 +205,7 @@ namespace dnv::vista::sdk::test
         const auto& gmod = vis.gmod( VisVersion::v3_4a );
 
         bool completed = gmod.traverse(
-            [&]( const SmallVector<const GmodNode*, 16>& parents, const GmodNode& node ) -> TraversalHandlerResult {
+            [&]( const StackVector<const GmodNode*, 16>& parents, const GmodNode& node ) -> TraversalHandlerResult {
                 if( parents.isEmpty() )
                 {
                     return TraversalHandlerResult::Continue;

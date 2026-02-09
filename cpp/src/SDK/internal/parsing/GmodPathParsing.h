@@ -100,7 +100,7 @@ namespace dnv::vista::sdk::internal
      *          and constructs the final GmodPath when all parts are found.
      */
     inline TraversalHandlerResult parseHandler(
-        ParseContext& context, const SmallVector<const GmodNode*, 16>& parents, const GmodNode& current )
+        ParseContext& context, const StackVector<const GmodNode*, 16>& parents, const GmodNode& current )
     {
         PathNode& toFind = context.toFind;
         bool found = ( current.code() == toFind.code );
@@ -149,8 +149,8 @@ namespace dnv::vista::sdk::internal
         }
 
         // Build list of prefix node pointers (just pointers, no copy yet)
-        SmallVector<const GmodNode*, 16> prefixNodePtrs;
-        SmallVector<std::string_view, 16> seenCodes;
+        StackVector<const GmodNode*, 16> prefixNodePtrs;
+        StackVector<std::string_view, 16> seenCodes;
 
         // Mark existing parents as seen
         for( const GmodNode* parent : parents )
@@ -306,7 +306,7 @@ namespace dnv::vista::sdk::internal
             item = item.substr( 1 );
         }
 
-        SmallVector<PathNode, 16> parts;
+        StackVector<PathNode, 16> parts;
 
         for( const auto partStr : nfx::string::splitView( item, '/' ) )
         {
