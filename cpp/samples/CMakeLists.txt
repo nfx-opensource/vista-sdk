@@ -17,18 +17,19 @@ endif()
 set(sample_sources)
 
 list(APPEND sample_sources
-    Sample_Codebooks.cpp
-    Sample_DataChannelList.cpp
-    Sample_Gmod.cpp
-    Sample_GmodPath.cpp
-    Sample_GmodVersioning.cpp
-    Sample_ImoNumber.cpp
-    Sample_ISO19848.cpp
-    Sample_LocalId.cpp
-    Sample_Locations.cpp
-    Sample_Queries.cpp
-    Sample_TimeSeriesData.cpp
-    Sample_UniversalId.cpp
+    advanced/Sample_GmodSubset.cpp
+    advanced/Sample_Queries.cpp
+    core/Sample_Codebooks.cpp
+    core/Sample_Gmod.cpp
+    core/Sample_GmodPath.cpp
+    core/Sample_GmodVersioning.cpp
+    core/Sample_Locations.cpp
+    identifiers/Sample_ImoNumber.cpp
+    identifiers/Sample_LocalId.cpp
+    identifiers/Sample_UniversalId.cpp
+    transport/Sample_ISO19848.cpp
+    transport/Sample_DataChannelList.cpp
+    transport/Sample_TimeSeriesData.cpp
 )
 
 #----------------------------------------------

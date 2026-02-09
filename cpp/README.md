@@ -11,63 +11,70 @@ The vista-sdk-cpp provides a full-featured C++ API for working with the DNV Vess
 -   **`VIS`** - Singleton entry point providing access to versioned VIS data
     -   Access to Gmod, Codebooks, and Locations for all VIS versions
     -   Version management and latest version queries
-    -   See [Sample_Codebooks.cpp](samples/Sample_Codebooks.cpp) for usage examples
+    -   See [Sample_Gmod.cpp](samples/core/Sample_Gmod.cpp) for usage examples
 -   **`Gmod`** (Generic Product Model) - Equipment hierarchy and product tree
     -   Fast node lookup via operator[]
     -   Tree traversal with customizable handlers
     -   Product type and selection navigation
-    -   See [Sample_Gmod.cpp](samples/Sample_Gmod.cpp) for usage examples
+    -   See [Sample_Gmod.cpp](samples/core/Sample_Gmod.cpp) for usage examples
 -   **`GmodPath`** - Validated paths through the Gmod tree
     -   Parse short paths (e.g., "411.1-1P") with tree search
     -   Parse full paths (e.g., "VE/400a/410/411/411i/411.1-1P") for direct resolution
     -   Location-based individualization for equipment mapping
     -   Path comparison and format conversion
-    -   See [Sample_GmodPath.cpp](samples/Sample_GmodPath.cpp) for usage examples
+    -   See [Sample_GmodPath.cpp](samples/core/Sample_GmodPath.cpp) for usage examples
 -   **`Codebooks`** - Metadata tag validation and creation
     -   11 codebook types: Quantity, Content, Calculation, State, Command, Type, Position, etc.
     -   Value validation with standard and custom tag support
     -   Position codebook with special grouping validation
-    -   See [Sample_Codebooks.cpp](samples/Sample_Codebooks.cpp) for usage examples
+    -   See [Sample_Codebooks.cpp](samples/core/Sample_Codebooks.cpp) for usage examples
 -   **`Locations`** - Physical location representation and validation
     -   Parse and validate location strings (e.g., "1PS", "14C")
     -   Location components: Number, Side, Vertical, Transverse, Longitudinal
     -   Fluent builder API via `LocationBuilder`
-    -   See [Sample_Locations.cpp](samples/Sample_Locations.cpp) for usage examples
+    -   See [Sample_Locations.cpp](samples/core/Sample_Locations.cpp) for usage examples
 -   **`ImoNumber`** - IMO ship identification numbers
     -   Parse from string or integer formats
-    -   See [Sample_ImoNumber.cpp](samples/Sample_ImoNumber.cpp) for usage examples
+    -   See [Sample_ImoNumber.cpp](samples/identifiers/Sample_ImoNumber.cpp) for usage examples
 -   **`LocalId`** / **`LocalIdBuilder`** - Vista Local ID for sensor identification
     -   Parse Local ID paths (e.g., "/dnv-v2/vis-3-4a/411.1/meta/qty-temperature")
     -   Build Local IDs with primary item, metadata tags, and secondary items
     -   Verbose mode and MQTT formatting support
-    -   See [Sample_LocalId.cpp](samples/Sample_LocalId.cpp) for usage examples
+    -   See [Sample_LocalId.cpp](samples/identifiers/Sample_LocalId.cpp) for usage examples
 -   **`UniversalId`** / **`UniversalIdBuilder`** - Vista Universal ID (globally unique sensor IDs)
     -   Combine IMO number with Local ID
     -   Parse Universal ID strings
     -   Format: `data.dnv.com/{imo-number}{local-id}`
-    -   See [Sample_UniversalId.cpp](samples/Sample_UniversalId.cpp) for usage examples
+    -   See [Sample_UniversalId.cpp](samples/identifiers/Sample_UniversalId.cpp) for usage examples
+
+#### VIS Versioning
+
+-   **Cross-version conversion** - Convert Gmod nodes, paths, and LocalIds between VIS versions
+    -   `VIS::convertNode()` - Node conversion with mapping detection
+    -   `VIS::convertPath()` - Path conversion with validation
+    -   `VIS::convertLocalId()` - LocalId migration between versions
+    -   See [Sample_GmodVersioning.cpp](samples/core/Sample_GmodVersioning.cpp) for usage examples
 
 ### ISO 19848 Transport Layer
 
--   **`ShipId`** - Ship identification (IMO number wrapper for transport)
-    -   Parse from IMO number strings
-    -   Format validation
+-   **`ShipId`** - Ship identification for ISO 19848 transport
+    -   Support for IMO numbers and other ship identification schemes
+    -   Parse from string formats
+    -   Format validation and conversion
 -   **`DataChannel`** / **`DataChannelList`** - ISO 19848 data channel configuration
     -   Create data channel configurations with metadata
     -   Build DataChannelList packages with headers and custom properties
     -   Define validation rules: data types, formats, ranges, units
     -   JSON serialization/deserialization per ISO 19848:2024
     -   Validation with detailed error reporting
-    -   See [Sample_DataChannelList.cpp](samples/Sample_DataChannelList.cpp) for usage examples
+    -   See [Sample_DataChannelList.cpp](samples/transport/Sample_DataChannelList.cpp) for usage examples
 -   **`TimeSeriesData`** - ISO 19848 time series data transport
     -   Create time series data points with timestamps
     -   Build TimeSeriesData packages with tabular and event data
     -   Cross-validation against DataChannelList with custom callbacks
-    -   Callback-based validation receives full context: timestamp, channel definition, value, quality code
-    -   Implement business rules: range checking, temporal constraints, quality validation
     -   JSON serialization/deserialization per ISO 19848:2024
     -   Package validation with `ValidateResult<>` control flow
-    -   See [Sample_TimeSeriesData.cpp](samples/Sample_TimeSeriesData.cpp) for usage examples
+    -   See [Sample_TimeSeriesData.cpp](samples/transport/Sample_TimeSeriesData.cpp) for usage examples
 
 ### Advanced Features
 
@@ -76,33 +83,15 @@ The vista-sdk-cpp provides a full-featured C++ API for working with the DNV Vess
 -   **`MetadataTagsQuery`** / **`MetadataTagsQueryBuilder`** - Pattern matching for LocalIds by metadata tags
     -   Declarative query building with fluent API
     -   AND semantics for multiple tag matching
-    -   See [Sample_Queries.cpp](samples/Sample_Queries.cpp) for usage examples
 -   **`GmodPathQuery`** / **`GmodPathQueryBuilder`** - Pattern matching for Gmod paths
     -   Match paths with/without locations
     -   Node-based filtering
     -   Lambda-based path transformations
-    -   See [Sample_Queries.cpp](samples/Sample_Queries.cpp) for usage examples
 -   **`LocalIdQuery`** / **`LocalIdQueryBuilder`** - Composable LocalId filtering
     -   Combine GmodPath and MetadataTags queries
     -   Lambda-based query composition
-    -   See [Sample_Queries.cpp](samples/Sample_Queries.cpp) for usage examples
 
-#### Validation Callbacks
-
--   **TimeSeriesData validation with custom business rules**
-    -   Callback-based validation receives full channel context
-    -   Access to timestamp, channel definition, value, and quality code
-    -   Implement range validation, temporal constraints, quality checks
-    -   Returns `ValidateResult<>` for control flow
-    -   See [Sample_TimeSeriesData.cpp](samples/Sample_TimeSeriesData.cpp) sections 7-8
-
-#### VIS Versioning
-
--   **Cross-version conversion** - Convert Gmod nodes, paths, and LocalIds between VIS versions
-    -   `VIS::convertNode()` - Node conversion with mapping detection
-    -   `VIS::convertPath()` - Path conversion with validation
-    -   `VIS::convertLocalId()` - LocalId migration between versions
-    -   See [Sample_GmodVersioning.cpp](samples/Sample_GmodVersioning.cpp) for usage examples
+See [Sample_Queries.cpp](samples/advanced/Sample_Queries.cpp) for usage examples of all query types.
 
 #### ISO 19848 Specifications
 
@@ -110,7 +99,7 @@ The vista-sdk-cpp provides a full-featured C++ API for working with the DNV Vess
     -   Access to data channel type names per version
     -   Format data types and validation rules
     -   Version management and latest version queries
-    -   See [Sample_ISO19848.cpp](samples/Sample_ISO19848.cpp) for usage examples
+    -   See [Sample_ISO19848.cpp](samples/transport/Sample_ISO19848.cpp) for usage examples
 
 ### Quick Start
 
@@ -370,5 +359,5 @@ project(dnv-vista-sdk-cpp
 
 ---
 
-_Updated on January 28, 2026_
+_Updated on Februar 09, 2026_
 

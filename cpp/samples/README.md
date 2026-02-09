@@ -31,12 +31,17 @@ Sample programs demonstrating the Vista SDK C++ API.
 - Use LocationBuilder fluent API
 - Access location metadata
 
+**Sample_GmodVersioning.cpp** - GMOD Path Versioning
+- Convert paths between VIS versions
+- Handle version compatibility
+- Map equipment across versions
+
+### Local ID and Universal ID
+
 **Sample_ImoNumber.cpp** - IMO Numbers
 - Parse IMO numbers from strings
 - Validate IMO checksum
 - Format IMO numbers
-
-### Local ID and Universal ID
 
 **Sample_LocalId.cpp** - Vista Local ID
 - Parse Local ID paths
@@ -70,10 +75,12 @@ Sample programs demonstrating the Vista SDK C++ API.
 
 ### Advanced Features
 
-**Sample_GmodVersioning.cpp** - GMOD Path Versioning
-- Convert paths between VIS versions
-- Handle version compatibility
-- Map equipment across versions
+**Sample_GmodSubset.cpp** - Asset Model / Digital Twin Construction
+- Build hierarchical asset models from GmodPaths
+- Perform code-based node lookups
+- Extract equipment paths from LocalIds
+- Export asset trees to JSON for visualization
+- Demonstrates tree traversal and indexing patterns
 
 **Sample_Queries.cpp** - Advanced Queries
 - Search across GMOD tree
@@ -102,6 +109,7 @@ Run a specific sample:
 ./build/bin/Sample_ISO19848
 ./build/bin/Sample_DataChannelList
 ./build/bin/Sample_TimeSeriesData
+./build/bin/Sample_GmodSubset
 ./build/bin/Sample_GmodVersioning
 ./build/bin/Sample_Queries
 ```
@@ -114,4 +122,4 @@ Run a specific sample:
 
 ---
 
-_Updated on January 28, 2026_
+_Updated on February 9, 2026_
