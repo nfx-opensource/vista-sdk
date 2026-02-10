@@ -148,13 +148,19 @@ namespace dnv::vista::sdk
 
     public:
         /**
+         * @brief Type alias for the parent path vector used during tree traversal
+         * @details Stack-allocated vector optimized for typical Gmod tree depths (max 16 levels)
+         */
+        using TraversalPath = StackVector<const GmodNode*, 16>;
+
+        /**
          * @brief Callback function type for tree traversal without state
          * @param parents Current path of parent node pointers from root to current position
          * @param node Current node being visited
          * @return TraversalHandlerResult indicating how to continue traversal
          */
-        using TraverseHandler = std::function<TraversalHandlerResult(
-            const StackVector<const GmodNode*, 16>& parents, const GmodNode& node )>;
+        using TraverseHandler =
+            std::function<TraversalHandlerResult( const TraversalPath& parents, const GmodNode& node )>;
 
         /**
          * @brief Callback function type for tree traversal with custom state
@@ -165,8 +171,8 @@ namespace dnv::vista::sdk
          * @return TraversalHandlerResult indicating how to continue traversal
          */
         template <typename TState>
-        using TraverseHandlerWithState = std::function<TraversalHandlerResult(
-            TState& state, const StackVector<const GmodNode*, 16>& parents, const GmodNode& node )>;
+        using TraverseHandlerWithState =
+            std::function<TraversalHandlerResult( TState& state, const TraversalPath& parents, const GmodNode& node )>;
 
         /**
          * @brief Traverse the Gmod tree from root with a callback handler
@@ -264,72 +270,60 @@ namespace dnv::vista::sdk
             m_nodeMap; ///< All nodes indexed by code (owns all nodes, transparent hash)
 
     private:
+        /**
+         * @brief Helper class tracking parent chain and node occurrence counts during traversal
+         * @details Maintains current path from root and counts how many times each node appears
+         *          to detect cycles and enforce maxTraversalOccurrence limits.
+         */
         class TraversalParents
         {
         public:
-            TraversalParents()
-            {
-                m_occurrences.reserve( 4 );
-            }
-
+            /** @brief Add node to current path and increment its occurrence count */
             void push( const GmodNode* parent )
             {
                 m_parents.push_back( parent );
-                if( auto* count = m_occurrences.find( parent ) )
-                {
-                    ++( *count );
-                }
-                else
-                {
-                    m_occurrences.emplace( parent, 1 );
-                }
             }
 
+            /** @brief Remove last node from path and decrement its occurrence count */
             void pop()
             {
-                const GmodNode* parent = m_parents.back();
                 m_parents.pop_back();
-
-                if( auto* count = m_occurrences.find( parent ) )
-                {
-                    if( *count == 1 )
-                    {
-                        m_occurrences.erase( parent );
-                    }
-                    else
-                    {
-                        --( *count );
-                    }
-                }
             }
 
+            /** @brief Get number of times a node appears in current path (0 if not present) */
             [[nodiscard]] int occurrences( const GmodNode& node ) const
             {
-                if( const auto* count = m_occurrences.find( &node ) )
+                int count = 0;
+                for( const GmodNode* parent : m_parents )
                 {
-                    return *count;
+                    if( parent == &node )
+                    {
+                        ++count;
+                    }
                 }
-                return 0;
+                return count;
             }
 
+            /** @brief Get last node in path, or nullptr if empty */
             [[nodiscard]] const GmodNode* lastOrDefault() const noexcept
             {
                 return m_parents.isEmpty() ? nullptr : m_parents.back();
             }
 
-            [[nodiscard]] const StackVector<const GmodNode*, 16>& asList() const noexcept
+            /** @brief Get current path as read-only vector of node pointers */
+            [[nodiscard]] const TraversalPath& asList() const noexcept
             {
                 return m_parents;
             }
 
+            /** @brief Check if path is empty (at root level) */
             [[nodiscard]] bool empty() const noexcept
             {
                 return m_parents.isEmpty();
             }
 
         private:
-            StackVector<const GmodNode*, 16> m_parents;
-            HashMap<const GmodNode*, int> m_occurrences;
+            TraversalPath m_parents; ///< Current path from root to current node
         };
     };
 } // namespace dnv::vista::sdk

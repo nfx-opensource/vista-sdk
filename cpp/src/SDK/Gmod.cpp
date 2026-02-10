@@ -79,7 +79,7 @@ namespace dnv::vista::sdk
         DummyState state;
 
         TraverseHandlerWithState<DummyState> wrappedHandler =
-            [&handler]( DummyState&, const StackVector<const GmodNode*, 16>& parents, const GmodNode& node )
+            [&handler]( DummyState&, const TraversalPath& parents, const GmodNode& node )
             -> TraversalHandlerResult { return handler( parents, node ); };
 
         return traverse( state, rootNode, wrappedHandler, options );

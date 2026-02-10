@@ -212,7 +212,10 @@ namespace dnv::vista::sdk
             }
 
             StackVector<const GmodNode*, 16> completePath;
-            completePath.reserve( parents.size() );
+            if( parents.size() > 16 )
+            {
+                completePath.reserve( parents.size() );
+            }
             for( const GmodNode* parent : parents )
             {
                 if( !parent->isRoot() )

@@ -44,7 +44,7 @@ namespace dnv::vista::sdk::benchmarks
 
             // Simple traversal handler that continues through all nodes
             bool result = m_gmod->traverse(
-                []( [[maybe_unused]] const StackVector<const GmodNode*, 16>& parents,
+                []( [[maybe_unused]] const Gmod::TraversalPath& parents,
                     [[maybe_unused]] const GmodNode& node ) -> TraversalHandlerResult {
                     return TraversalHandlerResult::Continue;
                 } );
