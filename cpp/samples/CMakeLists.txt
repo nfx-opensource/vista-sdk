@@ -19,6 +19,7 @@ set(sample_sources)
 list(APPEND sample_sources
     advanced/Sample_GmodSubset.cpp
     advanced/Sample_Queries.cpp
+    advanced/Sample_SensorDataFlow.cpp
     core/Sample_Codebooks.cpp
     core/Sample_Gmod.cpp
     core/Sample_GmodPath.cpp

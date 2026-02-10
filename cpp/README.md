@@ -264,6 +264,8 @@ cmake --build build
 ./build/bin/Sample_Gmod
 ./build/bin/Sample_GmodPath
 ./build/bin/Sample_DataChannelList
+./build/bin/Sample_TimeSeriesData
+./build/bin/Sample_SensorDataFlow
 ./build/bin/Sample_UniversalId
 ```
 
@@ -355,9 +357,9 @@ project(dnv-vista-sdk-cpp
     HOMEPAGE_URL "https://github.com/dnv-opensource/vista-sdk"
     LANGUAGES CXX
 )
-   ```
+```
 
 ---
 
-_Updated on Februar 09, 2026_
+_Updated on Februar 10, 2026_
 

@@ -75,6 +75,14 @@ Sample programs demonstrating the Vista SDK C++ API.
 
 ### Advanced Features
 
+**Sample_SensorDataFlow.cpp** - Sensor Data to ISO 19848 Transformation
+- Transform proprietary sensor readings to ISO 19848 format
+- Create TimeSeriesDataPackage with custom channels
+- Define data channels with metadata (quantity, content, position tags)
+- Handle different data formats (double, boolean)
+- Apply conditional filters and validation rules
+- Serialize to ISO 19848 JSON format
+
 **Sample_GmodSubset.cpp** - Asset Model / Digital Twin Construction
 - Build hierarchical asset models from GmodPaths
 - Perform code-based node lookups
@@ -109,6 +117,7 @@ Run a specific sample:
 ./build/bin/Sample_ISO19848
 ./build/bin/Sample_DataChannelList
 ./build/bin/Sample_TimeSeriesData
+./build/bin/Sample_SensorDataFlow
 ./build/bin/Sample_GmodSubset
 ./build/bin/Sample_GmodVersioning
 ./build/bin/Sample_Queries
@@ -122,4 +131,4 @@ Run a specific sample:
 
 ---
 
-_Updated on February 9, 2026_
+_Updated on February 10, 2026_
