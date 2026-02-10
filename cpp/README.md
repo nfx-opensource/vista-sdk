@@ -160,15 +160,18 @@ cmake --build build
 
 ```cmake
 # --- Library build types ---
-option(DNV_VISTA_SDK_CPP_BUILD_STATIC      "Build static library" ON )
-option(DNV_VISTA_SDK_CPP_BUILD_SHARED      "Build shared library" OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_STATIC        "Build static library" ON )
+option(DNV_VISTA_SDK_CPP_BUILD_SHARED        "Build shared library" OFF)
 
 # --- Build components ---
-option(DNV_VISTA_SDK_CPP_BUILD_TOOLS       "Build tools"          OFF)
-option(DNV_VISTA_SDK_CPP_BUILD_TESTS       "Build tests"          OFF)
-option(DNV_VISTA_SDK_CPP_BUILD_SMOKE_TESTS "Build smoke tests"    OFF)
-option(DNV_VISTA_SDK_CPP_BUILD_SAMPLES     "Build samples"        OFF)
-option(DNV_VISTA_SDK_CPP_BUILD_BENCHMARKS  "Build benchmarks"     OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_TOOLS         "Build tools"          OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_TESTS         "Build tests"          OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_SAMPLES       "Build samples"        OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_BENCHMARKS    "Build benchmarks"     OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_DOCUMENTATION "Build documentation"  OFF)
+
+# --- Specialized test components ---
+option(DNV_VISTA_SDK_CPP_BUILD_SMOKE_TESTS   "Build smoke tests"    OFF)
 ```
 
 **Note:** Smoke tests perform **exhaustive validation** including:
@@ -198,9 +201,9 @@ The SDK uses a multi-stage code generation pipeline:
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │ Stage 1: Resource Embedding                                                 │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│ resources/*.json.gz → embed_resources() ⟶  generated/*.cpp                  │
+│ resources/*.json.gz → embed_resources() -> generated/*.cpp                  │
 │                                       │                                     │
-│                                       └ ⟶  dnv-vista-cpp-embeddedresources  │
+│                                       └ -> dnv-vista-cpp-embeddedresources  │
 │                                            (CMake OBJECT library)           │
 │                                                                             │
 │ Embeds compressed JSON resources as C++ byte arrays in object files         │
@@ -227,7 +230,7 @@ The SDK uses a multi-stage code generation pipeline:
 ├─────────────────────────────────────────────────────────────────────────────┤
 │ Generated headers + SDK sources + embeddedresources objects                 │
 │                                 │                                           │
-│                                 └⟶ dnv-vista-sdk-cpp-static.a (Linux)       │
+│                                 └-> dnv-vista-sdk-cpp-static.a (Linux)      │
 │                                    dnv-vista-sdk-cpp-static.lib (Windows)   │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```

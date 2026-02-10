@@ -41,10 +41,12 @@ option(DNV_VISTA_SDK_CPP_BUILD_SHARED        "Build shared library" OFF)
 # --- Build components ---
 option(DNV_VISTA_SDK_CPP_BUILD_TOOLS         "Build tools"          OFF)
 option(DNV_VISTA_SDK_CPP_BUILD_TESTS         "Build tests"          OFF)
-option(DNV_VISTA_SDK_CPP_BUILD_SMOKE_TESTS   "Build smoke tests"    OFF)
 option(DNV_VISTA_SDK_CPP_BUILD_SAMPLES       "Build samples"        OFF)
 option(DNV_VISTA_SDK_CPP_BUILD_BENCHMARKS    "Build benchmarks"     OFF)
 option(DNV_VISTA_SDK_CPP_BUILD_DOCUMENTATION "Build documentation"  OFF)
+
+# --- Specialized test components ---
+option(DNV_VISTA_SDK_CPP_BUILD_SMOKE_TESTS   "Build smoke tests"    OFF)
 
 #----------------------------------------------
 # CMake modules configuration
