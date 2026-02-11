@@ -103,6 +103,8 @@ See [Sample_Queries.cpp](samples/advanced/Sample_Queries.cpp) for usage examples
 
 ### Quick Start
 
+#### Core VIS API
+
 ```cpp
 #include <dnv/vista/sdk/VIS.h>
 
@@ -114,17 +116,47 @@ const auto& gmod = vis.gmod(vis.latest());
 const auto& locations = vis.locations(vis.latest());
 
 // Parse a GMOD path
-auto path = GmodPath::fromString("411.1-1P", gmod, locations);
+auto path = GmodPath::fromShortPath("411.1-1P", gmod, locations);
 if (path.has_value()) {
     std::cout << "Full path: " << path->toFullPathString() << "\n";
 }
 
 // Validate a location
-auto location = locations.parse("1PS");
+auto location = locations.fromString("1PS");
 if (location.has_value()) {
     std::cout << "Valid location: " << location->value() << "\n";
 }
 ```
+
+#### ISO 19848 Transport API
+
+```cpp
+#include <dnv/vista/sdk/Transport.h>
+#include <dnv/vista/sdk/VIS.h>
+
+using namespace dnv::vista::sdk;
+using namespace dnv::vista::sdk::transport;
+
+// Create DataChannelList
+auto shipId = ShipId::fromString("IMO1234567").value();
+auto header = datachannel::Header{
+    shipId,
+    datachannel::ConfigurationReference{"config-v1", DateTimeOffset{"2024-01-01T00:00:00Z"}, "1.0"}
+};
+
+datachannel::DataChannelList list;
+// Add channels...
+
+// Serialize to JSON
+auto options = serialization::json::Serializer<datachannel::DataChannelListPackage>::Options{};
+options.prettyPrint = true;
+auto json = serialization::json::Serializer<datachannel::DataChannelListPackage>::toString(
+    datachannel::DataChannelListPackage{datachannel::Package{header, list}}, 
+    options
+);
+```
+
+For complete examples, see [Sample_DataChannelList.cpp](samples/transport/Sample_DataChannelList.cpp) and [Sample_TimeSeriesData.cpp](samples/transport/Sample_TimeSeriesData.cpp).
 
 ## Building from Source
 
@@ -364,5 +396,4 @@ project(dnv-vista-sdk-cpp
 
 ---
 
-_Updated on February 10, 2026_
-
+_Updated on February 11, 2026_

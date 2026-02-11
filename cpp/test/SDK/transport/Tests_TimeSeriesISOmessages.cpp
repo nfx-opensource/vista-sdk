@@ -5,9 +5,7 @@
 
 #include <gtest/gtest.h>
 
-#include <dnv/vista/sdk/transport/timeseries/TimeSeriesData.h>
-#include <dnv/vista/sdk/transport/datachannel/DataChannel.h>
-#include <dnv/vista/sdk/serialization/json/TimeSeriesDataSerializationTraits.h>
+#include <dnv/vista/sdk/Transport.h>
 
 namespace dnv::vista::sdk::tests
 {
@@ -742,18 +740,18 @@ namespace dnv::vista::sdk::tests
         auto originalPackage = createTestTimeSeriesDataPackage();
 
         // Serialize domain model to JSON
-        auto options = nfx::serialization::json::Serializer<transport::timeseries::TimeSeriesDataPackage>::Options{};
+        auto options = serialization::json::Serializer<transport::timeseries::TimeSeriesDataPackage>::Options{};
         options.includeNullFields = false;
         options.prettyPrint = true;
-        std::string json = nfx::serialization::json::Serializer<transport::timeseries::TimeSeriesDataPackage>::toString(
+        std::string json = serialization::json::Serializer<transport::timeseries::TimeSeriesDataPackage>::toString(
             originalPackage, options );
 
         // Deserialize JSON to domain model
-        auto docOpt = nfx::json::Document::fromString( json );
+        auto docOpt = json::Document::fromString( json );
         ASSERT_TRUE( docOpt.has_value() );
 
         auto deserializedPackage =
-            nfx::serialization::json::SerializationTraits<transport::timeseries::TimeSeriesDataPackage>::fromDocument(
+            serialization::json::SerializationTraits<transport::timeseries::TimeSeriesDataPackage>::fromDocument(
                 *docOpt );
 
         // Header

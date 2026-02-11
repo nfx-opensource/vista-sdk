@@ -6,11 +6,8 @@
  *          readings into TabularData groups based on updateCycle (ISO19848 optimization)
  */
 
+#include <dnv/vista/sdk/Transport.h>
 #include <dnv/vista/sdk/VIS.h>
-#include <dnv/vista/sdk/serialization/json/DataChannelListSerializationTraits.h>
-#include <dnv/vista/sdk/serialization/json/TimeSeriesDataSerializationTraits.h>
-#include <dnv/vista/sdk/transport/datachannel/DataChannel.h>
-#include <dnv/vista/sdk/transport/timeseries/TimeSeriesData.h>
 
 #include <algorithm>
 #include <iomanip>
@@ -131,9 +128,9 @@ int main()
 
         {
             std::cout << "\n";
-            auto options = nfx::serialization::json::Serializer<datachannel::DataChannelListPackage>::Options{};
+            auto options = serialization::json::Serializer<datachannel::DataChannelListPackage>::Options{};
             options.prettyPrint = false;
-            auto jsonStr = nfx::serialization::json::Serializer<datachannel::DataChannelListPackage>::toString(
+            auto jsonStr = serialization::json::Serializer<datachannel::DataChannelListPackage>::toString(
                 dclPackage, options );
 
             std::size_t byteCount = jsonStr.size();
@@ -354,10 +351,10 @@ int main()
         std::cout << "----------------------------------------------------\n";
 
         {
-            auto options = nfx::serialization::json::Serializer<timeseries::TimeSeriesDataPackage>::Options{};
+            auto options = serialization::json::Serializer<timeseries::TimeSeriesDataPackage>::Options{};
             options.prettyPrint = false;
             auto jsonStr =
-                nfx::serialization::json::Serializer<timeseries::TimeSeriesDataPackage>::toString( tsPackage, options );
+                serialization::json::Serializer<timeseries::TimeSeriesDataPackage>::toString( tsPackage, options );
 
             std::size_t byteCount = jsonStr.size();
             std::cout << "Serialized to JSON: " << byteCount << " bytes\n";

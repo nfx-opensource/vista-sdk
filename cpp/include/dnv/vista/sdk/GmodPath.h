@@ -173,7 +173,7 @@ namespace dnv::vista::sdk
          * @return True if the sequence forms a valid Gmod path
          */
         template <std::size_t N>
-        static inline bool isValid( const nfx::containers::StackVector<GmodNode, N>& parents, const GmodNode& node );
+        static inline bool isValid( const StackVector<GmodNode, N>& parents, const GmodNode& node );
 
         /**
          * @brief Check if the target node is mappable

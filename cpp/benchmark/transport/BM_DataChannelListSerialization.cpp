@@ -5,9 +5,8 @@
 
 #include <benchmark/benchmark.h>
 
+#include <dnv/vista/sdk/Transport.h>
 #include <dnv/vista/sdk/VIS.h>
-#include <dnv/vista/sdk/serialization/json/DataChannelListSerializationTraits.h>
-#include <dnv/vista/sdk/transport/datachannel/DataChannel.h>
 
 #include <EmbeddedSchemas.h>
 
@@ -41,13 +40,13 @@ namespace dnv::vista::sdk::benchmark
 
                     auto jsonContent = std::string{ *sampleJsonOpt };
 
-                    auto docOpt = nfx::serialization::json::Document::fromString( jsonContent );
+                    auto docOpt = json::Document::fromString( jsonContent );
                     if( !docOpt.has_value() )
                     {
                         throw std::runtime_error{ "Failed to parse JSON" };
                     }
 
-                    m_package = nfx::serialization::json::SerializationTraits<
+                    m_package = serialization::json::SerializationTraits<
                         transport::datachannel::DataChannelListPackage>::fromDocument( *docOpt );
 
                     m_options.includeNullFields = false;
@@ -55,7 +54,7 @@ namespace dnv::vista::sdk::benchmark
                     m_options.validateOnDeserialize = false;
 
                     auto warmupJson =
-                        nfx::serialization::json::Serializer<transport::datachannel::DataChannelListPackage>::toString(
+                        serialization::json::Serializer<transport::datachannel::DataChannelListPackage>::toString(
                             *m_package, m_options );
                     (void)warmupJson;
                 }
@@ -69,7 +68,7 @@ namespace dnv::vista::sdk::benchmark
 
     protected:
         std::optional<transport::datachannel::DataChannelListPackage> m_package;
-        nfx::serialization::json::Serializer<transport::datachannel::DataChannelListPackage>::Options m_options;
+        serialization::json::Serializer<transport::datachannel::DataChannelListPackage>::Options m_options;
     };
 
     //----------------------------------------------
@@ -82,7 +81,7 @@ namespace dnv::vista::sdk::benchmark
         {
             (void)_;
 
-            auto json = nfx::serialization::json::Serializer<transport::datachannel::DataChannelListPackage>::toString(
+            auto json = serialization::json::Serializer<transport::datachannel::DataChannelListPackage>::toString(
                 *m_package, m_options );
             ::benchmark::DoNotOptimize( json );
         }

@@ -170,7 +170,6 @@ foreach(test_source ${test_sources})
                 dnv-vista-sdk-cpp::static
                 dnv-vista-cpp-embeddedtestdata
                 dnv-vista-cpp-embeddedschemas
-                nfx::meta
         )
 
         target_include_directories(${test_target_name}

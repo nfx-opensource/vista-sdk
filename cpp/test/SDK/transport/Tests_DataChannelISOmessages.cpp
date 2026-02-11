@@ -5,9 +5,7 @@
 
 #include <gtest/gtest.h>
 
-#include <dnv/vista/sdk/transport/datachannel/DataChannel.h>
-#include <dnv/vista/sdk/serialization/json/DataChannelListSerializationTraits.h>
-#include <nfx/serialization/json/extensions/DatatypesTraits.h>
+#include <dnv/vista/sdk/Transport.h>
 
 namespace dnv::vista::sdk::tests
 {
@@ -553,19 +551,18 @@ namespace dnv::vista::sdk::tests
         auto originalPackage = createValidFullyCustomDataChannelList();
 
         // Serialize domain model directly to JSON
-        auto options = nfx::serialization::json::Serializer<transport::datachannel::DataChannelListPackage>::Options{};
+        auto options = serialization::json::Serializer<transport::datachannel::DataChannelListPackage>::Options{};
         options.includeNullFields = false;
         options.prettyPrint = true;
-        std::string json =
-            nfx::serialization::json::Serializer<transport::datachannel::DataChannelListPackage>::toString(
-                originalPackage, options );
+        std::string json = serialization::json::Serializer<transport::datachannel::DataChannelListPackage>::toString(
+            originalPackage, options );
 
         // Deserialize JSON directly to domain model
-        auto docOpt = nfx::json::Document::fromString( json );
+        auto docOpt = json::Document::fromString( json );
         ASSERT_TRUE( docOpt.has_value() );
 
         auto deserializedPackage =
-            nfx::serialization::json::SerializationTraits<transport::datachannel::DataChannelListPackage>::fromDocument(
+            serialization::json::SerializationTraits<transport::datachannel::DataChannelListPackage>::fromDocument(
                 *docOpt );
 
         // Header
@@ -668,7 +665,7 @@ namespace dnv::vista::sdk::tests
         const auto& deserializedCustomNameObjects = *deserializedNameObject.customNameObjects();
 
         // Get root object for iteration
-        auto deserializedObjOpt = deserializedCustomNameObjects.document().get<nfx::serialization::json::Object>( "" );
+        auto deserializedObjOpt = deserializedCustomNameObjects.document().get<json::Object>( "" );
         ASSERT_TRUE( deserializedObjOpt.has_value() );
         const auto& deserializedObj = deserializedObjOpt.value();
 

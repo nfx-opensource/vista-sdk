@@ -5,13 +5,7 @@
 
 #include <gtest/gtest.h>
 
-#include <dnv/vista/sdk/serialization/json/DataChannelListSerializationTraits.h>
-#include <dnv/vista/sdk/serialization/json/TimeSeriesDataSerializationTraits.h>
-
-#include <dnv/vista/sdk/transport/datachannel/DataChannel.h>
-
-#include <nfx/Json.h>
-#include <nfx/Serialization.h>
+#include <dnv/vista/sdk/Transport.h>
 
 #include <EmbeddedTestData.h>
 #include <EmbeddedSchemas/EmbeddedSchemas.h>
@@ -19,7 +13,6 @@
 using namespace dnv::vista::sdk;
 using namespace dnv::vista::sdk::transport;
 using namespace dnv::vista::sdk::transport::datachannel;
-using namespace nfx::serialization::json;
 
 namespace dnv::vista::sdk::tests
 {
@@ -32,7 +25,7 @@ namespace dnv::vista::sdk::tests
      */
     DataChannelListPackage deserializeDataChannelList( const std::string& jsonStr )
     {
-        auto docOpt = nfx::json::Document::fromString( jsonStr );
+        auto docOpt = json::Document::fromString( jsonStr );
         if( !docOpt.has_value() )
         {
             throw std::runtime_error{ "Failed to parse JSON" };
@@ -41,7 +34,7 @@ namespace dnv::vista::sdk::tests
         const auto& doc = docOpt.value();
 
         // Factory pattern - direct construction, no minimal package needed!
-        return nfx::serialization::json::SerializationTraits<DataChannelListPackage>::fromDocument( doc );
+        return serialization::json::SerializationTraits<DataChannelListPackage>::fromDocument( doc );
     }
 
     /**
@@ -49,10 +42,10 @@ namespace dnv::vista::sdk::tests
      */
     std::string serializeDataChannelList( const DataChannelListPackage& package )
     {
-        auto options = nfx::serialization::json::Serializer<DataChannelListPackage>::Options{};
+        auto options = serialization::json::Serializer<DataChannelListPackage>::Options{};
         options.includeNullFields = false;
         options.prettyPrint = true;
-        return nfx::serialization::json::Serializer<DataChannelListPackage>::toString( package, options );
+        return serialization::json::Serializer<DataChannelListPackage>::toString( package, options );
     }
 
     /**
@@ -62,7 +55,7 @@ namespace dnv::vista::sdk::tests
     {
         using namespace transport::timeseries;
 
-        auto docOpt = nfx::json::Document::fromString( jsonStr );
+        auto docOpt = json::Document::fromString( jsonStr );
         if( !docOpt.has_value() )
         {
             throw std::runtime_error{ "Failed to parse JSON" };
@@ -70,7 +63,7 @@ namespace dnv::vista::sdk::tests
 
         const auto& doc = docOpt.value();
 
-        return nfx::serialization::json::SerializationTraits<TimeSeriesDataPackage>::fromDocument( doc );
+        return serialization::json::SerializationTraits<TimeSeriesDataPackage>::fromDocument( doc );
     }
 
     /**
@@ -78,10 +71,10 @@ namespace dnv::vista::sdk::tests
      */
     std::string serializeTimeSeriesData( const transport::timeseries::TimeSeriesDataPackage& package )
     {
-        auto options = nfx::serialization::json::Serializer<transport::timeseries::TimeSeriesDataPackage>::Options{};
+        auto options = serialization::json::Serializer<transport::timeseries::TimeSeriesDataPackage>::Options{};
         options.includeNullFields = false;
         options.prettyPrint = true;
-        return nfx::serialization::json::Serializer<transport::timeseries::TimeSeriesDataPackage>::toString(
+        return serialization::json::Serializer<transport::timeseries::TimeSeriesDataPackage>::toString(
             package, options );
     }
 
@@ -239,7 +232,7 @@ namespace dnv::vista::sdk::tests
         auto schemaDataOpt = EmbeddedSchema::dataChannelListJson();
         ASSERT_TRUE( schemaDataOpt.has_value() ) << "Failed to load embedded schema";
 
-        auto schemaDocOpt = nfx::json::Document::fromString( *schemaDataOpt );
+        auto schemaDocOpt = json::Document::fromString( *schemaDataOpt );
         ASSERT_TRUE( schemaDocOpt.has_value() ) << "Failed to parse schema";
 
         SchemaValidator validator;
@@ -251,7 +244,7 @@ namespace dnv::vista::sdk::tests
             auto jsonDataOpt = EmbeddedSchema::get( fileName );
             ASSERT_TRUE( jsonDataOpt.has_value() ) << "Failed to load " << fileName;
 
-            auto docOpt = nfx::json::Document::fromString( *jsonDataOpt );
+            auto docOpt = json::Document::fromString( *jsonDataOpt );
             ASSERT_TRUE( docOpt.has_value() ) << "Failed to parse " << fileName;
 
             // Validate against schema
@@ -282,7 +275,7 @@ namespace dnv::vista::sdk::tests
         auto schemaDataOpt = EmbeddedSchema::timeSeriesDataJson();
         ASSERT_TRUE( schemaDataOpt.has_value() ) << "Failed to load embedded schema";
 
-        auto schemaDocOpt = nfx::json::Document::fromString( *schemaDataOpt );
+        auto schemaDocOpt = json::Document::fromString( *schemaDataOpt );
         ASSERT_TRUE( schemaDocOpt.has_value() ) << "Failed to parse schema";
 
         SchemaValidator validator;
@@ -294,7 +287,7 @@ namespace dnv::vista::sdk::tests
             auto jsonDataOpt = EmbeddedSchema::get( fileName );
             ASSERT_TRUE( jsonDataOpt.has_value() ) << "Failed to load " << fileName;
 
-            auto docOpt = nfx::json::Document::fromString( *jsonDataOpt );
+            auto docOpt = json::Document::fromString( *jsonDataOpt );
             ASSERT_TRUE( docOpt.has_value() ) << "Failed to parse " << fileName;
 
             // Validate against schema

@@ -5,11 +5,8 @@
  *          cross-validation with DataChannelList, and JSON serialization per ISO 19848:2024
  */
 
+#include <dnv/vista/sdk/Transport.h>
 #include <dnv/vista/sdk/VIS.h>
-#include <dnv/vista/sdk/serialization/json/DataChannelListSerializationTraits.h>
-#include <dnv/vista/sdk/serialization/json/TimeSeriesDataSerializationTraits.h>
-#include <dnv/vista/sdk/transport/datachannel/DataChannel.h>
-#include <dnv/vista/sdk/transport/timeseries/TimeSeriesData.h>
 
 #include <iomanip>
 #include <iostream>
@@ -267,22 +264,21 @@ int main()
         auto originalPackage = timeseries::TimeSeriesDataPackage{ package };
 
         // Serialize to JSON
-        auto options = nfx::serialization::json::Serializer<timeseries::TimeSeriesDataPackage>::Options{};
+        auto options = serialization::json::Serializer<timeseries::TimeSeriesDataPackage>::Options{};
         options.includeNullFields = false;
         options.prettyPrint = false;
 
-        auto json = nfx::serialization::json::Serializer<timeseries::TimeSeriesDataPackage>::toString(
-            originalPackage, options );
+        auto json =
+            serialization::json::Serializer<timeseries::TimeSeriesDataPackage>::toString( originalPackage, options );
 
         std::cout << "Serialized to JSON (" << json.length() << " bytes)\n";
 
         // Deserialize from JSON
-        auto docOpt = nfx::serialization::json::Document::fromString( json );
+        auto docOpt = json::Document::fromString( json );
         if( docOpt.has_value() )
         {
             auto deserializedPackage =
-                nfx::serialization::json::SerializationTraits<timeseries::TimeSeriesDataPackage>::fromDocument(
-                    *docOpt );
+                serialization::json::SerializationTraits<timeseries::TimeSeriesDataPackage>::fromDocument( *docOpt );
 
             std::cout << "Deserialized successfully:\n";
             std::cout << "  Ship ID        : " << deserializedPackage.package().header()->shipId().toString() << "\n";
@@ -613,12 +609,11 @@ int main()
         std::cout << "Created package with custom extension data\n";
 
         // Serialize to JSON with pretty print
-        auto options = nfx::serialization::json::Serializer<timeseries::TimeSeriesDataPackage>::Options{};
+        auto options = serialization::json::Serializer<timeseries::TimeSeriesDataPackage>::Options{};
         options.includeNullFields = false;
         options.prettyPrint = true;
 
-        auto json =
-            nfx::serialization::json::Serializer<timeseries::TimeSeriesDataPackage>::toString( tsPackage, options );
+        auto json = serialization::json::Serializer<timeseries::TimeSeriesDataPackage>::toString( tsPackage, options );
 
         std::cout << "\nSerialized JSON with custom data:\n";
         std::cout << json << "\n";

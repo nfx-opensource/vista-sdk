@@ -8,9 +8,7 @@
  */
 
 #include <dnv/vista/sdk/VIS.h>
-
-#include <nfx/json/Builder.h>
-#include <nfx/json/Document.h>
+#include <dnv/vista/sdk/serialization/json/Json.h>
 
 #include <algorithm>
 #include <iostream>
@@ -94,7 +92,7 @@ namespace
 
         std::string toJson() const
         {
-            nfx::json::Builder builder;
+            json::Builder builder;
             builder.writeStartObject();
 
             builder.write( "path", m_path.has_value() ? m_path->toString() : "" );

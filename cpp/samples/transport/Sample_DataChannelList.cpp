@@ -5,9 +5,8 @@
  *          custom properties, name objects, and JSON serialization per ISO 19848:2024
  */
 
+#include <dnv/vista/sdk/Transport.h>
 #include <dnv/vista/sdk/VIS.h>
-#include <dnv/vista/sdk/serialization/json/DataChannelListSerializationTraits.h>
-#include <dnv/vista/sdk/transport/datachannel/DataChannel.h>
 
 #include <iomanip>
 #include <iostream>
@@ -37,7 +36,7 @@ int main()
                                                               "v1" };
 
         // Create optional metadata
-        auto versionInfo = datachannel::VersionInformation{ "dnv-v2", "3.0a" };
+        auto versionInfo = datachannel::VersionInformation{ "dnv-v2", "3.4a" };
         auto author = std::string{ "Vista SDK Sample" };
         auto dateCreated = DateTimeOffset{ "2024-12-30T10:00:00Z" };
         datachannel::CustomHeaders customHeaders;
@@ -542,12 +541,12 @@ int main()
         auto package = datachannel::Package{ header, dataChannelList };
         auto dataChannelListPackage = datachannel::DataChannelListPackage{ package };
 
-        auto options = nfx::serialization::json::Serializer<datachannel::DataChannelListPackage>::Options{};
+        auto options = serialization::json::Serializer<datachannel::DataChannelListPackage>::Options{};
         options.includeNullFields = false;
         options.prettyPrint = true;
         options.validateOnDeserialize = true;
 
-        std::string json = nfx::serialization::json::Serializer<datachannel::DataChannelListPackage>::toString(
+        std::string json = serialization::json::Serializer<datachannel::DataChannelListPackage>::toString(
             dataChannelListPackage, options );
 
         std::cout << "Serialization result: Success\n";
@@ -787,11 +786,11 @@ int main()
         auto dataChannelListPackage = datachannel::DataChannelListPackage{ package };
 
         // Serialize
-        auto options = nfx::serialization::json::Serializer<datachannel::DataChannelListPackage>::Options{};
+        auto options = serialization::json::Serializer<datachannel::DataChannelListPackage>::Options{};
         options.includeNullFields = false;
         options.prettyPrint = true;
 
-        std::string json = nfx::serialization::json::Serializer<datachannel::DataChannelListPackage>::toString(
+        std::string json = serialization::json::Serializer<datachannel::DataChannelListPackage>::toString(
             dataChannelListPackage, options );
 
         std::cout << "Main Engine Monitoring System:\n";
