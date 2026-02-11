@@ -18,14 +18,8 @@ set(CMAKE_FIND_QUIETLY      ON     )
 # Dependency versions
 #----------------------------------------------
 
-set(DNV_VISTA_SDK_CPP_DEPS_ZLIB_NG_VERSION      "2.3.3")
-set(DNV_VISTA_SDK_CPP_NFX_RESOURCE_VERSION      "1.1.0")
-set(DNV_VISTA_SDK_CPP_NFX_SERIALIZATION_VERSION "0.9.0")
-set(DNV_VISTA_SDK_CPP_NFX_STRINGBUILDER_VERSION "0.5.0")
-set(DNV_VISTA_SDK_CPP_NFX_STRINGUTILS_VERSION   "0.6.1")
-set(DNV_VISTA_SDK_CPP_NFX_CONTAINERS_VERSION    "0.4.1")
-set(DNV_VISTA_SDK_CPP_NFX_DATETIME_VERSION      "0.4.1")
-set(DNV_VISTA_SDK_CPP_NFX_DATATYPES_VERSION     "0.4.0")
+set(DNV_VISTA_SDK_CPP_DEPS_ZLIB_NG_VERSION "2.3.3")
+set(DNV_VISTA_SDK_CPP_NFX_META_VERSION     "1.0.0")
 
 #----------------------------------------------
 # FetchContent dependencies
@@ -78,184 +72,23 @@ if(NOT zlib-ng_FOUND)
     set(CMAKE_POSITION_INDEPENDENT_CODE ${_SAVED_CMAKE_POSITION_INDEPENDENT_CODE} CACHE BOOL "Build with -fPIC"       FORCE)
 endif()
 
-# --- nfx-resource ---
-find_package(nfx-resource QUIET)
-if(NOT nfx-resource_FOUND)
-    set(NFX_RESOURCE_INSTALL_PROJECT OFF CACHE BOOL "")
-    set(NFX_RESOURCE_PACKAGE_SOURCE  OFF CACHE BOOL "")
+# --- nfx-meta ---
+set(NFX_META_ENABLE_CONTAINERS       ON CACHE BOOL "Enable nfx-containers library"     FORCE)
+set(NFX_META_ENABLE_DATATYPES        ON CACHE BOOL "Enable nfx-datatypes library"      FORCE)
+set(NFX_META_ENABLE_DATETIME         ON CACHE BOOL "Enable nfx-datetime library"       FORCE)
+set(NFX_META_ENABLE_RESOURCE         ON CACHE BOOL "Enable nfx-resource library"       FORCE)
+set(NFX_META_ENABLE_SERIALIZATION    ON CACHE BOOL "Enable nfx-serialization library"  FORCE)
+set(NFX_META_ENABLE_STRINGBUILDER    ON CACHE BOOL "Enable nfx-stringbuilder library"  FORCE)
+set(NFX_META_ENABLE_STRINGUTILS      ON CACHE BOOL "Enable nfx-stringutils library"    FORCE)
+set(NFX_META_WITH_JSON_SERIALIZATION ON CACHE BOOL "Enable JSON serialization support" FORCE)
 
-    FetchContent_Declare(
-        nfx-resource
-            GIT_REPOSITORY https://github.com/nfx-libs/nfx-resource.git
-            GIT_TAG        ${DNV_VISTA_SDK_CPP_NFX_RESOURCE_VERSION}
+FetchContent_Declare(
+    nfx-meta
+            GIT_REPOSITORY https://github.com/nfx-libs/nfx-meta.git
+            GIT_TAG        ${DNV_VISTA_SDK_CPP_NFX_META_VERSION}
             GIT_SHALLOW    TRUE
-    )
-    FetchContent_MakeAvailable(nfx-resource)
-endif()
-
-# --- nfx-serialization ---
-find_package(nfx-serialization QUIET)
-if(NOT nfx-serialization_FOUND)
-    set(NFX_SERIALIZATION_WITH_JSON             ON  CACHE BOOL "Enable JSON support"         FORCE)
-    set(NFX_SERIALIZATION_BUILD_TESTS           OFF CACHE BOOL "Build tests"                 FORCE)
-    set(NFX_SERIALIZATION_BUILD_EXTENSION_TESTS OFF CACHE BOOL "Build extension tests"       FORCE)
-    set(NFX_SERIALIZATION_BUILD_SAMPLES         OFF CACHE BOOL "Build samples"               FORCE)
-    set(NFX_SERIALIZATION_BUILD_BENCHMARKS      OFF CACHE BOOL "Build benchmarks"            FORCE)
-    set(NFX_SERIALIZATION_BUILD_DOCUMENTATION   OFF CACHE BOOL "Build Doxygen documentation" FORCE)
-    set(NFX_SERIALIZATION_INSTALL_PROJECT       OFF CACHE BOOL "Install project"             FORCE)
-    set(NFX_SERIALIZATION_PACKAGE_SOURCE        OFF CACHE BOOL "Enable source package"       FORCE)
-    set(NFX_SERIALIZATION_PACKAGE_ARCHIVE       OFF CACHE BOOL "Enable archive package"      FORCE)
-    set(NFX_SERIALIZATION_PACKAGE_DEB           OFF CACHE BOOL "Enable DEB package"          FORCE)
-    set(NFX_SERIALIZATION_PACKAGE_RPM           OFF CACHE BOOL "Enable RPM package"          FORCE)
-    set(NFX_SERIALIZATION_PACKAGE_WIX           OFF CACHE BOOL "Enable WIX package"          FORCE)
-
-    FetchContent_Declare(
-        nfx-serialization
-            GIT_REPOSITORY https://github.com/nfx-libs/nfx-serialization.git
-            GIT_TAG        ${DNV_VISTA_SDK_CPP_NFX_SERIALIZATION_VERSION}
-            GIT_SHALLOW    TRUE
-    )
-endif()
-
-if(NOT nfx-serialization_FOUND)
-    FetchContent_MakeAvailable(nfx-serialization)
-endif()
-
-# --- nfx-stringbuilder ---
-find_package(nfx-stringbuilder QUIET)
-if(NOT nfx-stringbuilder_FOUND)
-    set(NFX_STRINGBUILDER_BUILD_STATIC        ON  CACHE BOOL "Build static library"        FORCE)
-    set(NFX_STRINGBUILDER_BUILD_SHARED        OFF CACHE BOOL "Build shared library"        FORCE)
-    set(NFX_STRINGBUILDER_BUILD_TESTS         OFF CACHE BOOL "Build tests"                 FORCE)
-    set(NFX_STRINGBUILDER_BUILD_SAMPLES       OFF CACHE BOOL "Build samples"               FORCE)
-    set(NFX_STRINGBUILDER_BUILD_BENCHMARKS    OFF CACHE BOOL "Build benchmarks"            FORCE)
-    set(NFX_STRINGBUILDER_BUILD_DOCUMENTATION OFF CACHE BOOL "Build Doxygen documentation" FORCE)
-    set(NFX_STRINGBUILDER_INSTALL_PROJECT     OFF CACHE BOOL "Install project"             FORCE)
-    set(NFX_STRINGBUILDER_PACKAGE_SOURCE      OFF CACHE BOOL "Enable source package"       FORCE)
-    set(NFX_STRINGBUILDER_PACKAGE_ARCHIVE     OFF CACHE BOOL "Enable archive package"      FORCE)
-    set(NFX_STRINGBUILDER_PACKAGE_DEB         OFF CACHE BOOL "Enable DEB package"          FORCE)
-    set(NFX_STRINGBUILDER_PACKAGE_RPM         OFF CACHE BOOL "Enable RPM package"          FORCE)
-    set(NFX_STRINGBUILDER_PACKAGE_WIX         OFF CACHE BOOL "Enable WIX package"          FORCE)
-
-    FetchContent_Declare(
-        nfx-stringbuilder
-            GIT_REPOSITORY https://github.com/nfx-libs/nfx-stringbuilder
-            GIT_TAG        ${DNV_VISTA_SDK_CPP_NFX_STRINGBUILDER_VERSION}
-            GIT_SHALLOW    TRUE
-    )
-endif()
-
-if(NOT nfx-stringbuilder_FOUND)
-    FetchContent_MakeAvailable(nfx-stringbuilder)
-endif()
-
-# --- nfx-stringutils ---
-find_package(nfx-stringutils QUIET)
-if(NOT nfx-stringutils_FOUND)
-    set(NFX_STRINGUTILS_BUILD_TESTS         OFF CACHE BOOL "Build tests"                 FORCE)
-    set(NFX_STRINGUTILS_BUILD_SAMPLES       OFF CACHE BOOL "Build samples"               FORCE)
-    set(NFX_STRINGUTILS_BUILD_BENCHMARKS    OFF CACHE BOOL "Build benchmarks"            FORCE)
-    set(NFX_STRINGUTILS_BUILD_DOCUMENTATION OFF CACHE BOOL "Build Doxygen documentation" FORCE)
-    set(NFX_STRINGUTILS_INSTALL_PROJECT     OFF CACHE BOOL "Install project"             FORCE)
-    set(NFX_STRINGUTILS_PACKAGE_SOURCE      OFF CACHE BOOL "Enable source package"       FORCE)
-    set(NFX_STRINGUTILS_PACKAGE_ARCHIVE     OFF CACHE BOOL "Enable archive package"      FORCE)
-    set(NFX_STRINGUTILS_PACKAGE_DEB         OFF CACHE BOOL "Enable DEB package"          FORCE)
-    set(NFX_STRINGUTILS_PACKAGE_RPM         OFF CACHE BOOL "Enable RPM package"          FORCE)
-    set(NFX_STRINGUTILS_PACKAGE_WIX         OFF CACHE BOOL "Enable WIX package"          FORCE)
-
-    FetchContent_Declare(
-        nfx-stringutils
-            GIT_REPOSITORY https://github.com/nfx-libs/nfx-stringutils
-            GIT_TAG        ${DNV_VISTA_SDK_CPP_NFX_STRINGUTILS_VERSION}
-            GIT_SHALLOW    TRUE
-    )
-endif()
-
-if(NOT nfx-stringutils_FOUND)
-    FetchContent_MakeAvailable(nfx-stringutils)
-endif()
-
-# --- nfx-containers ---
-find_package(nfx-containers QUIET)
-if(NOT nfx-containers_FOUND)
-    set(NFX_CONTAINERS_BUILD_TESTS         OFF CACHE BOOL "Build tests"                 FORCE)
-    set(NFX_CONTAINERS_BUILD_SAMPLES       OFF CACHE BOOL "Build samples"               FORCE)
-    set(NFX_CONTAINERS_BUILD_BENCHMARKS    OFF CACHE BOOL "Build benchmarks"            FORCE)
-    set(NFX_CONTAINERS_BUILD_DOCUMENTATION OFF CACHE BOOL "Build Doxygen documentation" FORCE)
-    set(NFX_CONTAINERS_INSTALL_PROJECT     OFF CACHE BOOL "Install project"             FORCE)
-    set(NFX_CONTAINERS_PACKAGE_SOURCE      OFF CACHE BOOL "Enable source package"       FORCE)
-    set(NFX_CONTAINERS_PACKAGE_ARCHIVE     OFF CACHE BOOL "Enable archive package"      FORCE)
-    set(NFX_CONTAINERS_PACKAGE_DEB         OFF CACHE BOOL "Enable DEB package"          FORCE)
-    set(NFX_CONTAINERS_PACKAGE_RPM         OFF CACHE BOOL "Enable RPM package"          FORCE)
-    set(NFX_CONTAINERS_PACKAGE_WIX         OFF CACHE BOOL "Enable WIX package"          FORCE)
-
-    FetchContent_Declare(
-        nfx-containers
-            GIT_REPOSITORY https://github.com/nfx-libs/nfx-containers
-            GIT_TAG        ${DNV_VISTA_SDK_CPP_NFX_CONTAINERS_VERSION}
-            GIT_SHALLOW    TRUE
-    )
-endif()
-
-if(NOT nfx-containers_FOUND)
-    FetchContent_MakeAvailable(nfx-containers)
-endif()
-
-# --- nfx-datetime ---
-find_package(nfx-datetime QUIET)
-if(NOT nfx-datetime_FOUND)
-    set(NFX_DATETIME_BUILD_STATIC        ON  CACHE BOOL "Build static library"              FORCE)
-    set(NFX_DATETIME_BUILD_SHARED        OFF CACHE BOOL "Build shared library"              FORCE)
-    set(NFX_DATETIME_BUILD_TESTS         OFF CACHE BOOL "Build tests"                       FORCE)
-    set(NFX_DATETIME_BUILD_SAMPLES       OFF CACHE BOOL "Build samples"                     FORCE)
-    set(NFX_DATETIME_BUILD_BENCHMARKS    OFF CACHE BOOL "Build benchmarks"                  FORCE)
-    set(NFX_DATETIME_BUILD_DOCUMENTATION OFF CACHE BOOL "Build Doxygen documentation"       FORCE)
-    set(NFX_DATETIME_INSTALL_PROJECT     OFF CACHE BOOL "Install project"                   FORCE)
-    set(NFX_DATETIME_PACKAGE_SOURCE      OFF CACHE BOOL "Enable source package generation"  FORCE)
-    set(NFX_DATETIME_PACKAGE_ARCHIVE     OFF CACHE BOOL "Enable TGZ/ZIP package generation" FORCE)
-    set(NFX_DATETIME_PACKAGE_DEB         OFF CACHE BOOL "Enable DEB package generation"     FORCE)
-    set(NFX_DATETIME_PACKAGE_RPM         OFF CACHE BOOL "Enable RPM package generation"     FORCE)
-    set(NFX_DATETIME_PACKAGE_WIX         OFF CACHE BOOL "Enable WiX MSI installer"          FORCE)
-
-    FetchContent_Declare(
-        nfx-datetime
-            GIT_REPOSITORY https://github.com/nfx-libs/nfx-datetime
-            GIT_TAG        ${DNV_VISTA_SDK_CPP_NFX_DATETIME_VERSION}
-            GIT_SHALLOW    TRUE
-    )
-endif()
-
-if(NOT nfx-datetime_FOUND)
-    FetchContent_MakeAvailable(nfx-datetime)
-endif()
-
-# --- nfx-datatypes ---
-find_package(nfx-datatypes QUIET)
-if(NOT nfx-datatypes_FOUND)
-    set(NFX_DATATYPES_BUILD_STATIC        ON  CACHE BOOL "Build static library"              FORCE)
-    set(NFX_DATATYPES_BUILD_SHARED        OFF CACHE BOOL "Build shared library"              FORCE)
-    set(NFX_DATATYPES_BUILD_TESTS         OFF CACHE BOOL "Build tests"                       FORCE)
-    set(NFX_DATATYPES_BUILD_SAMPLES       OFF CACHE BOOL "Build samples"                     FORCE)
-    set(NFX_DATATYPES_BUILD_BENCHMARKS    OFF CACHE BOOL "Build benchmarks"                  FORCE)
-    set(NFX_DATATYPES_BUILD_DOCUMENTATION OFF CACHE BOOL "Build Doxygen documentation"       FORCE)
-    set(NFX_DATATYPES_INSTALL_PROJECT     OFF CACHE BOOL "Install project"                   FORCE)
-    set(NFX_DATATYPES_PACKAGE_SOURCE      OFF CACHE BOOL "Enable source package generation"  FORCE)
-    set(NFX_DATATYPES_PACKAGE_ARCHIVE     OFF CACHE BOOL "Enable TGZ/ZIP package generation" FORCE)
-    set(NFX_DATATYPES_PACKAGE_DEB         OFF CACHE BOOL "Enable DEB package generation"     FORCE)
-    set(NFX_DATATYPES_PACKAGE_RPM         OFF CACHE BOOL "Enable RPM package generation"     FORCE)
-    set(NFX_DATATYPES_PACKAGE_WIX         OFF CACHE BOOL "Enable WiX MSI installer"          FORCE)
-
-    FetchContent_Declare(
-        nfx-datatypes
-            GIT_REPOSITORY https://github.com/nfx-libs/nfx-datatypes
-            GIT_TAG        ${DNV_VISTA_SDK_CPP_NFX_DATATYPES_VERSION}
-            GIT_SHALLOW    TRUE
-    )
-endif()
-
-if(NOT nfx-datatypes_FOUND)
-    FetchContent_MakeAvailable(nfx-datatypes)
-endif()
+)
+FetchContent_MakeAvailable(nfx-meta)
 
 #----------------------------------------------
 # Cleanup

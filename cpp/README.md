@@ -364,5 +364,5 @@ project(dnv-vista-sdk-cpp
 
 ---
 
-_Updated on Februar 10, 2026_
+_Updated on February 10, 2026_
 

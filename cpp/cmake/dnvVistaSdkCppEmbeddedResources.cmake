@@ -26,8 +26,7 @@ target_include_directories(dnv-vista-cpp-embeddedresources
 target_link_libraries(dnv-vista-cpp-embeddedresources
     PRIVATE
         zlib-ng
-        nfx-serialization::static
-        nfx-stringutils::nfx-stringutils
+        nfx::meta
 )
 
 target_compile_options(dnv-vista-cpp-embeddedresources

@@ -17,7 +17,7 @@ add_executable(dnv-vista-cpp-iso19848versionsgenerator
 target_link_libraries(dnv-vista-cpp-iso19848versionsgenerator
     PRIVATE
         dnv-vista-cpp-embeddedresources
-        nfx-stringbuilder::static
+        nfx::meta
 )
 
 #----------------------------------------------

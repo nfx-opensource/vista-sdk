@@ -27,7 +27,7 @@ target_link_libraries(Tests_EmbeddedResources
     PRIVATE
         GTest::gtest_main
         dnv-vista-cpp-embeddedresources
-        nfx-serialization::static
+        nfx::meta
 )
 
 #----------------------------------------------

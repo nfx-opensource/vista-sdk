@@ -57,12 +57,7 @@ function(configure_target target_name)
 
     target_link_libraries(${target_name}
         PUBLIC
-            $<BUILD_INTERFACE:nfx-containers::nfx-containers>
-            $<BUILD_INTERFACE:nfx-datatypes::static>
-            $<BUILD_INTERFACE:nfx-datetime::static>
-            $<BUILD_INTERFACE:nfx-serialization::static>
-            $<BUILD_INTERFACE:nfx-stringbuilder::static>
-            $<BUILD_INTERFACE:nfx-stringutils::nfx-stringutils>
+            $<BUILD_INTERFACE:nfx::meta>
         PRIVATE
             $<BUILD_INTERFACE:zlib-ng>
     )

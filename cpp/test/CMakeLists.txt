@@ -45,7 +45,7 @@ target_include_directories(dnv-vista-cpp-embeddedtestdata
 
 target_link_libraries(dnv-vista-cpp-embeddedtestdata
     PUBLIC
-        nfx-serialization::static
+        nfx::meta
 )
 
 target_compile_options(dnv-vista-cpp-embeddedtestdata
@@ -170,7 +170,7 @@ foreach(test_source ${test_sources})
                 dnv-vista-sdk-cpp::static
                 dnv-vista-cpp-embeddedtestdata
                 dnv-vista-cpp-embeddedschemas
-                nfx-serialization::static
+                nfx::meta
         )
 
         target_include_directories(${test_target_name}
