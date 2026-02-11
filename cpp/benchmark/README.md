@@ -34,7 +34,7 @@
 | Platform    | Benchmark Framework      | .NET Runtime                | Vista SDK C# Version |
 | ----------- | ------------------------ | --------------------------- | :------------------: |
 | **Linux**   | BenchmarkDotNet v0.13.10 | .NET 10.0.2 X64 RyuJIT AVX2 |        v0.1.0        |
-| **Windows** | BenchmarkDotNet v0.13.10 | .NET 8.0.20 X64 RyuJIT AVX2 |        v0.1.0        |
+| **Windows** | BenchmarkDotNet v0.13.10 | .NET 10.0.3 X64 RyuJIT AVX2 |        v0.1.0        |
 
 ---
 
@@ -48,12 +48,12 @@
 
 | Benchmark           | linux GCC | linux clang | linux C# .NET | Windows GCC | Windows MSVC | Windows C# .NET |
 | ------------------- | :-------: | :---------: | :-----------: | :---------: | :----------: | :-------------: |
-| **StdUnorderedMap** | 6.39  ns  |   1.64 ns   |     _N/A_     |   6.36 ns   |   1.87 ns    |      _N/A_      |
-| **StdMap**          | 3.63  ns  |   5.58 ns   |     _N/A_     |   3.60 ns   |   10.2 ns    |      _N/A_      |
-| **HashMap**         | 3.25  ns  |   3.30 ns   |     _N/A_     |   3.23 ns   |   3.22 ns    |      _N/A_      |
-| **Dict**            |   _N/A_   |    _N/A_    |   4.452 ns    |    _N/A_    |    _N/A_     |    4.437 ns     |
-| **FrozenDict**      |   _N/A_   |    _N/A_    |   1.284 ns    |    _N/A_    |    _N/A_     |    1.538 ns     |
-| **Codebooks**       | 0.472 ns  |  0.673 ns   |   0.654 ns    |  0.468 ns   |   2.56 ns    |    0.717 ns     |
+| **StdUnorderedMap** | 6.94  ns  |   1.65 ns   |     _N/A_     |   7.15 ns   |   2.09 ns    |      _N/A_      |
+| **StdMap**          | 4.15  ns  |   5.62 ns   |     _N/A_     |   4.34 ns   |   11.1 ns    |      _N/A_      |
+| **HashMap**         | 3.62  ns  |   3.50 ns   |     _N/A_     |   3.70 ns   |   3.52 ns    |      _N/A_      |
+| **Dict**            |   _N/A_   |    _N/A_    |   4.452 ns    |    _N/A_    |    _N/A_     |     4.68 ns     |
+| **FrozenDict**      |   _N/A_   |    _N/A_    |   1.284 ns    |    _N/A_    |    _N/A_     |     1.65 ns     |
+| **Codebooks**       | 0.536 ns  |  0.683 ns   |   0.654 ns    |  0.552 ns   |   2.76 ns    |     0.78 ns     |
 
 ### Gmod
 
@@ -63,52 +63,52 @@
 
 | Benchmark    | linux GCC | linux clang | linux C# .NET | Windows GCC | Windows MSVC | Windows C# .NET |
 | ------------ | :-------: | :---------: | :-----------: | :---------: | :----------: | :-------------: |
-| **GmodLoad** |  15.3 ns  |   15.1 ns   |   34.84 ms    |   62.6 ns   |   14.0 ns    |    29.99 ms     |
+| **GmodLoad** |  16.6 ns  |   15.1 ns   |   34.84 ms    |   75.0 ns   |   16.1 ns    |    31.37 ms     |
 
 #### Gmod lookup
 
 | Benchmark           | linux GCC | linux clang | linux C# .NET | Windows GCC | Windows MSVC | Windows C# .NET |
 | ------------------- | :-------: | :---------: | :-----------: | :---------: | :----------: | :-------------: |
-| **StdUnorderedMap** |  29.0 ns  |   32.0 ns   |     _N/A_     |   31.9 ns   |   32.8 ns    |      _N/A_      |
-| **FrozenDict**      |   _N/A_   |    _N/A_    |    24.7 ns    |    _N/A_    |    _N/A_     |     27.7 ns     |
-| **Dict**            |   _N/A_   |    _N/A_    |   16.51 ns    |    _N/A_    |    _N/A_     |    15.29 ns     |
-| **Gmod**            |  6.69 ns  |   8.68 ns   |   15.39 ns    |   6.47 ns   |   17.1 ns    |    15.32 ns     |
+| **StdUnorderedMap** |  33.0 ns  |   36.5 ns   |     _N/A_     |   38.2 ns   |   34.9 ns    |      _N/A_      |
+| **FrozenDict**      |   _N/A_   |    _N/A_    |    24.7 ns    |    _N/A_    |    _N/A_     |    27.75 ns     |
+| **Dict**            |   _N/A_   |    _N/A_    |   16.51 ns    |    _N/A_    |    _N/A_     |    16.67 ns     |
+| **Gmod**            |  6.75 ns  |   8.17 ns   |   15.39 ns    |   6.89 ns   |   16.1 ns    |    16.33 ns     |
 
 #### Gmod path parse
 
 | Benchmark                                                       | linux GCC | linux clang | linux C# .NET | Windows GCC | Windows MSVC | Windows C# .NET |
 | --------------------------------------------------------------- | :-------: | :---------: | :-----------: | :---------: | :----------: | :-------------: |
-| **FromShortPath / TryParse**                                    | 1.77  us  |  1.61  us   |   3.122 us    |   2.53 us   |   3.09 us    |     2.87 us     |
-| **FromFullPath / TryParseFullPath**                             | 0.555 us  |  0.582 us   |   0.555 us    |  0.787 us   |   1.02 us    |    0.517 us     |
-| **FromShortPathIndividualized / TryParseIndividualized**        | 1.22  us  |  1.07  us   |   1.443 us    |   1.68 us   |   1.81 us    |     1.24 us     |
-| **FromFullPathIndividualized / TryParseFullPathIndividualized** | 0.823 us  |  0.782 us   |   0.760 us    |   1.15 us   |   1.31 us    |    0.646 us     |
+| **FromShortPath / TryParse**                                    | 1.45  us  |   1.41 us   |   3.122 us    |   1.97 us   |   2.52 us    |     2.91 us     |
+| **FromFullPath / TryParseFullPath**                             | 0.526 us  |  0.613 us   |   0.555 us    |  0.721 us   |   1.02 us    |    0.540 us     |
+| **FromShortPathIndividualized / TryParseIndividualized**        | 1.01  us  |  0.986 us   |   1.443 us    |   1.43 us   |   1.48 us    |     1.28 us     |
+| **FromFullPathIndividualized / TryParseFullPathIndividualized** | 0.838 us  |  0.799 us   |   0.760 us    |   1.09 us   |   1.30 us    |    0.670 us     |
 
 #### Gmod traversal
 
 | Benchmark         | linux GCC | linux clang | linux C# .NET | Windows GCC | Windows MSVC | Windows C# .NET |
 | ----------------- | :-------: | :---------: | :-----------: | :---------: | :----------: | :-------------: |
-| **FullTraversal** |  87.3 ms  |   96.0 ms   |   126.2 ms    |   99.1 ms   |    113 ms    |    121.2 ms     |
+| **FullTraversal** |  34.2 ms  |   44.4 ms   |   126.2 ms    |   38.7 ms   |   60.4 ms    |    121.2 ms     |
 
 #### Gmod versioning convert path
 
 | Benchmark                   | linux GCC | linux clang | linux C# .NET | Windows GCC | Windows MSVC | Windows C# .NET |
 | --------------------------- | :-------: | :---------: | :-----------: | :---------: | :----------: | :-------------: |
-| **ConvertPath**             |  1.56 us  |   1.47 us   |    1.33 us    |   2.12 us   |   2.33 us    |     1.27 us     |
-| **ConvertPathWithLocation** |  1.62 us  |   1.45 us   |     _N/A_     |   1.99 us   |   2.19 us    |      _N/A_      |
+| **ConvertPath**             |  1.56 us  |   1.67 us   |    1.33 us    |   2.11 us   |   2.33 us    |     1.27 us     |
+| **ConvertPathWithLocation** |  1.62 us  |   1.70 us   |     _N/A_     |   1.98 us   |   2.19 us    |      _N/A_      |
 
 ## Transport Layer
 
 ### DataChannelList Serialization
 
-| Benchmark | linux GCC | linux clang | linux C# .NET | Windows GCC | Windows MSVC | Windows C# .NET |
-| --------- | :-------: | :---------: | :-----------: | :---------: | :----------: | :-------------: |
-| **Json**  |  8.66 us  |   8.53 us   |   10.11 us    |   14.3 us   |   13.4 us    |    10.15 us     |
+| Benchmark            | linux GCC | linux clang | linux C# .NET | Windows GCC | Windows MSVC | Windows C# .NET |
+| -------------------- | :-------: | :---------: | :-----------: | :---------: | :----------: | :-------------: |
+| **JsonUncompressed** |  9.03 us  |   8.42 us   |   10.11 us    |   13.8 us   |   13.6 us    |    10.13 us     |
 
 ### TimeSeriesDataSerialization Serialization
 
-| Benchmark | linux GCC | linux clang | linux C# .NET | Windows GCC | Windows MSVC | Windows C# .NET |
-| --------- | :-------: | :---------: | :-----------: | :---------: | :----------: | :-------------: |
-| **Json**  |  5.04 us  |   4.72 us   |     _N/A_     |   7.62 us   |   7.33 us    |      _N/A_      |
+| Benchmark            | linux GCC | linux clang | linux C# .NET | Windows GCC | Windows MSVC | Windows C# .NET |
+| -------------------- | :-------: | :---------: | :-----------: | :---------: | :----------: | :-------------: |
+| **JsonUncompressed** |  4.80 us  |   4.77 us   |     _N/A_     |   7.61 us   |   7.74 us    |      _N/A_      |
 
 ## See Also
 
@@ -118,4 +118,4 @@
 
 ---
 
-_Benchmarked on February 5, 2026_
+_Benchmarked on February 12, 2026_
