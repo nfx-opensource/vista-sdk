@@ -35,7 +35,7 @@ enable_testing()
 #----------------------------------------------
 
 # --- Library build types ---
-option(DNV_VISTA_SDK_CPP_BUILD_STATIC        "Build static library" ON)
+option(DNV_VISTA_SDK_CPP_BUILD_STATIC        "Build static library" ON )
 option(DNV_VISTA_SDK_CPP_BUILD_SHARED        "Build shared library" OFF)
 
 # --- Build components ---

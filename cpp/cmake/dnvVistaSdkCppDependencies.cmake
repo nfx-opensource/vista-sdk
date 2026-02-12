@@ -82,6 +82,12 @@ set(NFX_META_ENABLE_STRINGBUILDER    ON CACHE BOOL "Enable nfx-stringbuilder lib
 set(NFX_META_ENABLE_STRINGUTILS      ON CACHE BOOL "Enable nfx-stringutils library"    FORCE)
 set(NFX_META_WITH_JSON_SERIALIZATION ON CACHE BOOL "Enable JSON serialization support" FORCE)
 
+# Override output directories for nfx-resource tools before fetching
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/tools" CACHE PATH "Runtime output directory for Debug" FORCE)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/tools" CACHE PATH "Runtime output directory for Release" FORCE)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_BINARY_DIR}/tools" CACHE PATH "Runtime output directory for RelWithDebInfo" FORCE)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${CMAKE_BINARY_DIR}/tools" CACHE PATH "Runtime output directory for MinSizeRel" FORCE)
+
 FetchContent_Declare(
     nfx-meta
             GIT_REPOSITORY https://github.com/nfx-libs/nfx-meta.git
@@ -89,6 +95,12 @@ FetchContent_Declare(
             GIT_SHALLOW    TRUE
 )
 FetchContent_MakeAvailable(nfx-meta)
+
+# Restore output directories after fetching
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Runtime output directory for Debug" FORCE)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Runtime output directory for Release" FORCE)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Runtime output directory for RelWithDebInfo" FORCE)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Runtime output directory for MinSizeRel" FORCE)
 
 #----------------------------------------------
 # Cleanup

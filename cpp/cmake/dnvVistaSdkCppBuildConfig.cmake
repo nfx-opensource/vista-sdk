@@ -72,3 +72,11 @@ set(DNV_VISTA_SDK_CPP_SOURCE_DIR  "${DNV_VISTA_SDK_CPP_DIR}/src"     CACHE PATH 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+# --- Override multi-config generator subdirectories (MSVC adds Debug/Release by default) ---
+foreach(config_type ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${config_type} config_upper)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${config_upper} ${CMAKE_BINARY_DIR}/bin)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${config_upper} ${CMAKE_BINARY_DIR}/lib)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${config_upper} ${CMAKE_BINARY_DIR}/lib)
+endforeach()

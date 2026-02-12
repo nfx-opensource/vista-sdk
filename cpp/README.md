@@ -266,7 +266,7 @@ The SDK uses a multi-stage code generation pipeline:
 │ Generated headers + SDK sources + embeddedresources objects                 │
 │                                 │                                           │
 │                                 └-> dnv-vista-sdk-cpp-static.a (Linux)      │
-│                                    dnv-vista-sdk-cpp-static.lib (Windows)   │
+│                                     dnv-vista-sdk-cpp-static.lib (Windows)  │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
