@@ -32,10 +32,10 @@ namespace dnv::vista::sdk::benchmark
             {
                 try
                 {
-                    auto sampleJsonOpt = EmbeddedSchema::get( "DataChannelList.sample.json" );
+                    auto sampleJsonOpt = EmbeddedSchema::get( "DataChannelList.sample.compact.json" );
                     if( !sampleJsonOpt.has_value() )
                     {
-                        throw std::runtime_error{ "Failed to get embedded DataChannelList.sample.json" };
+                        throw std::runtime_error{ "Failed to get embedded DataChannelList.sample.compact.json" };
                     }
 
                     auto jsonContent = std::string{ *sampleJsonOpt };

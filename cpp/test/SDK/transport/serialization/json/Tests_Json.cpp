@@ -224,7 +224,7 @@ namespace dnv::vista::sdk::tests
         // Schema files to validate against
         std::vector<std::string> testFiles = {
             "DataChannelList.sample.json",
-            // "DataChannelList.sample.compact.json" // FIXME: Compact sample has duplicate LocalIds
+            "DataChannelList.sample.compact.json"
         };
 
         // Load schema
@@ -318,7 +318,7 @@ namespace dnv::vista::sdk::tests
         std::vector<std::string> testFiles = {
             "DataChannelList.json",
             "DataChannelList.sample.json",
-            // "DataChannelList.sample.compact.json" // FIXME: Compact sample has duplicate LocalIds
+            "DataChannelList.sample.compact.json"
         };
 
         for( const auto& fileName : testFiles )
