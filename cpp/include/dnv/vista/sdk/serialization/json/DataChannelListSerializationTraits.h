@@ -367,15 +367,15 @@ namespace nfx::serialization::json
                                 auto wsStr = whiteSpaceOpt.value();
                                 if( wsStr == "Preserve" )
                                 {
-                                    r.setWhiteSpace( datachannel::WhiteSpace::Preserve );
+                                    r.setWhiteSpace( datachannel::Restriction::WhiteSpace::Preserve );
                                 }
                                 else if( wsStr == "Replace" )
                                 {
-                                    r.setWhiteSpace( datachannel::WhiteSpace::Replace );
+                                    r.setWhiteSpace( datachannel::Restriction::WhiteSpace::Replace );
                                 }
                                 else if( wsStr == "Collapse" )
                                 {
-                                    r.setWhiteSpace( datachannel::WhiteSpace::Collapse );
+                                    r.setWhiteSpace( datachannel::Restriction::WhiteSpace::Collapse );
                                 }
                             }
                             restriction = std::move( r );
@@ -870,7 +870,7 @@ namespace nfx::serialization::json
             if( auto whiteSpace = restriction.whiteSpace() )
             {
                 builder.writeKey( "WhiteSpace" );
-                using WS = datachannel::WhiteSpace;
+                using WS = datachannel::Restriction::WhiteSpace;
                 const char* wsStr = ( *whiteSpace == WS::Preserve )   ? "Preserve"
                                     : ( *whiteSpace == WS::Replace )  ? "Replace"
                                     : ( *whiteSpace == WS::Collapse ) ? "Collapse"

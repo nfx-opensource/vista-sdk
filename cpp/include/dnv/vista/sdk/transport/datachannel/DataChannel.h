@@ -296,21 +296,6 @@ namespace dnv::vista::sdk::transport::datachannel
     };
 
     //=====================================================================
-    // WhiteSpace enumeration
-    //=====================================================================
-
-    /**
-     * @brief White space handling modes
-     * @details Specifies how white space (line feeds, tabs, spaces, carriage returns) is handled
-     */
-    enum class WhiteSpace : std::uint8_t
-    {
-        Preserve = 0, ///< Preserve all white space
-        Replace,      ///< Replace sequences of white space with single space
-        Collapse      ///< Collapse sequences of white space and trim leading/trailing
-    };
-
-    //=====================================================================
     // Restriction class - Table 19
     //=====================================================================
 
@@ -337,6 +322,17 @@ namespace dnv::vista::sdk::transport::datachannel
     class Restriction final
     {
     public:
+        /**
+         * @brief White space handling modes (ISO 19848 Table 19, WhiteSpace element)
+         * @details Specifies how white space (line feeds, tabs, spaces, carriage returns) is handled
+         */
+        enum class WhiteSpace : std::uint8_t
+        {
+            Preserve = 0, ///< Preserve all white space
+            Replace,      ///< Replace sequences of white space with single space
+            Collapse      ///< Collapse sequences of white space and trim leading/trailing
+        };
+
         /** @brief Default constructor */
         Restriction() = default;
 

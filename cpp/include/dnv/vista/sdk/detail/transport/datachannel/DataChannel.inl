@@ -166,7 +166,7 @@ namespace dnv::vista::sdk::transport::datachannel
         return m_totalDigits;
     }
 
-    inline const std::optional<WhiteSpace>& Restriction::whiteSpace() const noexcept
+    inline const std::optional<Restriction::WhiteSpace>& Restriction::whiteSpace() const noexcept
     {
         return m_whiteSpace;
     }
