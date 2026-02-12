@@ -34,13 +34,13 @@ namespace
     private:
         GmodNode m_node;
         std::optional<GmodPath> m_path;
-        int m_depth;
+        size_t m_depth;
         std::string m_displayName;
         std::vector<std::shared_ptr<AssetNode>> m_children;
         AssetNode* m_parent = nullptr;
 
     public:
-        AssetNode( const GmodNode& n, std::optional<GmodPath> p, int d )
+        AssetNode( const GmodNode& n, std::optional<GmodPath> p, size_t d )
             : m_node{ n },
               m_path{ std::move( p ) },
               m_depth{ d }
@@ -67,7 +67,7 @@ namespace
         {
             return m_path;
         }
-        int depth() const
+        size_t depth() const
         {
             return m_depth;
         }
@@ -316,9 +316,9 @@ namespace
             return m_nodeMap.size();
         }
 
-        int maxDepth() const
+        size_t maxDepth() const
         {
-            int max = 0;
+            size_t max = 0;
             for( const auto& [_, node] : m_nodeMap )
             {
                 max = std::max( max, node->depth() );
