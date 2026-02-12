@@ -225,7 +225,6 @@ namespace dnv::vista::sdk::tests
         std::vector<std::string> testFiles = {
             "DataChannelList.sample.json",
             // "DataChannelList.sample.compact.json" // FIXME: Compact sample has duplicate LocalIds
-            "DataChannelList.sample.json"
         };
 
         // Load schema
@@ -320,7 +319,6 @@ namespace dnv::vista::sdk::tests
             "DataChannelList.json",
             "DataChannelList.sample.json",
             // "DataChannelList.sample.compact.json" // FIXME: Compact sample has duplicate LocalIds
-            "DataChannelList.sample.json"
         };
 
         for( const auto& fileName : testFiles )
