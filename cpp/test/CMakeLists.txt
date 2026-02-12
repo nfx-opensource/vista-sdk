@@ -164,10 +164,17 @@ foreach(test_source ${test_sources})
         # Target linking
         #----------------------------------------------
 
-        target_link_libraries(${test_target_name}
+    # Choose library type based on option
+    if(DNV_VISTA_SDK_CPP_LINK_TESTS_SHARED AND TARGET dnv-vista-sdk-cpp)
+        set(sdk_library_target dnv-vista-sdk-cpp)
+    else()
+        set(sdk_library_target dnv-vista-sdk-cpp::static)
+    endif()
+
+    target_link_libraries(${test_target_name}
             PRIVATE
                 GTest::gtest_main
-                dnv-vista-sdk-cpp::static
+                ${sdk_library_target}
                 dnv-vista-cpp-embeddedtestdata
                 dnv-vista-cpp-embeddedschemas
         )

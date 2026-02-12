@@ -72,11 +72,17 @@ foreach(benchmark_source ${benchmark_sources})
         # Target linking
         #----------------------------------------------
 
+        # Choose library type based on option
+        if(DNV_VISTA_SDK_CPP_LINK_TESTS_SHARED AND TARGET dnv-vista-sdk-cpp)
+            set(sdk_library_target dnv-vista-sdk-cpp)
+        else()
+            set(sdk_library_target dnv-vista-sdk-cpp::static)
+        endif()
+
         target_link_libraries(${benchmark_target_name}
             PRIVATE
                 benchmark::benchmark
-                dnv-vista-sdk-cpp::static
-                dnv-vista-cpp-embeddedresources
+                ${sdk_library_target}
                 dnv-vista-cpp-embeddedschemas
         )
 

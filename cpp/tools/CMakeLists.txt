@@ -38,9 +38,16 @@ foreach(tools_source ${tools_sources})
         # Target linking
         #----------------------------------------------
 
-        target_link_libraries(${tool_target_name}
+    # Choose library type based on option
+    if(DNV_VISTA_SDK_CPP_LINK_TESTS_SHARED AND TARGET dnv-vista-sdk-cpp)
+        set(sdk_library_target dnv-vista-sdk-cpp)
+    else()
+        set(sdk_library_target dnv-vista-sdk-cpp::static)
+    endif()
+    
+    target_link_libraries(${tool_target_name}
             PRIVATE
-                dnv-vista-sdk-cpp::static
+                ${sdk_library_target}
         )
 
         if(tool_target_name STREQUAL "json-validator-cli")
