@@ -19,7 +19,7 @@ set(CMAKE_FIND_QUIETLY      ON     )
 #----------------------------------------------
 
 set(DNV_VISTA_SDK_CPP_DEPS_ZLIB_NG_VERSION "2.3.3")
-set(DNV_VISTA_SDK_CPP_NFX_META_VERSION     "1.0.0")
+set(DNV_VISTA_SDK_CPP_NFX_META_VERSION     "1.1.0")
 
 #----------------------------------------------
 # FetchContent dependencies
@@ -73,14 +73,19 @@ if(NOT zlib-ng_FOUND)
 endif()
 
 # --- nfx-meta ---
-set(NFX_META_ENABLE_CONTAINERS       ON CACHE BOOL "Enable nfx-containers library"     FORCE)
-set(NFX_META_ENABLE_DATATYPES        ON CACHE BOOL "Enable nfx-datatypes library"      FORCE)
-set(NFX_META_ENABLE_DATETIME         ON CACHE BOOL "Enable nfx-datetime library"       FORCE)
-set(NFX_META_ENABLE_RESOURCE         ON CACHE BOOL "Enable nfx-resource library"       FORCE)
-set(NFX_META_ENABLE_SERIALIZATION    ON CACHE BOOL "Enable nfx-serialization library"  FORCE)
-set(NFX_META_ENABLE_STRINGBUILDER    ON CACHE BOOL "Enable nfx-stringbuilder library"  FORCE)
-set(NFX_META_ENABLE_STRINGUTILS      ON CACHE BOOL "Enable nfx-stringutils library"    FORCE)
-set(NFX_META_WITH_JSON_SERIALIZATION ON CACHE BOOL "Enable JSON serialization support" FORCE)
+set(NFX_META_ENABLE_CONTAINERS       ON CACHE BOOL "Enable nfx-containers library"        FORCE)
+set(NFX_META_ENABLE_DATATYPES        ON CACHE BOOL "Enable nfx-datatypes library"         FORCE)
+set(NFX_META_ENABLE_DATETIME         ON CACHE BOOL "Enable nfx-datetime library"          FORCE)
+set(NFX_META_ENABLE_HASHING          ON CACHE BOOL "Enable nfx-hashing library"           FORCE)
+set(NFX_META_ENABLE_JSON             ON CACHE BOOL "Enable nfx-json library"              FORCE)
+set(NFX_META_ENABLE_RESOURCE         ON CACHE BOOL "Enable nfx-resource library"          FORCE)
+set(NFX_META_ENABLE_SERIALIZATION    ON CACHE BOOL "Enable nfx-serialization library"     FORCE)
+set(NFX_META_ENABLE_STRINGBUILDER    ON CACHE BOOL "Enable nfx-stringbuilder library"     FORCE)
+set(NFX_META_ENABLE_STRINGUTILS      ON CACHE BOOL "Enable nfx-stringutils library"       FORCE)
+
+set(NFX_META_WITH_JSON_SERIALIZATION ON CACHE BOOL "Enable JSON serialization support"    FORCE)
+
+set(NFX_META_INSTALL_PROJECT         ON CACHE BOOL "Install nfx-meta with unified export" FORCE)
 
 # Override output directories for nfx-resource tools before fetching
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/tools" CACHE PATH "Runtime output directory for Debug" FORCE)
