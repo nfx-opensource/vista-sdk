@@ -80,3 +80,14 @@ foreach(config_type ${CMAKE_CONFIGURATION_TYPES})
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${config_upper} ${CMAKE_BINARY_DIR}/lib)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${config_upper} ${CMAKE_BINARY_DIR}/lib)
 endforeach()
+
+#----------------------------------------------
+# RPATH configuration
+#----------------------------------------------
+
+if(UNIX)
+    set(CMAKE_BUILD_RPATH "$ORIGIN/../lib")
+    set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+endif()
