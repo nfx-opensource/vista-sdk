@@ -30,6 +30,18 @@ if(NOT DNV_VISTA_SDK_CPP_BUILD_STATIC AND NOT DNV_VISTA_SDK_CPP_BUILD_SHARED)
     endif()
 endif()
 
+# --- Installation adn packaging ---
+if(DNV_VISTA_SDK_CPP_ENABLE_PACKAGING)
+    set(DNV_VISTA_SDK_CPP_INSTALL_PROJECT     ON CACHE BOOL "" FORCE)
+endif()
+
+if(DNV_VISTA_SDK_CPP_INSTALL_PROJECT)
+    set(DNV_VISTA_SDK_CPP_BUILD_STATIC        ON CACHE BOOL "" FORCE)
+    set(DNV_VISTA_SDK_CPP_BUILD_SHARED        ON CACHE BOOL "" FORCE)
+    set(DNV_VISTA_SDK_CPP_BUILD_TOOLS         ON CACHE BOOL "" FORCE)
+    set(DNV_VISTA_SDK_CPP_BUILD_DOCUMENTATION ON CACHE BOOL "" FORCE)
+endif()
+
 #----------------------------------------------
 # Multi-config generator setup
 #----------------------------------------------

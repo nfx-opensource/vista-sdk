@@ -89,5 +89,15 @@ foreach(tools_source ${tools_sources})
                 RUNTIME_OUTPUT_DIRECTORY_DEBUG   "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
                 RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
         )
+
+        #----------------------------------------------
+        # Installation
+        #----------------------------------------------
+
+        if(DNV_VISTA_SDK_CPP_INSTALL_PROJECT)
+            install(TARGETS ${tool_target_name}
+                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            )
+        endif()
     endif()
 endforeach()

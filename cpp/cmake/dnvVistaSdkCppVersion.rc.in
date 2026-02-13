@@ -21,7 +21,7 @@ BEGIN
             VALUE "FileDescription",  "Vista SDK C++ library - DNV Vessel Information Structure (VIS) and ISO 19847/19848 standards\0"
             VALUE "FileVersion",      "@PROJECT_VERSION@\0"
             VALUE "InternalName",     "vista-sdk-cpp\0"
-            VALUE "LegalCopyright",   "Copyright (C) 2025 DNV. Licensed under MIT License.\0"
+            VALUE "LegalCopyright",   "Copyright (C) 2026 DNV. Licensed under MIT License.\0"
             VALUE "OriginalFilename", "vista-sdk-cpp.dll\0"
             VALUE "ProductName",      "Vista SDK\0"
             VALUE "ProductVersion",   "@PROJECT_VERSION@\0"

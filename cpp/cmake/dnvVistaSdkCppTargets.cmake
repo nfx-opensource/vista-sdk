@@ -13,6 +13,10 @@ if(DNV_VISTA_SDK_CPP_BUILD_SHARED)
         PRIVATE
             ${private_sources}
     )
+    set_target_properties(${PROJECT_NAME}
+        PROPERTIES
+            EXPORT_NAME ${PROJECT_NAME}
+    )
     add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 endif()
 
@@ -26,6 +30,7 @@ if(DNV_VISTA_SDK_CPP_BUILD_STATIC)
     set_target_properties(${PROJECT_NAME}-static
         PROPERTIES
             OUTPUT_NAME ${PROJECT_NAME}-static
+            EXPORT_NAME static
     )
     add_library(${PROJECT_NAME}::static ALIAS ${PROJECT_NAME}-static)
 endif()

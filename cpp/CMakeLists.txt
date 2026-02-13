@@ -49,7 +49,13 @@ option(DNV_VISTA_SDK_CPP_BUILD_DOCUMENTATION "Build documentation"  OFF)
 option(DNV_VISTA_SDK_CPP_LINK_TESTS_SHARED   "Link samples, tests, tools and benchmarks to shared library instead of static" ON)
 
 # --- Specialized test components ---
-option(DNV_VISTA_SDK_CPP_BUILD_SMOKE_TESTS   "Build smoke tests"    OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_SMOKE_TESTS   "Build smoke tests"      OFF)
+
+# --- Installation ---
+option(DNV_VISTA_SDK_CPP_INSTALL_PROJECT     "Install project"        OFF)
+
+# --- Packaging ---
+option(DNV_VISTA_SDK_CPP_ENABLE_PACKAGING    "Enable CPack packaging" ON)
 
 #----------------------------------------------
 # CMake modules configuration
@@ -84,3 +90,15 @@ add_subdirectory(test)
 add_subdirectory(samples)
 add_subdirectory(benchmark)
 add_subdirectory(doc)
+
+#----------------------------------------------
+# Installation
+#----------------------------------------------
+
+include(dnvVistaSdkCppInstall)
+
+#----------------------------------------------
+# Packaging
+#----------------------------------------------
+
+include(dnvVistaSdkCppPackaging)

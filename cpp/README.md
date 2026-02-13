@@ -192,7 +192,7 @@ cmake --build build
 
 ```cmake
 # --- Library build types ---
-option(DNV_VISTA_SDK_CPP_BUILD_STATIC        "Build static library" ON)
+option(DNV_VISTA_SDK_CPP_BUILD_STATIC        "Build static library" ON )
 option(DNV_VISTA_SDK_CPP_BUILD_SHARED        "Build shared library" OFF)
 
 # --- Build components ---
@@ -206,7 +206,13 @@ option(DNV_VISTA_SDK_CPP_BUILD_DOCUMENTATION "Build documentation"  OFF)
 option(DNV_VISTA_SDK_CPP_LINK_TESTS_SHARED   "Link samples, tests, tools and benchmarks to shared library instead of static" ON)
 
 # --- Specialized test components ---
-option(DNV_VISTA_SDK_CPP_BUILD_SMOKE_TESTS   "Build smoke tests"    OFF)
+option(DNV_VISTA_SDK_CPP_BUILD_SMOKE_TESTS   "Build smoke tests"      OFF)
+
+# --- Installation ---
+option(DNV_VISTA_SDK_CPP_INSTALL_PROJECT     "Install project"        OFF)
+
+# --- Packaging ---
+option(DNV_VISTA_SDK_CPP_ENABLE_PACKAGING    "Enable CPack packaging" ON)
 ```
 
 **Note:** Smoke tests perform **exhaustive validation** including:
@@ -399,4 +405,4 @@ project(dnv-vista-sdk-cpp
 
 ---
 
-_Updated on February 11, 2026_
+_Updated on February 13, 2026_
