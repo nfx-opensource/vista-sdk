@@ -161,16 +161,16 @@ namespace dnv::vista::sdk::internal
         // Walk up to find prefix nodes
         while( startNode->parents().size() == 1 )
         {
-            bool found = false;
+            bool alreadySeen = false;
             for( const auto& code : seenCodes )
             {
                 if( code == startNode->code() )
                 {
-                    found = true;
+                    alreadySeen = true;
                     break;
                 }
             }
-            if( !found )
+            if( !alreadySeen )
             {
                 prefixNodePtrs.push_back( startNode );
                 seenCodes.push_back( startNode->code() );
