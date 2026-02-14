@@ -44,7 +44,7 @@ foreach(tools_source ${tools_sources})
     else()
         set(sdk_library_target dnv-vista-sdk-cpp::static)
     endif()
-    
+
     target_link_libraries(${tool_target_name}
             PRIVATE
                 ${sdk_library_target}
@@ -54,6 +54,13 @@ foreach(tools_source ${tools_sources})
             target_link_libraries(${tool_target_name} PRIVATE
                 $<TARGET_OBJECTS:dnv-vista-cpp-embeddedschemas>
             )
+
+            if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND DNV_VISTA_SDK_CPP_LINK_TESTS_SHARED AND TARGET dnv-vista-sdk-cpp)
+                target_link_options(${tool_target_name}
+                    PRIVATE
+                        -Wl,--allow-multiple-definition
+                )
+            endif()
         endif()
 
         #----------------------------------------------

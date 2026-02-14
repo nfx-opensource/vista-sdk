@@ -59,6 +59,13 @@ foreach(sample_source ${sample_sources})
                 ${sdk_library_target}
         )
 
+        if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND DNV_VISTA_SDK_CPP_LINK_TESTS_SHARED AND TARGET dnv-vista-sdk-cpp)
+            target_link_options(${sample_target_name}
+                PRIVATE
+                    -Wl,--allow-multiple-definition
+            )
+        endif()
+
         #----------------------------------------------
         # Enable specific CPU features
         #----------------------------------------------

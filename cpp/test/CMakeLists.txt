@@ -171,13 +171,20 @@ foreach(test_source ${test_sources})
         set(sdk_library_target dnv-vista-sdk-cpp::static)
     endif()
 
-    target_link_libraries(${test_target_name}
+        target_link_libraries(${test_target_name}
             PRIVATE
                 GTest::gtest_main
                 ${sdk_library_target}
                 dnv-vista-cpp-embeddedtestdata
                 dnv-vista-cpp-embeddedschemas
         )
+
+        if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND DNV_VISTA_SDK_CPP_LINK_TESTS_SHARED AND TARGET dnv-vista-sdk-cpp)
+            target_link_options(${test_target_name}
+                PRIVATE
+                    -Wl,--allow-multiple-definition
+            )
+        endif()
 
         target_include_directories(${test_target_name}
             PRIVATE

@@ -86,6 +86,13 @@ foreach(benchmark_source ${benchmark_sources})
                 dnv-vista-cpp-embeddedschemas
         )
 
+        if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND DNV_VISTA_SDK_CPP_LINK_TESTS_SHARED AND TARGET dnv-vista-sdk-cpp)
+            target_link_options(${benchmark_target_name}
+                PRIVATE
+                    -Wl,--allow-multiple-definition
+            )
+        endif()
+
         target_include_directories(${benchmark_target_name}
             PRIVATE
                 ${DNV_VISTA_SDK_CPP_SOURCE_DIR}
