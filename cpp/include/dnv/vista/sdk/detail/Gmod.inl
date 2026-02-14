@@ -202,8 +202,7 @@ namespace dnv::vista::sdk
 
         PathExistsState state( to, fromPath, remainingParents, assetFunctionIndex );
 
-        auto handler = [this](
-                           PathExistsState& s,
+        auto handler = []( PathExistsState& s,
                            const StackVector<const GmodNode*, 16>& parents,
                            const GmodNode& node ) -> TraversalHandlerResult {
             if( !nfx::string::equals( node.code(), s.targetNode.code() ) )
