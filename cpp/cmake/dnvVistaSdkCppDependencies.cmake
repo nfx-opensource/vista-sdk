@@ -19,7 +19,7 @@ set(CMAKE_FIND_QUIETLY      ON     )
 #----------------------------------------------
 
 set(DNV_VISTA_SDK_CPP_DEPS_ZLIB_NG_VERSION "2.3.3")
-set(DNV_VISTA_SDK_CPP_NFX_META_VERSION     "1.1.0")
+set(DNV_VISTA_SDK_CPP_NFX_META_VERSION     "1.2.0")
 
 #----------------------------------------------
 # FetchContent dependencies
@@ -73,15 +73,17 @@ if(NOT zlib-ng_FOUND)
 endif()
 
 # --- nfx-meta ---
-set(NFX_META_ENABLE_CONTAINERS       ON CACHE BOOL "Enable nfx-containers library"        FORCE)
-set(NFX_META_ENABLE_DATATYPES        ON CACHE BOOL "Enable nfx-datatypes library"         FORCE)
-set(NFX_META_ENABLE_DATETIME         ON CACHE BOOL "Enable nfx-datetime library"          FORCE)
-set(NFX_META_ENABLE_HASHING          ON CACHE BOOL "Enable nfx-hashing library"           FORCE)
-set(NFX_META_ENABLE_JSON             ON CACHE BOOL "Enable nfx-json library"              FORCE)
-set(NFX_META_ENABLE_RESOURCE         ON CACHE BOOL "Enable nfx-resource library"          FORCE)
-set(NFX_META_ENABLE_SERIALIZATION    ON CACHE BOOL "Enable nfx-serialization library"     FORCE)
-set(NFX_META_ENABLE_STRINGBUILDER    ON CACHE BOOL "Enable nfx-stringbuilder library"     FORCE)
-set(NFX_META_ENABLE_STRINGUTILS      ON CACHE BOOL "Enable nfx-stringutils library"       FORCE)
+find_package(nfx-meta ${DNV_VISTA_SDK_CPP_NFX_META_VERSION} EXACT QUIET)
+if(NOT nfx-meta_FOUND)
+    set(NFX_META_ENABLE_CONTAINERS       ON CACHE BOOL "Enable nfx-containers library"        FORCE)
+    set(NFX_META_ENABLE_DATATYPES        ON CACHE BOOL "Enable nfx-datatypes library"         FORCE)
+    set(NFX_META_ENABLE_DATETIME         ON CACHE BOOL "Enable nfx-datetime library"          FORCE)
+    set(NFX_META_ENABLE_HASHING          ON CACHE BOOL "Enable nfx-hashing library"           FORCE)
+    set(NFX_META_ENABLE_JSON             ON CACHE BOOL "Enable nfx-json library"              FORCE)
+    set(NFX_META_ENABLE_RESOURCE         ON CACHE BOOL "Enable nfx-resource library"          FORCE)
+    set(NFX_META_ENABLE_SERIALIZATION    ON CACHE BOOL "Enable nfx-serialization library"     FORCE)
+    set(NFX_META_ENABLE_STRINGBUILDER    ON CACHE BOOL "Enable nfx-stringbuilder library"     FORCE)
+    set(NFX_META_ENABLE_STRINGUTILS      ON CACHE BOOL "Enable nfx-stringutils library"       FORCE)
 
 set(NFX_META_WITH_JSON_SERIALIZATION ON CACHE BOOL "Enable JSON serialization support"    FORCE)
 
@@ -98,14 +100,15 @@ FetchContent_Declare(
             GIT_REPOSITORY https://github.com/nfx-libs/nfx-meta.git
             GIT_TAG        ${DNV_VISTA_SDK_CPP_NFX_META_VERSION}
             GIT_SHALLOW    TRUE
-)
-FetchContent_MakeAvailable(nfx-meta)
+    )
+    FetchContent_MakeAvailable(nfx-meta)
 
-# Restore output directories after fetching
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Runtime output directory for Debug" FORCE)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Runtime output directory for Release" FORCE)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Runtime output directory for RelWithDebInfo" FORCE)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Runtime output directory for MinSizeRel" FORCE)
+    # Restore output directories after fetching
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Runtime output directory for Debug" FORCE)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Runtime output directory for Release" FORCE)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Runtime output directory for RelWithDebInfo" FORCE)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Runtime output directory for MinSizeRel" FORCE)
+endif()
 
 #----------------------------------------------
 # Cleanup
