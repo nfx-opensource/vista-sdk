@@ -202,6 +202,16 @@ foreach(test_source ${test_sources})
         )
 
         #----------------------------------------------
+        # Compiler warnings
+        #----------------------------------------------
+
+        target_compile_options(${test_target_name}
+            PRIVATE
+                $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+                $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-Wall -Wextra -Werror>
+        )
+
+        #----------------------------------------------
         # Properties
         #----------------------------------------------
 
