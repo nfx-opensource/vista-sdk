@@ -21,7 +21,6 @@ namespace dnv::vista::sdk::test
         const auto& [pathStr, visVersion, parameters, expectedMatch] = GetParam();
 
         const auto& vis = VIS::instance();
-        const auto& gmod = vis.gmod( visVersion );
         const auto& locations = vis.locations( visVersion );
 
         auto path = GmodPath::fromShortPath( pathStr, visVersion );

@@ -52,7 +52,8 @@ namespace dnv::vista::sdk::test
     {
         return {
             // Test case 1: Basic primary item only
-            { LocalIdInput{ "411.1/C101.31-2" }, "/dnv-v2/vis-3-4a/411.1/C101.31-2/meta" },
+            { LocalIdInput{ "411.1/C101.31-2", std::nullopt, std::nullopt, std::nullopt, std::nullopt },
+              "/dnv-v2/vis-3-4a/411.1/C101.31-2/meta" },
 
             // Test case 2: Primary item with metadata tags
             { LocalIdInput{ "411.1/C101.31-2", std::nullopt, "temperature", "exhaust.gas", "inlet" },

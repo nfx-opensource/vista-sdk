@@ -379,11 +379,11 @@ namespace dnv::vista::sdk::tests
             {
                 static_cast<void>( integerType.match(
                     "not_a_number",
-                    []( const Decimal& d ) -> int { return 0; },
+                    []( const Decimal& ) -> int { return 0; },
                     []( int i ) -> int { return i; },
-                    []( bool b ) -> int { return 0; },
-                    []( std::string_view s ) -> int { return 0; },
-                    []( const DateTime& tp ) -> int { return 0; } ) );
+                    []( bool ) -> int { return 0; },
+                    []( std::string_view ) -> int { return 0; },
+                    []( const DateTime& ) -> int { return 0; } ) );
             },
             std::invalid_argument );
     }

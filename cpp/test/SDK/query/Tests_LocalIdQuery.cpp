@@ -146,9 +146,9 @@ namespace dnv::vista::sdk::test
                             [&node433]( GmodPathQueryBuilder::Path builder ) {
                                 return builder
                                     .withNode(
-                                        [&node433]( const std::unordered_map<std::string, const GmodNode*>& nodes ) {
-                                            return *node433;
-                                        },
+                                        [&node433](
+                                            [[maybe_unused]] const std::unordered_map<std::string, const GmodNode*>&
+                                                nodes ) { return *node433; },
                                         true )
                                     .build();
                             } )
@@ -337,7 +337,8 @@ namespace dnv::vista::sdk::test
                     [pNodeC101]( GmodPathQueryBuilder::Path path ) {
                         return path
                             .withAnyNodeBefore(
-                                [pNodeC101]( const std::unordered_map<std::string, const GmodNode*>& nodes ) {
+                                [pNodeC101](
+                                    [[maybe_unused]] const std::unordered_map<std::string, const GmodNode*>& nodes ) {
                                     return pNodeC101;
                                 } )
                             .build();
@@ -354,7 +355,8 @@ namespace dnv::vista::sdk::test
                     [pNodeC101]( GmodPathQueryBuilder::Path path ) {
                         return path
                             .withAnyNodeBefore(
-                                [pNodeC101]( const std::unordered_map<std::string, const GmodNode*>& nodes ) {
+                                [pNodeC101](
+                                    [[maybe_unused]] const std::unordered_map<std::string, const GmodNode*>& nodes ) {
                                     return pNodeC101;
                                 } )
                             .build();
@@ -412,19 +414,21 @@ namespace dnv::vista::sdk::test
 
         std::vector<Location> locs = { *locationP, *locationS };
 
-        auto query = LocalIdQueryBuilder::from( *localId )
-                         .withPrimaryItem(
-                             localId->primaryItem(),
-                             [pNode433, &locs]( GmodPathQueryBuilder::Path builder ) {
-                                 return builder
-                                     .withNode(
-                                         [pNode433]( const std::unordered_map<std::string, const GmodNode*>& nodes ) {
-                                             return pNode433;
-                                         },
-                                         locs )
-                                     .build();
-                             } )
-                         .build();
+        auto query =
+            LocalIdQueryBuilder::from( *localId )
+                .withPrimaryItem(
+                    localId->primaryItem(),
+                    [pNode433, &locs]( GmodPathQueryBuilder::Path builder ) {
+                        return builder
+                            .withNode(
+                                [pNode433](
+                                    [[maybe_unused]] const std::unordered_map<std::string, const GmodNode*>& nodes ) {
+                                    return pNode433;
+                                },
+                                locs )
+                            .build();
+                    } )
+                .build();
 
         EXPECT_TRUE( query.match( *localId ) );
         auto localId2 = LocalId::fromString(

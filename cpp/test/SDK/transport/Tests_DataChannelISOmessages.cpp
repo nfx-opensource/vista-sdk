@@ -661,7 +661,6 @@ namespace dnv::vista::sdk::tests
         // CustomNameObjects - verify all types using Document API
         EXPECT_TRUE( originalNameObject.customNameObjects().has_value() );
         EXPECT_TRUE( deserializedNameObject.customNameObjects().has_value() );
-        const auto& originalCustomNameObjects = *originalNameObject.customNameObjects();
         const auto& deserializedCustomNameObjects = *deserializedNameObject.customNameObjects();
 
         // Get root object for iteration
@@ -671,7 +670,7 @@ namespace dnv::vista::sdk::tests
 
         // Verify we have 5 custom properties
         size_t count = 0;
-        for( const auto& [key, doc] : deserializedObj )
+        for( [[maybe_unused]] const auto& [key, doc] : deserializedObj )
         {
             ++count;
         }
