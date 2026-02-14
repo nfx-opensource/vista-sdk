@@ -424,7 +424,7 @@ int main()
             auto invalidType = datachannel::DataChannelType{ "InvalidType" };
             std::cout << "[ERROR] Created invalid DataChannelType (should have thrown)\n";
         }
-        catch( const std::invalid_argument& e )
+        catch( const std::invalid_argument& )
         {
             std::cout << "[OK] Correctly rejected invalid DataChannelType\n";
         }
@@ -446,7 +446,7 @@ int main()
             auto invalidFormat = datachannel::Format{ "InvalidFormat" };
             std::cout << "[ERROR] Created invalid Format (should have thrown)\n";
         }
-        catch( const std::invalid_argument& e )
+        catch( const std::invalid_argument& )
         {
             std::cout << "[OK] Correctly rejected invalid Format\n";
         }

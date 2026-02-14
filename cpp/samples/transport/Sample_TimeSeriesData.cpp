@@ -509,7 +509,7 @@ int main()
         auto onTabularData = []( const DateTimeOffset& timestamp,
                                  const datachannel::DataChannel& channel,
                                  const transport::Value& value,
-                                 const std::optional<std::string>& qualityCode ) {
+                                 [[maybe_unused]] const std::optional<std::string>& qualityCode ) {
             std::cout << "  Custom business rule - tabular data:\n";
             std::cout << "    Value: " << value.toString() << " " << channel.property().unit()->unitSymbol() << "\n";
             std::cout << "    Range: [" << channel.property().range()->low() << ", "
@@ -528,7 +528,7 @@ int main()
         auto onEventData = []( const DateTimeOffset& timestamp,
                                const datachannel::DataChannel& channel,
                                const transport::Value& value,
-                               const std::optional<std::string>& qualityCode ) {
+                               [[maybe_unused]] const std::optional<std::string>& qualityCode ) {
             std::cout << "  Custom business rule - event data:\n";
             std::cout << "    Value: " << value.toString() << " " << channel.property().unit()->unitSymbol() << "\n";
             std::cout << "    Range: [" << channel.property().range()->low() << ", "

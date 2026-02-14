@@ -234,7 +234,6 @@ int main()
         const auto& vis = VIS::instance();
         const auto version = vis.latest();
         const auto& gmod = vis.gmod( version );
-        const auto& locations = vis.locations( version );
 
         // Get nodes for path query
         auto node411Opt = gmod.node( "411.1" );
@@ -455,8 +454,9 @@ int main()
                             [nodeC101]( GmodPathQueryBuilder::Path builder ) {
                                 return builder
                                     .withAnyNodeBefore(
-                                        [nodeC101]( const std::unordered_map<std::string, const GmodNode*>& nodes )
-                                            -> const GmodNode* {
+                                        [nodeC101](
+                                            [[maybe_unused]] const std::unordered_map<std::string, const GmodNode*>&
+                                                nodes ) -> const GmodNode* {
                                             // Return C101 node - any node before it will be ignored
                                             return nodeC101;
                                         } )
