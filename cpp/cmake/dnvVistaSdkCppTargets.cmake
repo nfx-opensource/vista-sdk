@@ -57,6 +57,7 @@ function(configure_target target_name)
     target_link_libraries(${target_name}
         PUBLIC
             $<BUILD_INTERFACE:nfx::meta>
+            $<INSTALL_INTERFACE:nfx::meta>
         PRIVATE
             $<BUILD_INTERFACE:zlib-ng>
     )
