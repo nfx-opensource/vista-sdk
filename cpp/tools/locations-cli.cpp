@@ -284,7 +284,9 @@ void searchInLocations( const dnv::vista::sdk::Locations& locations, std::string
 
     // Search in code, name, and definition
     std::string searchLower{ searchTerm };
-    std::transform( searchLower.begin(), searchLower.end(), searchLower.begin(), ::tolower );
+    std::transform( searchLower.begin(), searchLower.end(), searchLower.begin(), []( unsigned char c ) {
+        return static_cast<char>( std::tolower( c ) );
+    } );
 
     const auto& relativeLocations = locations.relativeLocations();
 
@@ -293,8 +295,12 @@ void searchInLocations( const dnv::vista::sdk::Locations& locations, std::string
         std::string codeLower{ location.code() };
         std::string nameLower = location.name();
 
-        std::transform( codeLower.begin(), codeLower.end(), codeLower.begin(), ::tolower );
-        std::transform( nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower );
+        std::transform( codeLower.begin(), codeLower.end(), codeLower.begin(), []( unsigned char c ) {
+            return static_cast<char>( std::tolower( c ) );
+        } );
+        std::transform( nameLower.begin(), nameLower.end(), nameLower.begin(), []( unsigned char c ) {
+            return static_cast<char>( std::tolower( c ) );
+        } );
 
         bool match = false;
         if( codeLower.find( searchLower ) != std::string::npos || nameLower.find( searchLower ) != std::string::npos )
@@ -304,7 +310,9 @@ void searchInLocations( const dnv::vista::sdk::Locations& locations, std::string
         else if( location.definition().has_value() )
         {
             std::string defLower = location.definition().value();
-            std::transform( defLower.begin(), defLower.end(), defLower.begin(), ::tolower );
+            std::transform( defLower.begin(), defLower.end(), defLower.begin(), []( unsigned char c ) {
+                return static_cast<char>( std::tolower( c ) );
+            } );
 
             if( defLower.find( searchLower ) != std::string::npos )
             {

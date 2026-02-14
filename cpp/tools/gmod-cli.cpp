@@ -371,7 +371,7 @@ void searchNodes( const dnv::vista::sdk::Gmod& gmod, std::string_view searchTerm
     // Case-insensitive search
     std::string searchLower( searchTerm );
     std::transform( searchLower.begin(), searchLower.end(), searchLower.begin(), []( unsigned char c ) {
-        return std::tolower( c );
+        return static_cast<char>( std::tolower( c ) );
     } );
 
     std::cout << "Searching for: \"" << searchTerm << "\"\n";
@@ -384,7 +384,7 @@ void searchNodes( const dnv::vista::sdk::Gmod& gmod, std::string_view searchTerm
         std::string_view name = node.metadata().name();
         std::string nameLower( name );
         std::transform( nameLower.begin(), nameLower.end(), nameLower.begin(), []( unsigned char c ) {
-            return std::tolower( c );
+            return static_cast<char>( std::tolower( c ) );
         } );
 
         std::string commonLower;
@@ -393,7 +393,7 @@ void searchNodes( const dnv::vista::sdk::Gmod& gmod, std::string_view searchTerm
             const auto& commonName = node.metadata().commonName().value();
             commonLower = commonName;
             std::transform( commonLower.begin(), commonLower.end(), commonLower.begin(), []( unsigned char c ) {
-                return std::tolower( c );
+                return static_cast<char>( std::tolower( c ) );
             } );
         }
 
@@ -403,7 +403,7 @@ void searchNodes( const dnv::vista::sdk::Gmod& gmod, std::string_view searchTerm
             const auto& definition = node.metadata().definition().value();
             defLower = definition;
             std::transform( defLower.begin(), defLower.end(), defLower.begin(), []( unsigned char c ) {
-                return std::tolower( c );
+                return static_cast<char>( std::tolower( c ) );
             } );
         }
 

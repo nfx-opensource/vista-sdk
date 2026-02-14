@@ -384,8 +384,12 @@ void searchInCodebooks( const dnv::vista::sdk::Codebooks& codebooks, std::string
                 // Case-insensitive search
                 std::string valueLower = value;
                 std::string searchLower{ searchTerm };
-                std::transform( valueLower.begin(), valueLower.end(), valueLower.begin(), ::tolower );
-                std::transform( searchLower.begin(), searchLower.end(), searchLower.begin(), ::tolower );
+                std::transform( valueLower.begin(), valueLower.end(), valueLower.begin(), []( unsigned char c ) {
+                    return static_cast<char>( std::tolower( c ) );
+                } );
+                std::transform( searchLower.begin(), searchLower.end(), searchLower.begin(), []( unsigned char c ) {
+                    return static_cast<char>( std::tolower( c ) );
+                } );
 
                 if( valueLower.find( searchLower ) != std::string::npos )
                 {

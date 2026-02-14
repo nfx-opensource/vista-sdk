@@ -238,13 +238,13 @@ void parseLocalId( std::string_view localIdStr )
         }
 
         // Display target node
-        const auto& targetNode = secondary.node();
-        std::cout << "    " << std::left << std::setw( 15 ) << targetNode.code() << " - "
-                  << targetNode.metadata().name();
+        const auto& secondaryTargetNode = secondary.node();
+        std::cout << "    " << std::left << std::setw( 15 ) << secondaryTargetNode.code() << " - "
+                  << secondaryTargetNode.metadata().name();
 
-        if( targetNode.location().has_value() )
+        if( secondaryTargetNode.location().has_value() )
         {
-            std::cout << " [" << targetNode.location()->value() << "]";
+            std::cout << " [" << secondaryTargetNode.location()->value() << "]";
         }
 
         std::cout << "\n";
