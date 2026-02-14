@@ -183,7 +183,9 @@ namespace dnv::vista::sdk
     inline LocalIdQueryBuilder LocalIdQueryBuilder::withoutSecondaryItem() const&
     {
         LocalIdQueryBuilder builder{ *this };
-        return std::move( builder ).withoutSecondaryItem();
+        builder.m_secondaryItem = std::nullopt;
+        builder.m_requireSecondaryItem = false;
+        return builder;
     }
 
     inline LocalIdQueryBuilder LocalIdQueryBuilder::withoutSecondaryItem() &&
