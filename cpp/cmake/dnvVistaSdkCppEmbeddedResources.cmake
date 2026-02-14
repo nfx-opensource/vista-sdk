@@ -25,7 +25,7 @@ target_include_directories(dnv-vista-cpp-embeddedresources
 
 target_link_libraries(dnv-vista-cpp-embeddedresources
     PRIVATE
-        zlib-ng
+        zlib-ng::zlib
         nfx::meta
 )
 

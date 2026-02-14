@@ -59,7 +59,7 @@ function(configure_target target_name)
             $<BUILD_INTERFACE:nfx::meta>
             $<INSTALL_INTERFACE:nfx::meta>
         PRIVATE
-            $<BUILD_INTERFACE:zlib-ng>
+            $<BUILD_INTERFACE:zlib-ng::zlib>
     )
 
     # --- Properties ---
