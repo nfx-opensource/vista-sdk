@@ -264,74 +264,74 @@ namespace nfx::serialization::json
                             {
                                 r.setMaxInclusive( maxIncOpt.value() );
                             }
-                            else if( auto maxIncOpt = restrictionDoc["MaxInclusive"].get<int64_t>( "" ) )
+                            else if( auto maxIncOptInt = restrictionDoc["MaxInclusive"].get<int64_t>( "" ) )
                             {
-                                r.setMaxInclusive( static_cast<double>( maxIncOpt.value() ) );
+                                r.setMaxInclusive( static_cast<double>( maxIncOptInt.value() ) );
                             }
                             if( auto minIncOpt = restrictionDoc["MinInclusive"].get<double>( "" ) )
                             {
                                 r.setMinInclusive( minIncOpt.value() );
                             }
-                            else if( auto minIncOpt = restrictionDoc["MinInclusive"].get<int64_t>( "" ) )
+                            else if( auto minIncOptInt = restrictionDoc["MinInclusive"].get<int64_t>( "" ) )
                             {
-                                r.setMinInclusive( static_cast<double>( minIncOpt.value() ) );
+                                r.setMinInclusive( static_cast<double>( minIncOptInt.value() ) );
                             }
                             if( auto maxExcOpt = restrictionDoc["MaxExclusive"].get<double>( "" ) )
                             {
                                 r.setMaxExclusive( maxExcOpt.value() );
                             }
-                            else if( auto maxExcOpt = restrictionDoc["MaxExclusive"].get<int64_t>( "" ) )
+                            else if( auto maxExcOptInt = restrictionDoc["MaxExclusive"].get<int64_t>( "" ) )
                             {
-                                r.setMaxExclusive( static_cast<double>( maxExcOpt.value() ) );
+                                r.setMaxExclusive( static_cast<double>( maxExcOptInt.value() ) );
                             }
                             if( auto minExcOpt = restrictionDoc["MinExclusive"].get<double>( "" ) )
                             {
                                 r.setMinExclusive( minExcOpt.value() );
                             }
-                            else if( auto minExcOpt = restrictionDoc["MinExclusive"].get<int64_t>( "" ) )
+                            else if( auto minExcOptInt = restrictionDoc["MinExclusive"].get<int64_t>( "" ) )
                             {
-                                r.setMinExclusive( static_cast<double>( minExcOpt.value() ) );
+                                r.setMinExclusive( static_cast<double>( minExcOptInt.value() ) );
                             }
                             // Length constraints
                             if( auto fracDigitsOpt = restrictionDoc["FractionDigits"].get<int64_t>( "" ) )
                             {
                                 r.setFractionDigits( static_cast<uint32_t>( fracDigitsOpt.value() ) );
                             }
-                            else if( auto fracDigitsOpt = restrictionDoc["FractionDigits"].get<uint64_t>( "" ) )
+                            else if( auto fracDigitsOptUInt = restrictionDoc["FractionDigits"].get<uint64_t>( "" ) )
                             {
-                                r.setFractionDigits( static_cast<uint32_t>( fracDigitsOpt.value() ) );
+                                r.setFractionDigits( static_cast<uint32_t>( fracDigitsOptUInt.value() ) );
                             }
                             if( auto maxLengthOpt = restrictionDoc["MaxLength"].get<int64_t>( "" ) )
                             {
                                 r.setMaxLength( static_cast<uint32_t>( maxLengthOpt.value() ) );
                             }
-                            else if( auto maxLengthOpt = restrictionDoc["MaxLength"].get<uint64_t>( "" ) )
+                            else if( auto maxLengthOptUInt = restrictionDoc["MaxLength"].get<uint64_t>( "" ) )
                             {
-                                r.setMaxLength( static_cast<uint32_t>( maxLengthOpt.value() ) );
+                                r.setMaxLength( static_cast<uint32_t>( maxLengthOptUInt.value() ) );
                             }
                             if( auto minLengthOpt = restrictionDoc["MinLength"].get<int64_t>( "" ) )
                             {
                                 r.setMinLength( static_cast<uint32_t>( minLengthOpt.value() ) );
                             }
-                            else if( auto minLengthOpt = restrictionDoc["MinLength"].get<uint64_t>( "" ) )
+                            else if( auto minLengthOptUInt = restrictionDoc["MinLength"].get<uint64_t>( "" ) )
                             {
-                                r.setMinLength( static_cast<uint32_t>( minLengthOpt.value() ) );
+                                r.setMinLength( static_cast<uint32_t>( minLengthOptUInt.value() ) );
                             }
                             if( auto lengthOpt = restrictionDoc["Length"].get<int64_t>( "" ) )
                             {
                                 r.setLength( static_cast<uint32_t>( lengthOpt.value() ) );
                             }
-                            else if( auto lengthOpt = restrictionDoc["Length"].get<uint64_t>( "" ) )
+                            else if( auto lengthOptUInt = restrictionDoc["Length"].get<uint64_t>( "" ) )
                             {
-                                r.setLength( static_cast<uint32_t>( lengthOpt.value() ) );
+                                r.setLength( static_cast<uint32_t>( lengthOptUInt.value() ) );
                             }
                             if( auto totalDigitsOpt = restrictionDoc["TotalDigits"].get<int64_t>( "" ) )
                             {
                                 r.setTotalDigits( static_cast<uint32_t>( totalDigitsOpt.value() ) );
                             }
-                            else if( auto totalDigitsOpt = restrictionDoc["TotalDigits"].get<uint64_t>( "" ) )
+                            else if( auto totalDigitsOptUInt = restrictionDoc["TotalDigits"].get<uint64_t>( "" ) )
                             {
-                                r.setTotalDigits( static_cast<uint32_t>( totalDigitsOpt.value() ) );
+                                r.setTotalDigits( static_cast<uint32_t>( totalDigitsOptUInt.value() ) );
                             }
                             // Pattern
                             if( auto patternOpt = restrictionDoc["Pattern"].get<std::string>( "" ) )
