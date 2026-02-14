@@ -56,8 +56,8 @@ namespace dnv::vista::sdk
         /** @brief Move constructor */
         LocalId( LocalId&& ) noexcept = default;
 
-        /** @brief Destructor */
-        virtual ~LocalId() = default;
+        /** @brief Destructor - defined in .cpp to anchor vtable */
+        virtual ~LocalId();
 
         /**
          * @brief Copy assignment operator

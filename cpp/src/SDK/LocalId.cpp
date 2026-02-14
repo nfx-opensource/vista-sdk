@@ -26,6 +26,10 @@ namespace dnv::vista::sdk
         }
     }
 
+    LocalId::~LocalId()
+    {
+    }
+
     std::optional<LocalId> LocalId::fromString( std::string_view localIdStr ) noexcept
     {
         return LocalIdBuilder::fromString( localIdStr );
