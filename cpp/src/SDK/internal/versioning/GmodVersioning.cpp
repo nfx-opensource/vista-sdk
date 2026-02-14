@@ -305,7 +305,7 @@ namespace dnv::vista::sdk::internal
     std::optional<GmodNode> GmodVersioning::convertNodeInternal(
         VisVersion sourceVersion, const GmodNode& sourceNode, VisVersion targetVersion, const Gmod& targetGmod ) const
     {
-        validateSourceAndTargetVersionPair( sourceNode.version(), targetVersion );
+        validateSourceAndTargetVersionPair( sourceVersion, targetVersion );
 
         // Determine target node code (may change between versions)
         std::string_view nextCode = sourceNode.code();
