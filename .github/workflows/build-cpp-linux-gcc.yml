@@ -57,11 +57,14 @@ jobs:
                 -G "Ninja" \
                 -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
                 -DDNV_VISTA_SDK_CPP_BUILD_STATIC=ON \
-                -DDNV_VISTA_SDK_CPP_BUILD_SHARED=OFF \
+                -DDNV_VISTA_SDK_CPP_BUILD_SHARED=ON \
                 -DDNV_VISTA_SDK_CPP_BUILD_TOOLS=ON \
                 -DDNV_VISTA_SDK_CPP_BUILD_TESTS=ON \
                 -DDNV_VISTA_SDK_CPP_BUILD_SMOKE_TESTS=OFF \
-                -DDNV_VISTA_SDK_CPP_BUILD_SAMPLES=ON
+                -DDNV_VISTA_SDK_CPP_BUILD_SAMPLES=ON \
+                -DDNV_VISTA_SDK_CPP_BUILD_BENCHMARKS=ON \
+                -DDNV_VISTA_SDK_CPP_BUILD_DOCUMENTATION=OFF \
+                -DDNV_VISTA_SDK_CPP_LINK_TESTS_SHARED=ON
 
       - name: Build
         run: cmake --build build --parallel
