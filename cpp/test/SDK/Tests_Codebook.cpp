@@ -30,14 +30,16 @@ namespace dnv::vista::sdk::test
     static std::vector<std::pair<std::string, std::string>> LoadValidPositionData()
     {
         auto doc = EmbeddedTestData::load<Document>( "Codebook.json" ).value();
-        const auto& array = doc["ValidPosition"].rootRef<Array>().value().get();
+        auto arrayRef = doc["ValidPosition"].rootRef<Array>().value();
+        const auto& array = arrayRef.get();
 
         std::vector<std::pair<std::string, std::string>> result;
         result.reserve( array.size() );
 
         for( const auto& elem : array )
         {
-            const auto& item = elem.rootRef<Array>().value().get();
+            auto itemRef = elem.rootRef<Array>().value();
+            const auto& item = itemRef.get();
             auto key = item[0].root<std::string>();
             auto value = item[1].root<std::string>();
             if( key && value )
@@ -56,14 +58,16 @@ namespace dnv::vista::sdk::test
     static std::vector<std::pair<std::string, std::string>> LoadPositionsData()
     {
         auto doc = EmbeddedTestData::load<Document>( "Codebook.json" ).value();
-        const auto& array = doc["Positions"].rootRef<nfx::json::Array>().value().get();
+        auto arrayRef = doc["Positions"].rootRef<nfx::json::Array>().value();
+        const auto& array = arrayRef.get();
 
         std::vector<std::pair<std::string, std::string>> result;
         result.reserve( array.size() );
 
         for( const auto& elem : array )
         {
-            const auto& item = elem.rootRef<nfx::json::Array>().value().get();
+            auto itemRef = elem.rootRef<nfx::json::Array>().value();
+            const auto& item = itemRef.get();
             auto key = item[0].root<std::string>();
             auto value = item[1].root<std::string>();
             if( key && value )
@@ -83,14 +87,16 @@ namespace dnv::vista::sdk::test
     static std::vector<std::tuple<std::string, std::string, std::string, std::string>> LoadStatesData()
     {
         auto doc = EmbeddedTestData::load<Document>( "Codebook.json" ).value();
-        const auto& array = doc["States"].rootRef<nfx::json::Array>().value().get();
+        auto arrayRef = doc["States"].rootRef<nfx::json::Array>().value();
+        const auto& array = arrayRef.get();
 
         std::vector<std::tuple<std::string, std::string, std::string, std::string>> result;
         result.reserve( array.size() );
 
         for( const auto& elem : array )
         {
-            const auto& item = elem.rootRef<nfx::json::Array>().value().get();
+            auto itemRef = elem.rootRef<nfx::json::Array>().value();
+            const auto& item = itemRef.get();
             auto v0 = item[0].root<std::string>();
             auto v1 = item[1].root<std::string>();
             auto v2 = item[2].root<std::string>();
@@ -114,7 +120,8 @@ namespace dnv::vista::sdk::test
     LoadTagData()
     {
         auto doc = EmbeddedTestData::load<Document>( "Codebook.json" ).value();
-        const auto& array = doc["Tag"].rootRef<nfx::json::Array>().value().get();
+        auto arrayRef = doc["Tag"].rootRef<nfx::json::Array>().value();
+        const auto& array = arrayRef.get();
 
         std::vector<
             std::tuple<std::string, std::string, std::string, char, std::string, char, std::string, std::string>>
@@ -123,7 +130,8 @@ namespace dnv::vista::sdk::test
 
         for( const auto& elem : array )
         {
-            const auto& item = elem.rootRef<nfx::json::Array>().value().get();
+            auto itemRef = elem.rootRef<nfx::json::Array>().value();
+            const auto& item = itemRef.get();
             auto firstTag = item[0].root<std::string>();
             auto secondTag = item[1].root<std::string>();
             auto thirdTag = item[2].root<std::string>();
@@ -160,14 +168,16 @@ namespace dnv::vista::sdk::test
     static std::vector<std::tuple<std::string, std::string, std::string>> LoadDetailTagData()
     {
         auto doc = EmbeddedTestData::load<Document>( "Codebook.json" ).value();
-        const auto& array = doc["DetailTag"].rootRef<nfx::json::Array>().value().get();
+        auto arrayRef = doc["DetailTag"].rootRef<nfx::json::Array>().value();
+        const auto& array = arrayRef.get();
 
         std::vector<std::tuple<std::string, std::string, std::string>> result;
         result.reserve( array.size() );
 
         for( const auto& elem : array )
         {
-            const auto& item = elem.rootRef<nfx::json::Array>().value().get();
+            auto itemRef = elem.rootRef<nfx::json::Array>().value();
+            const auto& item = itemRef.get();
             auto v0 = item[0].root<std::string>();
             auto v1 = item[1].root<std::string>();
             auto v2 = item[2].root<std::string>();

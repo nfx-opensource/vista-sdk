@@ -41,7 +41,8 @@ namespace dnv::vista::sdk::test
         if( arrayDoc.type() != nfx::json::Type::Array )
             return {};
 
-        const auto& array = arrayDoc.rootRef<Array>().value().get();
+        auto arrayRef = arrayDoc.rootRef<Array>().value();
+        const auto& array = arrayRef.get();
 
         std::vector<ImoNumberTestData> result;
         result.reserve( array.size() );
@@ -51,7 +52,8 @@ namespace dnv::vista::sdk::test
             if( elem.type() != nfx::json::Type::Object )
                 continue;
 
-            const auto& obj = elem.rootRef<Object>().value().get();
+            auto objRef = elem.rootRef<Object>().value();
+            const auto& obj = objRef.get();
 
             ImoNumberTestData data;
 

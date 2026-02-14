@@ -204,8 +204,8 @@ namespace dnv::vista::sdk::test
         const auto& vis = VIS::instance();
         const auto& gmod = vis.gmod( VisVersion::v3_4a );
 
-        bool completed = gmod.traverse(
-            [&]( const Gmod::TraversalPath& parents, const GmodNode& node ) -> TraversalHandlerResult {
+        bool completed =
+            gmod.traverse( [&]( const Gmod::TraversalPath& parents, const GmodNode& node ) -> TraversalHandlerResult {
                 if( parents.isEmpty() )
                 {
                     return TraversalHandlerResult::Continue;
@@ -288,9 +288,7 @@ namespace dnv::vista::sdk::test
     {
         const auto& vis = VIS::instance();
         const auto& sourceGmod = vis.gmod( VisVersion::v3_7a );
-        const auto& targetGmod = vis.gmod( VisVersion::v3_9a );
         const auto& sourceLocations = vis.locations( VisVersion::v3_7a );
-        const auto& targetLocations = vis.locations( VisVersion::v3_9a );
 
         ParsingErrors errors;
         auto sourcePath = GmodPath::fromShortPath( "691.811i-A", sourceGmod, sourceLocations, errors );
@@ -365,7 +363,8 @@ namespace dnv::vista::sdk::test
     static std::vector<GmodPathTestItem> LoadValidGmodPaths()
     {
         auto doc = EmbeddedTestData::load<Document>( "GmodPaths.json" ).value();
-        const auto& array = doc["Valid"].rootRef<Array>().value().get();
+        auto arrayRef = doc["Valid"].rootRef<Array>().value();
+        const auto& array = arrayRef.get();
 
         std::vector<GmodPathTestItem> result;
         result.reserve( array.size() );
@@ -375,7 +374,8 @@ namespace dnv::vista::sdk::test
             if( elem.type() != nfx::json::Type::Object )
                 continue;
 
-            const auto& item = elem.rootRef<Object>().value().get();
+            auto itemRef = elem.rootRef<Object>().value();
+            const auto& item = itemRef.get();
 
             GmodPathTestItem data;
 

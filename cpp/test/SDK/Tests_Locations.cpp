@@ -40,7 +40,8 @@ namespace dnv::vista::sdk::test
     static std::vector<LocationTestCase> LoadLocationTestData()
     {
         auto doc = EmbeddedTestData::load<Document>( "Locations.json" ).value();
-        const auto& array = doc["locations"].rootRef<Array>().value().get();
+        auto arrayRef = doc["locations"].rootRef<Array>().value();
+        const auto& array = arrayRef.get();
 
         std::vector<LocationTestCase> result;
         result.reserve( array.size() );
@@ -50,7 +51,8 @@ namespace dnv::vista::sdk::test
             if( elem.type() != nfx::json::Type::Object )
                 continue;
 
-            const auto& item = elem.rootRef<Object>().value().get();
+            auto itemRef = elem.rootRef<Object>().value();
+            const auto& item = itemRef.get();
 
             LocationTestCase testCase;
 
@@ -98,7 +100,8 @@ namespace dnv::vista::sdk::test
                 }
                 else if( key == "expectedErrorMessages" && value.type() == nfx::json::Type::Array )
                 {
-                    const auto& errArray = value.rootRef<Array>().value().get();
+                    auto errArrayRef = value.rootRef<Array>().value();
+                    const auto& errArray = errArrayRef.get();
                     for( const auto& errElem : errArray )
                     {
                         if( errElem.type() == nfx::json::Type::String )

@@ -42,7 +42,8 @@ namespace dnv::vista::sdk::test
     static std::vector<GmodPathTestItem> LoadValidGmodPaths()
     {
         auto doc = EmbeddedTestData::load<Document>( "GmodPaths.json" ).value();
-        const auto& array = doc["Valid"].rootRef<Array>().value().get();
+        auto arrayRef = doc["Valid"].rootRef<Array>().value();
+        auto array = arrayRef.get();
 
         std::vector<GmodPathTestItem> result;
         result.reserve( array.size() );
@@ -52,7 +53,8 @@ namespace dnv::vista::sdk::test
             if( elem.type() != nfx::json::Type::Object )
                 continue;
 
-            const auto& item = elem.rootRef<Object>().value().get();
+            auto itemRef = elem.rootRef<Object>().value();
+            const auto& item = itemRef.get();
 
             GmodPathTestItem data;
 
@@ -90,7 +92,8 @@ namespace dnv::vista::sdk::test
     static std::vector<GmodPathTestItem> LoadInvalidGmodPaths()
     {
         auto doc = EmbeddedTestData::load<Document>( "GmodPaths.json" ).value();
-        const auto& array = doc["Invalid"].rootRef<Array>().value().get();
+        auto arrayRef = doc["Invalid"].rootRef<Array>().value();
+        const auto& array = arrayRef.get();
 
         std::vector<GmodPathTestItem> result;
         result.reserve( array.size() );
@@ -100,7 +103,8 @@ namespace dnv::vista::sdk::test
             if( elem.type() != nfx::json::Type::Object )
                 continue;
 
-            const auto& item = elem.rootRef<Object>().value().get();
+            auto itemRef = elem.rootRef<Object>().value();
+            const auto& item = itemRef.get();
 
             GmodPathTestItem data;
 
@@ -162,7 +166,8 @@ namespace dnv::vista::sdk::test
             return result;
         }
 
-        const auto& array = doc.rootRef<Array>().value().get();
+        auto arrayRef = doc.rootRef<Array>().value();
+        const auto& array = arrayRef.get();
         result.reserve( array.size() );
 
         for( const auto& elem : array )
@@ -170,7 +175,8 @@ namespace dnv::vista::sdk::test
             if( elem.type() != nfx::json::Type::Object )
                 continue;
 
-            const auto& item = elem.rootRef<Object>().value().get();
+            auto itemRef = elem.rootRef<Object>().value();
+            const auto& item = itemRef.get();
 
             IndividualizableSetTestItem data;
 
@@ -194,7 +200,8 @@ namespace dnv::vista::sdk::test
                 }
                 else if( key == "expected" && value.type() == nfx::json::Type::Array )
                 {
-                    const auto& expectedArray = value.rootRef<Array>().value().get();
+                    auto expectedArrayRef = value.rootRef<Array>().value();
+                    const auto& expectedArray = expectedArrayRef.get();
                     std::vector<std::vector<std::string>> expected;
                     expected.reserve( expectedArray.size() );
 
@@ -203,7 +210,8 @@ namespace dnv::vista::sdk::test
                         if( setElem.type() != nfx::json::Type::Array )
                             continue;
 
-                        const auto& setArray = setElem.rootRef<Array>().value().get();
+                        auto setArrayRef = setElem.rootRef<Array>().value();
+                        const auto& setArray = setArrayRef.get();
                         std::vector<std::string> set;
                         set.reserve( setArray.size() );
 
