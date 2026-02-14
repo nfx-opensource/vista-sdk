@@ -326,6 +326,11 @@ namespace
             return max;
         }
 
+        VisVersion visVersion() const
+        {
+            return m_visVersion;
+        }
+
         std::string toJson() const
         {
             return m_root ? m_root->toJson() : "{}";
@@ -442,6 +447,12 @@ int main()
             std::cout << codes[i];
         }
         std::cout << "]\n\n";
+
+        // Demonstrate visVersion() getter - useful for metadata and compatibility checks
+        std::cout << "Model Metadata:\n";
+        std::cout << "VIS Version   : " << VisVersions::toString( model.visVersion() ) << "\n";
+        std::cout << "Total nodes   : " << model.nodeCount() << "\n";
+        std::cout << "Maximum depth : " << model.maxDepth() << "\n\n";
 
         std::cout << "Asset Model Tree:\n\n";
         model.printTree();
