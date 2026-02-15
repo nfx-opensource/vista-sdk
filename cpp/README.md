@@ -202,6 +202,9 @@ option(DNV_VISTA_SDK_CPP_BUILD_SAMPLES       "Build samples"        OFF)
 option(DNV_VISTA_SDK_CPP_BUILD_BENCHMARKS    "Build benchmarks"     OFF)
 option(DNV_VISTA_SDK_CPP_BUILD_DOCUMENTATION "Build documentation"  OFF)
 
+# --- Optimization options ---
+option(DNV_VISTA_SDK_CPP_ENABLE_SIMD         "Enable SIMD optimizations (disable for WebAssembly/embedded targets)" ON)
+
 # --- Linking options ---
 option(DNV_VISTA_SDK_CPP_LINK_TESTS_SHARED   "Link samples, tests, tools and benchmarks to shared library instead of static" ON)
 

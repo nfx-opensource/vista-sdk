@@ -33,11 +33,13 @@ target_include_directories(Tests_EmbeddedTestData
 # Enable specific CPU features
 #----------------------------------------------
 
-target_compile_options(Tests_EmbeddedTestData
-    PRIVATE
-        $<$<CXX_COMPILER_ID:MSVC>:/arch:AVX2>
-        $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-march=native>
-)
+if(DNV_VISTA_SDK_CPP_ENABLE_SIMD)
+    target_compile_options(Tests_EmbeddedTestData
+        PRIVATE
+            $<$<CXX_COMPILER_ID:MSVC>:/arch:AVX2>
+            $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-march=native>
+    )
+endif()
 
 #----------------------------------------------
 # Target properties

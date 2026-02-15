@@ -48,11 +48,13 @@ target_link_libraries(dnv-vista-cpp-embeddedtestdata
         nfx::meta
 )
 
-target_compile_options(dnv-vista-cpp-embeddedtestdata
-    PRIVATE
-        $<$<CXX_COMPILER_ID:MSVC>:/arch:AVX2>
-        $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-march=native>
-)
+if(DNV_VISTA_SDK_CPP_ENABLE_SIMD)
+    target_compile_options(dnv-vista-cpp-embeddedtestdata
+        PRIVATE
+            $<$<CXX_COMPILER_ID:MSVC>:/arch:AVX2>
+            $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-march=native>
+    )
+endif()
 
 #----------------------------------------------
 # GoogleTest dependency
@@ -195,11 +197,13 @@ foreach(test_source ${test_sources})
         # Enable specific CPU features
         #----------------------------------------------
 
-        target_compile_options(${test_target_name}
-            PRIVATE
-                $<$<CXX_COMPILER_ID:MSVC>:/arch:AVX2>
-                $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-march=native>
-        )
+        if(DNV_VISTA_SDK_CPP_ENABLE_SIMD)
+            target_compile_options(${test_target_name}
+                PRIVATE
+                    $<$<CXX_COMPILER_ID:MSVC>:/arch:AVX2>
+                    $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-march=native>
+            )
+        endif()
 
         #----------------------------------------------
         # Compiler warnings
