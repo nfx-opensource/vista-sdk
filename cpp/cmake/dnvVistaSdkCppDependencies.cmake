@@ -19,7 +19,7 @@ set(CMAKE_FIND_QUIETLY      ON     )
 #----------------------------------------------
 
 set(DNV_VISTA_SDK_CPP_DEPS_ZLIB_NG_VERSION "2.3.3")
-set(DNV_VISTA_SDK_CPP_NFX_META_VERSION     "1.2.0")
+set(DNV_VISTA_SDK_CPP_NFX_META_VERSION     "1.3.0")
 
 #----------------------------------------------
 # FetchContent dependencies
